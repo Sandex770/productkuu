@@ -78,7 +78,6 @@
     </style>
 </head>
 <body>
-    <!-- NAVBAR -->
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
@@ -90,7 +89,6 @@
         </div>
     </nav>
 
-    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header"><div class="title">Menu Admin</div></div>
         <nav class="sidebar-nav">
@@ -106,7 +104,6 @@
     </aside>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- MAIN CONTENT -->
     <div class="app-wrapper">
         <main class="main-content">
             <div class="flex-between" style="margin-bottom:24px;">
@@ -165,13 +162,19 @@
     </script>
 
     <script type="module">
+        // ============================================
+        // CONSOLE LOG - PAGE LOADED
+        // ============================================
+        console.log('📊 [ADMIN_DASHBOARD] Page loaded successfully');
+        console.log('📌 [ADMIN_DASHBOARD] URL:', window.location.href);
+        console.log('📌 [ADMIN_DASHBOARD] User Agent:', navigator.userAgent);
+
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, getCountFromServer, onSnapshot } from "firebase/firestore";
 
-        // ============================================
-        // FIREBASE CONFIG
-        // ============================================
+        console.log('✅ [ADMIN_DASHBOARD] Firebase modules imported');
+
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
             authDomain: "productkuu.firebaseapp.com",
@@ -182,14 +185,21 @@
             measurementId: "G-78ZPLZMFEJ"
         };
 
+        console.log('📌 [ADMIN_DASHBOARD] Firebase Config loaded');
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        let currentUser = null;
 
-        // ============================================
-        // THEME TOGGLE
-        // ============================================
+        console.log('✅ [ADMIN_DASHBOARD] Firebase initialized');
+        console.log('📌 [ADMIN_DASHBOARD] Auth:', auth);
+        console.log('📌 [ADMIN_DASHBOARD] Firestore:', db);
+
+        let currentUser = null;
+        let userData = null;
+
+        // Theme
+        console.log('🎨 [ADMIN_DASHBOARD] Setting up theme...');
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -198,56 +208,61 @@
             document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
             localStorage.setItem('darkMode', darkMode);
             themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+            console.log('🌓 [ADMIN_DASHBOARD] Theme toggled:', darkMode ? 'dark' : 'light');
         });
 
-        // ============================================
-        // SIDEBAR
-        // ============================================
+        // Sidebar
+        console.log('📂 [ADMIN_DASHBOARD] Setting up sidebar...');
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
-        document.getElementById('sidebarToggle').addEventListener('click', () => { 
-            sidebar.classList.toggle('open'); 
-            sidebarOverlay.classList.toggle('open'); 
-        });
-        sidebarOverlay.addEventListener('click', () => { 
-            sidebar.classList.remove('open'); 
-            sidebarOverlay.classList.remove('open'); 
-        });
+        const sidebarToggle = document.getElementById('sidebarToggle');
 
-        // ============================================
-        // SIDEBAR NAVIGATION
-        // ============================================
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('open');
+                console.log('📂 [ADMIN_DASHBOARD] Sidebar toggled');
+            });
+        }
+
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('open');
+                console.log('📂 [ADMIN_DASHBOARD] Sidebar closed via overlay');
+            });
+        }
+
+        // Sidebar navigation
+        console.log('🔗 [ADMIN_DASHBOARD] Setting up sidebar navigation...');
         document.querySelectorAll('.sidebar-nav a').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
                 const href = this.getAttribute('href');
+                console.log(`🔗 [ADMIN_DASHBOARD] Navigating to: ${href}`);
                 if (href) window.location.href = href;
             });
         });
 
-        // ============================================
-        // LOGOUT
-        // ============================================
+        // Logout
+        console.log('🚪 [ADMIN_DASHBOARD] Setting up logout...');
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            try { 
-                await signOut(auth); 
-                window.location.href = '/'; 
-            } catch (error) { 
-                showToast('error', 'Gagal logout'); 
+            console.log('🚪 [ADMIN_DASHBOARD] Logout clicked');
+            try {
+                await signOut(auth);
+                console.log('✅ [ADMIN_DASHBOARD] Logout successful');
+                window.location.href = '/';
+            } catch (error) {
+                console.error('❌ [ADMIN_DASHBOARD] Logout error:', error);
+                showToast('error', 'Gagal logout');
             }
         });
 
-        // ============================================
-        // TOAST
-        // ============================================
+        // Toast
         function showToast(type, message) {
+            console.log(`📢 [ADMIN_DASHBOARD] Toast: ${type} - ${message}`);
             const container = document.getElementById('toastContainer');
-            const colors = { 
-                success: 'var(--success)', 
-                error: 'var(--danger)', 
-                warning: 'var(--warning)', 
-                info: 'var(--info)' 
-            };
+            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.style.borderLeftColor = colors[type] || colors.info;
@@ -261,42 +276,43 @@
         }
         window.showToast = showToast;
 
-        // ============================================
-        // FORMAT FUNCTIONS
-        // ============================================
-        function formatPrice(price) { 
-            if (!price && price !== 0) return '0'; 
-            return new Intl.NumberFormat('id-ID').format(price); 
+        // Format functions
+        function formatPrice(price) {
+            if (!price && price !== 0) return '0';
+            return new Intl.NumberFormat('id-ID').format(price);
         }
-        
-        function formatDate(date) { 
-            if (!date) return '-'; 
-            const d = date instanceof Date ? date : new Date(date); 
-            return d.toLocaleDateString('id-ID', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric', 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            }); 
+        window.formatPrice = formatPrice;
+
+        function formatDate(date) {
+            if (!date) return '-';
+            const d = date instanceof Date ? date : new Date(date);
+            return d.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
+        window.formatDate = formatDate;
 
         // ============================================
         // AUTH STATE
         // ============================================
+        console.log('🔄 [ADMIN_DASHBOARD] Setting up auth state listener...');
         onAuthStateChanged(auth, async (user) => {
-            if (!user) { 
-                window.location.href = '/admin/login'; 
-                return; 
+            console.log('🔍 [ADMIN_DASHBOARD] Auth state changed. User:', user ? user.email : 'null');
+            if (!user) {
+                console.warn('⚠️ [ADMIN_DASHBOARD] User not logged in, redirecting to admin login...');
+                window.location.href = '/admin/login';
+                return;
             }
             currentUser = user;
+            console.log('✅ [ADMIN_DASHBOARD] User logged in:', user.email);
             const userRef = doc(db, 'users', user.uid);
             const userDoc = await getDoc(userRef);
-            if (!userDoc.exists() || userDoc.data().role !== 'admin') { 
-                window.location.href = '/'; 
-                return; 
+            if (!userDoc.exists() || userDoc.data().role !== 'admin') {
+                console.error('❌ [ADMIN_DASHBOARD] User is not admin, redirecting...');
+                window.location.href = '/';
+                return;
             }
-            document.getElementById('welcomeMessage').textContent = `Selamat datang, ${userDoc.data().displayName || 'Admin'}!`;
+            userData = { id: userDoc.id, ...userDoc.data() };
+            console.log('✅ [ADMIN_DASHBOARD] User data loaded:', userData);
+            document.getElementById('welcomeMessage').textContent = `Selamat datang, ${userData.displayName || 'Admin'}!`;
             await loadDashboardData();
             setupRealtimeListeners();
         });
@@ -305,48 +321,60 @@
         // LOAD DASHBOARD DATA
         // ============================================
         async function loadDashboardData() {
+            console.log('📊 [ADMIN_DASHBOARD] Loading dashboard data...');
             try {
                 // Total Sellers
+                console.log('👥 [ADMIN_DASHBOARD] Fetching total sellers...');
                 const sellersCount = await getCountFromServer(
                     query(collection(db, 'users'), where('role', '==', 'seller'))
                 );
                 const totalSellers = sellersCount.data().count;
                 document.getElementById('totalSellers').textContent = totalSellers;
                 document.getElementById('sellerCount').textContent = totalSellers;
+                console.log('✅ [ADMIN_DASHBOARD] Total sellers:', totalSellers);
 
                 // Total Products
+                console.log('📦 [ADMIN_DASHBOARD] Fetching total products...');
                 const productsCount = await getCountFromServer(
                     query(collection(db, 'products'), where('status', '==', 'published'))
                 );
                 const totalProducts = productsCount.data().count;
                 document.getElementById('totalProducts').textContent = totalProducts;
                 document.getElementById('productCount').textContent = totalProducts;
+                console.log('✅ [ADMIN_DASHBOARD] Total products:', totalProducts);
 
                 // Total Orders
+                console.log('📦 [ADMIN_DASHBOARD] Fetching total orders...');
                 const ordersCount = await getCountFromServer(
                     query(collection(db, 'orders'), where('paymentStatus', '==', 'settlement'))
                 );
                 const totalOrders = ordersCount.data().count;
                 document.getElementById('totalOrders').textContent = totalOrders;
                 document.getElementById('orderCount').textContent = totalOrders;
+                console.log('✅ [ADMIN_DASHBOARD] Total orders:', totalOrders);
 
                 // Total Revenue
+                console.log('💰 [ADMIN_DASHBOARD] Fetching total revenue...');
                 const revenueSnapshot = await getDocs(
                     query(collection(db, 'orders'), where('paymentStatus', '==', 'settlement'))
                 );
                 let totalRevenue = 0;
                 revenueSnapshot.forEach(doc => { totalRevenue += doc.data().amount || 0; });
                 document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
+                console.log('✅ [ADMIN_DASHBOARD] Total revenue:', totalRevenue);
 
                 // Pending Withdrawals
+                console.log('💰 [ADMIN_DASHBOARD] Fetching pending withdrawals...');
                 const pendingCount = await getCountFromServer(
                     query(collection(db, 'withdrawals'), where('status', '==', 'pending'))
                 );
                 const pending = pendingCount.data().count;
                 document.getElementById('pendingWithdrawals').textContent = pending;
                 document.getElementById('pendingWithdrawCount').textContent = pending;
+                console.log('✅ [ADMIN_DASHBOARD] Pending withdrawals:', pending);
 
                 // Active Banners
+                console.log('🖼️ [ADMIN_DASHBOARD] Fetching active banners...');
                 const now = new Date();
                 const activeBanners = await getCountFromServer(
                     query(
@@ -356,20 +384,24 @@
                     )
                 );
                 document.getElementById('activeBanners').textContent = activeBanners.data().count;
+                console.log('✅ [ADMIN_DASHBOARD] Active banners:', activeBanners.data().count);
 
-                // Total Commission (10%)
+                // Total Commission
                 document.getElementById('totalCommission').textContent = `Rp${formatPrice(Math.round(totalRevenue * 0.1))}`;
+                console.log('✅ [ADMIN_DASHBOARD] Total commission:', Math.round(totalRevenue * 0.1));
 
                 // Total Reviews
+                console.log('⭐ [ADMIN_DASHBOARD] Fetching total reviews...');
                 const reviewsCount = await getCountFromServer(collection(db, 'reviews'));
                 document.getElementById('totalReviews').textContent = reviewsCount.data().count;
+                console.log('✅ [ADMIN_DASHBOARD] Total reviews:', reviewsCount.data().count);
 
                 await loadRecentOrders();
                 await loadPendingWithdrawals();
                 await renderCharts();
-
+                console.log('✅ [ADMIN_DASHBOARD] Dashboard data loaded successfully');
             } catch (error) { 
-                console.error('Error loading dashboard data:', error); 
+                console.error('❌ [ADMIN_DASHBOARD] Error loading dashboard data:', error); 
                 showToast('error', 'Gagal memuat data dashboard'); 
             }
         }
@@ -378,14 +410,17 @@
         // LOAD RECENT ORDERS
         // ============================================
         async function loadRecentOrders() {
+            console.log('📋 [ADMIN_DASHBOARD] Loading recent orders...');
             try {
                 const q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'), limit(5));
                 const snapshot = await getDocs(q);
                 const container = document.getElementById('recentOrders');
                 if (snapshot.empty) { 
+                    console.log('ℹ️ [ADMIN_DASHBOARD] No recent orders found');
                     container.innerHTML = `<div class="text-center text-secondary" style="padding:12px 0;">Belum ada order</div>`; 
                     return; 
                 }
+                console.log(`✅ [ADMIN_DASHBOARD] Found ${snapshot.size} recent orders`);
                 const statusColors = { 
                     'pending': 'badge-warning', 
                     'settlement': 'badge-success', 
@@ -403,7 +438,7 @@
                     </div>`;
                 }).join('');
             } catch (error) { 
-                console.error('Error loading recent orders:', error); 
+                console.error('❌ [ADMIN_DASHBOARD] Error loading recent orders:', error); 
                 document.getElementById('recentOrders').innerHTML = '<div class="text-center" style="color:var(--danger);">Gagal memuat order</div>'; 
             }
         }
@@ -412,6 +447,7 @@
         // LOAD PENDING WITHDRAWALS
         // ============================================
         async function loadPendingWithdrawals() {
+            console.log('💰 [ADMIN_DASHBOARD] Loading pending withdrawals...');
             try {
                 const q = query(
                     collection(db, 'withdrawals'), 
@@ -422,9 +458,11 @@
                 const snapshot = await getDocs(q);
                 const container = document.getElementById('pendingWithdrawalsList');
                 if (snapshot.empty) { 
+                    console.log('ℹ️ [ADMIN_DASHBOARD] No pending withdrawals found');
                     container.innerHTML = `<div class="text-center text-secondary" style="padding:12px 0;">Tidak ada withdraw pending</div>`; 
                     return; 
                 }
+                console.log(`✅ [ADMIN_DASHBOARD] Found ${snapshot.size} pending withdrawals`);
                 container.innerHTML = snapshot.docs.map(doc => {
                     const w = doc.data();
                     return `<div class="activity-item">
@@ -438,7 +476,7 @@
                     </div>`;
                 }).join('');
             } catch (error) { 
-                console.error('Error loading pending withdrawals:', error); 
+                console.error('❌ [ADMIN_DASHBOARD] Error loading pending withdrawals:', error); 
                 document.getElementById('pendingWithdrawalsList').innerHTML = '<div class="text-center" style="color:var(--danger);">Gagal memuat withdraw</div>'; 
             }
         }
@@ -447,6 +485,7 @@
         // WITHDRAWAL ACTIONS
         // ============================================
         window.approveWithdrawal = async function(id) {
+            console.log(`✅ [ADMIN_DASHBOARD] Approving withdrawal: ${id}`);
             if (!confirm('Setujui permintaan withdraw ini?')) return;
             try {
                 const response = await fetch(`/api/admin/withdrawals/${id}`, {
@@ -455,15 +494,17 @@
                     body: JSON.stringify({ status: 'approved', adminNote: 'Disetujui admin' })
                 });
                 if (!response.ok) throw new Error('Gagal menyetujui withdraw');
+                console.log('✅ [ADMIN_DASHBOARD] Withdrawal approved');
                 showToast('success', 'Withdraw disetujui');
                 await loadDashboardData();
             } catch (error) { 
-                console.error('Error approving withdrawal:', error); 
+                console.error('❌ [ADMIN_DASHBOARD] Error approving withdrawal:', error); 
                 showToast('error', error.message); 
             }
         };
 
         window.rejectWithdrawal = async function(id) {
+            console.log(`❌ [ADMIN_DASHBOARD] Rejecting withdrawal: ${id}`);
             const note = prompt('Alasan penolakan:');
             if (note === null) return;
             try {
@@ -476,10 +517,11 @@
                     })
                 });
                 if (!response.ok) throw new Error('Gagal menolak withdraw');
+                console.log('✅ [ADMIN_DASHBOARD] Withdrawal rejected');
                 showToast('success', 'Withdraw ditolak');
                 await loadDashboardData();
             } catch (error) { 
-                console.error('Error rejecting withdrawal:', error); 
+                console.error('❌ [ADMIN_DASHBOARD] Error rejecting withdrawal:', error); 
                 showToast('error', error.message); 
             }
         };
@@ -488,38 +530,48 @@
         // RENDER CHARTS
         // ============================================
         async function renderCharts() {
-            const days = 7;
-            const dates = [], salesData = [], revenueData = [];
-            for (let i = days - 1; i >= 0; i--) {
-                const date = new Date(); 
-                date.setDate(date.getDate() - i);
-                dates.push(date.toLocaleDateString('id-ID', { weekday: 'short' }));
-                const start = new Date(date); 
-                start.setHours(0,0,0,0);
-                const end = new Date(date); 
-                end.setHours(23,59,59,999);
-                const q = query(
-                    collection(db, 'orders'), 
-                    where('paymentStatus', '==', 'settlement'), 
-                    where('createdAt', '>=', start), 
-                    where('createdAt', '<=', end)
-                );
-                const snapshot = await getDocs(q);
-                let dailySales = 0, dailyRevenue = 0;
-                snapshot.forEach(doc => { 
-                    dailySales += 1; 
-                    dailyRevenue += doc.data().amount || 0; 
-                });
-                salesData.push(dailySales); 
-                revenueData.push(dailyRevenue);
+            console.log('📊 [ADMIN_DASHBOARD] Rendering charts...');
+            try {
+                const days = 7;
+                const dates = [], salesData = [], revenueData = [];
+                for (let i = days - 1; i >= 0; i--) {
+                    const date = new Date(); 
+                    date.setDate(date.getDate() - i);
+                    dates.push(date.toLocaleDateString('id-ID', { weekday: 'short' }));
+                    const start = new Date(date); 
+                    start.setHours(0,0,0,0);
+                    const end = new Date(date); 
+                    end.setHours(23,59,59,999);
+                    const q = query(
+                        collection(db, 'orders'), 
+                        where('paymentStatus', '==', 'settlement'), 
+                        where('createdAt', '>=', start), 
+                        where('createdAt', '<=', end)
+                    );
+                    const snapshot = await getDocs(q);
+                    let dailySales = 0, dailyRevenue = 0;
+                    snapshot.forEach(doc => { 
+                        dailySales += 1; 
+                        dailyRevenue += doc.data().amount || 0; 
+                    });
+                    salesData.push(dailySales); 
+                    revenueData.push(dailyRevenue);
+                }
+                console.log('✅ [ADMIN_DASHBOARD] Chart data prepared:', { salesData, revenueData });
+                renderChart('salesChart', dates, salesData, 'Penjualan');
+                renderChart('revenueChart', dates, revenueData, 'Pendapatan');
+            } catch (error) {
+                console.error('❌ [ADMIN_DASHBOARD] Error rendering charts:', error);
             }
-            renderChart('salesChart', dates, salesData, 'Penjualan');
-            renderChart('revenueChart', dates, revenueData, 'Pendapatan');
         }
 
         function renderChart(id, labels, data, label) {
+            console.log(`📊 [ADMIN_DASHBOARD] Rendering chart: ${id}`);
             const canvas = document.getElementById(id);
-            if (!canvas) return;
+            if (!canvas) {
+                console.warn(`⚠️ [ADMIN_DASHBOARD] Canvas ${id} not found`);
+                return;
+            }
             const ctx = canvas.getContext('2d');
             const rect = canvas.parentElement.getBoundingClientRect();
             canvas.width = rect.width - 40;
@@ -573,19 +625,34 @@
                 ctx.textAlign = 'center';
                 ctx.fillText(labelText, x + barWidth/2, padding + h + 15);
             });
+            console.log('✅ [ADMIN_DASHBOARD] Chart rendered successfully');
         }
 
         // ============================================
         // REALTIME LISTENERS
         // ============================================
         function setupRealtimeListeners() {
-            onSnapshot(collection(db, 'orders'), () => loadDashboardData());
-            onSnapshot(collection(db, 'withdrawals'), () => loadDashboardData());
-            onSnapshot(collection(db, 'products'), () => loadDashboardData());
-            onSnapshot(collection(db, 'users'), () => loadDashboardData());
+            console.log('🔄 [ADMIN_DASHBOARD] Setting up realtime listeners...');
+            onSnapshot(collection(db, 'orders'), () => {
+                console.log('🔄 [ADMIN_DASHBOARD] Orders updated');
+                loadDashboardData();
+            });
+            onSnapshot(collection(db, 'withdrawals'), () => {
+                console.log('🔄 [ADMIN_DASHBOARD] Withdrawals updated');
+                loadDashboardData();
+            });
+            onSnapshot(collection(db, 'products'), () => {
+                console.log('🔄 [ADMIN_DASHBOARD] Products updated');
+                loadDashboardData();
+            });
+            onSnapshot(collection(db, 'users'), () => {
+                console.log('🔄 [ADMIN_DASHBOARD] Users updated');
+                loadDashboardData();
+            });
+            console.log('✅ [ADMIN_DASHBOARD] Realtime listeners set up');
         }
 
-        console.log('📊 Admin Dashboard loaded!');
+        console.log('✅ [ADMIN_DASHBOARD] Page ready!');
     </script>
 </body>
 </html>
