@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - ProductKuu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="icon" href="../../assets/images/favicon.ico">
+    <style>
+        .admin-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .admin-stats-extra { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .admin-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .admin-activity { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .activity-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
+        .activity-item:last-child { border-bottom: none; }
+        @media (max-width: 1024px) { .admin-stats { grid-template-columns: repeat(2, 1fr); } .admin-stats-extra { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .admin-charts { grid-template-columns: 1fr; } .admin-activity { grid-template-columns: 1fr; } }
+        @media (max-width: 480px) { .admin-stats { grid-template-columns: 1fr; } .admin-stats-extra { grid-template-columns: 1fr; } }
+        .chart-box { min-height: 200px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
+            <div class="navbar-actions">
+                <span class="badge badge-primary hide-mobile" style="font-size: 11px;">Admin</span>
+                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <button class="btn-icon" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <aside class="sidebar" id="sidebar">
+        <div style="padding: 0 12px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px;">
+            <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary);">Menu Admin</div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard" class="active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="/admin/sellers"><i class="fas fa-users"></i> Seller <span class="badge-count" id="sellerCount">0</span></a>
+            <a href="/admin/products"><i class="fas fa-box"></i> Produk <span class="badge-count" id="productCount">0</span></a>
+            <a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Order <span class="badge-count" id="orderCount">0</span></a>
+            <a href="/admin/banners"><i class="fas fa-images"></i> Banner</a>
+            <a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Withdraw <span class="badge-count" id="pendingWithdrawCount" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">0</span></a>
+            <a href="/admin/settings"><i class="fas fa-cog"></i> Pengaturan</a>
+            <button onclick="handleLogout()" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: none; background: none; width: 100%; border-radius: var(--radius); color: var(--danger); cursor: pointer; font-family: var(--font); font-size: 14px; font-weight: 500; margin-top: 8px;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </nav>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <main class="main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+            <div><h1 style="font-size: 24px;">Dashboard Admin</h1><p style="color: var(--text-secondary);" id="welcomeMessage">Selamat datang, Admin!</p></div>
+            <button onclick="location.reload()" class="btn btn-secondary btn-sm"><i class="fas fa-sync-alt"></i> Refresh</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="admin-stats" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-info"><span class="stat-label">Total Seller</span><span class="stat-value" id="totalSellers">0</span></div>
+                <div class="stat-icon indigo"><i class="fas fa-users"></i></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info"><span class="stat-label">Total Produk</span><span class="stat-value" id="totalProducts">0</span></div>
+                <div class="stat-icon green"><i class="fas fa-box"></i></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info"><span class="stat-label">Total Order</span><span class="stat-value" id="totalOrders">0</span></div>
+                <div class="stat-icon yellow"><i class="fas fa-shopping-cart"></i></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info"><span class="stat-label">Total Pendapatan</span><span class="stat-value" style="color: var(--primary);" id="totalRevenue">Rp0</span></div>
+                <div class="stat-icon purple"><i class="fas fa-money-bill-wave"></i></div>
+            </div>
+        </div>
+
+        <!-- Extra Stats -->
+        <div class="admin-stats-extra">
+            <div class="stat-card">
+                <div class="stat-info"><span class="stat-label">Withdraw Pending</span><span class="stat-value" style="color: var(--danger);" id="pendingWithdrawals">0</span></div>
+                <div class="stat-icon red"><i class="fas fa-clock"></i></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info"><span class="stat-label">Banner Aktif</span><span class="stat-value" style="color: var(--info);" id="activeBanners">0</span></div>
+                <div class="stat-icon blue"><i class="fas fa-images"></i></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info"><span class="stat-label">Total Komisi</span><span class="stat-value" style="color: var(--secondary);" id="totalCommission">Rp0</span></div>
+                <div class="stat-icon purple"><i class="fas fa-percentage"></i></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info"><span class="stat-label">Total Review</span><span class="stat-value" style="color: var(--success);" id="totalReviews">0</span></div>
+                <div class="stat-icon green"><i class="fas fa-star"></i></div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="admin-charts">
+            <div class="card chart-box">
+                <h4 style="margin-bottom: 12px;">Grafik Penjualan (7 Hari)</h4>
+                <canvas id="salesChart" height="180"></canvas>
+            </div>
+            <div class="card chart-box">
+                <h4 style="margin-bottom: 12px;">Grafik Pendapatan (7 Hari)</h4>
+                <canvas id="revenueChart" height="180"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="admin-activity">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h4>Order Terbaru</h4>
+                    <a href="/admin/orders" style="font-size: 14px; color: var(--primary);">Lihat Semua →</a>
+                </div>
+                <div id="recentOrders">
+                    <div class="text-center" style="color: var(--text-secondary); padding: 20px 0;">Memuat order...</div>
+                </div>
+            </div>
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h4>Withdraw Pending</h4>
+                    <a href="/admin/withdrawals" style="font-size: 14px; color: var(--primary);">Lihat Semua →</a>
+                </div>
+                <div id="pendingWithdrawalsList">
+                    <div class="text-center" style="color: var(--text-secondary); padding: 20px 0;">Memuat withdraw...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script type="module">
+        import { db, auth, collections, collection, doc, getDoc, getDocs, query, where, orderBy, limit, getCountFromServer, onSnapshot, signOut } from '../../js/firebase-config.js';
+        import { showToast, formatPrice, formatDate, navigate } from '../../js/app.js';
+
+        let currentUser = null, userData = null;
+
+        // Theme
+        const themeToggle = document.getElementById('themeToggle');
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.addEventListener('click', () => {
+            darkMode = !darkMode;
+            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+            localStorage.setItem('darkMode', darkMode);
+            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        window.toggleSidebar = function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) { navigate('/seller/login'); return; }
+                currentUser = user;
+                await loadUserData(user.uid);
+                await loadDashboardData();
+                setupRealtimeListeners();
+            });
+        });
+
+        async function loadUserData(uid) {
+            try {
+                const userRef = doc(db, collections.users, uid);
+                const userDoc = await getDoc(userRef);
+                if (!userDoc.exists() || userDoc.data().role !== 'admin') {
+                    showToast('error', 'Akses ditolak');
+                    navigate('/');
+                    return;
+                }
+                userData = { id: userDoc.id, ...userDoc.data() };
+                document.getElementById('welcomeMessage').textContent = `Selamat datang, ${userData.displayName || 'Admin'}!`;
+            } catch (error) { console.error('Error loading user data:', error); showToast('error', 'Gagal memuat data user'); }
+        }
+
+        async function loadDashboardData() {
+            try {
+                // Total Sellers
+                const sellersCount = await getCountFromServer(query(collection(db, collections.users), where('role', '==', 'seller')));
+                const totalSellers = sellersCount.data().count;
+                document.getElementById('totalSellers').textContent = totalSellers;
+                document.getElementById('sellerCount').textContent = totalSellers;
+
+                // Total Products
+                const productsCount = await getCountFromServer(query(collection(db, collections.products), where('status', '==', 'published')));
+                const totalProducts = productsCount.data().count;
+                document.getElementById('totalProducts').textContent = totalProducts;
+                document.getElementById('productCount').textContent = totalProducts;
+
+                // Total Orders
+                const ordersCount = await getCountFromServer(query(collection(db, collections.orders), where('paymentStatus', '==', 'settlement')));
+                const totalOrders = ordersCount.data().count;
+                document.getElementById('totalOrders').textContent = totalOrders;
+                document.getElementById('orderCount').textContent = totalOrders;
+
+                // Total Revenue
+                const revenueSnapshot = await getDocs(query(collection(db, collections.orders), where('paymentStatus', '==', 'settlement')));
+                let totalRevenue = 0;
+                revenueSnapshot.forEach(doc => { totalRevenue += doc.data().amount || 0; });
+                document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
+
+                // Pending Withdrawals
+                const pendingCount = await getCountFromServer(query(collection(db, collections.withdrawals), where('status', '==', 'pending')));
+                const pending = pendingCount.data().count;
+                document.getElementById('pendingWithdrawals').textContent = pending;
+                document.getElementById('pendingWithdrawCount').textContent = pending;
+
+                // Active Banners
+                const now = new Date();
+                const activeBanners = await getCountFromServer(query(collection(db, collections.banners), where('isActive', '==', true), where('expiresAt', '>', now)));
+                document.getElementById('activeBanners').textContent = activeBanners.data().count;
+
+                // Total Commission (10%)
+                document.getElementById('totalCommission').textContent = `Rp${formatPrice(Math.round(totalRevenue * 0.1))}`;
+
+                // Total Reviews
+                const reviewsCount = await getCountFromServer(collection(db, collections.reviews));
+                document.getElementById('totalReviews').textContent = reviewsCount.data().count;
+
+                await loadRecentOrders();
+                await loadPendingWithdrawals();
+                await renderCharts();
+
+            } catch (error) { console.error('Error loading dashboard data:', error); showToast('error', 'Gagal memuat data dashboard'); }
+        }
+
+        async function loadRecentOrders() {
+            try {
+                const q = query(collection(db, collections.orders), orderBy('createdAt', 'desc'), limit(5));
+                const snapshot = await getDocs(q);
+                const container = document.getElementById('recentOrders');
+                if (snapshot.empty) {
+                    container.innerHTML = `<div class="text-center" style="color: var(--text-secondary); padding: 12px 0;">Belum ada order</div>`;
+                    return;
+                }
+                const statusColors = { 'pending': 'badge-warning', 'settlement': 'badge-success', 'failed': 'badge-danger', 'expire': 'badge-danger' };
+                container.innerHTML = snapshot.docs.map(doc => {
+                    const o = doc.data();
+                    return `<div class="activity-item">
+                        <div><strong>${o.productName || 'Product'}</strong><br><span style="font-size: 13px; color: var(--text-secondary);">${o.buyerName} • ${formatDate(o.createdAt)}</span></div>
+                        <div style="text-align: right;">
+                            <span style="font-weight: 600; color: var(--primary);">Rp${formatPrice(o.amount)}</span>
+                            <br><span class="badge ${statusColors[o.paymentStatus] || 'badge-info'}">${o.paymentStatus || o.status}</span>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch (error) { console.error('Error loading recent orders:', error); document.getElementById('recentOrders').innerHTML = '<div class="text-center" style="color: var(--danger);">Gagal memuat order</div>'; }
+        }
+
+        async function loadPendingWithdrawals() {
+            try {
+                const q = query(collection(db, collections.withdrawals), where('status', '==', 'pending'), orderBy('createdAt', 'asc'), limit(5));
+                const snapshot = await getDocs(q);
+                const container = document.getElementById('pendingWithdrawalsList');
+                if (snapshot.empty) {
+                    container.innerHTML = `<div class="text-center" style="color: var(--text-secondary); padding: 12px 0;">Tidak ada withdraw pending</div>`;
+                    return;
+                }
+                container.innerHTML = snapshot.docs.map(doc => {
+                    const w = doc.data();
+                    return `<div class="activity-item">
+                        <div><strong>${w.accountName}</strong><br><span style="font-size: 13px; color: var(--text-secondary);">${w.method} • ${w.accountNumber}</span></div>
+                        <div style="text-align: right;">
+                            <span style="font-weight: 600; color: var(--danger);">Rp${formatPrice(w.amount)}</span>
+                            <br>
+                            <button onclick="approveWithdrawal('${doc.id}')" class="btn btn-success btn-sm" style="padding: 2px 8px; font-size: 11px;"><i class="fas fa-check"></i></button>
+                            <button onclick="rejectWithdrawal('${doc.id}')" class="btn btn-danger btn-sm" style="padding: 2px 8px; font-size: 11px;"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch (error) { console.error('Error loading pending withdrawals:', error); document.getElementById('pendingWithdrawalsList').innerHTML = '<div class="text-center" style="color: var(--danger);">Gagal memuat withdraw</div>'; }
+        }
+
+        window.approveWithdrawal = async function(id) {
+            if (!confirm('Setujui permintaan withdraw ini?')) return;
+            try {
+                const response = await fetch(`/api/admin/withdrawals/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'approved', adminNote: 'Disetujui admin' })
+                });
+                if (!response.ok) throw new Error('Gagal menyetujui withdraw');
+                showToast('success', 'Withdraw disetujui');
+                await loadDashboardData();
+            } catch (error) { console.error('Error approving withdrawal:', error); showToast('error', error.message); }
+        };
+
+        window.rejectWithdrawal = async function(id) {
+            const note = prompt('Alasan penolakan:');
+            if (note === null) return;
+            try {
+                const response = await fetch(`/api/admin/withdrawals/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'rejected', adminNote: note || 'Ditolak admin' })
+                });
+                if (!response.ok) throw new Error('Gagal menolak withdraw');
+                showToast('success', 'Withdraw ditolak');
+                await loadDashboardData();
+            } catch (error) { console.error('Error rejecting withdrawal:', error); showToast('error', error.message); }
+        };
+
+        async function renderCharts() {
+            const days = 7;
+            const dates = []; const salesData = []; const revenueData = [];
+            for (let i = days - 1; i >= 0; i--) {
+                const date = new Date(); date.setDate(date.getDate() - i);
+                dates.push(date.toLocaleDateString('id-ID', { weekday: 'short' }));
+                const start = new Date(date); start.setHours(0,0,0,0);
+                const end = new Date(date); end.setHours(23,59,59,999);
+                const q = query(collection(db, collections.orders), where('paymentStatus', '==', 'settlement'), where('createdAt', '>=', start), where('createdAt', '<=', end));
+                const snapshot = await getDocs(q);
+                let dailySales = 0, dailyRevenue = 0;
+                snapshot.forEach(doc => { dailySales += 1; dailyRevenue += doc.data().amount || 0; });
+                salesData.push(dailySales); revenueData.push(dailyRevenue);
+            }
+            renderChart('salesChart', dates, salesData, 'Penjualan');
+            renderChart('revenueChart', dates, revenueData, 'Pendapatan');
+        }
+
+        function renderChart(id, labels, data, label) {
+            const canvas = document.getElementById(id);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width - 40;
+            canvas.height = 180;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (!data || data.every(v => v === 0)) {
+                ctx.fillStyle = '#9CA3AF'; ctx.font = '14px Inter, sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText(`Belum ada data ${label}`, canvas.width/2, canvas.height/2);
+                return;
+            }
+            const maxValue = Math.max(...data, 1) * 1.2;
+            const padding = 30; const w = canvas.width - padding * 2; const h = canvas.height - padding * 2;
+            ctx.strokeStyle = '#E5E7EB'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+            for (let i = 0; i <= 4; i++) {
+                const y = padding + h - (i/4) * h;
+                ctx.beginPath(); ctx.moveTo(padding, y); ctx.lineTo(canvas.width - padding, y); ctx.stroke();
+                ctx.fillStyle = '#6B7280'; ctx.font = '9px Inter, sans-serif'; ctx.textAlign = 'right';
+                ctx.fillText(label === 'Pendapatan' ? formatPrice(Math.round(maxValue * i / 4)) : Math.round(maxValue * i / 4), padding - 5, y + 3);
+            }
+            ctx.setLineDash([]);
+            const barWidth = w / labels.length * 0.6;
+            const spacing = w / labels.length;
+            labels.forEach((labelText, i) => {
+                const x = padding + i * spacing + (spacing - barWidth) / 2;
+                const barHeight = (data[i] / maxValue) * h;
+                const y = padding + h - barHeight;
+                const gradient = ctx.createLinearGradient(x, y, x, padding + h);
+                gradient.addColorStop(0, id === 'salesChart' ? '#4F46E5' : '#7C3AED');
+                gradient.addColorStop(1, id === 'salesChart' ? '#818CF8' : '#A78BFA');
+                ctx.fillStyle = gradient;
+                ctx.beginPath(); ctx.roundRect(x, y, barWidth, barHeight, 4); ctx.fill();
+                ctx.fillStyle = '#6B7280'; ctx.font = '9px Inter, sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText(labelText, x + barWidth/2, padding + h + 15);
+            });
+        }
+
+        function setupRealtimeListeners() {
+            onSnapshot(collection(db, collections.orders), () => loadDashboardData());
+            onSnapshot(collection(db, collections.withdrawals), () => loadDashboardData());
+            onSnapshot(collection(db, collections.products), () => loadDashboardData());
+            onSnapshot(collection(db, collections.users), () => loadDashboardData());
+        }
+
+        window.handleLogout = async function() {
+            try { await signOut(auth); showToast('success', 'Berhasil logout'); navigate('/'); } 
+            catch (error) { showToast('error', 'Gagal logout'); }
+        };
+
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', function(e) { e.preventDefault(); navigate(this.getAttribute('href')); });
+        });
+    </script>
+</body>
+</html>

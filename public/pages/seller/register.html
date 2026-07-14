@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Seller - ProductKuu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="icon" href="../../assets/images/favicon.ico">
+    <style>
+        .auth-container {
+            max-width: 480px;
+            margin: 80px auto 40px;
+            padding: 0 20px;
+        }
+        .auth-card {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+        }
+        .auth-card .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .auth-card .auth-header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .auth-card .auth-header p {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+        .auth-card .auth-header .logo {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 12px;
+            display: block;
+        }
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 20px 0;
+            color: var(--text-light);
+            font-size: 13px;
+        }
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+        .auth-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .auth-footer a {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 6px;
+            background: var(--border-color);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        .password-strength .bar {
+            height: 100%;
+            border-radius: 2px;
+            transition: var(--transition);
+            width: 0%;
+        }
+        .password-strength .bar.weak { width: 25%; background: var(--danger); }
+        .password-strength .bar.medium { width: 50%; background: var(--warning); }
+        .password-strength .bar.strong { width: 75%; background: var(--info); }
+        .password-strength .bar.very-strong { width: 100%; background: var(--success); }
+        .password-hint {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+        .terms-check {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin: 16px 0;
+        }
+        .terms-check input[type="checkbox"] {
+            margin-top: 3px;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .terms-check a {
+            color: var(--primary);
+            font-weight: 500;
+        }
+        .input-group .input-icon {
+            position: relative;
+        }
+        .input-group .input-icon i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+        .input-group .input-icon .input {
+            padding-left: 44px;
+        }
+        .input-group .input-icon .toggle-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+        }
+        .input-group .input-icon .toggle-password:hover {
+            color: var(--text-primary);
+        }
+        @media (max-width: 480px) {
+            .auth-card { padding: 24px; }
+            .auth-container { margin-top: 40px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="navbar-logo">
+                <i class="fas fa-cube"></i>
+                <span>ProductKuu</span>
+            </a>
+            <div class="navbar-actions">
+                <button class="btn-icon" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="/seller/login" class="btn btn-secondary btn-sm hide-mobile">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <span class="logo"><i class="fas fa-store"></i></span>
+                    <h1>Daftar Seller</h1>
+                    <p>Mulai jualan produk digital di ProductKuu</p>
+                </div>
+
+                <form id="registerForm">
+                    <!-- Full Name -->
+                    <div class="input-group" style="margin-bottom: 16px;">
+                        <label for="fullName">Nama Lengkap *</label>
+                        <div class="input-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="fullName" class="input" required placeholder="Masukkan nama lengkap">
+                        </div>
+                    </div>
+
+                    <!-- Store Name -->
+                    <div class="input-group" style="margin-bottom: 16px;">
+                        <label for="storeName">Nama Toko *</label>
+                        <div class="input-icon">
+                            <i class="fas fa-store"></i>
+                            <input type="text" id="storeName" class="input" required placeholder="Masukkan nama toko">
+                        </div>
+                        <span class="hint">Nama toko akan muncul di halaman produk Anda</span>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="input-group" style="margin-bottom: 16px;">
+                        <label for="email">Email *</label>
+                        <div class="input-icon">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="email" class="input" required placeholder="Masukkan email">
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="input-group" style="margin-bottom: 8px;">
+                        <label for="password">Password *</label>
+                        <div class="input-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" class="input" required placeholder="Minimal 6 karakter">
+                            <button type="button" class="toggle-password" onclick="togglePassword('password')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength" id="passwordStrength">
+                            <div class="bar" id="strengthBar"></div>
+                        </div>
+                        <div class="password-hint" id="passwordHint">Gunakan minimal 6 karakter dengan huruf dan angka</div>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="input-group" style="margin-bottom: 16px;">
+                        <label for="confirmPassword">Konfirmasi Password *</label>
+                        <div class="input-icon">
+                            <i class="fas fa-check-circle"></i>
+                            <input type="password" id="confirmPassword" class="input" required placeholder="Konfirmasi password">
+                            <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Store Description -->
+                    <div class="input-group" style="margin-bottom: 16px;">
+                        <label for="storeDescription">Deskripsi Toko</label>
+                        <div class="input-icon">
+                            <i class="fas fa-align-left"></i>
+                            <textarea id="storeDescription" class="input" rows="3" placeholder="Deskripsikan toko Anda" style="padding-left: 44px;"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- WhatsApp -->
+                    <div class="input-group" style="margin-bottom: 16px;">
+                        <label for="whatsapp">WhatsApp (Opsional)</label>
+                        <div class="input-icon">
+                            <i class="fab fa-whatsapp"></i>
+                            <input type="text" id="whatsapp" class="input" placeholder="08123456789">
+                        </div>
+                    </div>
+
+                    <!-- Instagram -->
+                    <div class="input-group" style="margin-bottom: 16px;">
+                        <label for="instagram">Instagram (Opsional)</label>
+                        <div class="input-icon">
+                            <i class="fab fa-instagram"></i>
+                            <input type="text" id="instagram" class="input" placeholder="@toko_anda">
+                        </div>
+                    </div>
+
+                    <!-- Terms -->
+                    <div class="terms-check">
+                        <input type="checkbox" id="terms" required>
+                        <label for="terms">
+                            Saya setuju dengan 
+                            <a href="/syarat-ketentuan">Syarat & Ketentuan</a> 
+                            dan 
+                            <a href="/kebijakan-privasi">Kebijakan Privasi</a>
+                        </label>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="btn btn-primary btn-block" id="registerBtn">
+                        <i class="fas fa-rocket"></i> Daftar Sekarang
+                    </button>
+                </form>
+
+                <div class="auth-divider">atau</div>
+
+                <div class="auth-footer">
+                    Sudah punya akun? <a href="/seller/login">Masuk di sini</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" style="margin-top: 48px;">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 ProductKuu. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script type="module">
+        import { 
+            db, auth, collections,
+            doc, setDoc, getDoc, getDocs, query, where,
+            createUserWithEmailAndPassword, updateProfile, signInWithEmailAndPassword
+        } from '../../js/firebase-config.js';
+        import { showToast, navigate } from '../../js/app.js';
+
+        // ============================================
+        // THEME TOGGLE
+        // ============================================
+        const themeToggle = document.getElementById('themeToggle');
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.addEventListener('click', () => {
+            darkMode = !darkMode;
+            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+            localStorage.setItem('darkMode', darkMode);
+            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        // ============================================
+        // TOGGLE PASSWORD VISIBILITY
+        // ============================================
+        window.togglePassword = function(id) {
+            const input = document.getElementById(id);
+            const icon = input.parentElement.querySelector('.toggle-password i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        };
+
+        // ============================================
+        // PASSWORD STRENGTH
+        // ============================================
+        const passwordInput = document.getElementById('password');
+        const strengthBar = document.getElementById('strengthBar');
+        const passwordHint = document.getElementById('passwordHint');
+
+        passwordInput.addEventListener('input', function() {
+            const value = this.value;
+            let strength = 0;
+            let hint = '';
+
+            if (value.length >= 6) strength++;
+            if (value.length >= 10) strength++;
+            if (/[A-Z]/.test(value) && /[a-z]/.test(value)) strength++;
+            if (/\d/.test(value)) strength++;
+            if (/[^A-Za-z0-9]/.test(value)) strength++;
+
+            const levels = ['weak', 'medium', 'strong', 'very-strong'];
+            const hints = [
+                'Gunakan minimal 6 karakter dengan huruf dan angka',
+                'Kombinasikan huruf besar dan kecil',
+                'Tambahkan angka untuk keamanan lebih',
+                'Tambahkan karakter khusus untuk keamanan maksimal'
+            ];
+
+            if (value.length === 0) {
+                strengthBar.className = 'bar';
+                strengthBar.style.width = '0%';
+                passwordHint.textContent = 'Gunakan minimal 6 karakter dengan huruf dan angka';
+                return;
+            }
+
+            const index = Math.min(strength, 4) - 1;
+            if (index >= 0) {
+                strengthBar.className = `bar ${levels[index]}`;
+                strengthBar.style.width = `${(strength / 4) * 100}%`;
+                passwordHint.textContent = hints[index] || 'Password kuat!';
+                passwordHint.style.color = strength >= 4 ? 'var(--success)' : 'var(--text-light)';
+            }
+        });
+
+        // ============================================
+        // CHECK IF STORE NAME EXISTS
+        // ============================================
+        async function isStoreNameTaken(storeName) {
+            try {
+                const q = query(collection(db, collections.users), where('storeName', '==', storeName));
+                const snapshot = await getDocs(q);
+                return !snapshot.empty;
+            } catch (error) {
+                console.error('Error checking store name:', error);
+                return false;
+            }
+        }
+
+        // ============================================
+        // REGISTER FORM SUBMIT
+        // ============================================
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const fullName = document.getElementById('fullName').value.trim();
+            const storeName = document.getElementById('storeName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const storeDescription = document.getElementById('storeDescription').value.trim();
+            const whatsapp = document.getElementById('whatsapp').value.trim();
+            const instagram = document.getElementById('instagram').value.trim();
+            const terms = document.getElementById('terms').checked;
+
+            // Validations
+            if (!fullName) { showToast('warning', 'Nama lengkap wajib diisi'); return; }
+            if (!storeName) { showToast('warning', 'Nama toko wajib diisi'); return; }
+            if (!email) { showToast('warning', 'Email wajib diisi'); return; }
+            if (!password) { showToast('warning', 'Password wajib diisi'); return; }
+            if (password.length < 6) { showToast('warning', 'Password minimal 6 karakter'); return; }
+            if (password !== confirmPassword) { showToast('warning', 'Password tidak cocok'); return; }
+            if (!terms) { showToast('warning', 'Anda harus menyetujui syarat & ketentuan'); return; }
+
+            // Validate email format
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showToast('warning', 'Format email tidak valid');
+                return;
+            }
+
+            // Check if store name is taken
+            const storeTaken = await isStoreNameTaken(storeName);
+            if (storeTaken) {
+                showToast('error', 'Nama toko sudah digunakan, silakan pilih nama lain');
+                return;
+            }
+
+            const btn = document.getElementById('registerBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mendaftar...';
+
+            try {
+                // Create user in Firebase Auth
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Update profile with display name
+                await updateProfile(user, { displayName: fullName });
+
+                // Save seller data to Firestore
+                await setDoc(doc(db, collections.users, user.uid), {
+                    uid: user.uid,
+                    email: email,
+                    displayName: fullName,
+                    storeName: storeName,
+                    storeDescription: storeDescription || '',
+                    whatsapp: whatsapp || '',
+                    instagram: instagram || '',
+                    role: 'seller',
+                    status: 'active',
+                    verified: false,
+                    level: 'bronze',
+                    productCount: 0,
+                    totalSales: 0,
+                    wallet: {
+                        available: 0,
+                        holding: 0,
+                        totalRevenue: 0,
+                        totalWithdraw: 0
+                    },
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                });
+
+                showToast('success', '🎉 Pendaftaran berhasil! Silakan login.');
+                
+                // Redirect to login
+                setTimeout(() => {
+                    navigate('/seller/login');
+                }, 1500);
+
+            } catch (error) {
+                console.error('Registration error:', error);
+                let message = 'Gagal mendaftar. Silakan coba lagi.';
+                
+                if (error.code === 'auth/email-already-in-use') {
+                    message = 'Email sudah terdaftar. Silakan gunakan email lain.';
+                } else if (error.code === 'auth/weak-password') {
+                    message = 'Password terlalu lemah. Gunakan minimal 6 karakter.';
+                } else if (error.code === 'auth/invalid-email') {
+                    message = 'Format email tidak valid.';
+                }
+                
+                showToast('error', message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-rocket"></i> Daftar Sekarang';
+            }
+        });
+    </script>
+</body>
+</html>

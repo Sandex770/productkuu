@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Seller - ProductKuu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="icon" href="../../assets/images/favicon.ico">
+    <style>
+        .dashboard-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .dashboard-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .dashboard-charts .chart-box { min-height: 200px; }
+        @media (max-width: 1024px) { .dashboard-stats { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 640px) { .dashboard-stats { grid-template-columns: 1fr; } .dashboard-charts { grid-template-columns: 1fr; } }
+        .recent-products { margin-top: 24px; }
+        .recent-products .product-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .recent-products .product-item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="navbar-logo">
+                <i class="fas fa-cube"></i>
+                <span>ProductKuu</span>
+            </a>
+            <div class="navbar-actions">
+                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <button class="btn-icon" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div style="padding: 0 12px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px;">
+            <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary);">Menu Seller</div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/seller/dashboard" class="active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="/seller/products"><i class="fas fa-box"></i> Produk <span class="badge-count" id="productCount">0</span></a>
+            <a href="/seller/wallet"><i class="fas fa-wallet"></i> Wallet</a>
+            <a href="/seller/transactions"><i class="fas fa-exchange-alt"></i> Transaksi</a>
+            <a href="/seller/withdraw"><i class="fas fa-arrow-up"></i> Withdraw</a>
+            <a href="/seller/settings"><i class="fas fa-cog"></i> Pengaturan</a>
+            <button onclick="handleLogout()" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: none; background: none; width: 100%; border-radius: var(--radius); color: var(--danger); cursor: pointer; font-family: var(--font); font-size: 14px; font-weight: 500; margin-top: 8px;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </nav>
+    </aside>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <h1 style="font-size: 24px;">Dashboard</h1>
+                <p style="color: var(--text-secondary);" id="welcomeMessage">Selamat datang, Seller!</p>
+            </div>
+            <button onclick="location.reload()" class="btn btn-secondary btn-sm">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="dashboard-stats" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-info"><span class="stat-label">Total Produk</span><span class="stat-value" id="totalProducts">0</span></div>
+                <div class="stat-icon indigo"><i class="fas fa-box"></i></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info"><span class="stat-label">Total Penjualan</span><span class="stat-value" id="totalSales">0</span></div>
+                <div class="stat-icon green"><i class="fas fa-shopping-cart"></i></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info"><span class="stat-label">Total Pendapatan</span><span class="stat-value" id="totalRevenue">Rp0</span></div>
+                <div class="stat-icon yellow"><i class="fas fa-money-bill-wave"></i></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info"><span class="stat-label">Saldo Tersedia</span><span class="stat-value" id="availableBalance">Rp0</span></div>
+                <div class="stat-icon purple"><i class="fas fa-wallet"></i></div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="dashboard-charts">
+            <div class="card chart-box">
+                <h4 style="margin-bottom: 12px;">Grafik Penjualan</h4>
+                <canvas id="salesChart" height="180"></canvas>
+            </div>
+            <div class="card chart-box">
+                <h4 style="margin-bottom: 12px;">Grafik Pendapatan</h4>
+                <canvas id="revenueChart" height="180"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Products -->
+        <div class="card recent-products">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h4>Produk Terbaru</h4>
+                <a href="/seller/products" style="font-size: 14px; color: var(--primary);">Lihat Semua →</a>
+            </div>
+            <div id="recentProducts">
+                <div class="text-center" style="color: var(--text-secondary); padding: 20px 0;">Memuat produk...</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script type="module">
+        import { db, auth, collections, collection, doc, getDoc, getDocs, query, where, orderBy, limit, onSnapshot, signOut } from '../../js/firebase-config.js';
+        import { showToast, formatPrice, formatDate, navigate } from '../../js/app.js';
+
+        let currentUser = null;
+        let userData = null;
+
+        // Theme
+        const themeToggle = document.getElementById('themeToggle');
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.addEventListener('click', () => {
+            darkMode = !darkMode;
+            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+            localStorage.setItem('darkMode', darkMode);
+            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        // Sidebar
+        window.toggleSidebar = function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
+        };
+
+        // Auth
+        document.addEventListener('DOMContentLoaded', async () => {
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) { navigate('/seller/login'); return; }
+                currentUser = user;
+                await loadUserData(user.uid);
+                await loadDashboardData();
+                setupRealtimeListeners();
+            });
+        });
+
+        async function loadUserData(uid) {
+            try {
+                const userRef = doc(db, collections.users, uid);
+                const userDoc = await getDoc(userRef);
+                if (!userDoc.exists() || userDoc.data().role !== 'seller') {
+                    showToast('error', 'Akses ditolak');
+                    navigate('/');
+                    return;
+                }
+                userData = { id: userDoc.id, ...userDoc.data() };
+                document.getElementById('welcomeMessage').textContent = 
+                    `Selamat datang, ${userData.storeName || userData.displayName || 'Seller'}!`;
+                document.getElementById('productCount').textContent = userData.productCount || 0;
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                showToast('error', 'Gagal memuat data user');
+            }
+        }
+
+        async function loadDashboardData() {
+            if (!currentUser) return;
+            try {
+                const sellerId = currentUser.uid;
+                const productsSnapshot = await getDocs(query(collection(db, collections.products), where('sellerId', '==', sellerId)));
+                const totalProducts = productsSnapshot.size;
+                document.getElementById('totalProducts').textContent = totalProducts;
+
+                const ordersSnapshot = await getDocs(query(collection(db, collections.orders), where('sellerId', '==', sellerId), where('paymentStatus', '==', 'settlement')));
+                const totalSales = ordersSnapshot.size;
+                document.getElementById('totalSales').textContent = totalSales;
+
+                let totalRevenue = 0;
+                const revenueData = [];
+                ordersSnapshot.forEach(doc => {
+                    const order = doc.data();
+                    totalRevenue += order.amount || 0;
+                    revenueData.push({ date: order.createdAt?.toDate?.() || new Date(), amount: order.amount || 0 });
+                });
+                document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
+
+                const wallet = userData?.wallet || { available: 0 };
+                document.getElementById('availableBalance').textContent = `Rp${formatPrice(wallet.available || 0)}`;
+
+                renderCharts(revenueData);
+                await loadRecentProducts(sellerId);
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                showToast('error', 'Gagal memuat data dashboard');
+            }
+        }
+
+        async function loadRecentProducts(sellerId) {
+            try {
+                const q = query(collection(db, collections.products), where('sellerId', '==', sellerId), orderBy('createdAt', 'desc'), limit(5));
+                const snapshot = await getDocs(q);
+                const container = document.getElementById('recentProducts');
+                if (snapshot.empty) {
+                    container.innerHTML = `<div class="text-center" style="color: var(--text-secondary); padding: 20px 0;">Belum ada produk</div>`;
+                    return;
+                }
+                container.innerHTML = snapshot.docs.map(doc => {
+                    const product = doc.data();
+                    return `<div class="product-item">
+                        <div><strong>${product.name}</strong> <span style="font-size: 13px; color: var(--text-secondary);">${product.category}</span></div>
+                        <div><span style="color: var(--primary); font-weight: 600;">Rp${formatPrice(product.price)}</span> <span class="badge ${product.status === 'published' ? 'badge-success' : 'badge-warning'}">${product.status || 'draft'}</span></div>
+                    </div>`;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading recent products:', error);
+                document.getElementById('recentProducts').innerHTML = '<div class="text-center" style="color: var(--danger);">Gagal memuat produk</div>';
+            }
+        }
+
+        function renderCharts(data) {
+            ['salesChart', 'revenueChart'].forEach(id => {
+                const canvas = document.getElementById(id);
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const rect = canvas.parentElement.getBoundingClientRect();
+                canvas.width = rect.width - 40;
+                canvas.height = 180;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                if (!data || data.length === 0) {
+                    ctx.fillStyle = '#9CA3AF';
+                    ctx.font = '14px Inter, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Belum ada data', canvas.width/2, canvas.height/2);
+                    return;
+                }
+
+                const grouped = data.reduce((acc, item) => {
+                    const date = item.date.toDateString();
+                    acc[date] = (acc[date] || 0) + (id === 'salesChart' ? 1 : item.amount);
+                    return acc;
+                }, {});
+                const labels = Object.keys(grouped).slice(-7);
+                const values = Object.values(grouped).slice(-7);
+                const maxValue = Math.max(...values, 1) * 1.2;
+                const padding = 30;
+                const w = canvas.width - padding * 2;
+                const h = canvas.height - padding * 2;
+
+                // Grid
+                ctx.strokeStyle = '#E5E7EB';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([3, 3]);
+                for (let i = 0; i <= 4; i++) {
+                    const y = padding + h - (i/4) * h;
+                    ctx.beginPath(); ctx.moveTo(padding, y); ctx.lineTo(canvas.width - padding, y); ctx.stroke();
+                    ctx.fillStyle = '#6B7280'; ctx.font = '9px Inter, sans-serif'; ctx.textAlign = 'right';
+                    ctx.fillText(Math.round(maxValue * i / 4), padding - 5, y + 3);
+                }
+                ctx.setLineDash([]);
+
+                // Bars or Line
+                const barWidth = w / labels.length * 0.6;
+                const spacing = w / labels.length;
+                labels.forEach((label, i) => {
+                    const x = padding + i * spacing + (spacing - barWidth) / 2;
+                    const barHeight = (values[i] / maxValue) * h;
+                    const y = padding + h - barHeight;
+                    const gradient = ctx.createLinearGradient(x, y, x, padding + h);
+                    gradient.addColorStop(0, '#4F46E5'); gradient.addColorStop(1, '#818CF8');
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.roundRect(x, y, barWidth, barHeight, 4);
+                    ctx.fill();
+                    ctx.fillStyle = '#6B7280'; ctx.font = '9px Inter, sans-serif'; ctx.textAlign = 'center';
+                    ctx.fillText(label.split(' ').slice(0, 2).join(' '), x + barWidth/2, padding + h + 15);
+                });
+            });
+        }
+
+        function setupRealtimeListeners() {
+            if (!currentUser) return;
+            onSnapshot(query(collection(db, collections.orders), where('sellerId', '==', currentUser.uid)), () => loadDashboardData());
+            onSnapshot(query(collection(db, collections.products), where('sellerId', '==', currentUser.uid)), () => loadDashboardData());
+        }
+
+        window.handleLogout = async function() {
+            try { await signOut(auth); showToast('success', 'Berhasil logout'); navigate('/'); } 
+            catch (error) { showToast('error', 'Gagal logout'); }
+        };
+
+        // Sidebar navigation
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', function(e) { e.preventDefault(); navigate(this.getAttribute('href')); });
+        });
+    </script>
+</body>
+</html>

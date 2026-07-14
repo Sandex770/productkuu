@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProductKuu - Marketplace Digital Premium</title>
+    <meta name="description" content="Platform marketplace produk digital terbaik di Indonesia">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="Mid-client-OkRCJi3x4-wno9XX"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="assets/images/favicon.ico">
+    <style>
+        /* Additional styles for homepage */
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            padding: 6px 16px;
+            border-radius: 9999px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            backdrop-filter: blur(4px);
+        }
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            margin-top: 32px;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-stats .stat {
+            text-align: center;
+        }
+        .hero-stats .stat .number {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .hero-stats .stat .label {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+        .feature-section {
+            padding: 60px 0;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-top: 32px;
+        }
+        .feature-card {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: 32px 24px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        .feature-card .icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            border-radius: var(--radius);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+        }
+        .feature-card h4 {
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+        .feature-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .cta-section {
+            padding: 60px 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: var(--radius-lg);
+            color: white;
+            text-align: center;
+            margin: 40px 0;
+        }
+        .cta-section h2 {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+        .cta-section p {
+            opacity: 0.9;
+            max-width: 500px;
+            margin: 0 auto 24px;
+            font-size: 18px;
+        }
+        .cta-section .btn-group {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .cta-section .btn-outline-light {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+        }
+        .cta-section .btn-outline-light:hover {
+            background: white;
+            color: var(--primary);
+            border-color: white;
+        }
+        @media (max-width: 1024px) {
+            .feature-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 640px) {
+            .feature-grid { grid-template-columns: 1fr; }
+            .hero-stats { gap: 24px; flex-wrap: wrap; }
+            .hero-stats .stat .number { font-size: 20px; }
+            .cta-section h2 { font-size: 24px; }
+            .cta-section p { font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="navbar-logo">
+                <i class="fas fa-cube"></i>
+                <span>ProductKuu</span>
+            </a>
+            
+            <div class="navbar-search">
+                <i class="fas fa-search icon"></i>
+                <input type="text" id="searchInput" placeholder="Cari produk digital...">
+            </div>
+            
+            <div class="navbar-actions">
+                <button class="btn-icon hide-mobile" id="themeToggle" title="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="/cek-order" class="btn-icon hide-mobile" title="Cek Order">
+                    <i class="fas fa-search"></i>
+                </a>
+                <a href="/seller/login" class="btn btn-secondary btn-sm hide-mobile">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <a href="/seller/register" class="btn btn-primary btn-sm hide-mobile">
+                    <i class="fas fa-user-plus"></i> Daftar
+                </a>
+                <button class="navbar-mobile-toggle" id="mobileMenuBtn" aria-label="Toggle menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div class="navbar-mobile-menu" id="mobileMenu">
+            <div class="search-mobile">
+                <input type="text" id="mobileSearchInput" placeholder="Cari produk...">
+            </div>
+            <div class="nav-links">
+                <a href="/">Beranda</a>
+                <a href="/categories">Kategori</a>
+                <a href="/seller/login">Login Seller</a>
+                <a href="/seller/register">Daftar Seller</a>
+                <a href="/cek-order">Cek Order</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content" id="app">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <div class="hero-badge">
+                    <i class="fas fa-rocket"></i> Platform Marketplace Terpercaya
+                </div>
+                <h1>Platform Marketplace <span>Produk Digital</span> Premium</h1>
+                <p>Temukan dan beli produk digital berkualitas dari seller terbaik di Indonesia</p>
+                <div class="btn-group">
+                    <a href="#products" class="btn btn-primary btn-lg">
+                        <i class="fas fa-shopping-bag"></i> Jelajahi Produk
+                    </a>
+                    <a href="/seller/register" class="btn btn-outline btn-lg" style="border-color: rgba(255,255,255,0.3); color: white;">
+                        <i class="fas fa-store"></i> Jadi Seller
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="number" id="statProducts">50+</div>
+                        <div class="label">Produk Digital</div>
+                    </div>
+                    <div class="stat">
+                        <div class="number" id="statSellers">10+</div>
+                        <div class="label">Seller Aktif</div>
+                    </div>
+                    <div class="stat">
+                        <div class="number" id="statOrders">100+</div>
+                        <div class="label">Transaksi Berhasil</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="feature-section container">
+            <h2 class="section-title text-center" style="text-align: center;">Kenapa <span style="color: var(--primary);">ProductKuu</span>?</h2>
+            <p style="text-align: center; color: var(--text-secondary); max-width: 600px; margin: 0 auto 16px;">
+                Platform terbaik untuk jual beli produk digital dengan keamanan terjamin
+            </p>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon"><i class="fas fa-shield-alt"></i></div>
+                    <h4>Aman & Terpercaya</h4>
+                    <p>Setiap transaksi dilindungi sistem keamanan berlapis</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon"><i class="fas fa-bolt"></i></div>
+                    <h4>Proses Cepat</h4>
+                    <p>Akses produk langsung setelah pembayaran berhasil</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon"><i class="fas fa-hand-holding-usd"></i></div>
+                    <h4>Harga Terjangkau</h4>
+                    <p>Produk digital berkualitas dengan harga kompetitif</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon"><i class="fas fa-headset"></i></div>
+                    <h4>Dukungan 24/7</h4>
+                    <p>Tim support siap membantu Anda setiap saat</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Categories -->
+        <section class="container" id="categories">
+            <div class="section-header">
+                <h2 class="section-title">Kategori Populer</h2>
+                <a href="/categories" class="view-all">Lihat Semua →</a>
+            </div>
+            <div class="grid grid-4" id="categoriesGrid">
+                <div class="text-center" style="grid-column: 1/-1; color: var(--text-secondary); padding: 40px 0;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i> Memuat kategori...
+                </div>
+            </div>
+        </section>
+
+        <!-- Products -->
+        <section class="container" id="products" style="margin-top: 40px;">
+            <div class="section-header">
+                <div class="tabs" id="productTabs">
+                    <button class="tab active" data-tab="new">Terbaru</button>
+                    <button class="tab" data-tab="trending">Trending</button>
+                    <button class="tab" data-tab="bestseller">Best Seller</button>
+                    <button class="tab" data-tab="premium">Premium</button>
+                </div>
+                <a href="/products" class="view-all">Lihat Semua →</a>
+            </div>
+            <div class="grid grid-4" id="productsGrid">
+                <div class="text-center" style="grid-column: 1/-1; color: var(--text-secondary); padding: 40px 0;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i> Memuat produk...
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="container">
+            <div class="cta-section">
+                <h2>Siap Menjadi Seller?</h2>
+                <p>Mulai jualan produk digital Anda dan dapatkan penghasilan tambahan</p>
+                <div class="btn-group">
+                    <a href="/seller/register" class="btn btn-primary btn-lg" style="background: white; color: var(--primary);">
+                        <i class="fas fa-store"></i> Daftar Seller Sekarang
+                    </a>
+                    <a href="#products" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-shopping-bag"></i> Belanja Produk
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <h4><i class="fas fa-cube" style="color: var(--primary);"></i> ProductKuu</h4>
+                    <p>Platform marketplace produk digital premium di Indonesia.</p>
+                    <div class="footer-social">
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4>Produk</h4>
+                    <ul>
+                        <li><a href="/category/source-code">Source Code</a></li>
+                        <li><a href="/category/template">Template</a></li>
+                        <li><a href="/category/plugin">Plugin</a></li>
+                        <li><a href="/category/preset">Preset</a></li>
+                        <li><a href="/category/premium-account">Premium Account</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Tentang</h4>
+                    <ul>
+                        <li><a href="/tentang">Tentang Kami</a></li>
+                        <li><a href="/kontak">Kontak</a></li>
+                        <li><a href="/syarat-ketentuan">Syarat & Ketentuan</a></li>
+                        <li><a href="/kebijakan-privasi">Kebijakan Privasi</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Bantuan</h4>
+                    <ul>
+                        <li><a href="/cek-order">Cek Order</a></li>
+                        <li><a href="/faq">FAQ</a></li>
+                        <li><a href="/seller/register">Jadi Seller</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 ProductKuu. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="js/firebase-config.js" type="module"></script>
+    <script src="js/utils.js" type="module"></script>
+    <script src="js/app.js" type="module"></script>
+    
+    <!-- Additional inline script for stats animation -->
+    <script type="module">
+        // Animate stats counter
+        function animateCounter(element, target, suffix = '+') {
+            let current = 0;
+            const increment = Math.ceil(target / 50);
+            const interval = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(interval);
+                }
+                element.textContent = current.toLocaleString() + suffix;
+            }, 40);
+        }
+
+        // Load stats from Firestore
+        import { db, collections, collection, getCountFromServer, query, where } from './js/firebase-config.js';
+
+        async function loadStats() {
+            try {
+                // Get total products
+                const productsCount = await getCountFromServer(
+                    query(collection(db, collections.products), where('status', '==', 'published'))
+                );
+                document.getElementById('statProducts').textContent = productsCount.data().count + '+';
+
+                // Get total sellers
+                const sellersCount = await getCountFromServer(
+                    query(collection(db, collections.users), where('role', '==', 'seller'))
+                );
+                document.getElementById('statSellers').textContent = sellersCount.data().count + '+';
+
+                // Get total orders
+                const ordersCount = await getCountFromServer(
+                    query(collection(db, collections.orders), where('paymentStatus', '==', 'settlement'))
+                );
+                document.getElementById('statOrders').textContent = ordersCount.data().count + '+';
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        loadStats();
+    </script>
+</body>
+</html>

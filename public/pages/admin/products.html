@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Produk - ProductKuu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="icon" href="../../assets/images/favicon.ico">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
+            <div class="navbar-actions">
+                <span class="badge badge-primary hide-mobile" style="font-size: 11px;">Admin</span>
+                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <button class="btn-icon" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <aside class="sidebar" id="sidebar">
+        <div style="padding: 0 12px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px;">
+            <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary);">Menu Admin</div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="/admin/sellers"><i class="fas fa-users"></i> Seller</a>
+            <a href="/admin/products" class="active"><i class="fas fa-box"></i> Produk</a>
+            <a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Order</a>
+            <a href="/admin/banners"><i class="fas fa-images"></i> Banner</a>
+            <a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Withdraw</a>
+            <a href="/admin/settings"><i class="fas fa-cog"></i> Pengaturan</a>
+            <button onclick="handleLogout()" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: none; background: none; width: 100%; border-radius: var(--radius); color: var(--danger); cursor: pointer; font-family: var(--font); font-size: 14px; font-weight: 500; margin-top: 8px;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </nav>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <main class="main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+            <div><h1 style="font-size: 24px;">Manajemen Produk</h1><p style="color: var(--text-secondary);">Kelola semua produk di platform</p></div>
+        </div>
+
+        <div class="filter-bar">
+            <div class="filter-group">
+                <input type="text" id="searchProduct" placeholder="Cari produk..." style="min-width: 200px;">
+                <select id="filterStatus"><option value="all">Semua Status</option><option value="published">Published</option><option value="draft">Draft</option><option value="pending">Pending</option><option value="rejected">Rejected</option></select>
+                <select id="filterType"><option value="all">Semua Type</option><option value="digital">Digital</option><option value="premium-account">Premium Account</option></select>
+            </div>
+            <div class="filter-actions">
+                <button onclick="applyFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Filter</button>
+                <button onclick="resetFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-undo"></i></button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead><tr><th>Produk</th><th>Seller</th><th>Harga</th><th>Status</th><th>Terjual</th><th>Aksi</th></tr></thead>
+                    <tbody id="productsTableBody"><tr><td colspan="6" class="text-center" style="color: var(--text-secondary);">Memuat produk...</td></tr></tbody>
+                </table>
+            </div>
+            <div id="pagination" style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;"></div>
+        </div>
+    </main>
+
+    <!-- Action Modal -->
+    <div class="modal-overlay" id="actionModal">
+        <div class="modal" style="max-width: 400px; text-align: center;">
+            <h3 class="modal-title" id="actionModalTitle">Approve Produk</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;" id="actionModalMessage">Apakah Anda yakin ingin menyetujui produk ini?</p>
+            <div style="display: flex; gap: 12px;">
+                <button onclick="confirmAction()" class="btn btn-primary" style="flex: 1;" id="actionConfirmBtn"><i class="fas fa-check"></i> Ya</button>
+                <button onclick="closeActionModal()" class="btn btn-secondary" style="flex: 1;">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script type="module">
+        import { db, auth, collections, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, updateDoc, deleteDoc, onSnapshot, signOut } from '../../js/firebase-config.js';
+        import { showToast, formatPrice, formatDate, navigate } from '../../js/app.js';
+
+        let products = [], lastDoc = null, hasMore = true, currentPage = 1, actionId = null, actionType = null, limitPerPage = 10;
+
+        // Theme
+        const themeToggle = document.getElementById('themeToggle');
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.addEventListener('click', () => {
+            darkMode = !darkMode;
+            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+            localStorage.setItem('darkMode', darkMode);
+            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        window.toggleSidebar = function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) { navigate('/seller/login'); return; }
+                const userRef = doc(db, collections.users, user.uid);
+                const userDoc = await getDoc(userRef);
+                if (!userDoc.exists() || userDoc.data().role !== 'admin') { showToast('error', 'Akses ditolak'); navigate('/'); return; }
+                await loadProducts(true);
+                onSnapshot(collection(db, collections.products), () => loadProducts(true));
+            });
+        });
+
+        async function loadProducts(reset = true) {
+            try {
+                if (reset) { lastDoc = null; hasMore = true; products = []; currentPage = 1; }
+                if (!hasMore) return;
+                let constraints = [orderBy('createdAt', 'desc')];
+                const status = document.getElementById('filterStatus').value;
+                const type = document.getElementById('filterType').value;
+                const search = document.getElementById('searchProduct').value.trim();
+                if (status !== 'all') constraints.push(where('status', '==', status));
+                if (type !== 'all') constraints.push(where('type', '==', type));
+                let q = query(collection(db, collections.products), ...constraints, limit(limitPerPage));
+                if (lastDoc) q = query(collection(db, collections.products), ...constraints, startAfter(lastDoc), limit(limitPerPage));
+                const snapshot = await getDocs(q);
+                if (snapshot.empty) { hasMore = false; if (reset) document.getElementById('productsTableBody').innerHTML = '<tr><td colspan="6" class="text-center" style="color: var(--text-secondary);">Belum ada produk</td></tr>'; return; }
+                lastDoc = snapshot.docs[snapshot.docs.length - 1];
+                hasMore = snapshot.docs.length === limitPerPage;
+                const newData = [];
+                for (const doc of snapshot.docs) {
+                    const data = doc.data();
+                    let sellerName = 'Unknown';
+                    if (data.sellerId) {
+                        const sellerRef = doc(db, collections.users, data.sellerId);
+                        const sellerDoc = await getDoc(sellerRef);
+                        if (sellerDoc.exists()) sellerName = sellerDoc.data().storeName || sellerDoc.data().displayName || 'Seller';
+                    }
+                    newData.push({ id: doc.id, ...data, sellerName });
+                }
+                products = reset ? newData : [...products, ...newData];
+                renderProducts();
+            } catch (error) { console.error('Error loading products:', error); showToast('error', 'Gagal memuat produk'); }
+        }
+
+        function renderProducts() {
+            const tbody = document.getElementById('productsTableBody');
+            if (products.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="color: var(--text-secondary);">Tidak ada produk</td></tr>'; document.getElementById('pagination').innerHTML = ''; return; }
+            tbody.innerHTML = products.map(p => `
+                <tr>
+                    <td><div style="display: flex; align-items: center; gap: 8px;"><div style="width: 32px; height: 32px; border-radius: var(--radius); background: var(--bg-secondary); display: flex; align-items: center; justify-content: center;"><i class="fas fa-${p.type === 'premium-account' ? 'user' : 'box'}"></i></div><div><strong>${p.name}</strong><br><span style="font-size: 12px; color: var(--text-secondary);">${p.category || 'Uncategorized'} • ${formatDate(p.createdAt)}</span></div></div></td>
+                    <td>${p.sellerName}</td>
+                    <td style="font-weight: 600; color: var(--primary);">Rp${formatPrice(p.price)}</td>
+                    <td><span class="badge ${p.status === 'published' ? 'badge-success' : p.status === 'pending' ? 'badge-warning' : p.status === 'draft' ? 'badge-info' : 'badge-danger'}">${p.status || 'draft'}</span></td>
+                    <td style="text-align: center;">${p.sales || 0}</td>
+                    <td>
+                        ${p.status === 'pending' ? `
+                            <button onclick="approveProduct('${p.id}')" class="btn btn-success btn-sm" style="padding: 4px 8px;" title="Approve"><i class="fas fa-check"></i></button>
+                            <button onclick="rejectProduct('${p.id}')" class="btn btn-danger btn-sm" style="padding: 4px 8px;" title="Reject"><i class="fas fa-times"></i></button>
+                        ` : ''}
+                        <button onclick="navigate('/product/${p.id}')" class="btn btn-secondary btn-sm" style="padding: 4px 8px;" title="View"><i class="fas fa-eye"></i></button>
+                        <button onclick="deleteProduct('${p.id}')" class="btn btn-danger btn-sm" style="padding: 4px 8px;" title="Delete"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const container = document.getElementById('pagination');
+            if (!hasMore && products.length <= limitPerPage) { container.innerHTML = ''; return; }
+            container.innerHTML = `
+                <span style="font-size: 14px; color: var(--text-secondary);">${products.length} produk</span>
+                <div style="display: flex; gap: 8px;">
+                    ${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}
+                    ${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}
+                </div>
+            `;
+        }
+
+        window.loadNextPage = function() { currentPage++; loadProducts(false); };
+        window.loadPreviousPage = function() { if (currentPage <= 1) return; currentPage--; lastDoc = null; hasMore = true; loadProducts(true); };
+        window.applyFilters = function() { lastDoc = null; hasMore = true; loadProducts(true); };
+        window.resetFilters = function() { document.getElementById('searchProduct').value = ''; document.getElementById('filterStatus').value = 'all'; document.getElementById('filterType').value = 'all'; applyFilters(); };
+
+        window.approveProduct = function(id) { actionId = id; actionType = 'approve'; document.getElementById('actionModalTitle').textContent = 'Approve Produk'; document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menyetujui produk ini?'; document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-check"></i> Approve'; document.getElementById('actionModal').classList.add('open'); };
+        window.rejectProduct = function(id) { actionId = id; actionType = 'reject'; document.getElementById('actionModalTitle').textContent = 'Reject Produk'; document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menolak produk ini?'; document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-times"></i> Reject'; document.getElementById('actionModal').classList.add('open'); };
+        window.closeActionModal = function() { document.getElementById('actionModal').classList.remove('open'); actionId = null; actionType = null; };
+        window.confirmAction = async function() {
+            if (!actionId || !actionType) return;
+            try {
+                await updateDoc(doc(db, collections.products, actionId), { status: actionType === 'approve' ? 'published' : 'rejected', updatedAt: new Date() });
+                showToast('success', `Produk ${actionType === 'approve' ? 'disetujui' : 'ditolak'}`);
+                closeActionModal();
+                loadProducts(true);
+            } catch (error) { console.error('Error updating product:', error); showToast('error', 'Gagal memperbarui produk'); }
+        };
+
+        window.deleteProduct = async function(id) {
+            if (!confirm('Yakin ingin menghapus produk ini?')) return;
+            try { await deleteDoc(doc(db, collections.products, id)); showToast('success', 'Produk dihapus'); loadProducts(true); } 
+            catch (error) { console.error('Error deleting product:', error); showToast('error', 'Gagal menghapus produk'); }
+        };
+
+        window.handleLogout = async function() { try { await signOut(auth); showToast('success', 'Berhasil logout'); navigate('/'); } catch (error) { showToast('error', 'Gagal logout'); } };
+        document.querySelectorAll('.sidebar-nav a').forEach(link => { link.addEventListener('click', function(e) { e.preventDefault(); navigate(this.getAttribute('href')); }); });
+        let searchTimeout; document.getElementById('searchProduct').addEventListener('input', () => { clearTimeout(searchTimeout); searchTimeout = setTimeout(applyFilters, 500); });
+    </script>
+</body>
+</html>

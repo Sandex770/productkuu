@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Order - ProductKuu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="icon" href="../../assets/images/favicon.ico">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
+            <div class="navbar-actions">
+                <span class="badge badge-primary hide-mobile" style="font-size: 11px;">Admin</span>
+                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <button class="btn-icon" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <aside class="sidebar" id="sidebar">
+        <div style="padding: 0 12px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px;">
+            <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary);">Menu Admin</div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="/admin/sellers"><i class="fas fa-users"></i> Seller</a>
+            <a href="/admin/products"><i class="fas fa-box"></i> Produk</a>
+            <a href="/admin/orders" class="active"><i class="fas fa-shopping-cart"></i> Order</a>
+            <a href="/admin/banners"><i class="fas fa-images"></i> Banner</a>
+            <a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Withdraw</a>
+            <a href="/admin/settings"><i class="fas fa-cog"></i> Pengaturan</a>
+            <button onclick="handleLogout()" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: none; background: none; width: 100%; border-radius: var(--radius); color: var(--danger); cursor: pointer; font-family: var(--font); font-size: 14px; font-weight: 500; margin-top: 8px;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </nav>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <main class="main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+            <div><h1 style="font-size: 24px;">Manajemen Order</h1><p style="color: var(--text-secondary);">Kelola semua order di platform</p></div>
+        </div>
+
+        <div class="filter-bar">
+            <div class="filter-group">
+                <input type="text" id="searchOrder" placeholder="Cari order ID..." style="min-width: 200px;">
+                <select id="filterStatus"><option value="all">Semua Status</option><option value="pending">Pending</option><option value="settlement">Settlement</option><option value="failed">Failed</option><option value="expire">Expired</option></select>
+                <input type="date" id="filterDateFrom">
+                <input type="date" id="filterDateTo">
+            </div>
+            <div class="filter-actions">
+                <button onclick="applyFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Filter</button>
+                <button onclick="resetFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-undo"></i></button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead><tr><th>Order ID</th><th>Produk</th><th>Buyer</th><th>Seller</th><th>Harga</th><th>Status</th><th>Tanggal</th></tr></thead>
+                    <tbody id="ordersTableBody"><tr><td colspan="7" class="text-center" style="color: var(--text-secondary);">Memuat order...</td></tr></tbody>
+                </table>
+            </div>
+            <div id="pagination" style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;"></div>
+        </div>
+    </main>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script type="module">
+        import { db, auth, collections, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, onSnapshot, signOut } from '../../js/firebase-config.js';
+        import { showToast, formatPrice, formatDate, navigate } from '../../js/app.js';
+
+        let orders = [], lastDoc = null, hasMore = true, currentPage = 1, limitPerPage = 20;
+
+        // Theme
+        const themeToggle = document.getElementById('themeToggle');
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.addEventListener('click', () => {
+            darkMode = !darkMode;
+            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+            localStorage.setItem('darkMode', darkMode);
+            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        window.toggleSidebar = function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) { navigate('/seller/login'); return; }
+                const userRef = doc(db, collections.users, user.uid);
+                const userDoc = await getDoc(userRef);
+                if (!userDoc.exists() || userDoc.data().role !== 'admin') { showToast('error', 'Akses ditolak'); navigate('/'); return; }
+                await loadOrders(true);
+                onSnapshot(collection(db, collections.orders), () => loadOrders(true));
+            });
+        });
+
+        async function loadOrders(reset = true) {
+            try {
+                if (reset) { lastDoc = null; hasMore = true; orders = []; currentPage = 1; }
+                if (!hasMore) return;
+                let constraints = [orderBy('createdAt', 'desc')];
+                const status = document.getElementById('filterStatus').value;
+                const search = document.getElementById('searchOrder').value.trim();
+                if (status !== 'all') constraints.push(where('paymentStatus', '==', status));
+                let q = query(collection(db, collections.orders), ...constraints, limit(limitPerPage));
+                if (lastDoc) q = query(collection(db, collections.orders), ...constraints, startAfter(lastDoc), limit(limitPerPage));
+                const snapshot = await getDocs(q);
+                if (snapshot.empty) { hasMore = false; if (reset) document.getElementById('ordersTableBody').innerHTML = '<tr><td colspan="7" class="text-center" style="color: var(--text-secondary);">Belum ada order</td></tr>'; return; }
+                lastDoc = snapshot.docs[snapshot.docs.length - 1];
+                hasMore = snapshot.docs.length === limitPerPage;
+                const newData = [];
+                for (const doc of snapshot.docs) {
+                    const data = doc.data();
+                    let sellerName = 'Unknown';
+                    if (data.sellerId) {
+                        const sellerRef = doc(db, collections.users, data.sellerId);
+                        const sellerDoc = await getDoc(sellerRef);
+                        if (sellerDoc.exists()) sellerName = sellerDoc.data().storeName || sellerDoc.data().displayName || 'Seller';
+                    }
+                    newData.push({ id: doc.id, ...data, sellerName });
+                }
+                orders = reset ? newData : [...orders, ...newData];
+                renderOrders();
+            } catch (error) { console.error('Error loading orders:', error); showToast('error', 'Gagal memuat order'); }
+        }
+
+        function renderOrders() {
+            const tbody = document.getElementById('ordersTableBody');
+            if (orders.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="color: var(--text-secondary);">Tidak ada order</td></tr>'; document.getElementById('pagination').innerHTML = ''; return; }
+            const statusColors = { 'pending': 'badge-warning', 'settlement': 'badge-success', 'failed': 'badge-danger', 'expire': 'badge-danger' };
+            tbody.innerHTML = orders.map(o => `
+                <tr onclick="navigate('/order/${o.id}')" style="cursor: pointer;">
+                    <td style="font-family: monospace; font-size: 13px;">${o.orderId || '-'}</td>
+                    <td>${o.productName || '-'}</td>
+                    <td>${o.buyerName || '-'}</td>
+                    <td>${o.sellerName}</td>
+                    <td style="font-weight: 600; color: var(--primary);">Rp${formatPrice(o.amount)}</td>
+                    <td><span class="badge ${statusColors[o.paymentStatus] || 'badge-info'}">${o.paymentStatus || o.status}</span></td>
+                    <td style="font-size: 13px; color: var(--text-secondary);">${formatDate(o.createdAt)}</td>
+                </tr>
+            `).join('');
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const container = document.getElementById('pagination');
+            if (!hasMore && orders.length <= limitPerPage) { container.innerHTML = ''; return; }
+            container.innerHTML = `
+                <span style="font-size: 14px; color: var(--text-secondary);">${orders.length} order</span>
+                <div style="display: flex; gap: 8px;">
+                    ${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}
+                    ${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}
+                </div>
+            `;
+        }
+
+        window.loadNextPage = function() { currentPage++; loadOrders(false); };
+        window.loadPreviousPage = function() { if (currentPage <= 1) return; currentPage--; lastDoc = null; hasMore = true; loadOrders(true); };
+        window.applyFilters = function() { lastDoc = null; hasMore = true; loadOrders(true); };
+        window.resetFilters = function() { document.getElementById('searchOrder').value = ''; document.getElementById('filterStatus').value = 'all'; document.getElementById('filterDateFrom').value = ''; document.getElementById('filterDateTo').value = ''; applyFilters(); };
+
+        window.handleLogout = async function() { try { await signOut(auth); showToast('success', 'Berhasil logout'); navigate('/'); } catch (error) { showToast('error', 'Gagal logout'); } };
+        document.querySelectorAll('.sidebar-nav a').forEach(link => { link.addEventListener('click', function(e) { e.preventDefault(); navigate(this.getAttribute('href')); }); });
+        let searchTimeout; document.getElementById('searchOrder').addEventListener('input', () => { clearTimeout(searchTimeout); searchTimeout = setTimeout(applyFilters, 500); });
+    </script>
+</body>
+</html>

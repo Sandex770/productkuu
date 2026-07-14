@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Banner - ProductKuu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="icon" href="../../assets/images/favicon.ico">
+    <style>
+        .banner-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .banner-card { background: var(--bg-primary); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border-color); }
+        .banner-card .banner-image { aspect-ratio: 16/9; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 48px; color: rgba(255,255,255,0.3); }
+        .banner-card .banner-body { padding: 16px; }
+        .banner-card .banner-actions { display: flex; gap: 8px; margin-top: 12px; }
+        @media (max-width: 1024px) { .banner-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 640px) { .banner-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
+            <div class="navbar-actions">
+                <span class="badge badge-primary hide-mobile" style="font-size: 11px;">Admin</span>
+                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <button class="btn-icon" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <aside class="sidebar" id="sidebar">
+        <div style="padding: 0 12px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px;">
+            <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary);">Menu Admin</div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="/admin/sellers"><i class="fas fa-users"></i> Seller</a>
+            <a href="/admin/products"><i class="fas fa-box"></i> Produk</a>
+            <a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Order</a>
+            <a href="/admin/banners" class="active"><i class="fas fa-images"></i> Banner</a>
+            <a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Withdraw</a>
+            <a href="/admin/settings"><i class="fas fa-cog"></i> Pengaturan</a>
+            <button onclick="handleLogout()" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: none; background: none; width: 100%; border-radius: var(--radius); color: var(--danger); cursor: pointer; font-family: var(--font); font-size: 14px; font-weight: 500; margin-top: 8px;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </nav>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <main class="main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+            <div><h1 style="font-size: 24px;">Manajemen Banner</h1><p style="color: var(--text-secondary);">Kelola semua banner di homepage</p></div>
+            <button onclick="openBannerSettings()" class="btn btn-secondary"><i class="fas fa-cog"></i> Pengaturan Banner</button>
+        </div>
+
+        <div class="banner-grid" id="bannersGrid">
+            <div class="text-center" style="grid-column: 1/-1; color: var(--text-secondary); padding: 40px 0;">Memuat banner...</div>
+        </div>
+    </main>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal" style="max-width: 480px;">
+            <button class="modal-close" onclick="closeSettingsModal()"><i class="fas fa-times"></i></button>
+            <h3 class="modal-title">Pengaturan Banner</h3>
+            <form id="settingsForm">
+                <div class="input-group" style="margin-bottom: 12px;">
+                    <label for="bannerPrice">Harga Banner (Rp)</label>
+                    <input type="number" id="bannerPrice" class="input" placeholder="100000" min="1000">
+                </div>
+                <div class="input-group" style="margin-bottom: 12px;">
+                    <label for="bannerDuration">Durasi Banner (Jam)</label>
+                    <input type="number" id="bannerDuration" class="input" placeholder="24" min="1">
+                </div>
+                <div class="input-group" style="margin-bottom: 12px;">
+                    <label for="maxBanners">Max Slot Banner</label>
+                    <input type="number" id="maxBanners" class="input" placeholder="5" min="1">
+                </div>
+                <div class="input-group" style="margin-bottom: 16px;">
+                    <label for="autoSlideSpeed">Kecepatan Auto Slide (detik)</label>
+                    <input type="number" id="autoSlideSpeed" class="input" placeholder="5" min="1">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-save"></i> Simpan Pengaturan</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script type="module">
+        import { db, auth, collections, collection, doc, getDoc, getDocs, query, orderBy, updateDoc, deleteDoc, onSnapshot, signOut } from '../../js/firebase-config.js';
+        import { showToast, formatPrice, formatDate, navigate } from '../../js/app.js';
+
+        // Theme
+        const themeToggle = document.getElementById('themeToggle');
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.addEventListener('click', () => {
+            darkMode = !darkMode;
+            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+            localStorage.setItem('darkMode', darkMode);
+            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        window.toggleSidebar = function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) { navigate('/seller/login'); return; }
+                const userRef = doc(db, collections.users, user.uid);
+                const userDoc = await getDoc(userRef);
+                if (!userDoc.exists() || userDoc.data().role !== 'admin') { showToast('error', 'Akses ditolak'); navigate('/'); return; }
+                await loadBanners();
+                await loadSettings();
+                onSnapshot(collection(db, collections.banners), () => loadBanners());
+            });
+        });
+
+        async function loadBanners() {
+            try {
+                const q = query(collection(db, collections.banners), orderBy('createdAt', 'desc'));
+                const snapshot = await getDocs(q);
+                const container = document.getElementById('bannersGrid');
+                if (snapshot.empty) {
+                    container.innerHTML = `<div class="text-center" style="grid-column: 1/-1; color: var(--text-secondary); padding: 40px 0;"><i class="fas fa-images" style="font-size: 48px; display: block; margin-bottom: 16px;"></i>Belum ada banner</div>`;
+                    return;
+                }
+                container.innerHTML = snapshot.docs.map(doc => {
+                    const b = doc.data();
+                    return `<div class="banner-card">
+                        <div class="banner-image"><i class="fas fa-image"></i></div>
+                        <div class="banner-body">
+                            <h4>${b.title || 'Banner'}</h4>
+                            <p style="font-size: 14px; color: var(--text-secondary);">${b.description || 'Tidak ada deskripsi'}</p>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                                <span class="badge ${b.isActive ? 'badge-success' : 'badge-danger'}">${b.isActive ? 'Active' : 'Inactive'}</span>
+                                <span style="font-size: 12px; color: var(--text-light);">Exp: ${formatDate(b.expiresAt)}</span>
+                            </div>
+                            <div class="banner-actions">
+                                <button onclick="toggleBanner('${doc.id}')" class="btn btn-secondary btn-sm" style="flex: 1;"><i class="fas ${b.isActive ? 'fa-pause' : 'fa-play'}"></i> ${b.isActive ? 'Nonaktifkan' : 'Aktifkan'}</button>
+                                <button onclick="deleteBanner('${doc.id}')" class="btn btn-danger btn-sm" style="flex: 1;"><i class="fas fa-trash"></i> Hapus</button>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch (error) { console.error('Error loading banners:', error); document.getElementById('bannersGrid').innerHTML = '<div class="text-center" style="grid-column: 1/-1; color: var(--danger);">Gagal memuat banner</div>'; }
+        }
+
+        async function loadSettings() {
+            try {
+                const settingsRef = doc(db, collections.settings, 'banner');
+                const settingsDoc = await getDoc(settingsRef);
+                if (settingsDoc.exists()) {
+                    const data = settingsDoc.data();
+                    document.getElementById('bannerPrice').value = data.price || 100000;
+                    document.getElementById('bannerDuration').value = data.duration || 24;
+                    document.getElementById('maxBanners').value = data.maxSlots || 5;
+                    document.getElementById('autoSlideSpeed').value = data.autoSlideSpeed || 5;
+                }
+            } catch (error) { console.error('Error loading settings:', error); }
+        }
+
+        window.toggleBanner = async function(id) {
+            try {
+                const bannerRef = doc(db, collections.banners, id);
+                const bannerDoc = await getDoc(bannerRef);
+                if (!bannerDoc.exists()) { showToast('error', 'Banner tidak ditemukan'); return; }
+                const current = bannerDoc.data().isActive;
+                await updateDoc(bannerRef, { isActive: !current, updatedAt: new Date() });
+                showToast('success', `Banner ${!current ? 'diaktifkan' : 'dinonaktifkan'}`);
+                await loadBanners();
+            } catch (error) { console.error('Error toggling banner:', error); showToast('error', 'Gagal mengubah status banner'); }
+        };
+
+        window.deleteBanner = async function(id) {
+            if (!confirm('Yakin ingin menghapus banner ini?')) return;
+            try { await deleteDoc(doc(db, collections.banners, id)); showToast('success', 'Banner dihapus'); await loadBanners(); } 
+            catch (error) { console.error('Error deleting banner:', error); showToast('error', 'Gagal menghapus banner'); }
+        };
+
+        window.openBannerSettings = function() { document.getElementById('settingsModal').classList.add('open'); };
+        window.closeSettingsModal = function() { document.getElementById('settingsModal').classList.remove('open'); };
+
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await updateDoc(doc(db, collections.settings, 'banner'), {
+                    price: parseInt(document.getElementById('bannerPrice').value),
+                    duration: parseInt(document.getElementById('bannerDuration').value),
+                    maxSlots: parseInt(document.getElementById('maxBanners').value),
+                    autoSlideSpeed: parseInt(document.getElementById('autoSlideSpeed').value),
+                    updatedAt: new Date()
+                });
+                showToast('success', 'Pengaturan banner disimpan');
+                closeSettingsModal();
+            } catch (error) { console.error('Error saving settings:', error); showToast('error', 'Gagal menyimpan pengaturan'); }
+        });
+
+        window.handleLogout = async function() { try { await signOut(auth); showToast('success', 'Berhasil logout'); navigate('/'); } catch (error) { showToast('error', 'Gagal logout'); } };
+        document.querySelectorAll('.sidebar-nav a').forEach(link => { link.addEventListener('click', function(e) { e.preventDefault(); navigate(this.getAttribute('href')); }); });
+    </script>
+</body>
+</html>

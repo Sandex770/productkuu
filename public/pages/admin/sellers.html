@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Seller - ProductKuu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="icon" href="../../assets/images/favicon.ico">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
+            <div class="navbar-actions">
+                <span class="badge badge-primary hide-mobile" style="font-size: 11px;">Admin</span>
+                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <button class="btn-icon" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <aside class="sidebar" id="sidebar">
+        <div style="padding: 0 12px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px;">
+            <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary);">Menu Admin</div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="/admin/sellers" class="active"><i class="fas fa-users"></i> Seller</a>
+            <a href="/admin/products"><i class="fas fa-box"></i> Produk</a>
+            <a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Order</a>
+            <a href="/admin/banners"><i class="fas fa-images"></i> Banner</a>
+            <a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Withdraw</a>
+            <a href="/admin/settings"><i class="fas fa-cog"></i> Pengaturan</a>
+            <button onclick="handleLogout()" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: none; background: none; width: 100%; border-radius: var(--radius); color: var(--danger); cursor: pointer; font-family: var(--font); font-size: 14px; font-weight: 500; margin-top: 8px;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </nav>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <main class="main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+            <div><h1 style="font-size: 24px;">Manajemen Seller</h1><p style="color: var(--text-secondary);">Kelola semua seller di platform</p></div>
+        </div>
+
+        <div class="filter-bar">
+            <div class="filter-group">
+                <input type="text" id="searchSeller" placeholder="Cari seller..." style="min-width: 200px;">
+                <select id="filterStatus"><option value="all">Semua Status</option><option value="active">Active</option><option value="suspended">Suspended</option></select>
+                <select id="filterLevel"><option value="all">Semua Level</option><option value="bronze">Bronze</option><option value="silver">Silver</option><option value="gold">Gold</option><option value="platinum">Platinum</option><option value="diamond">Diamond</option></select>
+            </div>
+            <div class="filter-actions">
+                <button onclick="applyFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Filter</button>
+                <button onclick="resetFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-undo"></i></button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead><tr><th>Seller</th><th>Toko</th><th>Level</th><th>Produk</th><th>Penjualan</th><th>Status</th><th>Aksi</th></tr></thead>
+                    <tbody id="sellersTableBody"><tr><td colspan="7" class="text-center" style="color: var(--text-secondary);">Memuat seller...</td></tr></tbody>
+                </table>
+            </div>
+            <div id="pagination" style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;"></div>
+        </div>
+    </main>
+
+    <!-- Edit Seller Modal -->
+    <div class="modal-overlay" id="editSellerModal">
+        <div class="modal" style="max-width: 480px;">
+            <button class="modal-close" onclick="closeEditSellerModal()"><i class="fas fa-times"></i></button>
+            <h3 class="modal-title">Edit Seller</h3>
+            <form id="editSellerForm">
+                <input type="hidden" id="editSellerId">
+                <div class="input-group" style="margin-bottom: 12px;">
+                    <label for="editStoreName">Nama Toko</label>
+                    <input type="text" id="editStoreName" class="input">
+                </div>
+                <div class="input-group" style="margin-bottom: 12px;">
+                    <label for="editStatus">Status</label>
+                    <select id="editStatus" class="input"><option value="active">Active</option><option value="suspended">Suspended</option></select>
+                </div>
+                <div class="input-group" style="margin-bottom: 12px;">
+                    <label for="editVerified">Verified</label>
+                    <select id="editVerified" class="input"><option value="true">Verified</option><option value="false">Unverified</option></select>
+                </div>
+                <div class="input-group" style="margin-bottom: 16px;">
+                    <label for="editLevel">Level</label>
+                    <select id="editLevel" class="input"><option value="bronze">Bronze</option><option value="silver">Silver</option><option value="gold">Gold</option><option value="platinum">Platinum</option><option value="diamond">Diamond</option></select>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;"><i class="fas fa-save"></i> Simpan</button>
+                    <button type="button" onclick="closeEditSellerModal()" class="btn btn-secondary" style="flex: 1;">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script type="module">
+        import { db, auth, collections, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, updateDoc, onSnapshot, signOut } from '../../js/firebase-config.js';
+        import { showToast, formatPrice, formatDate, navigate } from '../../js/app.js';
+
+        let sellers = [], lastDoc = null, hasMore = true, currentPage = 1, limitPerPage = 10;
+
+        // Theme
+        const themeToggle = document.getElementById('themeToggle');
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.addEventListener('click', () => {
+            darkMode = !darkMode;
+            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+            localStorage.setItem('darkMode', darkMode);
+            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        window.toggleSidebar = function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) { navigate('/seller/login'); return; }
+                const userRef = doc(db, collections.users, user.uid);
+                const userDoc = await getDoc(userRef);
+                if (!userDoc.exists() || userDoc.data().role !== 'admin') { showToast('error', 'Akses ditolak'); navigate('/'); return; }
+                await loadSellers(true);
+                onSnapshot(query(collection(db, collections.users), where('role', '==', 'seller')), () => loadSellers(true));
+            });
+        });
+
+        async function loadSellers(reset = true) {
+            try {
+                if (reset) { lastDoc = null; hasMore = true; sellers = []; currentPage = 1; }
+                if (!hasMore) return;
+                let constraints = [where('role', '==', 'seller'), orderBy('createdAt', 'desc')];
+                const status = document.getElementById('filterStatus').value;
+                const level = document.getElementById('filterLevel').value;
+                const search = document.getElementById('searchSeller').value.trim();
+                if (status !== 'all') constraints.push(where('status', '==', status));
+                if (level !== 'all') constraints.push(where('level', '==', level));
+                let q = query(collection(db, collections.users), ...constraints, limit(limitPerPage));
+                if (lastDoc) q = query(collection(db, collections.users), ...constraints, startAfter(lastDoc), limit(limitPerPage));
+                const snapshot = await getDocs(q);
+                if (snapshot.empty) { hasMore = false; if (reset) document.getElementById('sellersTableBody').innerHTML = '<tr><td colspan="7" class="text-center" style="color: var(--text-secondary);">Belum ada seller</td></tr>'; return; }
+                lastDoc = snapshot.docs[snapshot.docs.length - 1];
+                hasMore = snapshot.docs.length === limitPerPage;
+                const newData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                sellers = reset ? newData : [...sellers, ...newData];
+                renderSellers();
+            } catch (error) { console.error('Error loading sellers:', error); showToast('error', 'Gagal memuat seller'); }
+        }
+
+        function renderSellers() {
+            const tbody = document.getElementById('sellersTableBody');
+            if (sellers.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="color: var(--text-secondary);">Tidak ada seller</td></tr>'; document.getElementById('pagination').innerHTML = ''; return; }
+            const levelColors = { 'bronze': 'badge-warning', 'silver': 'badge-info', 'gold': 'badge-success', 'platinum': 'badge-purple', 'diamond': 'badge-info' };
+            tbody.innerHTML = sellers.map(s => `
+                <tr>
+                    <td><div style="display: flex; align-items: center; gap: 8px;"><div style="width: 32px; height: 32px; border-radius: 50%; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--primary);">${(s.displayName || s.storeName || 'S')[0].toUpperCase()}</div><div><strong>${s.displayName || 'Seller'}</strong><br><span style="font-size: 12px; color: var(--text-secondary);">${s.email || '-'}</span></div></div></td>
+                    <td><strong>${s.storeName || '-'}</strong><br><span style="font-size: 12px; color: var(--text-secondary);">${s.storeDescription ? s.storeDescription.substring(0, 30) + '...' : 'Tidak ada deskripsi'}</span></td>
+                    <td><span class="badge ${levelColors[s.level] || 'badge-info'}">${s.level || 'bronze'}</span> ${s.verified ? '<span style="color: var(--info);"><i class="fas fa-check-circle" title="Verified"></i></span>' : ''}</td>
+                    <td style="text-align: center;">${s.productCount || 0}</td>
+                    <td style="text-align: center;">${s.totalSales || 0}</td>
+                    <td><span class="badge ${s.status === 'active' ? 'badge-success' : 'badge-danger'}">${s.status || 'active'}</span></td>
+                    <td>
+                        <button onclick="editSeller('${s.id}')" class="btn btn-secondary btn-sm" style="padding: 4px 8px;"><i class="fas fa-edit"></i></button>
+                        <button onclick="toggleSellerStatus('${s.id}')" class="btn btn-secondary btn-sm" style="padding: 4px 8px;"><i class="fas ${s.status === 'active' ? 'fa-pause' : 'fa-play'}"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const container = document.getElementById('pagination');
+            if (!hasMore && sellers.length <= limitPerPage) { container.innerHTML = ''; return; }
+            container.innerHTML = `
+                <span style="font-size: 14px; color: var(--text-secondary);">${sellers.length} seller</span>
+                <div style="display: flex; gap: 8px;">
+                    ${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}
+                    ${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}
+                </div>
+            `;
+        }
+
+        window.loadNextPage = function() { currentPage++; loadSellers(false); };
+        window.loadPreviousPage = function() { if (currentPage <= 1) return; currentPage--; lastDoc = null; hasMore = true; loadSellers(true); };
+        window.applyFilters = function() { lastDoc = null; hasMore = true; loadSellers(true); };
+        window.resetFilters = function() { document.getElementById('searchSeller').value = ''; document.getElementById('filterStatus').value = 'all'; document.getElementById('filterLevel').value = 'all'; applyFilters(); };
+
+        window.editSeller = async function(id) {
+            try {
+                const sellerRef = doc(db, collections.users, id);
+                const sellerDoc = await getDoc(sellerRef);
+                if (!sellerDoc.exists()) { showToast('error', 'Seller tidak ditemukan'); return; }
+                const s = sellerDoc.data();
+                document.getElementById('editSellerId').value = id;
+                document.getElementById('editStoreName').value = s.storeName || '';
+                document.getElementById('editStatus').value = s.status || 'active';
+                document.getElementById('editVerified').value = s.verified ? 'true' : 'false';
+                document.getElementById('editLevel').value = s.level || 'bronze';
+                document.getElementById('editSellerModal').classList.add('open');
+            } catch (error) { console.error('Error loading seller:', error); showToast('error', 'Gagal memuat data seller'); }
+        };
+
+        window.closeEditSellerModal = function() { document.getElementById('editSellerModal').classList.remove('open'); };
+
+        document.getElementById('editSellerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('editSellerId').value;
+            try {
+                await updateDoc(doc(db, collections.users, id), {
+                    storeName: document.getElementById('editStoreName').value.trim() || undefined,
+                    status: document.getElementById('editStatus').value,
+                    verified: document.getElementById('editVerified').value === 'true',
+                    level: document.getElementById('editLevel').value,
+                    updatedAt: new Date()
+                });
+                showToast('success', 'Seller diperbarui');
+                closeEditSellerModal();
+                loadSellers(true);
+            } catch (error) { console.error('Error updating seller:', error); showToast('error', 'Gagal memperbarui seller'); }
+        });
+
+        window.toggleSellerStatus = async function(id) {
+            try {
+                const sellerRef = doc(db, collections.users, id);
+                const sellerDoc = await getDoc(sellerRef);
+                if (!sellerDoc.exists()) { showToast('error', 'Seller tidak ditemukan'); return; }
+                const current = sellerDoc.data().status || 'active';
+                const next = current === 'active' ? 'suspended' : 'active';
+                if (!confirm(`Yakin ingin ${next === 'active' ? 'mengaktifkan' : 'mensuspend'} seller ini?`)) return;
+                await updateDoc(sellerRef, { status: next, updatedAt: new Date() });
+                showToast('success', `Seller ${next === 'active' ? 'diaktifkan' : 'disuspend'}`);
+                loadSellers(true);
+            } catch (error) { console.error('Error toggling seller status:', error); showToast('error', 'Gagal mengubah status'); }
+        };
+
+        window.handleLogout = async function() { try { await signOut(auth); showToast('success', 'Berhasil logout'); navigate('/'); } catch (error) { showToast('error', 'Gagal logout'); } };
+        document.querySelectorAll('.sidebar-nav a').forEach(link => { link.addEventListener('click', function(e) { e.preventDefault(); navigate(this.getAttribute('href')); }); });
+        let searchTimeout; document.getElementById('searchSeller').addEventListener('input', () => { clearTimeout(searchTimeout); searchTimeout = setTimeout(applyFilters, 500); });
+    </script>
+</body>
+</html>

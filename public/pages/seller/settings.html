@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengaturan - ProductKuu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="icon" href="../../assets/images/favicon.ico">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
+            <div class="navbar-actions">
+                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <button class="btn-icon" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <aside class="sidebar" id="sidebar">
+        <div style="padding: 0 12px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px;">
+            <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary);">Menu Seller</div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/seller/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="/seller/products"><i class="fas fa-box"></i> Produk</a>
+            <a href="/seller/wallet"><i class="fas fa-wallet"></i> Wallet</a>
+            <a href="/seller/transactions"><i class="fas fa-exchange-alt"></i> Transaksi</a>
+            <a href="/seller/withdraw"><i class="fas fa-arrow-up"></i> Withdraw</a>
+            <a href="/seller/settings" class="active"><i class="fas fa-cog"></i> Pengaturan</a>
+            <button onclick="handleLogout()" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: none; background: none; width: 100%; border-radius: var(--radius); color: var(--danger); cursor: pointer; font-family: var(--font); font-size: 14px; font-weight: 500; margin-top: 8px;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </nav>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <main class="main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+            <div><h1 style="font-size: 24px;">Pengaturan Toko</h1><p style="color: var(--text-secondary);">Kelola informasi toko Anda</p></div>
+        </div>
+
+        <div class="card" style="max-width: 640px;">
+            <form id="settingsForm">
+                <div class="input-group" style="margin-bottom: 12px;">
+                    <label for="storeName">Nama Toko *</label>
+                    <input type="text" id="storeName" class="input" required placeholder="Nama toko Anda">
+                </div>
+                <div class="input-group" style="margin-bottom: 12px;">
+                    <label for="storeDescription">Deskripsi Toko</label>
+                    <textarea id="storeDescription" class="input" rows="4" placeholder="Deskripsi toko Anda"></textarea>
+                </div>
+                <div class="input-group" style="margin-bottom: 12px;">
+                    <label for="storeLogo">Logo Toko (URL)</label>
+                    <input type="url" id="storeLogo" class="input" placeholder="https://example.com/logo.png">
+                </div>
+                <div class="input-group" style="margin-bottom: 12px;">
+                    <label for="storeWhatsapp">WhatsApp</label>
+                    <input type="text" id="storeWhatsapp" class="input" placeholder="08123456789">
+                </div>
+                <div class="input-group" style="margin-bottom: 12px;">
+                    <label for="storeEmail">Email</label>
+                    <input type="email" id="storeEmail" class="input" placeholder="toko@example.com">
+                </div>
+                <div class="input-group" style="margin-bottom: 16px;">
+                    <label for="storeInstagram">Instagram</label>
+                    <input type="text" id="storeInstagram" class="input" placeholder="@toko_anda">
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;"><i class="fas fa-save"></i> Simpan</button>
+                    <button type="button" onclick="resetSettings()" class="btn btn-secondary" style="flex: 1;">Reset</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script type="module">
+        import { db, auth, collections, doc, getDoc, updateDoc, signOut } from '../../js/firebase-config.js';
+        import { showToast, navigate } from '../../js/app.js';
+
+        let currentUser = null;
+
+        // Theme
+        const themeToggle = document.getElementById('themeToggle');
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.addEventListener('click', () => {
+            darkMode = !darkMode;
+            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+            localStorage.setItem('darkMode', darkMode);
+            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        window.toggleSidebar = function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) { navigate('/seller/login'); return; }
+                currentUser = user;
+                await loadSettings(user.uid);
+            });
+        });
+
+        async function loadSettings(uid) {
+            try {
+                const userRef = doc(db, collections.users, uid);
+                const userDoc = await getDoc(userRef);
+                if (userDoc.exists) {
+                    const data = userDoc.data();
+                    document.getElementById('storeName').value = data.storeName || '';
+                    document.getElementById('storeDescription').value = data.storeDescription || '';
+                    document.getElementById('storeLogo').value = data.logo || '';
+                    document.getElementById('storeWhatsapp').value = data.whatsapp || '';
+                    document.getElementById('storeEmail').value = data.email || '';
+                    document.getElementById('storeInstagram').value = data.instagram || '';
+                }
+            } catch (error) { console.error('Error loading settings:', error); showToast('error', 'Gagal memuat pengaturan'); }
+        }
+
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const storeName = document.getElementById('storeName').value.trim();
+            if (!storeName) { showToast('warning', 'Nama toko wajib diisi'); return; }
+            try {
+                await updateDoc(doc(db, collections.users, currentUser.uid), {
+                    storeName, storeDescription: document.getElementById('storeDescription').value.trim(),
+                    logo: document.getElementById('storeLogo').value.trim(), whatsapp: document.getElementById('storeWhatsapp').value.trim(),
+                    email: document.getElementById('storeEmail').value.trim(), instagram: document.getElementById('storeInstagram').value.trim(),
+                    updatedAt: new Date()
+                });
+                showToast('success', 'Pengaturan berhasil disimpan!');
+            } catch (error) { console.error('Error saving settings:', error); showToast('error', 'Gagal menyimpan pengaturan'); }
+        });
+
+        window.resetSettings = function() { if (confirm('Reset semua pengaturan?')) loadSettings(currentUser.uid); };
+
+        window.handleLogout = async function() { try { await signOut(auth); showToast('success', 'Berhasil logout'); navigate('/'); } catch (error) { showToast('error', 'Gagal logout'); } };
+        document.querySelectorAll('.sidebar-nav a').forEach(link => { link.addEventListener('click', function(e) { e.preventDefault(); navigate(this.getAttribute('href')); }); });
+    </script>
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cek Order - ProductKuu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="assets/images/favicon.ico">
+    <style>
+        .order-result { margin-top: 24px; }
+        .order-result.hidden { display: none; }
+        .order-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .order-detail .full { grid-column: 1/-1; }
+        .order-detail .label { font-size: 13px; color: var(--text-secondary); }
+        .order-detail .value { font-weight: 600; font-size: 15px; }
+        .order-access { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color); }
+        .order-access .btn { margin-bottom: 8px; }
+        @media (max-width: 640px) {
+            .order-detail { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="navbar-logo">
+                <i class="fas fa-cube"></i>
+                <span>ProductKuu</span>
+            </a>
+            
+            <div class="navbar-actions">
+                <button class="btn-icon" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="/" class="btn-icon">
+                    <i class="fas fa-home"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content" style="max-width: 640px; margin: 0 auto; padding-top: 80px;">
+        <h1 style="text-align: center; margin-bottom: 24px;">Cek Status Order</h1>
+        
+        <div class="card">
+            <form id="checkOrderForm">
+                <div class="input-group" style="margin-bottom: 16px;">
+                    <label for="orderIdInput">Order ID</label>
+                    <input type="text" id="orderIdInput" class="input" placeholder="Contoh: PK-20260714-AB91CD" required>
+                    <span class="hint">Masukkan Order ID yang Anda terima setelah pembayaran</span>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-search"></i> Cek Order
+                </button>
+            </form>
+            
+            <div class="order-result hidden" id="orderResult">
+                <hr style="margin: 20px 0; border-color: var(--border-color);">
+                <div id="orderDetail"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" style="margin-top: 48px;">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 ProductKuu. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script type="module">
+        import { formatPrice, formatDate } from './js/utils.js';
+        import { showToast } from './js/app.js';
+
+        // Dark Mode
+        const themeToggle = document.getElementById('themeToggle');
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeToggle.querySelector('i').className = 'fas fa-sun';
+        }
+        themeToggle.addEventListener('click', () => {
+            darkMode = !darkMode;
+            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+            localStorage.setItem('darkMode', darkMode);
+            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        // Check Order
+        document.getElementById('checkOrderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const orderId = document.getElementById('orderIdInput').value.trim();
+            if (!orderId) { showToast('warning', 'Masukkan Order ID'); return; }
+
+            try {
+                const response = await fetch(`/api/orders/${orderId}`);
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Order tidak ditemukan');
+                displayOrderResult(data);
+            } catch (error) {
+                showToast('error', error.message);
+                document.getElementById('orderResult').classList.add('hidden');
+            }
+        });
+
+        function displayOrderResult(order) {
+            const resultDiv = document.getElementById('orderResult');
+            const detailDiv = document.getElementById('orderDetail');
+            
+            const statusColors = {
+                'paid': 'badge-success',
+                'settlement': 'badge-success',
+                'pending': 'badge-warning',
+                'failed': 'badge-danger',
+                'expire': 'badge-danger'
+            };
+            const statusClass = statusColors[order.paymentStatus] || 'badge-info';
+
+            detailDiv.innerHTML = `
+                <div class="order-detail">
+                    <div>
+                        <div class="label">Order ID</div>
+                        <div class="value">${order.orderId}</div>
+                    </div>
+                    <div>
+                        <div class="label">Status</div>
+                        <span class="badge ${statusClass}">${order.paymentStatus || order.status}</span>
+                    </div>
+                    <div>
+                        <div class="label">Produk</div>
+                        <div class="value">${order.productName || 'Product'}</div>
+                    </div>
+                    <div>
+                        <div class="label">Pembeli</div>
+                        <div class="value">${order.buyerName}</div>
+                    </div>
+                    <div>
+                        <div class="label">Email</div>
+                        <div class="value">${order.buyerEmail}</div>
+                    </div>
+                    <div>
+                        <div class="label">Harga</div>
+                        <div class="value" style="color: var(--primary); font-size: 20px;">Rp${formatPrice(order.amount || order.price)}</div>
+                    </div>
+                    <div class="full">
+                        <div class="label">Tanggal</div>
+                        <div class="value">${formatDate(order.createdAt)}</div>
+                    </div>
+                </div>
+
+                ${order.paymentStatus === 'settlement' || order.paymentStatus === 'paid' ? `
+                    <div style="margin-top: 16px; padding: 16px; background: rgba(16, 185, 129, 0.1); border-radius: var(--radius); border-left: 4px solid var(--success);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-check-circle" style="color: var(--success); font-size: 24px;"></i>
+                            <div>
+                                <strong style="color: var(--success);">Pembayaran Berhasil!</strong>
+                                <p style="font-size: 14px; color: var(--text-secondary);">Silakan akses produk Anda di bawah ini:</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="order-access">
+                        <h4 style="margin-bottom: 12px;">Akses Produk</h4>
+                        <div id="productAccess">
+                            <div class="text-center" style="color: var(--text-secondary);">Memuat akses produk...</div>
+                        </div>
+                    </div>
+                ` : `
+                    <div style="margin-top: 16px; padding: 16px; background: rgba(245, 158, 11, 0.1); border-radius: var(--radius); border-left: 4px solid var(--warning);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-clock" style="color: var(--warning); font-size: 24px;"></i>
+                            <div>
+                                <strong style="color: var(--warning);">Menunggu Pembayaran</strong>
+                                <p style="font-size: 14px; color: var(--text-secondary);">Silakan selesaikan pembayaran Anda untuk mengakses produk.</p>
+                            </div>
+                        </div>
+                    </div>
+                `}
+            `;
+
+            resultDiv.classList.remove('hidden');
+
+            if (order.paymentStatus === 'settlement' || order.paymentStatus === 'paid') {
+                loadProductAccess(order.productId);
+            }
+        }
+
+        async function loadProductAccess(productId) {
+            try {
+                const response = await fetch(`/api/products/${productId}`);
+                if (!response.ok) throw new Error('Product not found');
+                const product = await response.json();
+                const container = document.getElementById('productAccess');
+
+                if (product.type === 'premium-account') {
+                    const accounts = product.premiumAccounts || [];
+                    if (accounts.length > 0) {
+                        const account = accounts[0];
+                        container.innerHTML = `
+                            <div style="background: var(--bg-secondary); border-radius: var(--radius); padding: 16px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div>
+                                        <div style="font-size: 13px; color: var(--text-secondary);">Email</div>
+                                        <div style="font-family: monospace;">${account.email}</div>
+                                    </div>
+                                    <button onclick="copyText('${account.email}')" class="btn btn-secondary btn-sm">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div style="font-size: 13px; color: var(--text-secondary);">Password</div>
+                                        <div style="font-family: monospace;">${account.password}</div>
+                                    </div>
+                                    <button onclick="copyText('${account.password}')" class="btn btn-secondary btn-sm">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                                ${product.note ? `
+                                    <div style="margin-top: 12px; padding: 12px; background: rgba(245, 158, 11, 0.1); border-radius: var(--radius); font-size: 14px;">
+                                        <i class="fas fa-info-circle" style="color: var(--warning);"></i> ${product.note}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    } else {
+                        container.innerHTML = '<p style="color: var(--text-secondary);">Tidak ada akun tersedia</p>';
+                    }
+                } else {
+                    container.innerHTML = `
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <a href="${product.downloadLink}" target="_blank" class="btn btn-primary btn-block">
+                                <i class="fas fa-download"></i> Download Produk
+                            </a>
+                            <button onclick="copyText('${product.downloadLink}')" class="btn btn-secondary btn-block">
+                                <i class="fas fa-copy"></i> Salin Link
+                            </button>
+                            <button onclick="window.open('${product.downloadLink}', '_blank')" class="btn btn-secondary btn-block">
+                                <i class="fas fa-external-link-alt"></i> Buka Link
+                            </button>
+                            ${product.demoLink ? `
+                                <a href="${product.demoLink}" target="_blank" class="btn btn-secondary btn-block">
+                                    <i class="fas fa-play"></i> Lihat Demo
+                                </a>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading product access:', error);
+                document.getElementById('productAccess').innerHTML = 
+                    '<p style="color: var(--danger);">Gagal memuat akses produk</p>';
+            }
+        }
+
+        window.copyText = function(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('success', 'Berhasil disalin!');
+            }).catch(() => {
+                const input = document.createElement('input');
+                input.value = text;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                input.remove();
+                showToast('success', 'Berhasil disalin!');
+            });
+        };
+    </script>
+</body>
+</html>
