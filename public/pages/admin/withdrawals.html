@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manajemen Produk - ProductKuu</title>
+    <title>Manajemen Withdraw - ProductKuu</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -53,20 +53,18 @@
         .text-center { text-align: center; }
         .text-secondary { color: var(--text-secondary); }
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
-        .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
-        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
-        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-danger:hover { transform: translateY(-2px); }
         .btn-success { background: var(--success); color: white; }
         .btn-success:hover { transform: translateY(-2px); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { transform: translateY(-2px); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
         .btn-sm { padding: 8px 16px; font-size: 12px; }
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
         .modal-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
         .modal { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 32px; max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; animation: slideUp 0.3s ease; text-align: center; }
-        .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; color: var(--text-secondary); cursor: pointer; transition: all 0.3s; padding: 4px; }
         .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+        .modal p { color: var(--text-secondary); margin-bottom: 24px; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
     </style>
@@ -88,10 +86,10 @@
         <nav class="sidebar-nav">
             <a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
             <a href="/admin/sellers"><i class="fas fa-users"></i> Seller</a>
-            <a href="/admin/products" class="active"><i class="fas fa-box"></i> Produk</a>
+            <a href="/admin/products"><i class="fas fa-box"></i> Produk</a>
             <a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Order</a>
             <a href="/admin/banners"><i class="fas fa-images"></i> Banner</a>
-            <a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Withdraw</a>
+            <a href="/admin/withdrawals" class="active"><i class="fas fa-arrow-up"></i> Withdraw</a>
             <a href="/admin/settings"><i class="fas fa-cog"></i> Pengaturan</a>
             <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </nav>
@@ -101,14 +99,14 @@
     <div class="app-wrapper">
         <main class="main-content">
             <div class="flex-between" style="margin-bottom:24px;">
-                <div><h1 style="font-size:24px;">Manajemen Produk</h1><p style="color:var(--text-secondary);">Kelola semua produk di platform</p></div>
+                <div><h1 style="font-size:24px;">Manajemen Withdraw</h1><p style="color:var(--text-secondary);">Kelola semua permintaan withdraw</p></div>
             </div>
 
             <div class="filter-bar">
                 <div class="filter-group">
-                    <input type="text" id="searchProduct" placeholder="Cari produk..." style="min-width:200px;">
-                    <select id="filterStatus"><option value="all">Semua Status</option><option value="published">Published</option><option value="draft">Draft</option><option value="pending">Pending</option><option value="rejected">Rejected</option></select>
-                    <select id="filterType"><option value="all">Semua Type</option><option value="digital">Digital</option><option value="premium-account">Premium Account</option></select>
+                    <select id="filterStatus"><option value="all">Semua Status</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="processing">Processing</option></select>
+                    <input type="date" id="filterDateFrom">
+                    <input type="date" id="filterDateTo">
                 </div>
                 <div class="filter-actions">
                     <button onclick="applyFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Filter</button>
@@ -119,8 +117,8 @@
             <div class="card">
                 <div class="table-wrapper">
                     <table class="table">
-                        <thead><tr><th>Produk</th><th>Seller</th><th>Harga</th><th>Status</th><th>Terjual</th><th>Aksi</th></tr></thead>
-                        <tbody id="productsTableBody"><tr><td colspan="6" class="text-center text-secondary" style="padding:40px 0;">Memuat produk...</td></tr></tbody>
+                        <thead><tr><th>Seller</th><th>Metode</th><th>Nomor Tujuan</th><th>Nama</th><th>Nominal</th><th>Status</th><th>Tanggal</th><th>Aksi</th></tr></thead>
+                        <tbody id="withdrawalsTableBody"><tr><td colspan="8" class="text-center text-secondary" style="padding:40px 0;">Memuat withdraw...</td></tr></tbody>
                     </table>
                 </div>
                 <div id="pagination" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"></div>
@@ -131,10 +129,10 @@
     <!-- Action Modal -->
     <div class="modal-overlay" id="actionModal">
         <div class="modal">
-            <h3 class="modal-title" id="actionModalTitle">Approve Produk</h3>
-            <p style="color:var(--text-secondary);margin-bottom:24px;" id="actionModalMessage">Apakah Anda yakin ingin menyetujui produk ini?</p>
+            <h3 class="modal-title" id="actionModalTitle">Approve Withdraw</h3>
+            <p id="actionModalMessage">Apakah Anda yakin ingin menyetujui permintaan withdraw ini?</p>
             <div style="display:flex;gap:12px;">
-                <button onclick="confirmAction()" class="btn btn-primary" style="flex:1;" id="actionConfirmBtn"><i class="fas fa-check"></i> Ya</button>
+                <button onclick="confirmWithdrawAction()" class="btn btn-success" style="flex:1;" id="actionConfirmBtn"><i class="fas fa-check"></i> Ya</button>
                 <button onclick="closeActionModal()" class="btn btn-secondary" style="flex:1;">Batal</button>
             </div>
         </div>
@@ -155,7 +153,7 @@
     <script type="module">
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, updateDoc, onSnapshot } from "firebase/firestore";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
@@ -171,7 +169,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         let currentUser = null;
-        let products = [], lastDoc = null, hasMore = true, currentPage = 1, actionId = null, actionType = null, limitPerPage = 10;
+        let withdrawals = [], lastDoc = null, hasMore = true, currentPage = 1, actionId = null, actionType = null, limitPerPage = 20;
 
         // Theme & Sidebar
         const themeToggle = document.getElementById('themeToggle');
@@ -214,24 +212,21 @@
             const userRef = doc(db, 'users', user.uid);
             const userDoc = await getDoc(userRef);
             if (!userDoc.exists() || userDoc.data().role !== 'admin') { window.location.href = '/'; return; }
-            await loadProducts(true);
-            onSnapshot(collection(db, 'products'), () => loadProducts(true));
+            await loadWithdrawals(true);
+            onSnapshot(collection(db, 'withdrawals'), () => loadWithdrawals(true));
         });
 
-        async function loadProducts(reset = true) {
+        async function loadWithdrawals(reset = true) {
             try {
-                if (reset) { lastDoc = null; hasMore = true; products = []; currentPage = 1; }
+                if (reset) { lastDoc = null; hasMore = true; withdrawals = []; currentPage = 1; }
                 if (!hasMore) return;
                 let constraints = [orderBy('createdAt', 'desc')];
                 const status = document.getElementById('filterStatus').value;
-                const type = document.getElementById('filterType').value;
-                const search = document.getElementById('searchProduct').value.trim();
                 if (status !== 'all') constraints.push(where('status', '==', status));
-                if (type !== 'all') constraints.push(where('type', '==', type));
-                let q = query(collection(db, 'products'), ...constraints, limit(limitPerPage));
-                if (lastDoc) q = query(collection(db, 'products'), ...constraints, startAfter(lastDoc), limit(limitPerPage));
+                let q = query(collection(db, 'withdrawals'), ...constraints, limit(limitPerPage));
+                if (lastDoc) q = query(collection(db, 'withdrawals'), ...constraints, startAfter(lastDoc), limit(limitPerPage));
                 const snapshot = await getDocs(q);
-                if (snapshot.empty) { hasMore = false; if (reset) document.getElementById('productsTableBody').innerHTML = '<tr><td colspan="6" class="text-center text-secondary">Belum ada produk</td></tr>'; return; }
+                if (snapshot.empty) { hasMore = false; if (reset) document.getElementById('withdrawalsTableBody').innerHTML = '<tr><td colspan="8" class="text-center text-secondary">Belum ada withdraw</td></tr>'; return; }
                 lastDoc = snapshot.docs[snapshot.docs.length - 1];
                 hasMore = snapshot.docs.length === limitPerPage;
                 const newData = [];
@@ -245,28 +240,30 @@
                     }
                     newData.push({ id: doc.id, ...data, sellerName });
                 }
-                products = reset ? newData : [...products, ...newData];
-                renderProducts();
-            } catch (error) { console.error('Error loading products:', error); showToast('error', 'Gagal memuat produk'); }
+                withdrawals = reset ? newData : [...withdrawals, ...newData];
+                renderWithdrawals();
+            } catch (error) { console.error('Error loading withdrawals:', error); showToast('error', 'Gagal memuat withdraw'); }
         }
 
-        function renderProducts() {
-            const tbody = document.getElementById('productsTableBody');
-            if (products.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary">Tidak ada produk</td></tr>'; document.getElementById('pagination').innerHTML = ''; return; }
-            tbody.innerHTML = products.map(p => `
+        function renderWithdrawals() {
+            const tbody = document.getElementById('withdrawalsTableBody');
+            if (withdrawals.length === 0) { tbody.innerHTML = '<tr><td colspan="8" class="text-center text-secondary">Tidak ada withdraw</td></tr>'; document.getElementById('pagination').innerHTML = ''; return; }
+            const statusColors = { 'pending': 'badge-warning', 'approved': 'badge-success', 'rejected': 'badge-danger', 'processing': 'badge-info' };
+            tbody.innerHTML = withdrawals.map(w => `
                 <tr>
-                    <td><div style="display:flex;align-items:center;gap:8px;"><div style="width:32px;height:32px;border-radius:var(--radius);background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;"><i class="fas fa-${p.type === 'premium-account' ? 'user' : 'box'}"></i></div><div><strong>${p.name}</strong><br><span style="font-size:12px;color:var(--text-secondary);">${p.category || 'Uncategorized'} • ${formatDate(p.createdAt)}</span></div></div></td>
-                    <td>${p.sellerName}</td>
-                    <td style="font-weight:600;color:var(--primary);">Rp${formatPrice(p.price)}</td>
-                    <td><span class="badge ${p.status === 'published' ? 'badge-success' : p.status === 'pending' ? 'badge-warning' : p.status === 'draft' ? 'badge-info' : 'badge-danger'}">${p.status || 'draft'}</span></td>
-                    <td style="text-align:center;">${p.sales || 0}</td>
+                    <td><strong>${w.sellerName}</strong></td>
+                    <td>${w.method}</td>
+                    <td>${w.accountNumber}</td>
+                    <td>${w.accountName}</td>
+                    <td style="font-weight:600;color:${w.status === 'pending' ? 'var(--danger)' : 'var(--primary)'};">Rp${formatPrice(w.amount)}</td>
+                    <td><span class="badge ${statusColors[w.status] || 'badge-info'}">${w.status}</span></td>
+                    <td style="font-size:13px;color:var(--text-secondary);">${formatDate(w.createdAt)}</td>
                     <td>
-                        ${p.status === 'pending' ? `
-                            <button onclick="approveProduct('${p.id}')" class="btn btn-success btn-sm" style="padding:4px 8px;" title="Approve"><i class="fas fa-check"></i></button>
-                            <button onclick="rejectProduct('${p.id}')" class="btn btn-danger btn-sm" style="padding:4px 8px;" title="Reject"><i class="fas fa-times"></i></button>
+                        ${w.status === 'pending' ? `
+                            <button onclick="approveWithdraw('${w.id}')" class="btn btn-success btn-sm" style="padding:4px 8px;" title="Approve"><i class="fas fa-check"></i></button>
+                            <button onclick="rejectWithdraw('${w.id}')" class="btn btn-danger btn-sm" style="padding:4px 8px;" title="Reject"><i class="fas fa-times"></i></button>
                         ` : ''}
-                        <button onclick="navigate('/product/${p.id}')" class="btn btn-secondary btn-sm" style="padding:4px 8px;" title="View"><i class="fas fa-eye"></i></button>
-                        <button onclick="deleteProduct('${p.id}')" class="btn btn-danger btn-sm" style="padding:4px 8px;" title="Delete"><i class="fas fa-trash"></i></button>
+                        ${w.adminNote ? `<span style="font-size:11px;color:var(--text-light);display:block;">${w.adminNote}</span>` : ''}
                     </td>
                 </tr>
             `).join('');
@@ -275,37 +272,64 @@
 
         function renderPagination() {
             const container = document.getElementById('pagination');
-            if (!hasMore && products.length <= limitPerPage) { container.innerHTML = ''; return; }
-            container.innerHTML = `<span style="font-size:14px;color:var(--text-secondary);">${products.length} produk</span><div style="display:flex;gap:8px;">${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}</div>`;
+            if (!hasMore && withdrawals.length <= limitPerPage) { container.innerHTML = ''; return; }
+            container.innerHTML = `<span style="font-size:14px;color:var(--text-secondary);">${withdrawals.length} withdraw</span><div style="display:flex;gap:8px;">${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}</div>`;
         }
 
-        window.loadNextPage = function() { currentPage++; loadProducts(false); };
-        window.loadPreviousPage = function() { if (currentPage <= 1) return; currentPage--; lastDoc = null; hasMore = true; loadProducts(true); };
-        window.applyFilters = function() { lastDoc = null; hasMore = true; loadProducts(true); };
-        window.resetFilters = function() { document.getElementById('searchProduct').value = ''; document.getElementById('filterStatus').value = 'all'; document.getElementById('filterType').value = 'all'; applyFilters(); };
+        window.loadNextPage = function() { currentPage++; loadWithdrawals(false); };
+        window.loadPreviousPage = function() { if (currentPage <= 1) return; currentPage--; lastDoc = null; hasMore = true; loadWithdrawals(true); };
+        window.applyFilters = function() { lastDoc = null; hasMore = true; loadWithdrawals(true); };
+        window.resetFilters = function() { document.getElementById('filterStatus').value = 'all'; document.getElementById('filterDateFrom').value = ''; document.getElementById('filterDateTo').value = ''; applyFilters(); };
 
-        window.approveProduct = function(id) { actionId = id; actionType = 'approve'; document.getElementById('actionModalTitle').textContent = 'Approve Produk'; document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menyetujui produk ini?'; document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-check"></i> Approve'; document.getElementById('actionModal').classList.add('open'); };
-        window.rejectProduct = function(id) { actionId = id; actionType = 'reject'; document.getElementById('actionModalTitle').textContent = 'Reject Produk'; document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menolak produk ini?'; document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-times"></i> Reject'; document.getElementById('actionModal').classList.add('open'); };
+        window.approveWithdraw = function(id) {
+            actionId = id;
+            actionType = 'approve';
+            document.getElementById('actionModalTitle').textContent = 'Approve Withdraw';
+            document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menyetujui permintaan withdraw ini?';
+            document.getElementById('actionConfirmBtn').className = 'btn btn-success';
+            document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-check"></i> Approve';
+            document.getElementById('actionModal').classList.add('open');
+        };
+
+        window.rejectWithdraw = function(id) {
+            const note = prompt('Alasan penolakan:');
+            if (note === null) return;
+            actionId = id;
+            actionType = 'reject';
+            document.getElementById('actionModalTitle').textContent = 'Reject Withdraw';
+            document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menolak permintaan withdraw ini?';
+            document.getElementById('actionConfirmBtn').className = 'btn btn-danger';
+            document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-times"></i> Reject';
+            document.getElementById('actionModal').classList.add('open');
+            // Store the note for later use
+            document.getElementById('actionModal').dataset.note = note;
+        };
+
         window.closeActionModal = function() { document.getElementById('actionModal').classList.remove('open'); actionId = null; actionType = null; };
-        window.confirmAction = async function() {
+
+        window.confirmWithdrawAction = async function() {
             if (!actionId || !actionType) return;
             try {
-                await updateDoc(doc(db, 'products', actionId), { status: actionType === 'approve' ? 'published' : 'rejected', updatedAt: new Date().toISOString() });
-                showToast('success', `Produk ${actionType === 'approve' ? 'disetujui' : 'ditolak'}`);
+                const note = document.getElementById('actionModal').dataset.note || (actionType === 'approve' ? 'Disetujui admin' : 'Ditolak admin');
+                const response = await fetch(`/api/admin/withdrawals/${actionId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        status: actionType === 'approve' ? 'approved' : 'rejected',
+                        adminNote: note
+                    })
+                });
+                if (!response.ok) throw new Error('Gagal memproses withdraw');
+                showToast('success', `Withdraw ${actionType === 'approve' ? 'disetujui' : 'ditolak'}`);
                 closeActionModal();
-                loadProducts(true);
-            } catch (error) { console.error('Error updating product:', error); showToast('error', 'Gagal memperbarui produk'); }
+                loadWithdrawals(true);
+            } catch (error) {
+                console.error('Error processing withdrawal:', error);
+                showToast('error', error.message);
+            }
         };
 
-        window.deleteProduct = async function(id) {
-            if (!confirm('Yakin ingin menghapus produk ini?')) return;
-            try { await deleteDoc(doc(db, 'products', id)); showToast('success', 'Produk dihapus'); loadProducts(true); } 
-            catch (error) { console.error('Error deleting product:', error); showToast('error', 'Gagal menghapus produk'); }
-        };
-
-        let searchTimeout; document.getElementById('searchProduct').addEventListener('input', () => { clearTimeout(searchTimeout); searchTimeout = setTimeout(applyFilters, 500); });
-
-        console.log('📦 Admin Products page loaded!');
+        console.log('💰 Admin Withdrawals page loaded!');
     </script>
 </body>
 </html>

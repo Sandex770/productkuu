@@ -8,25 +8,82 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="../../css/style.css">
-    <link rel="icon" href="../../assets/images/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/assets/images/favicon.ico">
+    <style>
+        .app-wrapper { display: flex; min-height: calc(100vh - 64px); margin-top: 64px; }
+        .sidebar { width: 260px; background: var(--bg-primary); border-right: 1px solid var(--border-color); padding: 20px 0; position: fixed; top: 64px; bottom: 0; overflow-y: auto; z-index: 100; transition: transform 0.3s ease; }
+        .sidebar-header { padding: 0 16px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px; }
+        .sidebar-header .title { font-weight: 600; font-size: 14px; color: var(--text-secondary); }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
+        .sidebar-nav a, .sidebar-nav button { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius); color: var(--text-secondary); transition: var(--transition); font-size: 14px; font-weight: 500; text-decoration: none; background: none; border: none; width: 100%; cursor: pointer; font-family: var(--font); text-align: left; }
+        .sidebar-nav a:hover, .sidebar-nav button:hover { background: var(--bg-secondary); color: var(--text-primary); }
+        .sidebar-nav a.active { background: rgba(79,70,229,0.1); color: var(--primary); }
+        .sidebar-nav .logout-btn { color: var(--danger); margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 16px; }
+        .sidebar-nav .logout-btn:hover { background: rgba(239,68,68,0.1); color: var(--danger); }
+        .sidebar-overlay { display: none; position: fixed; top: 64px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99; }
+        .sidebar-overlay.open { display: block; }
+        .main-content { margin-left: 260px; padding: 24px; flex: 1; min-height: calc(100vh - 64px); }
+        .mobile-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-primary); cursor: pointer; padding: 8px; }
+        @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); width: 280px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 16px; } .mobile-toggle { display: block !important; } }
+        
+        .table-wrapper { overflow-x: auto; }
+        .table { width: 100%; border-collapse: collapse; }
+        .table th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); border-bottom: 2px solid var(--border-color); background: var(--bg-secondary); }
+        .table td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
+        .table tr:hover td { background: var(--bg-secondary); }
+        .filter-bar { background: var(--bg-primary); border-radius: var(--radius); padding: 16px 20px; border: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 24px; }
+        .filter-bar .filter-group { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+        .filter-bar .filter-group select, .filter-bar .filter-group input { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 13px; min-width: 120px; }
+        .filter-bar .filter-actions { display: flex; gap: 8px; }
+        .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
+        .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
+        .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
+        .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
+        .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
+        .badge-purple { background: rgba(124,58,237,0.1); color: var(--secondary); }
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
+        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
+        .toast-icon { font-size: 20px; }
+        .toast-content { flex: 1; }
+        .toast-message { font-size: 13px; color: var(--text-secondary); }
+        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .text-center { text-align: center; }
+        .text-secondary { color: var(--text-secondary); }
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
+        .btn-sm { padding: 8px 16px; font-size: 12px; }
+        .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
+        .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
+        .input-group { display: flex; flex-direction: column; gap: 6px; }
+        .input-group label { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
+        .modal { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 32px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; animation: slideUp 0.3s ease; }
+        .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; color: var(--text-secondary); cursor: pointer; transition: all 0.3s; padding: 4px; }
+        .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
             <div class="navbar-actions">
-                <span class="badge badge-primary hide-mobile" style="font-size: 11px;">Admin</span>
+                <span class="badge badge-primary" style="font-size:11px;background:rgba(79,70,229,0.1);color:#4F46E5;">Admin</span>
                 <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
-                <button class="btn-icon" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                <button class="mobile-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
             </div>
         </div>
     </nav>
 
     <aside class="sidebar" id="sidebar">
-        <div style="padding: 0 12px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px;">
-            <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary);">Menu Admin</div>
-        </div>
+        <div class="sidebar-header"><div class="title">Menu Admin</div></div>
         <nav class="sidebar-nav">
             <a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
             <a href="/admin/sellers" class="active"><i class="fas fa-users"></i> Seller</a>
@@ -35,68 +92,67 @@
             <a href="/admin/banners"><i class="fas fa-images"></i> Banner</a>
             <a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Withdraw</a>
             <a href="/admin/settings"><i class="fas fa-cog"></i> Pengaturan</a>
-            <button onclick="handleLogout()" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: none; background: none; width: 100%; border-radius: var(--radius); color: var(--danger); cursor: pointer; font-family: var(--font); font-size: 14px; font-weight: 500; margin-top: 8px;">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
+            <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </nav>
     </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-
-    <main class="main-content">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
-            <div><h1 style="font-size: 24px;">Manajemen Seller</h1><p style="color: var(--text-secondary);">Kelola semua seller di platform</p></div>
-        </div>
-
-        <div class="filter-bar">
-            <div class="filter-group">
-                <input type="text" id="searchSeller" placeholder="Cari seller..." style="min-width: 200px;">
-                <select id="filterStatus"><option value="all">Semua Status</option><option value="active">Active</option><option value="suspended">Suspended</option></select>
-                <select id="filterLevel"><option value="all">Semua Level</option><option value="bronze">Bronze</option><option value="silver">Silver</option><option value="gold">Gold</option><option value="platinum">Platinum</option><option value="diamond">Diamond</option></select>
+    <div class="app-wrapper">
+        <main class="main-content">
+            <div class="flex-between" style="margin-bottom:24px;">
+                <div><h1 style="font-size:24px;">Manajemen Seller</h1><p style="color:var(--text-secondary);">Kelola semua seller di platform</p></div>
             </div>
-            <div class="filter-actions">
-                <button onclick="applyFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Filter</button>
-                <button onclick="resetFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-undo"></i></button>
-            </div>
-        </div>
 
-        <div class="card">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead><tr><th>Seller</th><th>Toko</th><th>Level</th><th>Produk</th><th>Penjualan</th><th>Status</th><th>Aksi</th></tr></thead>
-                    <tbody id="sellersTableBody"><tr><td colspan="7" class="text-center" style="color: var(--text-secondary);">Memuat seller...</td></tr></tbody>
-                </table>
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <input type="text" id="searchSeller" placeholder="Cari seller..." style="min-width:200px;">
+                    <select id="filterStatus"><option value="all">Semua Status</option><option value="active">Active</option><option value="suspended">Suspended</option></select>
+                    <select id="filterLevel"><option value="all">Semua Level</option><option value="bronze">Bronze</option><option value="silver">Silver</option><option value="gold">Gold</option><option value="platinum">Platinum</option><option value="diamond">Diamond</option></select>
+                </div>
+                <div class="filter-actions">
+                    <button onclick="applyFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Filter</button>
+                    <button onclick="resetFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-undo"></i></button>
+                </div>
             </div>
-            <div id="pagination" style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;"></div>
-        </div>
-    </main>
+
+            <div class="card">
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead><tr><th>Seller</th><th>Toko</th><th>Level</th><th>Produk</th><th>Penjualan</th><th>Status</th><th>Aksi</th></tr></thead>
+                        <tbody id="sellersTableBody"><tr><td colspan="7" class="text-center text-secondary" style="padding:40px 0;">Memuat seller...</td></tr></tbody>
+                    </table>
+                </div>
+                <div id="pagination" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"></div>
+            </div>
+        </main>
+    </div>
 
     <!-- Edit Seller Modal -->
     <div class="modal-overlay" id="editSellerModal">
-        <div class="modal" style="max-width: 480px;">
+        <div class="modal">
             <button class="modal-close" onclick="closeEditSellerModal()"><i class="fas fa-times"></i></button>
             <h3 class="modal-title">Edit Seller</h3>
             <form id="editSellerForm">
                 <input type="hidden" id="editSellerId">
-                <div class="input-group" style="margin-bottom: 12px;">
+                <div class="input-group" style="margin-bottom:12px;">
                     <label for="editStoreName">Nama Toko</label>
                     <input type="text" id="editStoreName" class="input">
                 </div>
-                <div class="input-group" style="margin-bottom: 12px;">
+                <div class="input-group" style="margin-bottom:12px;">
                     <label for="editStatus">Status</label>
                     <select id="editStatus" class="input"><option value="active">Active</option><option value="suspended">Suspended</option></select>
                 </div>
-                <div class="input-group" style="margin-bottom: 12px;">
+                <div class="input-group" style="margin-bottom:12px;">
                     <label for="editVerified">Verified</label>
                     <select id="editVerified" class="input"><option value="true">Verified</option><option value="false">Unverified</option></select>
                 </div>
-                <div class="input-group" style="margin-bottom: 16px;">
+                <div class="input-group" style="margin-bottom:16px;">
                     <label for="editLevel">Level</label>
                     <select id="editLevel" class="input"><option value="bronze">Bronze</option><option value="silver">Silver</option><option value="gold">Gold</option><option value="platinum">Platinum</option><option value="diamond">Diamond</option></select>
                 </div>
-                <div style="display: flex; gap: 12px;">
-                    <button type="submit" class="btn btn-primary" style="flex: 1;"><i class="fas fa-save"></i> Simpan</button>
-                    <button type="button" onclick="closeEditSellerModal()" class="btn btn-secondary" style="flex: 1;">Batal</button>
+                <div style="display:flex;gap:12px;">
+                    <button type="submit" class="btn btn-primary" style="flex:1;"><i class="fas fa-save"></i> Simpan</button>
+                    <button type="button" onclick="closeEditSellerModal()" class="btn btn-secondary" style="flex:1;">Batal</button>
                 </div>
             </form>
         </div>
@@ -104,13 +160,38 @@
 
     <div class="toast-container" id="toastContainer"></div>
 
-    <script type="module">
-        import { db, auth, collections, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, updateDoc, onSnapshot, signOut } from '../../js/firebase-config.js';
-        import { showToast, formatPrice, formatDate, navigate } from '../../js/app.js';
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"
+            }
+        }
+    </script>
 
+    <script type="module">
+        import { initializeApp } from "firebase/app";
+        import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, updateDoc, onSnapshot } from "firebase/firestore";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
+            authDomain: "productkuu.firebaseapp.com",
+            projectId: "productkuu",
+            storageBucket: "productkuu.firebasestorage.app",
+            messagingSenderId: "6615996108",
+            appId: "1:6615996108:web:daa6e17c1275d3061cd469",
+            measurementId: "G-78ZPLZMFEJ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let currentUser = null;
         let sellers = [], lastDoc = null, hasMore = true, currentPage = 1, limitPerPage = 10;
 
-        // Theme
+        // Theme & Sidebar (sama seperti sebelumnya)
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -121,20 +202,35 @@
             themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
         });
 
-        window.toggleSidebar = function() {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.getElementById('sidebarOverlay').classList.toggle('open');
-        };
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        document.getElementById('sidebarToggle').addEventListener('click', () => { sidebar.classList.toggle('open'); sidebarOverlay.classList.toggle('open'); });
+        sidebarOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sidebarOverlay.classList.remove('open'); });
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', function(e) { e.preventDefault(); const href = this.getAttribute('href'); if (href) window.location.href = href; });
+        });
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            auth.onAuthStateChanged(async (user) => {
-                if (!user) { navigate('/seller/login'); return; }
-                const userRef = doc(db, collections.users, user.uid);
-                const userDoc = await getDoc(userRef);
-                if (!userDoc.exists() || userDoc.data().role !== 'admin') { showToast('error', 'Akses ditolak'); navigate('/'); return; }
-                await loadSellers(true);
-                onSnapshot(query(collection(db, collections.users), where('role', '==', 'seller')), () => loadSellers(true));
-            });
+        document.getElementById('logoutBtn').addEventListener('click', async () => { try { await signOut(auth); window.location.href = '/'; } catch (error) { showToast('error', 'Gagal logout'); } });
+
+        function showToast(type, message) {
+            const container = document.getElementById('toastContainer');
+            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeftColor = colors[type] || colors.info;
+            toast.innerHTML = `<span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span><div class="toast-content"><div class="toast-message">${message}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = '/admin/login'; return; }
+            currentUser = user;
+            const userRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userRef);
+            if (!userDoc.exists() || userDoc.data().role !== 'admin') { window.location.href = '/'; return; }
+            await loadSellers(true);
+            onSnapshot(query(collection(db, 'users'), where('role', '==', 'seller')), () => loadSellers(true));
         });
 
         async function loadSellers(reset = true) {
@@ -147,10 +243,10 @@
                 const search = document.getElementById('searchSeller').value.trim();
                 if (status !== 'all') constraints.push(where('status', '==', status));
                 if (level !== 'all') constraints.push(where('level', '==', level));
-                let q = query(collection(db, collections.users), ...constraints, limit(limitPerPage));
-                if (lastDoc) q = query(collection(db, collections.users), ...constraints, startAfter(lastDoc), limit(limitPerPage));
+                let q = query(collection(db, 'users'), ...constraints, limit(limitPerPage));
+                if (lastDoc) q = query(collection(db, 'users'), ...constraints, startAfter(lastDoc), limit(limitPerPage));
                 const snapshot = await getDocs(q);
-                if (snapshot.empty) { hasMore = false; if (reset) document.getElementById('sellersTableBody').innerHTML = '<tr><td colspan="7" class="text-center" style="color: var(--text-secondary);">Belum ada seller</td></tr>'; return; }
+                if (snapshot.empty) { hasMore = false; if (reset) document.getElementById('sellersTableBody').innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Belum ada seller</td></tr>'; return; }
                 lastDoc = snapshot.docs[snapshot.docs.length - 1];
                 hasMore = snapshot.docs.length === limitPerPage;
                 const newData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -161,19 +257,19 @@
 
         function renderSellers() {
             const tbody = document.getElementById('sellersTableBody');
-            if (sellers.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="color: var(--text-secondary);">Tidak ada seller</td></tr>'; document.getElementById('pagination').innerHTML = ''; return; }
+            if (sellers.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Tidak ada seller</td></tr>'; document.getElementById('pagination').innerHTML = ''; return; }
             const levelColors = { 'bronze': 'badge-warning', 'silver': 'badge-info', 'gold': 'badge-success', 'platinum': 'badge-purple', 'diamond': 'badge-info' };
             tbody.innerHTML = sellers.map(s => `
                 <tr>
-                    <td><div style="display: flex; align-items: center; gap: 8px;"><div style="width: 32px; height: 32px; border-radius: 50%; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--primary);">${(s.displayName || s.storeName || 'S')[0].toUpperCase()}</div><div><strong>${s.displayName || 'Seller'}</strong><br><span style="font-size: 12px; color: var(--text-secondary);">${s.email || '-'}</span></div></div></td>
-                    <td><strong>${s.storeName || '-'}</strong><br><span style="font-size: 12px; color: var(--text-secondary);">${s.storeDescription ? s.storeDescription.substring(0, 30) + '...' : 'Tidak ada deskripsi'}</span></td>
-                    <td><span class="badge ${levelColors[s.level] || 'badge-info'}">${s.level || 'bronze'}</span> ${s.verified ? '<span style="color: var(--info);"><i class="fas fa-check-circle" title="Verified"></i></span>' : ''}</td>
-                    <td style="text-align: center;">${s.productCount || 0}</td>
-                    <td style="text-align: center;">${s.totalSales || 0}</td>
+                    <td><div style="display:flex;align-items:center;gap:8px;"><div style="width:32px;height:32px;border-radius:50%;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--primary);">${(s.displayName || s.storeName || 'S')[0].toUpperCase()}</div><div><strong>${s.displayName || 'Seller'}</strong><br><span style="font-size:12px;color:var(--text-secondary);">${s.email || '-'}</span></div></div></td>
+                    <td><strong>${s.storeName || '-'}</strong><br><span style="font-size:12px;color:var(--text-secondary);">${s.storeDescription ? s.storeDescription.substring(0,30) + '...' : 'Tidak ada deskripsi'}</span></td>
+                    <td><span class="badge ${levelColors[s.level] || 'badge-info'}">${s.level || 'bronze'}</span> ${s.verified ? '<span style="color:var(--info);"><i class="fas fa-check-circle" title="Verified"></i></span>' : ''}</td>
+                    <td style="text-align:center;">${s.productCount || 0}</td>
+                    <td style="text-align:center;">${s.totalSales || 0}</td>
                     <td><span class="badge ${s.status === 'active' ? 'badge-success' : 'badge-danger'}">${s.status || 'active'}</span></td>
                     <td>
-                        <button onclick="editSeller('${s.id}')" class="btn btn-secondary btn-sm" style="padding: 4px 8px;"><i class="fas fa-edit"></i></button>
-                        <button onclick="toggleSellerStatus('${s.id}')" class="btn btn-secondary btn-sm" style="padding: 4px 8px;"><i class="fas ${s.status === 'active' ? 'fa-pause' : 'fa-play'}"></i></button>
+                        <button onclick="editSeller('${s.id}')" class="btn btn-secondary btn-sm" style="padding:4px 8px;"><i class="fas fa-edit"></i></button>
+                        <button onclick="toggleSellerStatus('${s.id}')" class="btn btn-secondary btn-sm" style="padding:4px 8px;"><i class="fas ${s.status === 'active' ? 'fa-pause' : 'fa-play'}"></i></button>
                     </td>
                 </tr>
             `).join('');
@@ -183,13 +279,7 @@
         function renderPagination() {
             const container = document.getElementById('pagination');
             if (!hasMore && sellers.length <= limitPerPage) { container.innerHTML = ''; return; }
-            container.innerHTML = `
-                <span style="font-size: 14px; color: var(--text-secondary);">${sellers.length} seller</span>
-                <div style="display: flex; gap: 8px;">
-                    ${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}
-                    ${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}
-                </div>
-            `;
+            container.innerHTML = `<span style="font-size:14px;color:var(--text-secondary);">${sellers.length} seller</span><div style="display:flex;gap:8px;">${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}</div>`;
         }
 
         window.loadNextPage = function() { currentPage++; loadSellers(false); };
@@ -199,7 +289,7 @@
 
         window.editSeller = async function(id) {
             try {
-                const sellerRef = doc(db, collections.users, id);
+                const sellerRef = doc(db, 'users', id);
                 const sellerDoc = await getDoc(sellerRef);
                 if (!sellerDoc.exists()) { showToast('error', 'Seller tidak ditemukan'); return; }
                 const s = sellerDoc.data();
@@ -218,12 +308,12 @@
             e.preventDefault();
             const id = document.getElementById('editSellerId').value;
             try {
-                await updateDoc(doc(db, collections.users, id), {
+                await updateDoc(doc(db, 'users', id), {
                     storeName: document.getElementById('editStoreName').value.trim() || undefined,
                     status: document.getElementById('editStatus').value,
                     verified: document.getElementById('editVerified').value === 'true',
                     level: document.getElementById('editLevel').value,
-                    updatedAt: new Date()
+                    updatedAt: new Date().toISOString()
                 });
                 showToast('success', 'Seller diperbarui');
                 closeEditSellerModal();
@@ -233,21 +323,21 @@
 
         window.toggleSellerStatus = async function(id) {
             try {
-                const sellerRef = doc(db, collections.users, id);
+                const sellerRef = doc(db, 'users', id);
                 const sellerDoc = await getDoc(sellerRef);
                 if (!sellerDoc.exists()) { showToast('error', 'Seller tidak ditemukan'); return; }
                 const current = sellerDoc.data().status || 'active';
                 const next = current === 'active' ? 'suspended' : 'active';
                 if (!confirm(`Yakin ingin ${next === 'active' ? 'mengaktifkan' : 'mensuspend'} seller ini?`)) return;
-                await updateDoc(sellerRef, { status: next, updatedAt: new Date() });
+                await updateDoc(sellerRef, { status: next, updatedAt: new Date().toISOString() });
                 showToast('success', `Seller ${next === 'active' ? 'diaktifkan' : 'disuspend'}`);
                 loadSellers(true);
             } catch (error) { console.error('Error toggling seller status:', error); showToast('error', 'Gagal mengubah status'); }
         };
 
-        window.handleLogout = async function() { try { await signOut(auth); showToast('success', 'Berhasil logout'); navigate('/'); } catch (error) { showToast('error', 'Gagal logout'); } };
-        document.querySelectorAll('.sidebar-nav a').forEach(link => { link.addEventListener('click', function(e) { e.preventDefault(); navigate(this.getAttribute('href')); }); });
         let searchTimeout; document.getElementById('searchSeller').addEventListener('input', () => { clearTimeout(searchTimeout); searchTimeout = setTimeout(applyFilters, 500); });
+
+        console.log('👥 Admin Sellers page loaded!');
     </script>
 </body>
 </html>
