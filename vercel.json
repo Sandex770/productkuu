@@ -52,6 +52,10 @@
       "dest": "/public/pages/admin/login.html"
     },
     {
+      "src": "/admin/register",
+      "dest": "/public/pages/admin/register.html"
+    },
+    {
       "src": "/admin/dashboard",
       "dest": "/public/pages/admin/dashboard.html"
     },
