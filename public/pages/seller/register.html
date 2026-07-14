@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="../../css/style.css">
-    <link rel="icon" href="../../assets/images/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/assets/images/favicon.ico">
     <style>
         .auth-container {
             max-width: 480px;
@@ -69,6 +69,34 @@
         .auth-footer a:hover {
             text-decoration: underline;
         }
+        .input-group .input-icon {
+            position: relative;
+        }
+        .input-group .input-icon i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+        .input-group .input-icon .input {
+            padding-left: 44px;
+        }
+        .input-group .input-icon .toggle-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+        }
+        .input-group .input-icon .toggle-password:hover {
+            color: var(--text-primary);
+        }
         .password-strength {
             height: 4px;
             border-radius: 2px;
@@ -112,33 +140,18 @@
             color: var(--primary);
             font-weight: 500;
         }
-        .input-group .input-icon {
-            position: relative;
+        .register-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            color: var(--danger);
+            font-size: 14px;
+            display: none;
+            margin-bottom: 16px;
         }
-        .input-group .input-icon i {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-light);
-        }
-        .input-group .input-icon .input {
-            padding-left: 44px;
-        }
-        .input-group .input-icon .toggle-password {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--text-light);
-            cursor: pointer;
-            font-size: 16px;
-            padding: 4px;
-        }
-        .input-group .input-icon .toggle-password:hover {
-            color: var(--text-primary);
+        .register-error.show {
+            display: block;
         }
         @media (max-width: 480px) {
             .auth-card { padding: 24px; }
@@ -173,6 +186,11 @@
                     <span class="logo"><i class="fas fa-store"></i></span>
                     <h1>Daftar Seller</h1>
                     <p>Mulai jualan produk digital di ProductKuu</p>
+                </div>
+
+                <div class="register-error" id="registerError">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="errorMessage">Terjadi kesalahan</span>
                 </div>
 
                 <form id="registerForm">
@@ -232,33 +250,6 @@
                         </div>
                     </div>
 
-                    <!-- Store Description -->
-                    <div class="input-group" style="margin-bottom: 16px;">
-                        <label for="storeDescription">Deskripsi Toko</label>
-                        <div class="input-icon">
-                            <i class="fas fa-align-left"></i>
-                            <textarea id="storeDescription" class="input" rows="3" placeholder="Deskripsikan toko Anda" style="padding-left: 44px;"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- WhatsApp -->
-                    <div class="input-group" style="margin-bottom: 16px;">
-                        <label for="whatsapp">WhatsApp (Opsional)</label>
-                        <div class="input-icon">
-                            <i class="fab fa-whatsapp"></i>
-                            <input type="text" id="whatsapp" class="input" placeholder="08123456789">
-                        </div>
-                    </div>
-
-                    <!-- Instagram -->
-                    <div class="input-group" style="margin-bottom: 16px;">
-                        <label for="instagram">Instagram (Opsional)</label>
-                        <div class="input-icon">
-                            <i class="fab fa-instagram"></i>
-                            <input type="text" id="instagram" class="input" placeholder="@toko_anda">
-                        </div>
-                    </div>
-
                     <!-- Terms -->
                     <div class="terms-check">
                         <input type="checkbox" id="terms" required>
@@ -296,13 +287,84 @@
 
     <div class="toast-container" id="toastContainer"></div>
 
+    <!-- Firebase Scripts -->
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"
+            }
+        }
+    </script>
+
     <script type="module">
+        // ============================================
+        // FIREBASE IMPORT
+        // ============================================
+        import { initializeApp } from "firebase/app";
         import { 
-            db, auth, collections,
-            doc, setDoc, getDoc, getDocs, query, where,
-            createUserWithEmailAndPassword, updateProfile, signInWithEmailAndPassword
-        } from '../../js/firebase-config.js';
-        import { showToast, navigate } from '../../js/app.js';
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            updateProfile,
+            onAuthStateChanged
+        } from "firebase/auth";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            getDoc,
+            collection,
+            query,
+            where,
+            getDocs
+        } from "firebase/firestore";
+
+        // ============================================
+        // FIREBASE CONFIG
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
+            authDomain: "productkuu.firebaseapp.com",
+            projectId: "productkuu",
+            storageBucket: "productkuu.firebasestorage.app",
+            messagingSenderId: "6615996108",
+            appId: "1:6615996108:web:daa6e17c1275d3061cd469",
+            measurementId: "G-78ZPLZMFEJ"
+        };
+
+        // ============================================
+        // INIT FIREBASE
+        // ============================================
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        console.log('🔥 Firebase initialized successfully!');
+
+        // ============================================
+        // CHECK IF ALREADY LOGGED IN
+        // ============================================
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    const userRef = doc(db, 'users', user.uid);
+                    const userDoc = await getDoc(userRef);
+                    if (userDoc.exists()) {
+                        const data = userDoc.data();
+                        if (data.role === 'seller') {
+                            window.location.href = '/seller/dashboard';
+                            return;
+                        } else if (data.role === 'admin') {
+                            window.location.href = '/admin/dashboard';
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error checking user:', error);
+                }
+            }
+        });
 
         // ============================================
         // THEME TOGGLE
@@ -362,6 +424,7 @@
                 strengthBar.className = 'bar';
                 strengthBar.style.width = '0%';
                 passwordHint.textContent = 'Gunakan minimal 6 karakter dengan huruf dan angka';
+                passwordHint.style.color = 'var(--text-light)';
                 return;
             }
 
@@ -379,13 +442,43 @@
         // ============================================
         async function isStoreNameTaken(storeName) {
             try {
-                const q = query(collection(db, collections.users), where('storeName', '==', storeName));
+                const usersRef = collection(db, 'users');
+                const q = query(usersRef, where('storeName', '==', storeName));
                 const snapshot = await getDocs(q);
                 return !snapshot.empty;
             } catch (error) {
                 console.error('Error checking store name:', error);
                 return false;
             }
+        }
+
+        // ============================================
+        // SHOW TOAST
+        // ============================================
+        function showToast(type, message) {
+            const container = document.getElementById('toastContainer');
+            const colors = {
+                success: 'var(--success)',
+                error: 'var(--danger)',
+                warning: 'var(--warning)',
+                info: 'var(--info)'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeftColor = colors[type] || colors.info;
+            toast.innerHTML = `
+                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
+                <div class="toast-content">
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentElement) toast.remove();
+            }, 5000);
         }
 
         // ============================================
@@ -399,10 +492,11 @@
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-            const storeDescription = document.getElementById('storeDescription').value.trim();
-            const whatsapp = document.getElementById('whatsapp').value.trim();
-            const instagram = document.getElementById('instagram').value.trim();
             const terms = document.getElementById('terms').checked;
+
+            const errorEl = document.getElementById('registerError');
+            const errorMsg = document.getElementById('errorMessage');
+            errorEl.classList.remove('show');
 
             // Validations
             if (!fullName) { showToast('warning', 'Nama lengkap wajib diisi'); return; }
@@ -439,14 +533,14 @@
                 await updateProfile(user, { displayName: fullName });
 
                 // Save seller data to Firestore
-                await setDoc(doc(db, collections.users, user.uid), {
+                await setDoc(doc(db, 'users', user.uid), {
                     uid: user.uid,
                     email: email,
                     displayName: fullName,
                     storeName: storeName,
-                    storeDescription: storeDescription || '',
-                    whatsapp: whatsapp || '',
-                    instagram: instagram || '',
+                    storeDescription: '',
+                    whatsapp: '',
+                    instagram: '',
                     role: 'seller',
                     status: 'active',
                     verified: false,
@@ -459,15 +553,15 @@
                         totalRevenue: 0,
                         totalWithdraw: 0
                     },
-                    createdAt: new Date(),
-                    updatedAt: new Date()
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
                 });
 
-                showToast('success', '🎉 Pendaftaran berhasil! Silakan login.');
+                showToast('success', '🎉 Pendaftaran berhasil! Mengarahkan ke dashboard...');
                 
-                // Redirect to login
+                // Redirect to dashboard
                 setTimeout(() => {
-                    navigate('/seller/login');
+                    window.location.href = '/seller/dashboard';
                 }, 1500);
 
             } catch (error) {
@@ -480,14 +574,35 @@
                     message = 'Password terlalu lemah. Gunakan minimal 6 karakter.';
                 } else if (error.code === 'auth/invalid-email') {
                     message = 'Format email tidak valid.';
+                } else if (error.code === 'auth/network-request-failed') {
+                    message = 'Koneksi internet bermasalah. Periksa koneksi Anda.';
                 }
                 
                 showToast('error', message);
+                errorMsg.textContent = message;
+                errorEl.classList.add('show');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-rocket"></i> Daftar Sekarang';
             }
         });
+
+        // ============================================
+        // ENTER KEY SUPPORT
+        // ============================================
+        document.getElementById('password').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('confirmPassword').focus();
+            }
+        });
+
+        document.getElementById('confirmPassword').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('registerForm').dispatchEvent(new Event('submit'));
+            }
+        });
+
+        console.log('📝 Register page loaded successfully!');
     </script>
 </body>
 </html>
