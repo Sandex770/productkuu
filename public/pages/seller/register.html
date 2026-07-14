@@ -153,6 +153,25 @@
         .register-error.show {
             display: block;
         }
+        .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            color: var(--success);
+            font-size: 14px;
+            display: none;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .success-message.show {
+            display: block;
+        }
+        .success-message i {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 12px;
+        }
         @media (max-width: 480px) {
             .auth-card { padding: 24px; }
             .auth-container { margin-top: 40px; }
@@ -191,6 +210,12 @@
                 <div class="register-error" id="registerError">
                     <i class="fas fa-exclamation-circle"></i>
                     <span id="errorMessage">Terjadi kesalahan</span>
+                </div>
+
+                <div class="success-message" id="successMessage">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="successText">Pendaftaran berhasil!</span>
+                    <p style="font-size: 13px; color: var(--text-secondary); margin-top: 8px;">Mengarahkan ke dashboard...</p>
                 </div>
 
                 <form id="registerForm">
@@ -250,6 +275,33 @@
                         </div>
                     </div>
 
+                    <!-- Store Description -->
+                    <div class="input-group" style="margin-bottom: 16px;">
+                        <label for="storeDescription">Deskripsi Toko (Opsional)</label>
+                        <div class="input-icon">
+                            <i class="fas fa-align-left"></i>
+                            <textarea id="storeDescription" class="input" rows="3" placeholder="Deskripsikan toko Anda" style="padding-left: 44px; padding-top: 12px;"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- WhatsApp -->
+                    <div class="input-group" style="margin-bottom: 16px;">
+                        <label for="whatsapp">WhatsApp (Opsional)</label>
+                        <div class="input-icon">
+                            <i class="fab fa-whatsapp"></i>
+                            <input type="text" id="whatsapp" class="input" placeholder="08123456789">
+                        </div>
+                    </div>
+
+                    <!-- Instagram -->
+                    <div class="input-group" style="margin-bottom: 16px;">
+                        <label for="instagram">Instagram (Opsional)</label>
+                        <div class="input-icon">
+                            <i class="fab fa-instagram"></i>
+                            <input type="text" id="instagram" class="input" placeholder="@toko_anda">
+                        </div>
+                    </div>
+
                     <!-- Terms -->
                     <div class="terms-check">
                         <input type="checkbox" id="terms" required>
@@ -287,7 +339,6 @@
 
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- Firebase Scripts -->
     <script type="importmap">
         {
             "imports": {
@@ -404,7 +455,6 @@
         passwordInput.addEventListener('input', function() {
             const value = this.value;
             let strength = 0;
-            let hint = '';
 
             if (value.length >= 6) strength++;
             if (value.length >= 10) strength++;
@@ -438,7 +488,7 @@
         });
 
         // ============================================
-        // CHECK IF STORE NAME EXISTS
+        // CHECK IF STORE NAME EXISTS (dengan error handling)
         // ============================================
         async function isStoreNameTaken(storeName) {
             try {
@@ -448,6 +498,11 @@
                 return !snapshot.empty;
             } catch (error) {
                 console.error('Error checking store name:', error);
+                // Jika error karena permission, skip check
+                if (error.code === 'permission-denied') {
+                    console.warn('Permission denied, skipping store name check');
+                    return false;
+                }
                 return false;
             }
         }
@@ -492,11 +547,16 @@
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
+            const storeDescription = document.getElementById('storeDescription').value.trim();
+            const whatsapp = document.getElementById('whatsapp').value.trim();
+            const instagram = document.getElementById('instagram').value.trim();
             const terms = document.getElementById('terms').checked;
 
             const errorEl = document.getElementById('registerError');
             const errorMsg = document.getElementById('errorMessage');
+            const successEl = document.getElementById('successMessage');
             errorEl.classList.remove('show');
+            successEl.classList.remove('show');
 
             // Validations
             if (!fullName) { showToast('warning', 'Nama lengkap wajib diisi'); return; }
@@ -538,9 +598,9 @@
                     email: email,
                     displayName: fullName,
                     storeName: storeName,
-                    storeDescription: '',
-                    whatsapp: '',
-                    instagram: '',
+                    storeDescription: storeDescription || '',
+                    whatsapp: whatsapp || '',
+                    instagram: instagram || '',
                     role: 'seller',
                     status: 'active',
                     verified: false,
@@ -557,12 +617,16 @@
                     updatedAt: new Date().toISOString()
                 });
 
+                // Show success message
+                successEl.classList.add('show');
+                document.getElementById('successText').textContent = `🎉 Selamat ${fullName}! Pendaftaran berhasil!`;
+                
                 showToast('success', '🎉 Pendaftaran berhasil! Mengarahkan ke dashboard...');
                 
                 // Redirect to dashboard
                 setTimeout(() => {
                     window.location.href = '/seller/dashboard';
-                }, 1500);
+                }, 2000);
 
             } catch (error) {
                 console.error('Registration error:', error);
@@ -576,6 +640,8 @@
                     message = 'Format email tidak valid.';
                 } else if (error.code === 'auth/network-request-failed') {
                     message = 'Koneksi internet bermasalah. Periksa koneksi Anda.';
+                } else if (error.code === 'permission-denied') {
+                    message = 'Gagal menyimpan data. Pastikan Firestore Security Rules sudah diatur.';
                 }
                 
                 showToast('error', message);
