@@ -42,6 +42,7 @@
         .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
         .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
         .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
+        .badge-primary { background: rgba(79,70,229,0.1); color: var(--primary); }
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
         .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
         .toast-icon { font-size: 20px; }
@@ -65,24 +66,26 @@
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
         .modal-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
         .modal { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 32px; max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; animation: slideUp 0.3s ease; text-align: center; }
-        .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; color: var(--text-secondary); cursor: pointer; transition: all 0.3s; padding: 4px; }
         .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+        .modal p { color: var(--text-secondary); margin-bottom: 24px; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
     </style>
 </head>
 <body>
+    <!-- NAVBAR -->
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
             <div class="navbar-actions">
-                <span class="badge badge-primary" style="font-size:11px;background:rgba(79,70,229,0.1);color:#4F46E5;">Admin</span>
+                <span class="badge badge-primary" style="font-size:11px;">Admin</span>
                 <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
                 <button class="mobile-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
             </div>
         </div>
     </nav>
 
+    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header"><div class="title">Menu Admin</div></div>
         <nav class="sidebar-nav">
@@ -98,6 +101,7 @@
     </aside>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
+    <!-- MAIN CONTENT -->
     <div class="app-wrapper">
         <main class="main-content">
             <div class="flex-between" style="margin-bottom:24px;">
@@ -107,8 +111,18 @@
             <div class="filter-bar">
                 <div class="filter-group">
                     <input type="text" id="searchProduct" placeholder="Cari produk..." style="min-width:200px;">
-                    <select id="filterStatus"><option value="all">Semua Status</option><option value="published">Published</option><option value="draft">Draft</option><option value="pending">Pending</option><option value="rejected">Rejected</option></select>
-                    <select id="filterType"><option value="all">Semua Type</option><option value="digital">Digital</option><option value="premium-account">Premium Account</option></select>
+                    <select id="filterStatus">
+                        <option value="all">Semua Status</option>
+                        <option value="published">Published</option>
+                        <option value="draft">Draft</option>
+                        <option value="pending">Pending</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                    <select id="filterType">
+                        <option value="all">Semua Type</option>
+                        <option value="digital">Digital</option>
+                        <option value="premium-account">Premium Account</option>
+                    </select>
                 </div>
                 <div class="filter-actions">
                     <button onclick="applyFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Filter</button>
@@ -119,8 +133,19 @@
             <div class="card">
                 <div class="table-wrapper">
                     <table class="table">
-                        <thead><tr><th>Produk</th><th>Seller</th><th>Harga</th><th>Status</th><th>Terjual</th><th>Aksi</th></tr></thead>
-                        <tbody id="productsTableBody"><tr><td colspan="6" class="text-center text-secondary" style="padding:40px 0;">Memuat produk...</td></tr></tbody>
+                        <thead>
+                            <tr>
+                                <th>Produk</th>
+                                <th>Seller</th>
+                                <th>Harga</th>
+                                <th>Status</th>
+                                <th>Terjual</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody">
+                            <tr><td colspan="6" class="text-center text-secondary" style="padding:40px 0;">Memuat produk...</td></tr>
+                        </tbody>
                     </table>
                 </div>
                 <div id="pagination" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"></div>
@@ -128,11 +153,11 @@
         </main>
     </div>
 
-    <!-- Action Modal -->
+    <!-- ACTION MODAL -->
     <div class="modal-overlay" id="actionModal">
         <div class="modal">
             <h3 class="modal-title" id="actionModalTitle">Approve Produk</h3>
-            <p style="color:var(--text-secondary);margin-bottom:24px;" id="actionModalMessage">Apakah Anda yakin ingin menyetujui produk ini?</p>
+            <p id="actionModalMessage">Apakah Anda yakin ingin menyetujui produk ini?</p>
             <div style="display:flex;gap:12px;">
                 <button onclick="confirmAction()" class="btn btn-primary" style="flex:1;" id="actionConfirmBtn"><i class="fas fa-check"></i> Ya</button>
                 <button onclick="closeActionModal()" class="btn btn-secondary" style="flex:1;">Batal</button>
@@ -173,7 +198,7 @@
         let currentUser = null;
         let products = [], lastDoc = null, hasMore = true, currentPage = 1, actionId = null, actionType = null, limitPerPage = 10;
 
-        // Theme & Sidebar
+        // Theme
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -184,15 +209,24 @@
             themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
         });
 
+        // Sidebar
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         document.getElementById('sidebarToggle').addEventListener('click', () => { sidebar.classList.toggle('open'); sidebarOverlay.classList.toggle('open'); });
         sidebarOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sidebarOverlay.classList.remove('open'); });
+
         document.querySelectorAll('.sidebar-nav a').forEach(link => {
-            link.addEventListener('click', function(e) { e.preventDefault(); const href = this.getAttribute('href'); if (href) window.location.href = href; });
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                if (href) window.location.href = href;
+            });
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', async () => { try { await signOut(auth); window.location.href = '/'; } catch (error) { showToast('error', 'Gagal logout'); } });
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try { await signOut(auth); window.location.href = '/'; } 
+            catch (error) { showToast('error', 'Gagal logout'); }
+        });
 
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
@@ -200,10 +234,15 @@
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.style.borderLeftColor = colors[type] || colors.info;
-            toast.innerHTML = `<span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span><div class="toast-content"><div class="toast-message">${message}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
+            toast.innerHTML = `
+                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
+                <div class="toast-content"><div class="toast-message">${message}</div></div>
+                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            `;
             container.appendChild(toast);
             setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
         }
+        window.showToast = showToast;
 
         function formatPrice(price) { if (!price && price !== 0) return '0'; return new Intl.NumberFormat('id-ID').format(price); }
         function formatDate(date) { if (!date) return '-'; const d = date instanceof Date ? date : new Date(date); return d.toLocaleDateString('id-ID', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' }); }
@@ -222,18 +261,31 @@
             try {
                 if (reset) { lastDoc = null; hasMore = true; products = []; currentPage = 1; }
                 if (!hasMore) return;
+                
                 let constraints = [orderBy('createdAt', 'desc')];
                 const status = document.getElementById('filterStatus').value;
                 const type = document.getElementById('filterType').value;
                 const search = document.getElementById('searchProduct').value.trim();
+                
                 if (status !== 'all') constraints.push(where('status', '==', status));
                 if (type !== 'all') constraints.push(where('type', '==', type));
+                
                 let q = query(collection(db, 'products'), ...constraints, limit(limitPerPage));
                 if (lastDoc) q = query(collection(db, 'products'), ...constraints, startAfter(lastDoc), limit(limitPerPage));
+                
                 const snapshot = await getDocs(q);
-                if (snapshot.empty) { hasMore = false; if (reset) document.getElementById('productsTableBody').innerHTML = '<tr><td colspan="6" class="text-center text-secondary">Belum ada produk</td></tr>'; return; }
+                if (snapshot.empty) { 
+                    hasMore = false; 
+                    if (reset) {
+                        document.getElementById('productsTableBody').innerHTML = 
+                            '<tr><td colspan="6" class="text-center text-secondary">Belum ada produk</td></tr>';
+                    }
+                    return; 
+                }
+                
                 lastDoc = snapshot.docs[snapshot.docs.length - 1];
                 hasMore = snapshot.docs.length === limitPerPage;
+                
                 const newData = [];
                 for (const doc of snapshot.docs) {
                     const data = doc.data();
@@ -241,21 +293,41 @@
                     if (data.sellerId) {
                         const sellerRef = doc(db, 'users', data.sellerId);
                         const sellerDoc = await getDoc(sellerRef);
-                        if (sellerDoc.exists()) sellerName = sellerDoc.data().storeName || sellerDoc.data().displayName || 'Seller';
+                        if (sellerDoc.exists()) {
+                            sellerName = sellerDoc.data().storeName || sellerDoc.data().displayName || 'Seller';
+                        }
                     }
                     newData.push({ id: doc.id, ...data, sellerName });
                 }
                 products = reset ? newData : [...products, ...newData];
                 renderProducts();
-            } catch (error) { console.error('Error loading products:', error); showToast('error', 'Gagal memuat produk'); }
+            } catch (error) { 
+                console.error('Error loading products:', error); 
+                showToast('error', 'Gagal memuat produk'); 
+            }
         }
 
         function renderProducts() {
             const tbody = document.getElementById('productsTableBody');
-            if (products.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary">Tidak ada produk</td></tr>'; document.getElementById('pagination').innerHTML = ''; return; }
+            if (products.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary">Tidak ada produk</td></tr>'; 
+                document.getElementById('pagination').innerHTML = ''; 
+                return; 
+            }
+            
             tbody.innerHTML = products.map(p => `
                 <tr>
-                    <td><div style="display:flex;align-items:center;gap:8px;"><div style="width:32px;height:32px;border-radius:var(--radius);background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;"><i class="fas fa-${p.type === 'premium-account' ? 'user' : 'box'}"></i></div><div><strong>${p.name}</strong><br><span style="font-size:12px;color:var(--text-secondary);">${p.category || 'Uncategorized'} • ${formatDate(p.createdAt)}</span></div></div></td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <div style="width:32px;height:32px;border-radius:var(--radius);background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-${p.type === 'premium-account' ? 'user' : 'box'}"></i>
+                            </div>
+                            <div>
+                                <strong>${p.name}</strong>
+                                <br><span style="font-size:12px;color:var(--text-secondary);">${p.category || 'Uncategorized'} • ${formatDate(p.createdAt)}</span>
+                            </div>
+                        </div>
+                    </td>
                     <td>${p.sellerName}</td>
                     <td style="font-weight:600;color:var(--primary);">Rp${formatPrice(p.price)}</td>
                     <td><span class="badge ${p.status === 'published' ? 'badge-success' : p.status === 'pending' ? 'badge-warning' : p.status === 'draft' ? 'badge-info' : 'badge-danger'}">${p.status || 'draft'}</span></td>
@@ -265,45 +337,117 @@
                             <button onclick="approveProduct('${p.id}')" class="btn btn-success btn-sm" style="padding:4px 8px;" title="Approve"><i class="fas fa-check"></i></button>
                             <button onclick="rejectProduct('${p.id}')" class="btn btn-danger btn-sm" style="padding:4px 8px;" title="Reject"><i class="fas fa-times"></i></button>
                         ` : ''}
-                        <button onclick="navigate('/product/${p.id}')" class="btn btn-secondary btn-sm" style="padding:4px 8px;" title="View"><i class="fas fa-eye"></i></button>
+                        <button onclick="viewProduct('${p.id}')" class="btn btn-secondary btn-sm" style="padding:4px 8px;" title="View"><i class="fas fa-eye"></i></button>
                         <button onclick="deleteProduct('${p.id}')" class="btn btn-danger btn-sm" style="padding:4px 8px;" title="Delete"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
             `).join('');
+            
             renderPagination();
         }
 
         function renderPagination() {
             const container = document.getElementById('pagination');
-            if (!hasMore && products.length <= limitPerPage) { container.innerHTML = ''; return; }
-            container.innerHTML = `<span style="font-size:14px;color:var(--text-secondary);">${products.length} produk</span><div style="display:flex;gap:8px;">${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}</div>`;
+            if (!hasMore && products.length <= limitPerPage) { 
+                container.innerHTML = ''; 
+                return; 
+            }
+            container.innerHTML = `
+                <span style="font-size:14px;color:var(--text-secondary);">${products.length} produk</span>
+                <div style="display:flex;gap:8px;">
+                    ${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}
+                    ${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}
+                </div>
+            `;
         }
 
-        window.loadNextPage = function() { currentPage++; loadProducts(false); };
-        window.loadPreviousPage = function() { if (currentPage <= 1) return; currentPage--; lastDoc = null; hasMore = true; loadProducts(true); };
-        window.applyFilters = function() { lastDoc = null; hasMore = true; loadProducts(true); };
-        window.resetFilters = function() { document.getElementById('searchProduct').value = ''; document.getElementById('filterStatus').value = 'all'; document.getElementById('filterType').value = 'all'; applyFilters(); };
+        window.loadNextPage = function() { 
+            currentPage++; 
+            loadProducts(false); 
+        };
 
-        window.approveProduct = function(id) { actionId = id; actionType = 'approve'; document.getElementById('actionModalTitle').textContent = 'Approve Produk'; document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menyetujui produk ini?'; document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-check"></i> Approve'; document.getElementById('actionModal').classList.add('open'); };
-        window.rejectProduct = function(id) { actionId = id; actionType = 'reject'; document.getElementById('actionModalTitle').textContent = 'Reject Produk'; document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menolak produk ini?'; document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-times"></i> Reject'; document.getElementById('actionModal').classList.add('open'); };
-        window.closeActionModal = function() { document.getElementById('actionModal').classList.remove('open'); actionId = null; actionType = null; };
+        window.loadPreviousPage = function() { 
+            if (currentPage <= 1) return; 
+            currentPage--; 
+            lastDoc = null; 
+            hasMore = true; 
+            loadProducts(true); 
+        };
+
+        window.applyFilters = function() { 
+            lastDoc = null; 
+            hasMore = true; 
+            loadProducts(true); 
+        };
+
+        window.resetFilters = function() { 
+            document.getElementById('searchProduct').value = ''; 
+            document.getElementById('filterStatus').value = 'all'; 
+            document.getElementById('filterType').value = 'all'; 
+            applyFilters(); 
+        };
+
+        window.approveProduct = function(id) { 
+            actionId = id; 
+            actionType = 'approve'; 
+            document.getElementById('actionModalTitle').textContent = 'Approve Produk'; 
+            document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menyetujui produk ini?'; 
+            document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-check"></i> Approve'; 
+            document.getElementById('actionModal').classList.add('open'); 
+        };
+
+        window.rejectProduct = function(id) { 
+            actionId = id; 
+            actionType = 'reject'; 
+            document.getElementById('actionModalTitle').textContent = 'Reject Produk'; 
+            document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menolak produk ini?'; 
+            document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-times"></i> Reject'; 
+            document.getElementById('actionModal').classList.add('open'); 
+        };
+
+        window.closeActionModal = function() { 
+            document.getElementById('actionModal').classList.remove('open'); 
+            actionId = null; 
+            actionType = null; 
+        };
+
         window.confirmAction = async function() {
             if (!actionId || !actionType) return;
             try {
-                await updateDoc(doc(db, 'products', actionId), { status: actionType === 'approve' ? 'published' : 'rejected', updatedAt: new Date().toISOString() });
+                await updateDoc(doc(db, 'products', actionId), { 
+                    status: actionType === 'approve' ? 'published' : 'rejected', 
+                    updatedAt: new Date().toISOString() 
+                });
                 showToast('success', `Produk ${actionType === 'approve' ? 'disetujui' : 'ditolak'}`);
                 closeActionModal();
                 loadProducts(true);
-            } catch (error) { console.error('Error updating product:', error); showToast('error', 'Gagal memperbarui produk'); }
+            } catch (error) { 
+                console.error('Error updating product:', error); 
+                showToast('error', 'Gagal memperbarui produk'); 
+            }
+        };
+
+        window.viewProduct = function(id) {
+            window.location.href = `/product/${id}`;
         };
 
         window.deleteProduct = async function(id) {
             if (!confirm('Yakin ingin menghapus produk ini?')) return;
-            try { await deleteDoc(doc(db, 'products', id)); showToast('success', 'Produk dihapus'); loadProducts(true); } 
-            catch (error) { console.error('Error deleting product:', error); showToast('error', 'Gagal menghapus produk'); }
+            try { 
+                await deleteDoc(doc(db, 'products', id)); 
+                showToast('success', 'Produk dihapus'); 
+                loadProducts(true); 
+            } catch (error) { 
+                console.error('Error deleting product:', error); 
+                showToast('error', 'Gagal menghapus produk'); 
+            }
         };
 
-        let searchTimeout; document.getElementById('searchProduct').addEventListener('input', () => { clearTimeout(searchTimeout); searchTimeout = setTimeout(applyFilters, 500); });
+        let searchTimeout; 
+        document.getElementById('searchProduct').addEventListener('input', () => { 
+            clearTimeout(searchTimeout); 
+            searchTimeout = setTimeout(applyFilters, 500); 
+        });
 
         console.log('📦 Admin Products page loaded!');
     </script>

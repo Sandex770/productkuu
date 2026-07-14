@@ -39,6 +39,8 @@
         .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
         .btn-block { width: 100%; justify-content: center; }
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
+        .badge-primary { background: rgba(79,70,229,0.1); color: var(--primary); }
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
         .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
         .toast-icon { font-size: 20px; }
@@ -56,7 +58,7 @@
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
             <div class="navbar-actions">
-                <span class="badge badge-primary" style="font-size:11px;background:rgba(79,70,229,0.1);color:#4F46E5;">Admin</span>
+                <span class="badge badge-primary" style="font-size:11px;">Admin</span>
                 <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
                 <button class="mobile-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
             </div>
@@ -225,7 +227,7 @@
         const db = getFirestore(app);
         let currentUser = null;
 
-        // Theme & Sidebar
+        // Theme
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -236,15 +238,30 @@
             themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
         });
 
+        // Sidebar
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
-        document.getElementById('sidebarToggle').addEventListener('click', () => { sidebar.classList.toggle('open'); sidebarOverlay.classList.toggle('open'); });
-        sidebarOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sidebarOverlay.classList.remove('open'); });
-        document.querySelectorAll('.sidebar-nav a').forEach(link => {
-            link.addEventListener('click', function(e) { e.preventDefault(); const href = this.getAttribute('href'); if (href) window.location.href = href; });
+        document.getElementById('sidebarToggle').addEventListener('click', () => { 
+            sidebar.classList.toggle('open'); 
+            sidebarOverlay.classList.toggle('open'); 
+        });
+        sidebarOverlay.addEventListener('click', () => { 
+            sidebar.classList.remove('open'); 
+            sidebarOverlay.classList.remove('open'); 
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', async () => { try { await signOut(auth); window.location.href = '/'; } catch (error) { showToast('error', 'Gagal logout'); } });
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                if (href) window.location.href = href;
+            });
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try { await signOut(auth); window.location.href = '/'; } 
+            catch (error) { showToast('error', 'Gagal logout'); }
+        });
 
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
@@ -252,10 +269,15 @@
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.style.borderLeftColor = colors[type] || colors.info;
-            toast.innerHTML = `<span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span><div class="toast-content"><div class="toast-message">${message}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
+            toast.innerHTML = `
+                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
+                <div class="toast-content"><div class="toast-message">${message}</div></div>
+                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            `;
             container.appendChild(toast);
             setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
         }
+        window.showToast = showToast;
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = '/admin/login'; return; }
@@ -318,7 +340,10 @@
                         { label: 'Syarat & Ketentuan', url: '/syarat-ketentuan' }
                     ], null, 2);
                 }
-            } catch (error) { console.error('Error loading settings:', error); showToast('error', 'Gagal memuat pengaturan'); }
+            } catch (error) { 
+                console.error('Error loading settings:', error); 
+                showToast('error', 'Gagal memuat pengaturan'); 
+            }
         }
 
         // Website Settings
@@ -334,7 +359,10 @@
                     updatedAt: new Date().toISOString()
                 });
                 showToast('success', 'Pengaturan website disimpan');
-            } catch (error) { console.error('Error saving website settings:', error); showToast('error', 'Gagal menyimpan pengaturan'); }
+            } catch (error) { 
+                console.error('Error saving website settings:', error); 
+                showToast('error', 'Gagal menyimpan pengaturan'); 
+            }
         });
 
         // Marketplace Settings
@@ -352,7 +380,10 @@
                     updatedAt: new Date().toISOString()
                 });
                 showToast('success', 'Pengaturan marketplace disimpan');
-            } catch (error) { console.error('Error saving marketplace settings:', error); showToast('error', 'Gagal menyimpan pengaturan'); }
+            } catch (error) { 
+                console.error('Error saving marketplace settings:', error); 
+                showToast('error', 'Gagal menyimpan pengaturan'); 
+            }
         });
 
         // Social Settings
@@ -369,7 +400,10 @@
                     updatedAt: new Date().toISOString()
                 });
                 showToast('success', 'Media sosial disimpan');
-            } catch (error) { console.error('Error saving social settings:', error); showToast('error', 'Gagal menyimpan pengaturan'); }
+            } catch (error) { 
+                console.error('Error saving social settings:', error); 
+                showToast('error', 'Gagal menyimpan pengaturan'); 
+            }
         });
 
         // Footer Settings

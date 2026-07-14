@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="icon" href="/assets/images/favicon.ico">
     <style>
+        /* LAYOUT (sama seperti sebelumnya) */
         .app-wrapper { display: flex; min-height: calc(100vh - 64px); margin-top: 64px; }
         .sidebar { width: 260px; background: var(--bg-primary); border-right: 1px solid var(--border-color); padding: 20px 0; position: fixed; top: 64px; bottom: 0; overflow-y: auto; z-index: 100; transition: transform 0.3s ease; }
         .sidebar-header { padding: 0 16px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px; }
@@ -43,19 +44,12 @@
         .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
         .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
         .badge-purple { background: rgba(124,58,237,0.1); color: var(--secondary); }
-        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
-        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
-        .toast-icon { font-size: 20px; }
-        .toast-content { flex: 1; }
-        .toast-message { font-size: 13px; color: var(--text-secondary); }
-        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-        .text-center { text-align: center; }
-        .text-secondary { color: var(--text-secondary); }
+        .badge-primary { background: rgba(79,70,229,0.1); color: var(--primary); }
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
         .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
         .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
+        .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
         .btn-sm { padding: 8px 16px; font-size: 12px; }
         .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
         .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
@@ -68,6 +62,16 @@
         .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
+        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
+        .toast-icon { font-size: 20px; }
+        .toast-content { flex: 1; }
+        .toast-message { font-size: 13px; color: var(--text-secondary); }
+        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .text-center { text-align: center; }
+        .text-secondary { color: var(--text-secondary); }
     </style>
 </head>
 <body>
@@ -75,7 +79,7 @@
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
             <div class="navbar-actions">
-                <span class="badge badge-primary" style="font-size:11px;background:rgba(79,70,229,0.1);color:#4F46E5;">Admin</span>
+                <span class="badge badge-primary" style="font-size:11px;">Admin</span>
                 <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
                 <button class="mobile-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
             </div>
@@ -106,8 +110,19 @@
             <div class="filter-bar">
                 <div class="filter-group">
                     <input type="text" id="searchSeller" placeholder="Cari seller..." style="min-width:200px;">
-                    <select id="filterStatus"><option value="all">Semua Status</option><option value="active">Active</option><option value="suspended">Suspended</option></select>
-                    <select id="filterLevel"><option value="all">Semua Level</option><option value="bronze">Bronze</option><option value="silver">Silver</option><option value="gold">Gold</option><option value="platinum">Platinum</option><option value="diamond">Diamond</option></select>
+                    <select id="filterStatus">
+                        <option value="all">Semua Status</option>
+                        <option value="active">Active</option>
+                        <option value="suspended">Suspended</option>
+                    </select>
+                    <select id="filterLevel">
+                        <option value="all">Semua Level</option>
+                        <option value="bronze">Bronze</option>
+                        <option value="silver">Silver</option>
+                        <option value="gold">Gold</option>
+                        <option value="platinum">Platinum</option>
+                        <option value="diamond">Diamond</option>
+                    </select>
                 </div>
                 <div class="filter-actions">
                     <button onclick="applyFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Filter</button>
@@ -118,8 +133,20 @@
             <div class="card">
                 <div class="table-wrapper">
                     <table class="table">
-                        <thead><tr><th>Seller</th><th>Toko</th><th>Level</th><th>Produk</th><th>Penjualan</th><th>Status</th><th>Aksi</th></tr></thead>
-                        <tbody id="sellersTableBody"><tr><td colspan="7" class="text-center text-secondary" style="padding:40px 0;">Memuat seller...</td></tr></tbody>
+                        <thead>
+                            <tr>
+                                <th>Seller</th>
+                                <th>Toko</th>
+                                <th>Level</th>
+                                <th>Produk</th>
+                                <th>Penjualan</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sellersTableBody">
+                            <tr><td colspan="7" class="text-center text-secondary" style="padding:40px 0;">Memuat seller...</td></tr>
+                        </tbody>
                     </table>
                 </div>
                 <div id="pagination" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"></div>
@@ -140,15 +167,27 @@
                 </div>
                 <div class="input-group" style="margin-bottom:12px;">
                     <label for="editStatus">Status</label>
-                    <select id="editStatus" class="input"><option value="active">Active</option><option value="suspended">Suspended</option></select>
+                    <select id="editStatus" class="input">
+                        <option value="active">Active</option>
+                        <option value="suspended">Suspended</option>
+                    </select>
                 </div>
                 <div class="input-group" style="margin-bottom:12px;">
                     <label for="editVerified">Verified</label>
-                    <select id="editVerified" class="input"><option value="true">Verified</option><option value="false">Unverified</option></select>
+                    <select id="editVerified" class="input">
+                        <option value="true">Verified</option>
+                        <option value="false">Unverified</option>
+                    </select>
                 </div>
                 <div class="input-group" style="margin-bottom:16px;">
                     <label for="editLevel">Level</label>
-                    <select id="editLevel" class="input"><option value="bronze">Bronze</option><option value="silver">Silver</option><option value="gold">Gold</option><option value="platinum">Platinum</option><option value="diamond">Diamond</option></select>
+                    <select id="editLevel" class="input">
+                        <option value="bronze">Bronze</option>
+                        <option value="silver">Silver</option>
+                        <option value="gold">Gold</option>
+                        <option value="platinum">Platinum</option>
+                        <option value="diamond">Diamond</option>
+                    </select>
                 </div>
                 <div style="display:flex;gap:12px;">
                     <button type="submit" class="btn btn-primary" style="flex:1;"><i class="fas fa-save"></i> Simpan</button>
@@ -191,7 +230,7 @@
         let currentUser = null;
         let sellers = [], lastDoc = null, hasMore = true, currentPage = 1, limitPerPage = 10;
 
-        // Theme & Sidebar (sama seperti sebelumnya)
+        // Theme
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -202,15 +241,30 @@
             themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
         });
 
+        // Sidebar
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
-        document.getElementById('sidebarToggle').addEventListener('click', () => { sidebar.classList.toggle('open'); sidebarOverlay.classList.toggle('open'); });
-        sidebarOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sidebarOverlay.classList.remove('open'); });
-        document.querySelectorAll('.sidebar-nav a').forEach(link => {
-            link.addEventListener('click', function(e) { e.preventDefault(); const href = this.getAttribute('href'); if (href) window.location.href = href; });
+        document.getElementById('sidebarToggle').addEventListener('click', () => { 
+            sidebar.classList.toggle('open'); 
+            sidebarOverlay.classList.toggle('open'); 
+        });
+        sidebarOverlay.addEventListener('click', () => { 
+            sidebar.classList.remove('open'); 
+            sidebarOverlay.classList.remove('open'); 
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', async () => { try { await signOut(auth); window.location.href = '/'; } catch (error) { showToast('error', 'Gagal logout'); } });
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                if (href) window.location.href = href;
+            });
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try { await signOut(auth); window.location.href = '/'; } 
+            catch (error) { showToast('error', 'Gagal logout'); }
+        });
 
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
@@ -218,10 +272,15 @@
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.style.borderLeftColor = colors[type] || colors.info;
-            toast.innerHTML = `<span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span><div class="toast-content"><div class="toast-message">${message}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
+            toast.innerHTML = `
+                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
+                <div class="toast-content"><div class="toast-message">${message}</div></div>
+                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            `;
             container.appendChild(toast);
             setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
         }
+        window.showToast = showToast;
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = '/admin/login'; return; }
@@ -237,33 +296,76 @@
             try {
                 if (reset) { lastDoc = null; hasMore = true; sellers = []; currentPage = 1; }
                 if (!hasMore) return;
+                
                 let constraints = [where('role', '==', 'seller'), orderBy('createdAt', 'desc')];
                 const status = document.getElementById('filterStatus').value;
                 const level = document.getElementById('filterLevel').value;
                 const search = document.getElementById('searchSeller').value.trim();
+                
                 if (status !== 'all') constraints.push(where('status', '==', status));
                 if (level !== 'all') constraints.push(where('level', '==', level));
+                
                 let q = query(collection(db, 'users'), ...constraints, limit(limitPerPage));
                 if (lastDoc) q = query(collection(db, 'users'), ...constraints, startAfter(lastDoc), limit(limitPerPage));
+                
                 const snapshot = await getDocs(q);
-                if (snapshot.empty) { hasMore = false; if (reset) document.getElementById('sellersTableBody').innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Belum ada seller</td></tr>'; return; }
+                if (snapshot.empty) { 
+                    hasMore = false; 
+                    if (reset) {
+                        document.getElementById('sellersTableBody').innerHTML = 
+                            '<tr><td colspan="7" class="text-center text-secondary">Belum ada seller</td></tr>';
+                    }
+                    return; 
+                }
+                
                 lastDoc = snapshot.docs[snapshot.docs.length - 1];
                 hasMore = snapshot.docs.length === limitPerPage;
                 const newData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 sellers = reset ? newData : [...sellers, ...newData];
                 renderSellers();
-            } catch (error) { console.error('Error loading sellers:', error); showToast('error', 'Gagal memuat seller'); }
+            } catch (error) { 
+                console.error('Error loading sellers:', error); 
+                showToast('error', 'Gagal memuat seller'); 
+            }
         }
 
         function renderSellers() {
             const tbody = document.getElementById('sellersTableBody');
-            if (sellers.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Tidak ada seller</td></tr>'; document.getElementById('pagination').innerHTML = ''; return; }
-            const levelColors = { 'bronze': 'badge-warning', 'silver': 'badge-info', 'gold': 'badge-success', 'platinum': 'badge-purple', 'diamond': 'badge-info' };
+            if (sellers.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Tidak ada seller</td></tr>'; 
+                document.getElementById('pagination').innerHTML = ''; 
+                return; 
+            }
+            
+            const levelColors = { 
+                'bronze': 'badge-warning', 
+                'silver': 'badge-info', 
+                'gold': 'badge-success', 
+                'platinum': 'badge-purple', 
+                'diamond': 'badge-info' 
+            };
+
             tbody.innerHTML = sellers.map(s => `
                 <tr>
-                    <td><div style="display:flex;align-items:center;gap:8px;"><div style="width:32px;height:32px;border-radius:50%;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--primary);">${(s.displayName || s.storeName || 'S')[0].toUpperCase()}</div><div><strong>${s.displayName || 'Seller'}</strong><br><span style="font-size:12px;color:var(--text-secondary);">${s.email || '-'}</span></div></div></td>
-                    <td><strong>${s.storeName || '-'}</strong><br><span style="font-size:12px;color:var(--text-secondary);">${s.storeDescription ? s.storeDescription.substring(0,30) + '...' : 'Tidak ada deskripsi'}</span></td>
-                    <td><span class="badge ${levelColors[s.level] || 'badge-info'}">${s.level || 'bronze'}</span> ${s.verified ? '<span style="color:var(--info);"><i class="fas fa-check-circle" title="Verified"></i></span>' : ''}</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <div style="width:32px;height:32px;border-radius:50%;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--primary);">
+                                ${(s.displayName || s.storeName || 'S')[0].toUpperCase()}
+                            </div>
+                            <div>
+                                <strong>${s.displayName || 'Seller'}</strong>
+                                <br><span style="font-size:12px;color:var(--text-secondary);">${s.email || '-'}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <strong>${s.storeName || '-'}</strong>
+                        <br><span style="font-size:12px;color:var(--text-secondary);">${s.storeDescription ? s.storeDescription.substring(0,30) + '...' : 'Tidak ada deskripsi'}</span>
+                    </td>
+                    <td>
+                        <span class="badge ${levelColors[s.level] || 'badge-info'}">${s.level || 'bronze'}</span>
+                        ${s.verified ? '<span style="color:var(--info);"><i class="fas fa-check-circle" title="Verified"></i></span>' : ''}
+                    </td>
                     <td style="text-align:center;">${s.productCount || 0}</td>
                     <td style="text-align:center;">${s.totalSales || 0}</td>
                     <td><span class="badge ${s.status === 'active' ? 'badge-success' : 'badge-danger'}">${s.status || 'active'}</span></td>
@@ -273,25 +375,59 @@
                     </td>
                 </tr>
             `).join('');
+            
             renderPagination();
         }
 
         function renderPagination() {
             const container = document.getElementById('pagination');
-            if (!hasMore && sellers.length <= limitPerPage) { container.innerHTML = ''; return; }
-            container.innerHTML = `<span style="font-size:14px;color:var(--text-secondary);">${sellers.length} seller</span><div style="display:flex;gap:8px;">${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}</div>`;
+            if (!hasMore && sellers.length <= limitPerPage) { 
+                container.innerHTML = ''; 
+                return; 
+            }
+            container.innerHTML = `
+                <span style="font-size:14px;color:var(--text-secondary);">${sellers.length} seller</span>
+                <div style="display:flex;gap:8px;">
+                    ${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}
+                    ${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}
+                </div>
+            `;
         }
 
-        window.loadNextPage = function() { currentPage++; loadSellers(false); };
-        window.loadPreviousPage = function() { if (currentPage <= 1) return; currentPage--; lastDoc = null; hasMore = true; loadSellers(true); };
-        window.applyFilters = function() { lastDoc = null; hasMore = true; loadSellers(true); };
-        window.resetFilters = function() { document.getElementById('searchSeller').value = ''; document.getElementById('filterStatus').value = 'all'; document.getElementById('filterLevel').value = 'all'; applyFilters(); };
+        window.loadNextPage = function() { 
+            currentPage++; 
+            loadSellers(false); 
+        };
+
+        window.loadPreviousPage = function() { 
+            if (currentPage <= 1) return; 
+            currentPage--; 
+            lastDoc = null; 
+            hasMore = true; 
+            loadSellers(true); 
+        };
+
+        window.applyFilters = function() { 
+            lastDoc = null; 
+            hasMore = true; 
+            loadSellers(true); 
+        };
+
+        window.resetFilters = function() { 
+            document.getElementById('searchSeller').value = ''; 
+            document.getElementById('filterStatus').value = 'all'; 
+            document.getElementById('filterLevel').value = 'all'; 
+            applyFilters(); 
+        };
 
         window.editSeller = async function(id) {
             try {
                 const sellerRef = doc(db, 'users', id);
                 const sellerDoc = await getDoc(sellerRef);
-                if (!sellerDoc.exists()) { showToast('error', 'Seller tidak ditemukan'); return; }
+                if (!sellerDoc.exists()) { 
+                    showToast('error', 'Seller tidak ditemukan'); 
+                    return; 
+                }
                 const s = sellerDoc.data();
                 document.getElementById('editSellerId').value = id;
                 document.getElementById('editStoreName').value = s.storeName || '';
@@ -299,10 +435,15 @@
                 document.getElementById('editVerified').value = s.verified ? 'true' : 'false';
                 document.getElementById('editLevel').value = s.level || 'bronze';
                 document.getElementById('editSellerModal').classList.add('open');
-            } catch (error) { console.error('Error loading seller:', error); showToast('error', 'Gagal memuat data seller'); }
+            } catch (error) { 
+                console.error('Error loading seller:', error); 
+                showToast('error', 'Gagal memuat data seller'); 
+            }
         };
 
-        window.closeEditSellerModal = function() { document.getElementById('editSellerModal').classList.remove('open'); };
+        window.closeEditSellerModal = function() { 
+            document.getElementById('editSellerModal').classList.remove('open'); 
+        };
 
         document.getElementById('editSellerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -318,24 +459,37 @@
                 showToast('success', 'Seller diperbarui');
                 closeEditSellerModal();
                 loadSellers(true);
-            } catch (error) { console.error('Error updating seller:', error); showToast('error', 'Gagal memperbarui seller'); }
+            } catch (error) { 
+                console.error('Error updating seller:', error); 
+                showToast('error', 'Gagal memperbarui seller'); 
+            }
         });
 
         window.toggleSellerStatus = async function(id) {
             try {
                 const sellerRef = doc(db, 'users', id);
                 const sellerDoc = await getDoc(sellerRef);
-                if (!sellerDoc.exists()) { showToast('error', 'Seller tidak ditemukan'); return; }
+                if (!sellerDoc.exists()) { 
+                    showToast('error', 'Seller tidak ditemukan'); 
+                    return; 
+                }
                 const current = sellerDoc.data().status || 'active';
                 const next = current === 'active' ? 'suspended' : 'active';
                 if (!confirm(`Yakin ingin ${next === 'active' ? 'mengaktifkan' : 'mensuspend'} seller ini?`)) return;
                 await updateDoc(sellerRef, { status: next, updatedAt: new Date().toISOString() });
                 showToast('success', `Seller ${next === 'active' ? 'diaktifkan' : 'disuspend'}`);
                 loadSellers(true);
-            } catch (error) { console.error('Error toggling seller status:', error); showToast('error', 'Gagal mengubah status'); }
+            } catch (error) { 
+                console.error('Error toggling seller status:', error); 
+                showToast('error', 'Gagal mengubah status'); 
+            }
         };
 
-        let searchTimeout; document.getElementById('searchSeller').addEventListener('input', () => { clearTimeout(searchTimeout); searchTimeout = setTimeout(applyFilters, 500); });
+        let searchTimeout; 
+        document.getElementById('searchSeller').addEventListener('input', () => { 
+            clearTimeout(searchTimeout); 
+            searchTimeout = setTimeout(applyFilters, 500); 
+        });
 
         console.log('👥 Admin Sellers page loaded!');
     </script>
