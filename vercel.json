@@ -16,6 +16,90 @@
       "dest": "/api/index.js"
     },
     {
+      "src": "/seller/login",
+      "dest": "/public/pages/seller/login.html"
+    },
+    {
+      "src": "/seller/register",
+      "dest": "/public/pages/seller/register.html"
+    },
+    {
+      "src": "/seller/dashboard",
+      "dest": "/public/pages/seller/dashboard.html"
+    },
+    {
+      "src": "/seller/products",
+      "dest": "/public/pages/seller/products.html"
+    },
+    {
+      "src": "/seller/wallet",
+      "dest": "/public/pages/seller/wallet.html"
+    },
+    {
+      "src": "/seller/transactions",
+      "dest": "/public/pages/seller/transactions.html"
+    },
+    {
+      "src": "/seller/withdraw",
+      "dest": "/public/pages/seller/withdraw.html"
+    },
+    {
+      "src": "/seller/settings",
+      "dest": "/public/pages/seller/settings.html"
+    },
+    {
+      "src": "/admin/login",
+      "dest": "/public/pages/admin/login.html"
+    },
+    {
+      "src": "/admin/dashboard",
+      "dest": "/public/pages/admin/dashboard.html"
+    },
+    {
+      "src": "/admin/sellers",
+      "dest": "/public/pages/admin/sellers.html"
+    },
+    {
+      "src": "/admin/products",
+      "dest": "/public/pages/admin/products.html"
+    },
+    {
+      "src": "/admin/orders",
+      "dest": "/public/pages/admin/orders.html"
+    },
+    {
+      "src": "/admin/banners",
+      "dest": "/public/pages/admin/banners.html"
+    },
+    {
+      "src": "/admin/settings",
+      "dest": "/public/pages/admin/settings.html"
+    },
+    {
+      "src": "/admin/withdrawals",
+      "dest": "/public/pages/admin/withdrawals.html"
+    },
+    {
+      "src": "/cek-order",
+      "dest": "/public/cek-order.html"
+    },
+    {
+      "src": "/css/(.*)",
+      "dest": "/public/css/$1"
+    },
+    {
+      "src": "/js/(.*)",
+      "dest": "/public/js/$1"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/public/assets/$1"
+    },
+    {
+      "src": "/pages/(.*)",
+      "dest": "/public/pages/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/public/$1"
     }
