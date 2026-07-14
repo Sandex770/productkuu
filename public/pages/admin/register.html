@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Admin - ProductKuu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/assets/images/favicon.ico">
+    <style>
+        .auth-container {
+            max-width: 480px;
+            margin: 80px auto 40px;
+            padding: 0 20px;
+        }
+        .auth-card {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+        }
+        .auth-card .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .auth-card .auth-header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .auth-card .auth-header p {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+        .auth-card .auth-header .logo {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 12px;
+            display: block;
+        }
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 20px 0;
+            color: var(--text-light);
+            font-size: 13px;
+        }
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+        .auth-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .auth-footer a {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+        .input-group .input-icon {
+            position: relative;
+        }
+        .input-group .input-icon i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+        .input-group .input-icon .input {
+            padding-left: 44px;
+        }
+        .input-group .input-icon .toggle-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+        }
+        .input-group .input-icon .toggle-password:hover {
+            color: var(--text-primary);
+        }
+        .register-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            color: var(--danger);
+            font-size: 14px;
+            display: none;
+            margin-bottom: 16px;
+        }
+        .register-error.show {
+            display: block;
+        }
+        .admin-badge {
+            display: inline-block;
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .warning-box {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: var(--warning);
+        }
+        .warning-box i {
+            margin-right: 8px;
+        }
+        @media (max-width: 480px) {
+            .auth-card { padding: 24px; }
+            .auth-container { margin-top: 40px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="navbar-logo">
+                <i class="fas fa-cube"></i>
+                <span>ProductKuu</span>
+            </a>
+            <div class="navbar-actions">
+                <button class="btn-icon" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="/" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-home"></i> Beranda
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <span class="logo"><i class="fas fa-shield-alt"></i></span>
+                    <h1>Register Admin</h1>
+                    <p>
+                        <span class="admin-badge"><i class="fas fa-lock"></i> Akses Terbatas</span>
+                    </p>
+                    <p style="margin-top: 8px; font-size: 14px; color: var(--text-light);">
+                        Hanya untuk administrator ProductKuu
+                    </p>
+                </div>
+
+                <div class="warning-box">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Halaman ini hanya untuk keperluan development. 
+                    <strong>Jangan gunakan di production!</strong>
+                </div>
+
+                <div class="register-error" id="registerError">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="errorMessage">Terjadi kesalahan</span>
+                </div>
+
+                <form id="registerForm">
+                    <!-- Full Name -->
+                    <div class="input-group" style="margin-bottom: 16px;">
+                        <label for="fullName">Nama Lengkap *</label>
+                        <div class="input-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="fullName" class="input" required placeholder="Masukkan nama lengkap" value="Admin ProductKuu">
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="input-group" style="margin-bottom: 16px;">
+                        <label for="email">Email Admin *</label>
+                        <div class="input-icon">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="email" class="input" required placeholder="admin@productkuu.com" value="admin@productkuu.com">
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="input-group" style="margin-bottom: 8px;">
+                        <label for="password">Password *</label>
+                        <div class="input-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" class="input" required placeholder="Minimal 6 karakter" value="Admin123!@#">
+                            <button type="button" class="toggle-password" onclick="togglePassword('password')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-hint" style="margin-top: 4px; font-size: 12px; color: var(--text-light);">
+                            Minimal 6 karakter dengan huruf dan angka
+                        </div>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="input-group" style="margin-bottom: 16px;">
+                        <label for="confirmPassword">Konfirmasi Password *</label>
+                        <div class="input-icon">
+                            <i class="fas fa-check-circle"></i>
+                            <input type="password" id="confirmPassword" class="input" required placeholder="Konfirmasi password" value="Admin123!@#">
+                            <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Admin Secret Key -->
+                    <div class="input-group" style="margin-bottom: 16px;">
+                        <label for="secretKey">Secret Key *</label>
+                        <div class="input-icon">
+                            <i class="fas fa-key"></i>
+                            <input type="password" id="secretKey" class="input" required placeholder="Masukkan secret key" value="ProductKuu2026!">
+                        </div>
+                        <span class="hint">Secret key untuk membuat akun admin (untuk development)</span>
+                    </div>
+
+                    <!-- Terms -->
+                    <div class="terms-check" style="display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--text-secondary); margin: 16px 0;">
+                        <input type="checkbox" id="terms" required checked>
+                        <label for="terms">
+                            Saya setuju dengan 
+                            <a href="/syarat-ketentuan">Syarat & Ketentuan</a> 
+                            dan 
+                            <a href="/kebijakan-privasi">Kebijakan Privasi</a>
+                        </label>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="btn btn-primary btn-block" id="registerBtn">
+                        <i class="fas fa-user-plus"></i> Buat Akun Admin
+                    </button>
+                </form>
+
+                <div class="auth-divider">atau</div>
+
+                <div class="auth-footer">
+                    <a href="/admin/login">Login sebagai Admin</a>
+                    <span style="color: var(--text-light); margin: 0 8px;">•</span>
+                    <a href="/">Kembali ke Beranda</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" style="margin-top: 48px;">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 ProductKuu. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        // ============================================
+        // FIREBASE IMPORT
+        // ============================================
+        import { initializeApp } from "firebase/app";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            updateProfile,
+            onAuthStateChanged,
+            signOut
+        } from "firebase/auth";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            getDoc
+        } from "firebase/firestore";
+
+        // ============================================
+        // FIREBASE CONFIG
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
+            authDomain: "productkuu.firebaseapp.com",
+            projectId: "productkuu",
+            storageBucket: "productkuu.firebasestorage.app",
+            messagingSenderId: "6615996108",
+            appId: "1:6615996108:web:daa6e17c1275d3061cd469",
+            measurementId: "G-78ZPLZMFEJ"
+        };
+
+        // ============================================
+        // INIT FIREBASE
+        // ============================================
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        console.log('🔥 Firebase initialized successfully!');
+
+        // ============================================
+        // CHECK IF ALREADY LOGGED IN
+        // ============================================
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    const userRef = doc(db, 'users', user.uid);
+                    const userDoc = await getDoc(userRef);
+                    if (userDoc.exists()) {
+                        const data = userDoc.data();
+                        if (data.role === 'admin') {
+                            window.location.href = '/admin/dashboard';
+                            return;
+                        } else if (data.role === 'seller') {
+                            window.location.href = '/seller/dashboard';
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error checking user:', error);
+                }
+            }
+        });
+
+        // ============================================
+        // THEME TOGGLE
+        // ============================================
+        const themeToggle = document.getElementById('themeToggle');
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.addEventListener('click', () => {
+            darkMode = !darkMode;
+            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+            localStorage.setItem('darkMode', darkMode);
+            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        // ============================================
+        // TOGGLE PASSWORD VISIBILITY
+        // ============================================
+        window.togglePassword = function(id) {
+            const input = document.getElementById(id);
+            const icon = input.parentElement.querySelector('.toggle-password i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        };
+
+        // ============================================
+        // SHOW TOAST
+        // ============================================
+        function showToast(type, message) {
+            const container = document.getElementById('toastContainer');
+            const colors = {
+                success: 'var(--success)',
+                error: 'var(--danger)',
+                warning: 'var(--warning)',
+                info: 'var(--info)'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeftColor = colors[type] || colors.info;
+            toast.innerHTML = `
+                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
+                <div class="toast-content">
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentElement) toast.remove();
+            }, 5000);
+        }
+
+        // ============================================
+        // REGISTER FORM SUBMIT
+        // ============================================
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const secretKey = document.getElementById('secretKey').value.trim();
+            const terms = document.getElementById('terms').checked;
+
+            const errorEl = document.getElementById('registerError');
+            const errorMsg = document.getElementById('errorMessage');
+            errorEl.classList.remove('show');
+
+            // Validations
+            if (!fullName) { showToast('warning', 'Nama lengkap wajib diisi'); return; }
+            if (!email) { showToast('warning', 'Email wajib diisi'); return; }
+            if (!password) { showToast('warning', 'Password wajib diisi'); return; }
+            if (password.length < 6) { showToast('warning', 'Password minimal 6 karakter'); return; }
+            if (password !== confirmPassword) { showToast('warning', 'Password tidak cocok'); return; }
+            if (!secretKey) { showToast('warning', 'Secret key wajib diisi'); return; }
+            if (!terms) { showToast('warning', 'Anda harus menyetujui syarat & ketentuan'); return; }
+
+            // Validate secret key
+            const VALID_SECRET_KEY = 'ProductKuu2026!';
+            if (secretKey !== VALID_SECRET_KEY) {
+                showToast('error', 'Secret key salah!');
+                errorMsg.textContent = 'Secret key tidak valid.';
+                errorEl.classList.add('show');
+                return;
+            }
+
+            // Validate email format
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showToast('warning', 'Format email tidak valid');
+                return;
+            }
+
+            const btn = document.getElementById('registerBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Membuat akun...';
+
+            try {
+                // Create user in Firebase Auth
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Update profile with display name
+                await updateProfile(user, { displayName: fullName });
+
+                // Save admin data to Firestore
+                await setDoc(doc(db, 'users', user.uid), {
+                    uid: user.uid,
+                    email: email,
+                    displayName: fullName,
+                    role: 'admin',
+                    status: 'active',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                });
+
+                showToast('success', '🎉 Akun Admin berhasil dibuat!');
+                
+                setTimeout(() => {
+                    window.location.href = '/admin/dashboard';
+                }, 1500);
+
+            } catch (error) {
+                console.error('Registration error:', error);
+                let message = 'Gagal membuat akun admin. Silakan coba lagi.';
+                
+                if (error.code === 'auth/email-already-in-use') {
+                    message = 'Email sudah terdaftar. Silakan gunakan email lain.';
+                } else if (error.code === 'auth/weak-password') {
+                    message = 'Password terlalu lemah. Gunakan minimal 6 karakter.';
+                } else if (error.code === 'auth/invalid-email') {
+                    message = 'Format email tidak valid.';
+                } else if (error.code === 'auth/network-request-failed') {
+                    message = 'Koneksi internet bermasalah. Periksa koneksi Anda.';
+                }
+                
+                showToast('error', message);
+                errorMsg.textContent = message;
+                errorEl.classList.add('show');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-user-plus"></i> Buat Akun Admin';
+            }
+        });
+
+        console.log('🔐 Admin Register page loaded successfully!');
+    </script>
+</body>
+</html>
