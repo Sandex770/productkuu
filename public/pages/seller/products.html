@@ -45,9 +45,10 @@
         .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
         .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
         .badge-purple { background: rgba(124,58,237,0.1); color: var(--secondary); }
+        .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
         
         .action-dropdown { position: relative; display: inline-block; }
-        .action-dropdown-content { display: none; position: absolute; right: 0; min-width: 160px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius); box-shadow: var(--shadow-lg); z-index: 100; }
+        .action-dropdown-content { display: none; position: absolute; right: 0; min-width: 180px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius); box-shadow: var(--shadow-lg); z-index: 100; }
         .action-dropdown-content.show { display: block; }
         .action-dropdown-content a { display: block; padding: 8px 16px; color: var(--text-primary); font-size: 14px; text-decoration: none; cursor: pointer; }
         .action-dropdown-content a:hover { background: var(--bg-secondary); }
@@ -66,6 +67,8 @@
         .btn-danger:hover { transform: translateY(-2px); }
         .btn-sm { padding: 8px 16px; font-size: 12px; }
         .btn-block { width: 100%; justify-content: center; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { transform: translateY(-2px); }
         
         .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
         .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
@@ -150,7 +153,7 @@
         <main class="main-content">
             <div class="flex-between" style="margin-bottom:24px;">
                 <div><h1 style="font-size:24px;">Kelola Produk</h1><p style="color:var(--text-secondary);">Atur dan kelola semua produk Anda</p></div>
-                <div style="display:flex;gap:8px;">
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     <button onclick="refreshData()" class="btn btn-secondary btn-sm">
                         <i class="fas fa-sync-alt"></i> Refresh
                     </button>
@@ -186,7 +189,16 @@
             <div class="card">
                 <div class="table-wrapper">
                     <table class="table">
-                        <thead><tr><th>Produk</th><th>Kategori</th><th>Type</th><th>Harga</th><th>Stok</th><th>Status</th><th>Terjual</th><th>Aksi</th></tr></thead>
+                        <thead><tr>
+                            <th>Produk</th>
+                            <th>Kategori</th>
+                            <th>Type</th>
+                            <th>Harga</th>
+                            <th>Stok</th>
+                            <th>Status</th>
+                            <th>Terjual</th>
+                            <th>Aksi</th>
+                        </tr></thead>
                         <tbody id="productsTableBody">
                             <tr><td colspan="8" class="text-center text-secondary" style="padding:40px 0;">
                                 <i class="fas fa-spinner fa-spin" style="font-size:24px;display:block;margin-bottom:8px;"></i>
@@ -242,6 +254,13 @@
                 <div class="input-group" style="margin-bottom:12px;">
                     <label for="productPrice">Harga (Rp) *</label>
                     <input type="number" id="productPrice" class="input" required placeholder="10000" min="1000">
+                </div>
+
+                <!-- Gambar Produk -->
+                <div class="input-group" style="margin-bottom:12px;">
+                    <label for="productImageUrl">URL Gambar Produk (Opsional)</label>
+                    <input type="url" id="productImageUrl" class="input" placeholder="https://example.com/gambar.jpg">
+                    <span style="font-size:12px;color:var(--text-light);">Kosongkan untuk menggunakan gambar default</span>
                 </div>
                 
                 <!-- Digital Fields -->
@@ -316,6 +335,39 @@
         </div>
     </div>
 
+    <!-- PROMOTE BANNER MODAL -->
+    <div class="modal-overlay" id="promoteModal">
+        <div class="modal" style="max-width:480px;">
+            <button class="modal-close" onclick="closePromoteModal()"><i class="fas fa-times"></i></button>
+            <h3 class="modal-title" id="promoteModalTitle">Promosikan Produk di Banner</h3>
+            <div id="promoteContent">
+                <div style="margin-bottom:16px;padding:16px;background:var(--bg-secondary);border-radius:var(--radius);">
+                    <p><strong>Produk:</strong> <span id="promoteProductName">-</span></p>
+                    <p><strong>Harga per Jam:</strong> Rp<span id="promotePricePerHour">0</span></p>
+                    <p><strong>Saldo Anda:</strong> Rp<span id="promoteBalance">0</span></p>
+                </div>
+                <form id="promoteForm">
+                    <div class="input-group" style="margin-bottom:12px;">
+                        <label for="promoteDuration">Durasi (Jam)</label>
+                        <input type="number" id="promoteDuration" class="input" value="24" min="1" required>
+                        <span style="font-size:12px;color:var(--text-light);">Total biaya: <strong id="promoteTotal">Rp0</strong></span>
+                    </div>
+                    <div class="input-group" style="margin-bottom:12px;">
+                        <label for="promoteImageUrl">URL Gambar Banner (Opsional)</label>
+                        <input type="url" id="promoteImageUrl" class="input" placeholder="https://example.com/banner.jpg">
+                        <span style="font-size:12px;color:var(--text-light);">Kosongkan untuk menggunakan gambar default</span>
+                    </div>
+                    <div style="display:flex;gap:12px;margin-top:12px;">
+                        <button type="submit" class="btn btn-primary" style="flex:1;">
+                            <i class="fas fa-credit-card"></i> Bayar & Promosikan
+                        </button>
+                        <button type="button" onclick="closePromoteModal()" class="btn btn-secondary" style="flex:1;">Batal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="toast-container" id="toastContainer"></div>
 
     <script type="importmap">
@@ -330,13 +382,13 @@
 
     <script type="module">
         // ============================================
-        // IMPORTS - TANPA onSnapshot
+        // IMPORTS
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, collection, doc, getDoc, getDocs, query, where, addDoc, updateDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
 
-        console.log('📦 [SELLER_PRODUCTS] Page loaded (OPTIMIZED)');
+        console.log('📦 [SELLER_PRODUCTS] Page loaded');
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
@@ -357,6 +409,7 @@
         let currentPage = 1;
         const pageSize = 10;
         let deleteId = null;
+        let promoteProductId = null;
 
         // ============================================
         // DEBUG LOG
@@ -383,9 +436,6 @@
             }
         };
 
-        // ============================================
-        // REFRESH DATA
-        // ============================================
         window.refreshData = function() {
             addDebug('Manual refresh triggered', 'info');
             showToast('info', 'Memperbarui data produk...');
@@ -507,8 +557,6 @@
                 addDebug('User is seller', 'success');
                 document.getElementById('productCount').textContent = userDoc.data().productCount || 0;
                 await loadProducts();
-                // TIDAK ADA onSnapshot
-
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat data: ' + error.message);
@@ -516,7 +564,7 @@
         });
 
         // ============================================
-        // LOAD PRODUCTS - TANPA INDEX
+        // LOAD PRODUCTS
         // ============================================
         async function loadProducts() {
             if (!currentUser) {
@@ -526,7 +574,6 @@
             addDebug('Loading products...', 'info');
 
             try {
-                // Query tanpa orderBy
                 const q = query(
                     collection(db, 'products'),
                     where('sellerId', '==', currentUser.uid)
@@ -535,35 +582,29 @@
                 const snapshot = await getDocs(q);
                 addDebug(`Fetched ${snapshot.size} products from Firestore`, 'info');
 
-                // Konversi ke array dengan sorting di client
                 let products = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data(),
                     createdAtDate: doc.data().createdAt?.toDate?.() || new Date(doc.data().createdAt)
                 }));
 
-                // Sort di client
                 products.sort((a, b) => b.createdAtDate - a.createdAtDate);
 
-                // Apply filters
                 const status = document.getElementById('filterStatus').value;
                 const type = document.getElementById('filterType').value;
                 const search = document.getElementById('searchProduct').value.trim().toLowerCase();
 
                 if (status !== 'all') {
                     products = products.filter(p => p.status === status);
-                    addDebug(`Filter by status: ${status} -> ${products.length}`, 'info');
                 }
                 if (type !== 'all') {
                     products = products.filter(p => p.type === type);
-                    addDebug(`Filter by type: ${type} -> ${products.length}`, 'info');
                 }
                 if (search) {
                     products = products.filter(p => 
                         p.name?.toLowerCase().includes(search) ||
                         p.category?.toLowerCase().includes(search)
                     );
-                    addDebug(`Filter by search: "${search}" -> ${products.length}`, 'info');
                 }
 
                 allProducts = products;
@@ -590,7 +631,6 @@
                 return;
             }
 
-            // Pagination di client
             const totalPages = Math.ceil(allProducts.length / pageSize);
             if (currentPage > totalPages) currentPage = totalPages;
             const start = (currentPage - 1) * pageSize;
@@ -601,8 +641,8 @@
                 <tr>
                     <td>
                         <div style="display:flex;align-items:center;gap:8px;">
-                            <div style="width:32px;height:32px;border-radius:var(--radius);background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;">
-                                <i class="fas fa-${p.type === 'premium-account' ? 'user' : 'box'}"></i>
+                            <div style="width:40px;height:40px;border-radius:var(--radius);background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                                ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-box\\'></i>'">` : '<i class="fas fa-box"></i>'}
                             </div>
                             <div>
                                 <strong>${p.name}</strong>
@@ -621,6 +661,7 @@
                             <button onclick="toggleDropdown('${p.id}')"><i class="fas fa-ellipsis-v"></i></button>
                             <div class="action-dropdown-content" id="dropdown-${p.id}">
                                 <a onclick="editProduct('${p.id}')"><i class="fas fa-edit"></i> Edit</a>
+                                <a onclick="promoteToBanner('${p.id}')"><i class="fas fa-image"></i> Promosikan di Banner</a>
                                 <a onclick="deleteProduct('${p.id}')" class="danger"><i class="fas fa-trash"></i> Hapus</a>
                             </div>
                         </div>
@@ -761,6 +802,7 @@
                 document.getElementById('productPrice').value = p.price;
                 document.getElementById('productDescription').value = p.description || '';
                 document.getElementById('productTags').value = (p.tags || []).join(', ');
+                document.getElementById('productImageUrl').value = p.imageUrl || '';
                 toggleProductType();
 
                 if (p.type === 'digital') {
@@ -802,6 +844,7 @@
             const price = parseInt(document.getElementById('productPrice').value);
             const description = document.getElementById('productDescription').value.trim();
             const tags = document.getElementById('productTags').value.split(',').map(t => t.trim()).filter(t => t);
+            const imageUrl = document.getElementById('productImageUrl').value.trim();
 
             if (!name || !category || !price || price < 1000) {
                 showToast('warning', 'Lengkapi data produk dengan benar');
@@ -816,6 +859,7 @@
                 price,
                 description,
                 tags,
+                imageUrl: imageUrl || '',
                 updatedAt: serverTimestamp()
             };
 
@@ -913,8 +957,112 @@
             }
         };
 
+        // ============================================
+        // PROMOTE TO BANNER
+        // ============================================
+        window.promoteToBanner = async function(productId) {
+            addDebug(`Promoting product to banner: ${productId}`, 'info');
+            promoteProductId = productId;
+            
+            try {
+                // Get product info
+                const productRef = doc(db, 'products', productId);
+                const productDoc = await getDoc(productRef);
+                if (!productDoc.exists()) {
+                    showToast('error', 'Produk tidak ditemukan');
+                    return;
+                }
+                const product = productDoc.data();
+                document.getElementById('promoteProductName').textContent = product.name;
+
+                // Get banner pricing
+                const pricingResponse = await fetch('/api/banner-pricing');
+                if (!pricingResponse.ok) throw new Error('Gagal memuat harga banner');
+                const pricing = await pricingResponse.json();
+                document.getElementById('promotePricePerHour').textContent = formatPrice(pricing.price);
+
+                // Get seller wallet
+                const userRef = doc(db, 'users', currentUser.uid);
+                const userDoc = await getDoc(userRef);
+                const wallet = userDoc.data()?.wallet || { available: 0 };
+                document.getElementById('promoteBalance').textContent = formatPrice(wallet.available);
+
+                // Set default duration
+                document.getElementById('promoteDuration').value = pricing.duration || 24;
+
+                // Calculate total
+                const total = (pricing.duration || 24) * pricing.price;
+                document.getElementById('promoteTotal').textContent = `Rp${formatPrice(total)}`;
+
+                // Show modal
+                document.getElementById('promoteModal').classList.add('open');
+                addDebug('Promote modal opened', 'success');
+
+            } catch (error) {
+                addDebug(`Error promoting product: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat data: ' + error.message);
+            }
+        };
+
+        window.closePromoteModal = function() {
+            document.getElementById('promoteModal').classList.remove('open');
+            promoteProductId = null;
+            addDebug('Promote modal closed', 'info');
+        };
+
+        document.getElementById('promoteDuration').addEventListener('input', function() {
+            const pricePerHour = parseInt(document.getElementById('promotePricePerHour').textContent.replace(/,/g, '')) || 0;
+            const total = parseInt(this.value || 0) * pricePerHour;
+            document.getElementById('promoteTotal').textContent = `Rp${formatPrice(total)}`;
+        });
+
+        document.getElementById('promoteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!promoteProductId) {
+                showToast('error', 'Produk tidak valid');
+                return;
+            }
+
+            const duration = parseInt(document.getElementById('promoteDuration').value);
+            const imageUrl = document.getElementById('promoteImageUrl').value.trim();
+
+            if (!duration || duration < 1) {
+                showToast('warning', 'Durasi minimal 1 jam');
+                return;
+            }
+
+            addDebug(`Purchasing banner for ${duration} hours`, 'info');
+
+            try {
+                const response = await fetch('/api/banners/purchase', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sellerId: currentUser.uid,
+                        productId: promoteProductId,
+                        title: '',
+                        imageUrl: imageUrl || '',
+                        duration: duration
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Gagal membeli banner');
+                }
+
+                showToast('success', '🎉 Banner berhasil dibeli! Banner akan muncul di halaman utama.');
+                closePromoteModal();
+                loadProducts();
+            } catch (error) {
+                addDebug(`Error purchasing banner: ${error.message}`, 'error');
+                showToast('error', 'Gagal membeli banner: ' + error.message);
+            }
+        });
+
         addDebug('Page ready', 'success');
-        console.log('✅ [SELLER_PRODUCTS] Page ready (OPTIMIZED - no listeners)');
+        console.log('✅ [SELLER_PRODUCTS] Page ready');
     </script>
 </body>
 </html>
