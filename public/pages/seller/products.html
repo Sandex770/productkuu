@@ -734,6 +734,28 @@
         }
 
         // ============================================
+        // CHECK PAYMENT STATUS FROM URL
+        // ============================================
+
+        function checkPaymentStatus() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const paymentStatus = urlParams.get('payment');
+            const orderId = urlParams.get('order');
+
+            if (paymentStatus === 'success') {
+                showToast('success', `🎉 Pembayaran berhasil! Banner untuk order ${orderId || ''} telah aktif.`);
+                window.history.replaceState({}, document.title, window.location.pathname);
+                setTimeout(() => loadProducts(), 1500);
+            } else if (paymentStatus === 'error') {
+                showToast('error', `❌ Pembayaran gagal untuk order ${orderId || ''}. Silakan coba lagi.`);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (paymentStatus === 'pending') {
+                showToast('info', `⏳ Pembayaran untuk order ${orderId || ''} sedang diproses. Silakan tunggu konfirmasi.`);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        // ============================================
         // AUTH STATE
         // ============================================
         onAuthStateChanged(auth, async (user) => {
@@ -756,6 +778,7 @@
                 addDebug('User is seller', 'success');
                 document.getElementById('productCount').textContent = userDoc.data().productCount || 0;
                 await loadProducts();
+                checkPaymentStatus();
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat data: ' + error.message);
