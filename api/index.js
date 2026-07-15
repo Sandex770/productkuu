@@ -610,6 +610,97 @@ app.get('/api/seller/:sellerId/orders', async (req, res) => {
 // PAYMENT ENDPOINTS
 // ============================================
 
+// ============================================
+// CREATE MIDTRANS PAYMENT (UNTUK BANNER & PRODUK)
+// ============================================
+
+app.post('/api/payment/create', async (req, res) => {
+    try {
+        const { 
+            orderId, 
+            amount, 
+            buyerName, 
+            buyerEmail, 
+            buyerPhone, 
+            productName
+        } = req.body;
+
+        console.log('📦 [PAYMENT CREATE] Request:', { 
+            orderId, 
+            amount, 
+            buyerName, 
+            buyerEmail, 
+            productName 
+        });
+
+        // Validasi
+        if (!orderId) {
+            return res.status(400).json({
+                error: 'Order ID is required'
+            });
+        }
+
+        if (!amount || amount < 100) {
+            return res.status(400).json({
+                error: 'Invalid amount (minimum Rp 100)'
+            });
+        }
+
+        // Base URL untuk callback (opsional, karena kita pakai Snap callback)
+        const baseUrl = process.env.APP_URL || 'https://productkuu.vercel.app';
+
+        // Parameter Midtrans
+        const parameter = {
+            transaction_details: {
+                order_id: orderId,
+                gross_amount: parseInt(amount)
+            },
+            customer_details: {
+                first_name: buyerName || 'Customer',
+                email: buyerEmail || 'customer@example.com',
+                phone: buyerPhone || '08123456789'
+            },
+            item_details: [
+                {
+                    id: 'BANNER_PROMO',
+                    price: parseInt(amount),
+                    quantity: 1,
+                    name: productName || 'Banner Promosi'
+                }
+            ],
+            credit_card: {
+                secure: true
+            },
+            // Callback tetap disertakan untuk fallback
+            callbacks: {
+                finish: `${baseUrl}/seller/products?payment=success&order=${orderId}`,
+                error: `${baseUrl}/seller/products?payment=error&order=${orderId}`,
+                pending: `${baseUrl}/seller/products?payment=pending&order=${orderId}`
+            }
+        };
+
+        console.log('🔐 [PAYMENT CREATE] Creating Midtrans transaction...');
+        const transaction = await snap.createTransaction(parameter);
+        
+        console.log('✅ [PAYMENT CREATE] Transaction created:', transaction.token);
+        
+        res.json({
+            token: transaction.token,
+            redirect_url: transaction.redirect_url,
+            order_id: orderId
+        });
+
+    } catch (error) {
+        console.error('❌ [PAYMENT CREATE] Error:', error);
+        res.status(500).json({
+            error: 'Failed to create payment',
+            details: error.message
+        });
+    }
+});
+
+
+
 // Payment notification webhook (dari Midtrans)
 app.post('/api/payment/notification', async (req, res) => {
     try {
