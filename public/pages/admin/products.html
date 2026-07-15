@@ -99,16 +99,7 @@
         .debug-box .debug-info { color: #89B4FA; }
         .debug-box .debug-warning { color: #F9E2AF; }
         
-        .debug-toggle { 
-            background: none; 
-            border: none; 
-            color: var(--text-light); 
-            cursor: pointer; 
-            font-size: 12px; 
-            text-decoration: underline;
-            padding: 4px 8px;
-            margin-bottom: 8px;
-        }
+        .debug-toggle { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 12px; text-decoration: underline; padding: 4px 8px; margin-bottom: 8px; }
         .debug-toggle:hover { color: var(--text-primary); }
         
         .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
@@ -118,7 +109,6 @@
     </style>
 </head>
 <body>
-    <!-- NAVBAR -->
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
@@ -130,7 +120,6 @@
         </div>
     </nav>
 
-    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header"><div class="title">Menu Admin</div></div>
         <nav class="sidebar-nav">
@@ -146,14 +135,15 @@
     </aside>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- MAIN CONTENT -->
     <div class="app-wrapper">
         <main class="main-content">
             <div class="flex-between" style="margin-bottom:24px;">
                 <div><h1 style="font-size:24px;">Manajemen Produk</h1><p style="color:var(--text-secondary);">Kelola semua produk di platform</p></div>
+                <button onclick="refreshData()" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
             </div>
 
-            <!-- Debug Box -->
             <div class="debug-box" id="debugBox">
                 <div class="debug-line debug-info">🔍 Debug Mode Active</div>
                 <div class="debug-line" id="debugLog">Menunggu data...</div>
@@ -162,13 +152,11 @@
                 <i class="fas fa-bug"></i> Toggle Debug
             </button>
 
-            <!-- Error Box -->
             <div class="error-box" id="errorBox">
                 <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
                 <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
             </div>
 
-            <!-- Filter -->
             <div class="filter-bar" style="margin-top:8px;">
                 <div class="filter-group">
                     <input type="text" id="searchProduct" placeholder="Cari produk..." style="min-width:200px;">
@@ -191,7 +179,6 @@
                 </div>
             </div>
 
-            <!-- Table -->
             <div class="card">
                 <div class="table-wrapper">
                     <table class="table">
@@ -230,7 +217,63 @@
         </div>
     </div>
 
-    <!-- TOAST -->
+    <!-- EDIT PRODUCT MODAL -->
+    <div class="modal-overlay" id="editProductModal">
+        <div class="modal" style="max-width:520px;">
+            <button class="modal-close" onclick="closeEditProductModal()"><i class="fas fa-times"></i></button>
+            <h3 class="modal-title">Edit Produk</h3>
+            <form id="editProductForm">
+                <input type="hidden" id="editProductId">
+                
+                <div class="input-group" style="margin-bottom:12px;">
+                    <label for="editProductName">Nama Produk</label>
+                    <input type="text" id="editProductName" class="input">
+                </div>
+                
+                <div class="input-group" style="margin-bottom:12px;">
+                    <label for="editProductPrice">Harga (Rp)</label>
+                    <input type="number" id="editProductPrice" class="input" min="1000">
+                </div>
+                
+                <div class="input-group" style="margin-bottom:12px;">
+                    <label for="editProductCategory">Kategori</label>
+                    <select id="editProductCategory" class="input">
+                        <option value="Source Code">Source Code</option>
+                        <option value="Preset">Preset</option>
+                        <option value="Plugin">Plugin</option>
+                        <option value="Template">Template</option>
+                        <option value="UI Kit">UI Kit</option>
+                        <option value="Font">Font</option>
+                        <option value="Ebook">Ebook</option>
+                        <option value="Script">Script</option>
+                        <option value="Premium Account">Premium Account</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+                </div>
+                
+                <div class="input-group" style="margin-bottom:12px;">
+                    <label for="editProductStatus">Status</label>
+                    <select id="editProductStatus" class="input">
+                        <option value="draft">Draft</option>
+                        <option value="pending">Pending</option>
+                        <option value="published">Published</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                
+                <div class="input-group" style="margin-bottom:12px;">
+                    <label for="editProductDescription">Deskripsi</label>
+                    <textarea id="editProductDescription" class="input" rows="3"></textarea>
+                </div>
+                
+                <div style="display:flex;gap:12px;margin-top:16px;">
+                    <button type="submit" class="btn btn-primary" style="flex:1;"><i class="fas fa-save"></i> Simpan</button>
+                    <button type="button" onclick="closeEditProductModal()" class="btn btn-secondary" style="flex:1;">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="toast-container" id="toastContainer"></div>
 
     <script type="importmap">
@@ -245,17 +288,22 @@
 
     <script type="module">
         // ============================================
-        // IMPORTS
+        // IMPORTS - TANPA onSnapshot
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            getDoc, 
+            getDocs, 
+            updateDoc, 
+            deleteDoc 
+        } from "firebase/firestore";
 
-        console.log('📦 [ADMIN_PRODUCTS] Page loaded');
+        console.log('📦 [ADMIN_PRODUCTS] Page loaded (OPTIMIZED)');
 
-        // ============================================
-        // FIREBASE CONFIG
-        // ============================================
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
             authDomain: "productkuu.firebaseapp.com",
@@ -270,8 +318,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        console.log('✅ [ADMIN_PRODUCTS] Firebase initialized');
-
         let currentUser = null;
         let allProducts = [];
         let currentPage = 1;
@@ -285,18 +331,8 @@
         let debugVisible = false;
 
         function addDebug(message, type = 'info') {
-            const colors = {
-                success: 'debug-success',
-                error: 'debug-error',
-                info: 'debug-info',
-                warning: 'debug-warning'
-            };
-            const icons = {
-                success: '✅',
-                error: '❌',
-                info: 'ℹ️',
-                warning: '⚠️'
-            };
+            const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
+            const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
             const log = document.getElementById('debugLog');
             const time = new Date().toLocaleTimeString();
             log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
@@ -315,7 +351,16 @@
         };
 
         // ============================================
-        // THEME
+        // REFRESH DATA
+        // ============================================
+        window.refreshData = function() {
+            addDebug('Manual refresh triggered', 'info');
+            showToast('info', 'Memperbarui data...');
+            loadProducts();
+        };
+
+        // ============================================
+        // THEME & SIDEBAR
         // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
@@ -327,13 +372,9 @@
             themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
         });
 
-        // ============================================
-        // SIDEBAR
-        // ============================================
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const sidebarToggle = document.getElementById('sidebarToggle');
-
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', () => {
                 sidebar.classList.toggle('open');
@@ -347,9 +388,6 @@
             });
         }
 
-        // ============================================
-        // SIDEBAR NAVIGATION
-        // ============================================
         document.querySelectorAll('.sidebar-nav a').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -358,20 +396,13 @@
             });
         });
 
-        // ============================================
-        // LOGOUT
-        // ============================================
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                window.location.href = '/';
-            } catch (error) {
-                showToast('error', 'Gagal logout: ' + error.message);
-            }
+            try { await signOut(auth); window.location.href = '/'; } 
+            catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
         });
 
         // ============================================
-        // TOAST
+        // TOAST & ERROR
         // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
@@ -389,9 +420,6 @@
         }
         window.showToast = showToast;
 
-        // ============================================
-        // SHOW ERROR
-        // ============================================
         function showError(title, detail) {
             const box = document.getElementById('errorBox');
             document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
@@ -424,7 +452,7 @@
         // ============================================
         // AUTH STATE
         // ============================================
-        addDebug('Setting up auth listener...', 'info');
+        addDebug('Setting up auth...', 'info');
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
@@ -445,11 +473,7 @@
                 }
                 addDebug('Admin verified', 'success');
                 await loadProducts();
-
-                onSnapshot(collection(db, 'products'), () => {
-                    addDebug('Products collection updated - reloading...', 'info');
-                    loadProducts();
-                });
+                // TIDAK ADA onSnapshot
 
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
@@ -464,11 +488,9 @@
             addDebug('Loading products...', 'info');
 
             try {
-                // Ambil semua produk
                 const snapshot = await getDocs(collection(db, 'products'));
                 addDebug(`Fetched ${snapshot.size} products from Firestore`, 'info');
 
-                // Konversi ke array
                 let products = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data(),
@@ -524,19 +546,13 @@
                 return;
             }
 
-            // Pagination di client
             const totalPages = Math.ceil(allProducts.length / pageSize);
             if (currentPage > totalPages) currentPage = totalPages;
             const start = (currentPage - 1) * pageSize;
             const end = Math.min(start + pageSize, allProducts.length);
             const pageProducts = allProducts.slice(start, end);
 
-            // Get seller names
-            const sellerCache = {};
-
-            tbody.innerHTML = pageProducts.map(p => {
-                const sellerName = p.sellerName || p.sellerId || 'Unknown';
-                return `
+            tbody.innerHTML = pageProducts.map(p => `
                 <tr>
                     <td>
                         <div style="display:flex;align-items:center;gap:8px;">
@@ -549,7 +565,7 @@
                             </div>
                         </div>
                     </td>
-                    <td>${sellerName}</td>
+                    <td>${p.sellerId || 'Unknown'}</td>
                     <td style="font-weight:600;color:var(--primary);">Rp${formatPrice(p.price)}</td>
                     <td><span class="badge ${p.status === 'published' ? 'badge-success' : p.status === 'pending' ? 'badge-warning' : p.status === 'draft' ? 'badge-info' : 'badge-danger'}">${p.status || 'draft'}</span></td>
                     <td style="text-align:center;">${p.sales || 0}</td>
@@ -558,13 +574,13 @@
                             <button onclick="approveProduct('${p.id}')" class="btn btn-success btn-sm" style="padding:4px 8px;" title="Approve"><i class="fas fa-check"></i></button>
                             <button onclick="rejectProduct('${p.id}')" class="btn btn-danger btn-sm" style="padding:4px 8px;" title="Reject"><i class="fas fa-times"></i></button>
                         ` : ''}
+                        <button onclick="editProduct('${p.id}')" class="btn btn-secondary btn-sm" style="padding:4px 8px;" title="Edit"><i class="fas fa-edit"></i></button>
                         <button onclick="viewProduct('${p.id}')" class="btn btn-secondary btn-sm" style="padding:4px 8px;" title="View"><i class="fas fa-eye"></i></button>
                         <button onclick="deleteProduct('${p.id}')" class="btn btn-danger btn-sm" style="padding:4px 8px;" title="Delete"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
-            `}).join('');
+            `).join('');
 
-            // Render pagination
             renderPagination(totalPages);
         }
 
@@ -618,7 +634,7 @@
         });
 
         // ============================================
-        // PRODUCT ACTIONS
+        // APPROVE / REJECT
         // ============================================
         window.approveProduct = function(id) {
             actionId = id;
@@ -664,6 +680,89 @@
             }
         };
 
+        // ============================================
+        // EDIT PRODUCT
+        // ============================================
+        window.editProduct = async function(id) {
+            addDebug(`Editing product: ${id}`, 'info');
+            try {
+                const productRef = doc(db, 'products', id);
+                const productDoc = await getDoc(productRef);
+                if (!productDoc.exists()) {
+                    addDebug('Product not found', 'error');
+                    showToast('error', 'Produk tidak ditemukan');
+                    return;
+                }
+
+                const p = productDoc.data();
+                addDebug(`Product data loaded: ${p.name}`, 'success');
+
+                document.getElementById('editProductId').value = id;
+                document.getElementById('editProductName').value = p.name || '';
+                document.getElementById('editProductPrice').value = p.price || '';
+                document.getElementById('editProductCategory').value = p.category || 'Lainnya';
+                document.getElementById('editProductStatus').value = p.status || 'draft';
+                document.getElementById('editProductDescription').value = p.description || '';
+
+                document.getElementById('editProductModal').classList.add('open');
+                addDebug('Edit modal opened', 'success');
+            } catch (error) {
+                addDebug(`Error loading product: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat produk: ' + error.message);
+            }
+        };
+
+        window.closeEditProductModal = function() {
+            document.getElementById('editProductModal').classList.remove('open');
+            addDebug('Edit modal closed', 'info');
+        };
+
+        document.getElementById('editProductForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            addDebug('Saving edited product...', 'info');
+
+            const id = document.getElementById('editProductId').value;
+            const name = document.getElementById('editProductName').value.trim();
+            const price = parseInt(document.getElementById('editProductPrice').value);
+            const category = document.getElementById('editProductCategory').value;
+            const status = document.getElementById('editProductStatus').value;
+            const description = document.getElementById('editProductDescription').value.trim();
+
+            if (!name) {
+                showToast('warning', 'Nama produk wajib diisi');
+                addDebug('Product name is required', 'warning');
+                return;
+            }
+
+            if (!price || price < 1000) {
+                showToast('warning', 'Harga minimal Rp1.000');
+                addDebug('Invalid price', 'warning');
+                return;
+            }
+
+            try {
+                await updateDoc(doc(db, 'products', id), {
+                    name: name,
+                    price: price,
+                    category: category,
+                    status: status,
+                    description: description,
+                    updatedAt: new Date().toISOString()
+                });
+
+                addDebug(`Product ${id} updated successfully`, 'success');
+                showToast('success', 'Produk berhasil diperbarui!');
+                closeEditProductModal();
+                loadProducts();
+            } catch (error) {
+                addDebug(`Error saving product: ${error.message}`, 'error');
+                showToast('error', 'Gagal menyimpan perubahan: ' + error.message);
+            }
+        });
+
+        // ============================================
+        // VIEW & DELETE
+        // ============================================
         window.viewProduct = function(id) {
             window.location.href = `/product/${id}`;
             addDebug(`View product: ${id}`, 'info');
@@ -684,7 +783,7 @@
         };
 
         addDebug('Page ready', 'success');
-        console.log('✅ [ADMIN_PRODUCTS] Page ready');
+        console.log('✅ [ADMIN_PRODUCTS] Page ready (OPTIMIZED - no listeners)');
     </script>
 </body>
 </html>

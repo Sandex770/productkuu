@@ -78,6 +78,35 @@
         .toast-message { font-size: 13px; color: var(--text-secondary); }
         .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        
+        .debug-box {
+            background: #1E1E2E;
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #CDD6F4;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            border: 1px solid #313244;
+        }
+        .debug-box.show { display: block; }
+        .debug-box .debug-line { padding: 2px 0; border-bottom: 1px solid #2A2A3E; }
+        .debug-box .debug-line:last-child { border-bottom: none; }
+        .debug-box .debug-success { color: #A6E3A1; }
+        .debug-box .debug-error { color: #F38BA8; }
+        .debug-box .debug-info { color: #89B4FA; }
+        .debug-box .debug-warning { color: #F9E2AF; }
+        
+        .debug-toggle { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 12px; text-decoration: underline; padding: 4px 8px; margin-bottom: 8px; }
+        .debug-toggle:hover { color: var(--text-primary); }
+        
+        .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
+        .error-box.show { display: block; }
+        .error-box .error-title { font-weight: 700; color: var(--danger); }
+        .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -111,9 +140,25 @@
         <main class="main-content">
             <div class="flex-between" style="margin-bottom:24px;">
                 <div><h1 style="font-size:24px;">Manajemen Seller</h1><p style="color:var(--text-secondary);">Kelola semua seller di platform</p></div>
+                <button onclick="refreshData()" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
             </div>
 
-            <div class="filter-bar">
+            <div class="debug-box" id="debugBox">
+                <div class="debug-line debug-info">🔍 Debug Mode Active</div>
+                <div class="debug-line" id="debugLog">Menunggu data...</div>
+            </div>
+            <button class="debug-toggle" onclick="toggleDebug()">
+                <i class="fas fa-bug"></i> Toggle Debug
+            </button>
+
+            <div class="error-box" id="errorBox">
+                <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
+                <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
+            </div>
+
+            <div class="filter-bar" style="margin-top:8px;">
                 <div class="filter-group">
                     <input type="text" id="searchSeller" placeholder="Cari seller..." style="min-width:200px;">
                     <select id="filterStatus"><option value="all">Semua Status</option><option value="active">Active</option><option value="suspended">Suspended</option></select>
@@ -128,8 +173,20 @@
             <div class="card">
                 <div class="table-wrapper">
                     <table class="table">
-                        <thead><tr><th>Seller</th><th>Toko</th><th>Level</th><th>Produk</th><th>Penjualan</th><th>Status</th><th>Aksi</th></tr></thead>
-                        <tbody id="sellersTableBody"><tr><td colspan="7" class="text-center text-secondary" style="padding:40px 0;">Memuat seller...</td></tr></tbody>
+                        <thead>
+                            <tr>
+                                <th>Seller</th>
+                                <th>Toko</th>
+                                <th>Level</th>
+                                <th>Produk</th>
+                                <th>Penjualan</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sellersTableBody">
+                            <tr><td colspan="7" class="text-center text-secondary" style="padding:40px 0;">Memuat seller...</td></tr>
+                        </tbody>
                     </table>
                 </div>
                 <div id="pagination" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"></div>
@@ -181,11 +238,14 @@
     </script>
 
     <script type="module">
+        // ============================================
+        // IMPORTS - TANPA onSnapshot
+        // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, updateDoc, onSnapshot } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, updateDoc } from "firebase/firestore";
 
-        console.log('👥 [ADMIN_SELLERS] Page loaded');
+        console.log('👥 [ADMIN_SELLERS] Page loaded (OPTIMIZED)');
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
@@ -204,7 +264,43 @@
         let currentUser = null;
         let sellers = [], lastDoc = null, hasMore = true, currentPage = 1, limitPerPage = 10;
 
-        // Theme
+        // ============================================
+        // DEBUG LOG
+        // ============================================
+        let debugVisible = false;
+
+        function addDebug(message, type = 'info') {
+            const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
+            const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
+            const log = document.getElementById('debugLog');
+            const time = new Date().toLocaleTimeString();
+            log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
+            console.log(`[ADMIN_SELLERS_DEBUG] ${message}`);
+            const box = document.getElementById('debugBox');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        window.toggleDebug = function() {
+            const box = document.getElementById('debugBox');
+            debugVisible = !debugVisible;
+            box.classList.toggle('show');
+            if (debugVisible) {
+                addDebug('Debug mode activated', 'info');
+            }
+        };
+
+        // ============================================
+        // REFRESH DATA
+        // ============================================
+        window.refreshData = function() {
+            addDebug('Manual refresh triggered', 'info');
+            showToast('info', 'Memperbarui data seller...');
+            loadSellers(true);
+        };
+
+        // ============================================
+        // THEME & SIDEBAR
+        // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -215,7 +311,6 @@
             themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
         });
 
-        // Sidebar
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const sidebarToggle = document.getElementById('sidebarToggle');
@@ -245,6 +340,9 @@
             catch (error) { showToast('error', 'Gagal logout'); }
         });
 
+        // ============================================
+        // TOAST & ERROR
+        // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
             const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
@@ -259,60 +357,163 @@
             container.appendChild(toast);
             setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
         }
+        window.showToast = showToast;
+
+        function showError(title, detail) {
+            const box = document.getElementById('errorBox');
+            document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
+            document.getElementById('errorDetail').textContent = detail || '';
+            box.classList.add('show');
+            setTimeout(() => { box.classList.remove('show'); }, 10000);
+        }
+
+        // ============================================
+        // AUTH STATE
+        // ============================================
+        addDebug('Setting up auth...', 'info');
 
         onAuthStateChanged(auth, async (user) => {
-            if (!user) { window.location.href = '/admin/login'; return; }
+            if (!user) {
+                addDebug('User not logged in, redirecting...', 'warning');
+                window.location.href = '/admin/login';
+                return;
+            }
             currentUser = user;
-            const userRef = doc(db, 'users', user.uid);
-            const userDoc = await getDoc(userRef);
-            if (!userDoc.exists() || userDoc.data().role !== 'admin') { window.location.href = '/'; return; }
-            await loadSellers(true);
-            onSnapshot(query(collection(db, 'users'), where('role', '==', 'seller')), () => loadSellers(true));
+            addDebug(`User logged in: ${user.email}`, 'success');
+
+            try {
+                const userRef = doc(db, 'users', user.uid);
+                const userDoc = await getDoc(userRef);
+                if (!userDoc.exists() || userDoc.data().role !== 'admin') {
+                    addDebug('User is not admin, redirecting...', 'error');
+                    window.location.href = '/';
+                    return;
+                }
+                addDebug('Admin verified', 'success');
+                await loadSellers(true);
+                // TIDAK ADA onSnapshot
+
+            } catch (error) {
+                addDebug(`Error: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat data: ' + error.message);
+            }
         });
 
+        // ============================================
+        // LOAD SELLERS
+        // ============================================
         async function loadSellers(reset = true) {
+            addDebug(`Loading sellers (reset: ${reset})...`, 'info');
             try {
                 if (reset) { lastDoc = null; hasMore = true; sellers = []; currentPage = 1; }
-                if (!hasMore) return;
+                if (!hasMore) {
+                    addDebug('No more sellers to load', 'info');
+                    return;
+                }
+                
                 let constraints = [where('role', '==', 'seller'), orderBy('createdAt', 'desc')];
                 const status = document.getElementById('filterStatus').value;
                 const level = document.getElementById('filterLevel').value;
                 const search = document.getElementById('searchSeller').value.trim();
-                if (status !== 'all') constraints.push(where('status', '==', status));
-                if (level !== 'all') constraints.push(where('level', '==', level));
+                
+                if (status !== 'all') {
+                    constraints.push(where('status', '==', status));
+                    addDebug(`Filter by status: ${status}`, 'info');
+                }
+                if (level !== 'all') {
+                    constraints.push(where('level', '==', level));
+                    addDebug(`Filter by level: ${level}`, 'info');
+                }
+                
                 let q = query(collection(db, 'users'), ...constraints, limit(limitPerPage));
                 if (lastDoc) q = query(collection(db, 'users'), ...constraints, startAfter(lastDoc), limit(limitPerPage));
+                
                 const snapshot = await getDocs(q);
-                if (snapshot.empty) { hasMore = false; if (reset) document.getElementById('sellersTableBody').innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Belum ada seller</td></tr>'; return; }
+                addDebug(`Query returned ${snapshot.size} documents`, 'info');
+                
+                if (snapshot.empty) { 
+                    hasMore = false; 
+                    if (reset) {
+                        document.getElementById('sellersTableBody').innerHTML = 
+                            '<tr><td colspan="7" class="text-center text-secondary">Belum ada seller</td></tr>';
+                    }
+                    return; 
+                }
+                
                 lastDoc = snapshot.docs[snapshot.docs.length - 1];
                 hasMore = snapshot.docs.length === limitPerPage;
                 const newData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 sellers = reset ? newData : [...sellers, ...newData];
+                addDebug(`Loaded ${sellers.length} sellers total`, 'success');
                 renderSellers();
-            } catch (error) { console.error('❌ [ADMIN_SELLERS] Error:', error); showToast('error', 'Gagal memuat seller'); }
+            } catch (error) { 
+                addDebug(`Error loading sellers: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat seller: ' + error.message); 
+            }
         }
 
+        // ============================================
+        // RENDER SELLERS
+        // ============================================
         function renderSellers() {
             const tbody = document.getElementById('sellersTableBody');
-            if (sellers.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Tidak ada seller</td></tr>'; document.getElementById('pagination').innerHTML = ''; return; }
-            const levelColors = { 'bronze': 'badge-warning', 'silver': 'badge-info', 'gold': 'badge-success', 'platinum': 'badge-purple', 'diamond': 'badge-info' };
+            if (sellers.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Tidak ada seller</td></tr>'; 
+                document.getElementById('pagination').innerHTML = ''; 
+                return; 
+            }
+            
+            const levelColors = { 
+                'bronze': 'badge-warning', 
+                'silver': 'badge-info', 
+                'gold': 'badge-success', 
+                'platinum': 'badge-purple', 
+                'diamond': 'badge-info' 
+            };
+
             tbody.innerHTML = sellers.map(s => `
                 <tr>
-                    <td><div style="display:flex;align-items:center;gap:8px;"><div style="width:32px;height:32px;border-radius:50%;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--primary);">${(s.displayName || s.storeName || 'S')[0].toUpperCase()}</div><div><strong>${s.displayName || 'Seller'}</strong><br><span style="font-size:12px;color:var(--text-secondary);">${s.email || '-'}</span></div></div></td>
-                    <td><strong>${s.storeName || '-'}</strong><br><span style="font-size:12px;color:var(--text-secondary);">${s.storeDescription ? s.storeDescription.substring(0,30) + '...' : 'Tidak ada deskripsi'}</span></td>
-                    <td><span class="badge ${levelColors[s.level] || 'badge-info'}">${s.level || 'bronze'}</span> ${s.verified ? '<span style="color:var(--info);"><i class="fas fa-check-circle" title="Verified"></i></span>' : ''}</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <div style="width:32px;height:32px;border-radius:50%;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--primary);">
+                                ${(s.displayName || s.storeName || 'S')[0].toUpperCase()}
+                            </div>
+                            <div>
+                                <strong>${s.displayName || 'Seller'}</strong>
+                                <br><span style="font-size:12px;color:var(--text-secondary);">${s.email || '-'}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <strong>${s.storeName || '-'}</strong>
+                        <br><span style="font-size:12px;color:var(--text-secondary);">${s.storeDescription ? s.storeDescription.substring(0,30) + '...' : 'Tidak ada deskripsi'}</span>
+                    </td>
+                    <td>
+                        <span class="badge ${levelColors[s.level] || 'badge-info'}">${s.level || 'bronze'}</span>
+                        ${s.verified ? '<span style="color:var(--info);"><i class="fas fa-check-circle" title="Verified"></i></span>' : ''}
+                    </td>
                     <td style="text-align:center;">${s.productCount || 0}</td>
                     <td style="text-align:center;">${s.totalSales || 0}</td>
                     <td><span class="badge ${s.status === 'active' ? 'badge-success' : 'badge-danger'}">${s.status || 'active'}</span></td>
-                    <td><button onclick="editSeller('${s.id}')" class="btn btn-secondary btn-sm" style="padding:4px 8px;"><i class="fas fa-edit"></i></button> <button onclick="toggleSellerStatus('${s.id}')" class="btn btn-secondary btn-sm" style="padding:4px 8px;"><i class="fas ${s.status === 'active' ? 'fa-pause' : 'fa-play'}"></i></button></td>
+                    <td>
+                        <button onclick="editSeller('${s.id}')" class="btn btn-secondary btn-sm" style="padding:4px 8px;"><i class="fas fa-edit"></i></button>
+                        <button onclick="toggleSellerStatus('${s.id}')" class="btn btn-secondary btn-sm" style="padding:4px 8px;"><i class="fas ${s.status === 'active' ? 'fa-pause' : 'fa-play'}"></i></button>
+                    </td>
                 </tr>
             `).join('');
+            
             renderPagination();
         }
 
+        // ============================================
+        // PAGINATION
+        // ============================================
         function renderPagination() {
             const container = document.getElementById('pagination');
-            if (!hasMore && sellers.length <= limitPerPage) { container.innerHTML = ''; return; }
+            if (!hasMore && sellers.length <= limitPerPage) { 
+                container.innerHTML = ''; 
+                return; 
+            }
             container.innerHTML = `
                 <span style="font-size:14px;color:var(--text-secondary);">${sellers.length} seller</span>
                 <div style="display:flex;gap:8px;">
@@ -322,31 +523,73 @@
             `;
         }
 
-        window.loadNextPage = function() { currentPage++; loadSellers(false); };
-        window.loadPreviousPage = function() { if (currentPage <= 1) return; currentPage--; lastDoc = null; hasMore = true; loadSellers(true); };
-        window.applyFilters = function() { lastDoc = null; hasMore = true; loadSellers(true); };
-        window.resetFilters = function() { document.getElementById('searchSeller').value = ''; document.getElementById('filterStatus').value = 'all'; document.getElementById('filterLevel').value = 'all'; applyFilters(); };
+        window.loadNextPage = function() { 
+            addDebug('Next page clicked', 'info');
+            currentPage++; 
+            loadSellers(false); 
+        };
 
+        window.loadPreviousPage = function() { 
+            addDebug('Previous page clicked', 'info');
+            if (currentPage <= 1) return; 
+            currentPage--; 
+            lastDoc = null; 
+            hasMore = true; 
+            loadSellers(true); 
+        };
+
+        window.applyFilters = function() { 
+            addDebug('Applying filters', 'info');
+            lastDoc = null; 
+            hasMore = true; 
+            loadSellers(true); 
+        };
+
+        window.resetFilters = function() { 
+            addDebug('Resetting filters', 'info');
+            document.getElementById('searchSeller').value = ''; 
+            document.getElementById('filterStatus').value = 'all'; 
+            document.getElementById('filterLevel').value = 'all'; 
+            applyFilters(); 
+        };
+
+        // ============================================
+        // EDIT SELLER
+        // ============================================
         window.editSeller = async function(id) {
+            addDebug(`Editing seller: ${id}`, 'info');
             try {
                 const sellerRef = doc(db, 'users', id);
                 const sellerDoc = await getDoc(sellerRef);
-                if (!sellerDoc.exists()) { showToast('error', 'Seller tidak ditemukan'); return; }
+                if (!sellerDoc.exists()) { 
+                    addDebug('Seller not found', 'error');
+                    showToast('error', 'Seller tidak ditemukan'); 
+                    return; 
+                }
                 const s = sellerDoc.data();
+                addDebug('Seller data loaded', 'success');
                 document.getElementById('editSellerId').value = id;
                 document.getElementById('editStoreName').value = s.storeName || '';
                 document.getElementById('editStatus').value = s.status || 'active';
                 document.getElementById('editVerified').value = s.verified ? 'true' : 'false';
                 document.getElementById('editLevel').value = s.level || 'bronze';
                 document.getElementById('editSellerModal').classList.add('open');
-            } catch (error) { console.error('❌ [ADMIN_SELLERS] Error:', error); showToast('error', 'Gagal memuat data seller'); }
+                addDebug('Edit modal opened', 'success');
+            } catch (error) { 
+                addDebug(`Error loading seller: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat data seller: ' + error.message); 
+            }
         };
 
-        window.closeEditSellerModal = function() { document.getElementById('editSellerModal').classList.remove('open'); };
+        window.closeEditSellerModal = function() { 
+            addDebug('Edit modal closed', 'info');
+            document.getElementById('editSellerModal').classList.remove('open'); 
+        };
 
         document.getElementById('editSellerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('editSellerId').value;
+            addDebug(`Saving seller: ${id}`, 'info');
             try {
                 await updateDoc(doc(db, 'users', id), {
                     storeName: document.getElementById('editStoreName').value.trim() || undefined,
@@ -355,33 +598,54 @@
                     level: document.getElementById('editLevel').value,
                     updatedAt: new Date().toISOString()
                 });
+                addDebug('Seller updated successfully', 'success');
                 showToast('success', 'Seller diperbarui');
                 closeEditSellerModal();
                 loadSellers(true);
-            } catch (error) { console.error('❌ [ADMIN_SELLERS] Error:', error); showToast('error', 'Gagal memperbarui seller'); }
+            } catch (error) { 
+                addDebug(`Error updating seller: ${error.message}`, 'error');
+                showToast('error', 'Gagal memperbarui seller: ' + error.message); 
+            }
         });
 
+        // ============================================
+        // TOGGLE SELLER STATUS
+        // ============================================
         window.toggleSellerStatus = async function(id) {
+            addDebug(`Toggling status for seller: ${id}`, 'info');
             try {
                 const sellerRef = doc(db, 'users', id);
                 const sellerDoc = await getDoc(sellerRef);
-                if (!sellerDoc.exists()) { showToast('error', 'Seller tidak ditemukan'); return; }
+                if (!sellerDoc.exists()) { 
+                    addDebug('Seller not found', 'error');
+                    showToast('error', 'Seller tidak ditemukan'); 
+                    return; 
+                }
                 const current = sellerDoc.data().status || 'active';
                 const next = current === 'active' ? 'suspended' : 'active';
+                addDebug(`Changing status from ${current} to ${next}`, 'info');
                 if (!confirm(`Yakin ingin ${next === 'active' ? 'mengaktifkan' : 'mensuspend'} seller ini?`)) return;
                 await updateDoc(sellerRef, { status: next, updatedAt: new Date().toISOString() });
+                addDebug(`Status changed to ${next}`, 'success');
                 showToast('success', `Seller ${next === 'active' ? 'diaktifkan' : 'disuspend'}`);
                 loadSellers(true);
-            } catch (error) { console.error('❌ [ADMIN_SELLERS] Error:', error); showToast('error', 'Gagal mengubah status'); }
+            } catch (error) { 
+                addDebug(`Error toggling status: ${error.message}`, 'error');
+                showToast('error', 'Gagal mengubah status: ' + error.message); 
+            }
         };
 
+        // ============================================
+        // SEARCH DEBOUNCE
+        // ============================================
         let searchTimeout;
         document.getElementById('searchSeller').addEventListener('input', () => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(applyFilters, 500);
         });
 
-        console.log('✅ [ADMIN_SELLERS] Page ready');
+        addDebug('Page ready', 'success');
+        console.log('✅ [ADMIN_SELLERS] Page ready (OPTIMIZED - no listeners)');
     </script>
 </body>
 </html>

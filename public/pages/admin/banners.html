@@ -74,9 +74,6 @@
         .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
         
-        /* ============================================
-           DEBUG BOX
-           ============================================ */
         .debug-box {
             background: #1E1E2E;
             border-radius: var(--radius);
@@ -98,16 +95,7 @@
         .debug-box .debug-info { color: #89B4FA; }
         .debug-box .debug-warning { color: #F9E2AF; }
         
-        .debug-toggle { 
-            background: none; 
-            border: none; 
-            color: var(--text-light); 
-            cursor: pointer; 
-            font-size: 12px; 
-            text-decoration: underline;
-            padding: 4px 8px;
-            margin-bottom: 8px;
-        }
+        .debug-toggle { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 12px; text-decoration: underline; padding: 4px 8px; margin-bottom: 8px; }
         .debug-toggle:hover { color: var(--text-primary); }
         
         .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
@@ -120,7 +108,6 @@
     </style>
 </head>
 <body>
-    <!-- NAVBAR -->
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
@@ -132,7 +119,6 @@
         </div>
     </nav>
 
-    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header"><div class="title">Menu Admin</div></div>
         <nav class="sidebar-nav">
@@ -148,15 +134,18 @@
     </aside>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- MAIN CONTENT -->
     <div class="app-wrapper">
         <main class="main-content">
             <div class="flex-between" style="margin-bottom:24px;">
                 <div><h1 style="font-size:24px;">Manajemen Banner</h1><p style="color:var(--text-secondary);">Kelola semua banner di homepage</p></div>
-                <button onclick="openBannerSettings()" class="btn btn-secondary"><i class="fas fa-cog"></i> Pengaturan Banner</button>
+                <div style="display:flex;gap:8px;">
+                    <button onclick="refreshData()" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button onclick="openBannerSettings()" class="btn btn-secondary"><i class="fas fa-cog"></i> Pengaturan Banner</button>
+                </div>
             </div>
 
-            <!-- Debug Box -->
             <div class="debug-box" id="debugBox">
                 <div class="debug-line debug-info">🔍 Debug Mode Active</div>
                 <div class="debug-line" id="debugLog">Menunggu data...</div>
@@ -165,13 +154,11 @@
                 <i class="fas fa-bug"></i> Toggle Debug
             </button>
 
-            <!-- Error Box -->
             <div class="error-box" id="errorBox">
                 <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
                 <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
             </div>
 
-            <!-- Banners Grid -->
             <div class="banner-grid" id="bannersGrid" style="margin-top:8px;">
                 <div class="text-center text-secondary" style="grid-column:1/-1;padding:40px 0;">
                     <i class="fas fa-spinner fa-spin" style="font-size:24px;display:block;margin-bottom:8px;"></i>
@@ -208,7 +195,6 @@
         </div>
     </div>
 
-    <!-- TOAST -->
     <div class="toast-container" id="toastContainer"></div>
 
     <script type="importmap">
@@ -223,17 +209,14 @@
 
     <script type="module">
         // ============================================
-        // IMPORTS
+        // IMPORTS - TANPA onSnapshot
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, updateDoc, deleteDoc, setDoc } from "firebase/firestore";
 
-        console.log('🖼️ [ADMIN_BANNERS] Page loaded');
+        console.log('🖼️ [ADMIN_BANNERS] Page loaded (OPTIMIZED)');
 
-        // ============================================
-        // FIREBASE CONFIG
-        // ============================================
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
             authDomain: "productkuu.firebaseapp.com",
@@ -248,8 +231,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        console.log('✅ [ADMIN_BANNERS] Firebase initialized');
-
         let currentUser = null;
 
         // ============================================
@@ -258,18 +239,8 @@
         let debugVisible = false;
 
         function addDebug(message, type = 'info') {
-            const colors = {
-                success: 'debug-success',
-                error: 'debug-error',
-                info: 'debug-info',
-                warning: 'debug-warning'
-            };
-            const icons = {
-                success: '✅',
-                error: '❌',
-                info: 'ℹ️',
-                warning: '⚠️'
-            };
+            const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
+            const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
             const log = document.getElementById('debugLog');
             const time = new Date().toLocaleTimeString();
             log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
@@ -288,7 +259,16 @@
         };
 
         // ============================================
-        // THEME
+        // REFRESH DATA
+        // ============================================
+        window.refreshData = function() {
+            addDebug('Manual refresh triggered', 'info');
+            showToast('info', 'Memperbarui data banner...');
+            loadBanners();
+        };
+
+        // ============================================
+        // THEME & SIDEBAR
         // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
@@ -300,13 +280,9 @@
             themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
         });
 
-        // ============================================
-        // SIDEBAR
-        // ============================================
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const sidebarToggle = document.getElementById('sidebarToggle');
-
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', () => {
                 sidebar.classList.toggle('open');
@@ -320,9 +296,6 @@
             });
         }
 
-        // ============================================
-        // SIDEBAR NAVIGATION
-        // ============================================
         document.querySelectorAll('.sidebar-nav a').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -331,20 +304,13 @@
             });
         });
 
-        // ============================================
-        // LOGOUT
-        // ============================================
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                window.location.href = '/';
-            } catch (error) {
-                showToast('error', 'Gagal logout: ' + error.message);
-            }
+            try { await signOut(auth); window.location.href = '/'; } 
+            catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
         });
 
         // ============================================
-        // TOAST
+        // TOAST & ERROR
         // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
@@ -362,9 +328,6 @@
         }
         window.showToast = showToast;
 
-        // ============================================
-        // SHOW ERROR
-        // ============================================
         function showError(title, detail) {
             const box = document.getElementById('errorBox');
             document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
@@ -392,7 +355,7 @@
         // ============================================
         // AUTH STATE
         // ============================================
-        addDebug('Setting up auth listener...', 'info');
+        addDebug('Setting up auth...', 'info');
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
@@ -414,11 +377,7 @@
                 addDebug('Admin verified', 'success');
                 await loadBanners();
                 await loadSettings();
-
-                onSnapshot(collection(db, 'banners'), () => {
-                    addDebug('Banners collection updated - reloading...', 'info');
-                    loadBanners();
-                });
+                // TIDAK ADA onSnapshot
 
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
@@ -449,7 +408,6 @@
                     return;
                 }
 
-                // Sort di client
                 const banners = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data(),
@@ -512,7 +470,6 @@
                     document.getElementById('autoSlideSpeed').value = data.autoSlideSpeed || 5;
                     addDebug('Banner settings loaded', 'success');
                 } else {
-                    // Create default settings if not exists
                     addDebug('No settings found, creating default...', 'warning');
                     await setDoc(settingsRef, {
                         price: 100000,
@@ -552,7 +509,7 @@
 
                 addDebug(`Banner ${!current ? 'activated' : 'deactivated'}`, 'success');
                 showToast('success', `Banner ${!current ? 'diaktifkan' : 'dinonaktifkan'}`);
-                await loadBanners();
+                loadBanners();
             } catch (error) {
                 addDebug(`Error toggling banner: ${error.message}`, 'error');
                 showToast('error', 'Gagal mengubah status banner: ' + error.message);
@@ -571,7 +528,7 @@
                 await deleteDoc(doc(db, 'banners', id));
                 addDebug(`Banner ${id} deleted`, 'success');
                 showToast('success', 'Banner berhasil dihapus');
-                await loadBanners();
+                loadBanners();
             } catch (error) {
                 addDebug(`Error deleting banner: ${error.message}`, 'error');
                 showToast('error', 'Gagal menghapus banner: ' + error.message);
@@ -615,15 +572,29 @@
 
             try {
                 const settingsRef = doc(db, 'settings', 'banner');
-                await updateDoc(settingsRef, {
-                    price: price,
-                    duration: duration,
-                    maxSlots: maxSlots,
-                    autoSlideSpeed: autoSlideSpeed,
-                    updatedAt: new Date().toISOString()
-                });
+                const docSnap = await getDoc(settingsRef);
+                
+                if (docSnap.exists()) {
+                    await updateDoc(settingsRef, {
+                        price: price,
+                        duration: duration,
+                        maxSlots: maxSlots,
+                        autoSlideSpeed: autoSlideSpeed,
+                        updatedAt: new Date().toISOString()
+                    });
+                    addDebug('Settings updated', 'success');
+                } else {
+                    await setDoc(settingsRef, {
+                        price: price,
+                        duration: duration,
+                        maxSlots: maxSlots,
+                        autoSlideSpeed: autoSlideSpeed,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    });
+                    addDebug('Settings created', 'success');
+                }
 
-                addDebug('Settings saved successfully', 'success');
                 showToast('success', 'Pengaturan banner berhasil disimpan');
                 closeSettingsModal();
             } catch (error) {
@@ -633,7 +604,7 @@
         });
 
         addDebug('Page ready', 'success');
-        console.log('✅ [ADMIN_BANNERS] Page ready');
+        console.log('✅ [ADMIN_BANNERS] Page ready (OPTIMIZED - no listeners)');
     </script>
 </body>
 </html>
