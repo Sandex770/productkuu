@@ -1611,6 +1611,103 @@ app.get('/api/seller/:sellerId/banners', async (req, res) => {
     }
 });
 
+
+// ============================================
+// PAYMENT CALLBACK ROUTES
+// ============================================
+
+// Finish payment (success)
+app.get('/payment/finish', async (req, res) => {
+    const { order_id, status_code, transaction_status } = req.query;
+    console.log(`✅ [PAYMENT FINISH] Order: ${order_id}, Status: ${transaction_status || status_code}`);
+    
+    try {
+        // Update order status di database jika belum diupdate oleh webhook
+        const snapshot = await db.collection('orders')
+            .where('orderId', '==', order_id)
+            .limit(1)
+            .get();
+        
+        if (!snapshot.empty) {
+            const orderDoc = snapshot.docs[0];
+            const orderData = orderDoc.data();
+            
+            // Jika order masih pending, update menjadi settlement
+            if (orderData.paymentStatus === 'pending') {
+                // Cek jika ini banner purchase
+                if (orderData.type === 'banner_purchase') {
+                    // Buat banner
+                    const bannerData = orderData.bannerData || {};
+                    const expiresAt = new Date(bannerData.expiresAt) || new Date();
+                    expiresAt.setHours(expiresAt.getHours() + 24);
+
+                    const docRef = await db.collection('banners').add({
+                        title: bannerData.title || 'Banner Promosi',
+                        description: bannerData.description || '',
+                        imageUrl: bannerData.imageUrl || '',
+                        linkUrl: `/product/${orderData.productId}`,
+                        isActive: true,
+                        type: 'seller',
+                        sellerId: orderData.sellerId,
+                        productId: orderData.productId,
+                        duration: bannerData.duration || 24,
+                        price: orderData.amount || 0,
+                        paymentMethod: 'midtrans',
+                        expiresAt: admin.firestore.Timestamp.fromDate(expiresAt),
+                        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    await orderDoc.ref.update({
+                        status: 'paid',
+                        paymentStatus: 'settlement',
+                        bannerId: docRef.id,
+                        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // Notification untuk admin
+                    await db.collection('notifications').add({
+                        type: 'banner_purchase_midtrans',
+                        title: 'Pembelian Banner (Midtrans)',
+                        message: `${orderData.sellerName || 'Seller'} membeli banner untuk produk ${orderData.productName || 'Produk'}`,
+                        userId: 'admin',
+                        sellerId: orderData.sellerId,
+                        bannerId: docRef.id,
+                        read: false,
+                        createdAt: admin.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error updating order from callback:', error);
+    }
+    
+    // Redirect ke halaman seller/products dengan status success
+    const redirectUrl = `/seller/products?payment=success&order=${order_id}`;
+    res.redirect(redirectUrl);
+});
+
+// Error payment
+app.get('/payment/error', (req, res) => {
+    const { order_id, status_code, transaction_status } = req.query;
+    console.log(`❌ [PAYMENT ERROR] Order: ${order_id}, Status: ${transaction_status || status_code}`);
+    
+    // Redirect ke halaman seller/products dengan status error
+    const redirectUrl = `/seller/products?payment=error&order=${order_id}`;
+    res.redirect(redirectUrl);
+});
+
+// Pending payment
+app.get('/payment/pending', (req, res) => {
+    const { order_id, status_code, transaction_status } = req.query;
+    console.log(`⏳ [PAYMENT PENDING] Order: ${order_id}, Status: ${transaction_status || status_code}`);
+    
+    // Redirect ke halaman seller/products dengan status pending
+    const redirectUrl = `/seller/products?payment=pending&order=${order_id}`;
+    res.redirect(redirectUrl);
+});
+
 // ============================================
 // SELLER PAGE ENDPOINT
 // ============================================
