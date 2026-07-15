@@ -1,4 +1,6 @@
-// File: public/js/firebase-config.js
+// ============================================
+// FIREBASE CONFIGURATION
+// ============================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { 
     getFirestore, 
@@ -22,7 +24,8 @@ import {
     arrayRemove,
     runTransaction,
     getCountFromServer,
-    writeBatch
+    writeBatch,
+    Timestamp
 } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 import {
     getAuth,
@@ -35,6 +38,9 @@ import {
     sendEmailVerification
 } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
+// ============================================
+// FIREBASE CONFIG
+// ============================================
 const firebaseConfig = {
     apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
     authDomain: "productkuu.firebaseapp.com",
@@ -45,11 +51,18 @@ const firebaseConfig = {
     measurementId: "G-78ZPLZMFEJ"
 };
 
+// ============================================
+// INIT FIREBASE
+// ============================================
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// Export Firebase services
+console.log('🔥 [FIREBASE] Initialized successfully');
+
+// ============================================
+// EXPORTS
+// ============================================
 export { 
     db, 
     auth,
@@ -75,6 +88,7 @@ export {
     runTransaction,
     getCountFromServer,
     writeBatch,
+    Timestamp,
     // Auth functions
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
@@ -85,7 +99,9 @@ export {
     sendEmailVerification
 };
 
-// Database collections reference
+// ============================================
+// COLLECTIONS REFERENCE
+// ============================================
 export const collections = {
     users: 'users',
     products: 'products',
@@ -98,11 +114,32 @@ export const collections = {
     settings: 'settings'
 };
 
-// Helper: Get Firestore timestamp
-export const getTimestamp = () => serverTimestamp();
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+export function formatPrice(price) {
+    if (!price && price !== 0) return '0';
+    return new Intl.NumberFormat('id-ID').format(price);
+}
 
-// Helper: Convert Firestore data with timestamps
-export const convertTimestamps = (data) => {
+export function formatDate(date) {
+    if (!date) return '-';
+    const d = date instanceof Date ? date : new Date(date);
+    if (isNaN(d.getTime())) return '-';
+    return d.toLocaleDateString('id-ID', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+export function getTimestamp() {
+    return serverTimestamp();
+}
+
+export function convertTimestamps(data) {
     if (!data) return null;
     const result = { ...data };
     for (const key in result) {
@@ -111,4 +148,4 @@ export const convertTimestamps = (data) => {
         }
     }
     return result;
-};
+}
