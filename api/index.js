@@ -1176,16 +1176,21 @@ app.patch('/api/admin/banners/:id/toggle', async (req, res) => {
 // BANNER PRICING & PURCHASE (FLAT PRICE)
 // ============================================
 
+// ============================================
+// BANNER PRICING (Pakai settings/banner)
+// ============================================
+
+// Get banner pricing
 app.get('/api/banner-pricing', async (req, res) => {
     try {
-        const settingsRef = db.collection('settings').doc('marketplace');
+        const settingsRef = db.collection('settings').doc('banner');
         const settingsDoc = await settingsRef.get();
         
         const data = settingsDoc.exists ? settingsDoc.data() : {};
         res.json({
-            price: data.bannerPrice || 100000,      // HARGA FLAT
-            duration: data.bannerDuration || 24,    // DURASI DEFAULT (JAM)
-            maxSlots: data.maxBanners || 5,
+            price: data.price || 100000,           // ← pakai 'price'
+            duration: data.duration || 24,         // ← pakai 'duration'
+            maxSlots: data.maxSlots || 5,          // ← pakai 'maxSlots'
             autoSlideSpeed: data.autoSlideSpeed || 5
         });
     } catch (error) {
@@ -1194,15 +1199,16 @@ app.get('/api/banner-pricing', async (req, res) => {
     }
 });
 
+// Update banner pricing (Admin)
 app.put('/api/banner-pricing', async (req, res) => {
     try {
         const { price, duration, maxSlots, autoSlideSpeed } = req.body;
         
-        const settingsRef = db.collection('settings').doc('marketplace');
+        const settingsRef = db.collection('settings').doc('banner');
         await settingsRef.set({
-            bannerPrice: price || 100000,
-            bannerDuration: duration || 24,
-            maxBanners: maxSlots || 5,
+            price: price || 100000,                // ← pakai 'price'
+            duration: duration || 24,              // ← pakai 'duration'
+            maxSlots: maxSlots || 5,               // ← pakai 'maxSlots'
             autoSlideSpeed: autoSlideSpeed || 5,
             updatedAt: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
@@ -1229,11 +1235,11 @@ app.post('/api/banners/purchase', async (req, res) => {
             return res.status(404).json({ error: 'Seller not found' });
         }
 
-        // Get pricing - FLAT PRICE (bukan per jam)
-        const settingsRef = db.collection('settings').doc('marketplace');
+        // Get pricing from settings/banner
+        const settingsRef = db.collection('settings').doc('banner');
         const settingsDoc = await settingsRef.get();
         const settings = settingsDoc.exists ? settingsDoc.data() : {};
-        const flatPrice = settings.bannerPrice || 100000; // HARGA FLAT
+        const flatPrice = settings.price || 100000;  // ← pakai 'price'
 
         const wallet = sellerDoc.data().wallet || { available: 0 };
         if (wallet.available < flatPrice) {
@@ -1260,7 +1266,7 @@ app.post('/api/banners/purchase', async (req, res) => {
             sellerId: sellerId,
             productId: productId,
             duration: parseInt(duration),
-            price: flatPrice, // HARGA FLAT
+            price: flatPrice,
             expiresAt: admin.firestore.Timestamp.fromDate(expiresAt),
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp()
@@ -1268,7 +1274,6 @@ app.post('/api/banners/purchase', async (req, res) => {
 
         const docRef = await db.collection('banners').add(bannerData);
 
-        // Deduct flat price from wallet
         await sellerRef.update({
             'wallet.available': admin.firestore.FieldValue.increment(-flatPrice)
         });
@@ -1292,34 +1297,6 @@ app.post('/api/banners/purchase', async (req, res) => {
     } catch (error) {
         console.error('Error purchasing banner:', error);
         res.status(500).json({ error: 'Failed to purchase banner', details: error.message });
-    }
-});
-
-app.get('/api/seller/:sellerId/banners', async (req, res) => {
-    try {
-        const { sellerId } = req.params;
-        const snapshot = await db.collection('banners')
-            .where('sellerId', '==', sellerId)
-            .where('type', '==', 'seller')
-            .orderBy('createdAt', 'desc')
-            .get();
-
-        const banners = [];
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            banners.push({
-                id: doc.id,
-                ...data,
-                createdAt: data.createdAt?.toDate?.() || data.createdAt,
-                expiresAt: data.expiresAt?.toDate?.() || data.expiresAt
-            });
-        });
-
-        res.json(banners);
-
-    } catch (error) {
-        console.error('Error fetching seller banners:', error);
-        res.status(500).json({ error: 'Failed to fetch banners', details: error.message });
     }
 });
 
