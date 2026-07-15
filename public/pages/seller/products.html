@@ -43,7 +43,6 @@
         .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
         .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
         .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
-        .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
         .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
         .badge-purple { background: rgba(124,58,237,0.1); color: var(--secondary); }
         
@@ -90,6 +89,30 @@
         .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
         
+        .debug-box {
+            background: #1E1E2E;
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #CDD6F4;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            border: 1px solid #313244;
+        }
+        .debug-box.show { display: block; }
+        .debug-box .debug-line { padding: 2px 0; border-bottom: 1px solid #2A2A3E; }
+        .debug-box .debug-line:last-child { border-bottom: none; }
+        .debug-box .debug-success { color: #A6E3A1; }
+        .debug-box .debug-error { color: #F38BA8; }
+        .debug-box .debug-info { color: #89B4FA; }
+        .debug-box .debug-warning { color: #F9E2AF; }
+        
+        .debug-toggle { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 12px; text-decoration: underline; padding: 4px 8px; margin-bottom: 8px; }
+        .debug-toggle:hover { color: var(--text-primary); }
+        
         .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
         .error-box.show { display: block; }
         .error-box .error-title { font-weight: 700; color: var(--danger); }
@@ -99,7 +122,6 @@
     </style>
 </head>
 <body>
-    <!-- NAVBAR -->
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
@@ -110,7 +132,6 @@
         </div>
     </nav>
 
-    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header"><div class="title">Menu Seller</div></div>
         <nav class="sidebar-nav">
@@ -125,22 +146,32 @@
     </aside>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- MAIN CONTENT -->
     <div class="app-wrapper">
         <main class="main-content">
             <div class="flex-between" style="margin-bottom:24px;">
                 <div><h1 style="font-size:24px;">Kelola Produk</h1><p style="color:var(--text-secondary);">Atur dan kelola semua produk Anda</p></div>
-                <button onclick="openCreateProduct()" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Produk</button>
+                <div style="display:flex;gap:8px;">
+                    <button onclick="refreshData()" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button onclick="openCreateProduct()" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Produk</button>
+                </div>
             </div>
 
-            <!-- Error Box -->
+            <div class="debug-box" id="debugBox">
+                <div class="debug-line debug-info">🔍 Debug Mode Active</div>
+                <div class="debug-line" id="debugLog">Menunggu data...</div>
+            </div>
+            <button class="debug-toggle" onclick="toggleDebug()">
+                <i class="fas fa-bug"></i> Toggle Debug
+            </button>
+
             <div class="error-box" id="errorBox">
-                <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Produk</span></div>
-                <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data produk.</div>
+                <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
+                <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
             </div>
 
-            <!-- Filter -->
-            <div class="filter-bar">
+            <div class="filter-bar" style="margin-top:8px;">
                 <div class="filter-group">
                     <input type="text" id="searchProduct" placeholder="Cari produk..." style="min-width:200px;">
                     <select id="filterStatus"><option value="all">Semua Status</option><option value="published">Published</option><option value="draft">Draft</option><option value="pending">Pending</option></select>
@@ -152,7 +183,6 @@
                 </div>
             </div>
 
-            <!-- Table -->
             <div class="card">
                 <div class="table-wrapper">
                     <table class="table">
@@ -286,7 +316,6 @@
         </div>
     </div>
 
-    <!-- TOAST -->
     <div class="toast-container" id="toastContainer"></div>
 
     <script type="importmap">
@@ -301,17 +330,14 @@
 
     <script type="module">
         // ============================================
-        // IMPORTS
+        // IMPORTS - TANPA onSnapshot
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, addDoc, updateDoc, deleteDoc, serverTimestamp, onSnapshot } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, addDoc, updateDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
 
-        console.log('📦 [PRODUCTS] Page loaded');
+        console.log('📦 [SELLER_PRODUCTS] Page loaded (OPTIMIZED)');
 
-        // ============================================
-        // FIREBASE CONFIG
-        // ============================================
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
             authDomain: "productkuu.firebaseapp.com",
@@ -326,14 +352,48 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        console.log('✅ [PRODUCTS] Firebase initialized');
-
         let currentUser = null;
-        let products = [];
+        let allProducts = [];
+        let currentPage = 1;
+        const pageSize = 10;
         let deleteId = null;
 
         // ============================================
-        // THEME
+        // DEBUG LOG
+        // ============================================
+        let debugVisible = false;
+
+        function addDebug(message, type = 'info') {
+            const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
+            const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
+            const log = document.getElementById('debugLog');
+            const time = new Date().toLocaleTimeString();
+            log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
+            console.log(`[SELLER_PRODUCTS_DEBUG] ${message}`);
+            const box = document.getElementById('debugBox');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        window.toggleDebug = function() {
+            const box = document.getElementById('debugBox');
+            debugVisible = !debugVisible;
+            box.classList.toggle('show');
+            if (debugVisible) {
+                addDebug('Debug mode activated', 'info');
+            }
+        };
+
+        // ============================================
+        // REFRESH DATA
+        // ============================================
+        window.refreshData = function() {
+            addDebug('Manual refresh triggered', 'info');
+            showToast('info', 'Memperbarui data produk...');
+            loadProducts();
+        };
+
+        // ============================================
+        // THEME & SIDEBAR
         // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
@@ -345,13 +405,9 @@
             themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
         });
 
-        // ============================================
-        // SIDEBAR
-        // ============================================
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const sidebarToggle = document.getElementById('sidebarToggle');
-
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', () => {
                 sidebar.classList.toggle('open');
@@ -365,9 +421,6 @@
             });
         }
 
-        // ============================================
-        // SIDEBAR NAVIGATION
-        // ============================================
         document.querySelectorAll('.sidebar-nav a').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -376,20 +429,13 @@
             });
         });
 
-        // ============================================
-        // LOGOUT
-        // ============================================
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                window.location.href = '/';
-            } catch (error) {
-                showToast('error', 'Gagal logout: ' + error.message);
-            }
+            try { await signOut(auth); window.location.href = '/'; } 
+            catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
         });
 
         // ============================================
-        // TOAST
+        // TOAST & ERROR
         // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
@@ -403,13 +449,10 @@
                 <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
             `;
             container.appendChild(toast);
-            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 5000);
+            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
         }
         window.showToast = showToast;
 
-        // ============================================
-        // SHOW ERROR
-        // ============================================
         function showError(title, detail) {
             const box = document.getElementById('errorBox');
             document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
@@ -442,154 +485,117 @@
         // ============================================
         // AUTH STATE
         // ============================================
+        addDebug('Setting up auth...', 'info');
+
         onAuthStateChanged(auth, async (user) => {
-            console.log('🔍 [PRODUCTS] Auth state:', user ? user.email : 'null');
             if (!user) {
+                addDebug('User not logged in, redirecting...', 'warning');
                 window.location.href = '/seller/login';
                 return;
             }
             currentUser = user;
-            console.log('✅ [PRODUCTS] User logged in:', user.email);
+            addDebug(`User logged in: ${user.email}`, 'success');
 
             try {
                 const userRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userRef);
                 if (!userDoc.exists() || userDoc.data().role !== 'seller') {
+                    addDebug('User is not seller, redirecting...', 'error');
                     window.location.href = '/';
                     return;
                 }
+                addDebug('User is seller', 'success');
                 document.getElementById('productCount').textContent = userDoc.data().productCount || 0;
                 await loadProducts();
-
-                // Realtime listener
-                onSnapshot(query(collection(db, 'products'), where('sellerId', '==', user.uid)), () => {
-                    console.log('🔄 [PRODUCTS] Products updated');
-                    loadProducts();
-                });
+                // TIDAK ADA onSnapshot
 
             } catch (error) {
-                console.error('❌ [PRODUCTS] Error:', error);
-                showError('Gagal memuat data user', error.message);
+                addDebug(`Error: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat data: ' + error.message);
             }
         });
 
         // ============================================
-        // LOAD PRODUCTS - QUERY TANPA ORDER BY
+        // LOAD PRODUCTS - TANPA INDEX
         // ============================================
         async function loadProducts() {
             if (!currentUser) {
-                console.warn('⚠️ [PRODUCTS] No current user');
+                addDebug('No current user', 'warning');
                 return;
             }
-            console.log('📥 [PRODUCTS] Loading products...');
+            addDebug('Loading products...', 'info');
 
             try {
-                // ============================================
-                // QUERY SEDERHANA - HANYA FILTER sellerId
-                // TANPA orderBy UNTUK MENGHINDARI INDEX
-                // ============================================
+                // Query tanpa orderBy
                 const q = query(
                     collection(db, 'products'),
                     where('sellerId', '==', currentUser.uid)
                 );
 
-                console.log('📤 [PRODUCTS] Executing query...');
                 const snapshot = await getDocs(q);
-                console.log('✅ [PRODUCTS] Query returned', snapshot.size, 'documents');
+                addDebug(`Fetched ${snapshot.size} products from Firestore`, 'info');
 
-                if (snapshot.empty) {
-                    document.getElementById('productsTableBody').innerHTML = 
-                        '<tr><td colspan="8" class="text-center text-secondary" style="padding:40px 0;">' +
-                        '<i class="fas fa-box-open" style="font-size:32px;display:block;margin-bottom:8px;"></i>' +
-                        'Belum ada produk' +
-                        '</td></tr>';
-                    document.getElementById('pagination').innerHTML = '';
-                    return;
-                }
-
-                // ============================================
-                // SORT MANUAL DI CLIENT (tanpa index)
-                // ============================================
-                let allProducts = snapshot.docs.map(doc => ({ 
-                    id: doc.id, 
+                // Konversi ke array dengan sorting di client
+                let products = snapshot.docs.map(doc => ({
+                    id: doc.id,
                     ...doc.data(),
-                    // Konversi timestamp ke Date
                     createdAtDate: doc.data().createdAt?.toDate?.() || new Date(doc.data().createdAt)
                 }));
 
-                // Sort by createdAt descending (manual sorting)
-                allProducts.sort((a, b) => {
-                    const dateA = a.createdAtDate || new Date(0);
-                    const dateB = b.createdAtDate || new Date(0);
-                    return dateB - dateA;
-                });
+                // Sort di client
+                products.sort((a, b) => b.createdAtDate - a.createdAtDate);
 
-                // ============================================
-                // FILTER DI CLIENT
-                // ============================================
+                // Apply filters
                 const status = document.getElementById('filterStatus').value;
                 const type = document.getElementById('filterType').value;
                 const search = document.getElementById('searchProduct').value.trim().toLowerCase();
 
                 if (status !== 'all') {
-                    allProducts = allProducts.filter(p => p.status === status);
+                    products = products.filter(p => p.status === status);
+                    addDebug(`Filter by status: ${status} -> ${products.length}`, 'info');
                 }
                 if (type !== 'all') {
-                    allProducts = allProducts.filter(p => p.type === type);
+                    products = products.filter(p => p.type === type);
+                    addDebug(`Filter by type: ${type} -> ${products.length}`, 'info');
                 }
                 if (search) {
-                    allProducts = allProducts.filter(p => 
+                    products = products.filter(p => 
                         p.name?.toLowerCase().includes(search) ||
                         p.category?.toLowerCase().includes(search)
                     );
+                    addDebug(`Filter by search: "${search}" -> ${products.length}`, 'info');
                 }
 
-                products = allProducts;
-                console.log('✅ [PRODUCTS] Loaded', products.length, 'products');
+                allProducts = products;
+                addDebug(`Total products after filter: ${allProducts.length}`, 'success');
                 renderProducts();
 
             } catch (error) {
-                console.error('❌ [PRODUCTS] Error loading products:', error);
-                console.error('❌ [PRODUCTS] Error code:', error.code);
-                console.error('❌ [PRODUCTS] Error message:', error.message);
-                
-                let errorMsg = 'Gagal memuat produk. ';
-                if (error.code === 'permission-denied') {
-                    errorMsg += 'Periksa Firestore Security Rules.';
-                } else {
-                    errorMsg += error.message;
-                }
-                
-                showError('Gagal Memuat Produk', errorMsg);
-                showToast('error', errorMsg);
-                
-                document.getElementById('productsTableBody').innerHTML = 
-                    '<tr><td colspan="8" class="text-center text-danger" style="padding:40px 0;color:var(--danger);">' +
-                    '<i class="fas fa-exclamation-circle" style="font-size:32px;display:block;margin-bottom:8px;"></i>' +
-                    'Gagal memuat produk: ' + error.message +
-                    '</td></tr>';
+                addDebug(`Error loading products: ${error.message}`, 'error');
+                console.error('❌ [SELLER_PRODUCTS] Error:', error);
+                showError('Gagal memuat produk', error.message);
+                showToast('error', 'Gagal memuat produk: ' + error.message);
             }
         }
 
         // ============================================
-        // RENDER PRODUCTS        // ============================================
+        // RENDER PRODUCTS
+        // ============================================
         function renderProducts() {
             const tbody = document.getElementById('productsTableBody');
-            if (products.length === 0) {
+
+            if (allProducts.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="8" class="text-center text-secondary">Tidak ada produk</td></tr>';
                 document.getElementById('pagination').innerHTML = '';
                 return;
             }
 
             // Pagination di client
-            const pageSize = 10;
-            const totalPages = Math.ceil(products.length / pageSize);
-            let currentPage = parseInt(document.getElementById('pagination')?.dataset?.page) || 1;
+            const totalPages = Math.ceil(allProducts.length / pageSize);
             if (currentPage > totalPages) currentPage = totalPages;
             const start = (currentPage - 1) * pageSize;
-            const end = start + pageSize;
-            const pageProducts = products.slice(start, end);
+            const end = Math.min(start + pageSize, allProducts.length);
+            const pageProducts = allProducts.slice(start, end);
 
             tbody.innerHTML = pageProducts.map(p => `
                 <tr>
@@ -600,7 +606,7 @@
                             </div>
                             <div>
                                 <strong>${p.name}</strong>
-                                <div style="font-size:12px;color:var(--text-secondary);">${formatDate(p.createdAtDate || p.createdAt)}</div>
+                                <div style="font-size:12px;color:var(--text-secondary);">${formatDate(p.createdAtDate)}</div>
                             </div>
                         </div>
                     </td>
@@ -622,32 +628,31 @@
                 </tr>
             `).join('');
 
-            // Render pagination
-            renderPagination(totalPages, currentPage);
+            renderPagination(totalPages);
         }
 
         // ============================================
         // PAGINATION
         // ============================================
-        function renderPagination(totalPages, currentPage) {
+        function renderPagination(totalPages) {
             const container = document.getElementById('pagination');
             if (totalPages <= 1) {
                 container.innerHTML = '';
                 return;
             }
+
             container.innerHTML = `
-                <span style="font-size:14px;color:var(--text-secondary);">${products.length} produk</span>
+                <span style="font-size:14px;color:var(--text-secondary);">${allProducts.length} produk</span>
                 <div style="display:flex;gap:8px;">
                     ${currentPage > 1 ? `<button onclick="goToPage(${currentPage - 1})" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}
                     <span style="font-size:14px;color:var(--text-secondary);">Halaman ${currentPage} dari ${totalPages}</span>
                     ${currentPage < totalPages ? `<button onclick="goToPage(${currentPage + 1})" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}
                 </div>
             `;
-            container.dataset.page = currentPage;
         }
 
         window.goToPage = function(page) {
-            document.getElementById('pagination').dataset.page = page;
+            currentPage = page;
             renderProducts();
         };
 
@@ -655,6 +660,7 @@
         // FILTER FUNCTIONS
         // ============================================
         window.applyFilters = function() {
+            currentPage = 1;
             loadProducts();
         };
 
@@ -662,7 +668,7 @@
             document.getElementById('searchProduct').value = '';
             document.getElementById('filterStatus').value = 'all';
             document.getElementById('filterType').value = 'all';
-            loadProducts();
+            applyFilters();
         };
 
         // ============================================
@@ -681,6 +687,15 @@
         });
 
         // ============================================
+        // SEARCH DEBOUNCE
+        // ============================================
+        let searchTimeout;
+        document.getElementById('searchProduct').addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(applyFilters, 500);
+        });
+
+        // ============================================
         // PRODUCT CRUD
         // ============================================
         window.openCreateProduct = function() {
@@ -690,10 +705,12 @@
             document.getElementById('digitalFields').style.display = 'block';
             document.getElementById('premiumFields').style.display = 'none';
             document.getElementById('productModal').classList.add('open');
+            addDebug('Create product modal opened', 'info');
         };
 
         window.closeProductModal = function() {
             document.getElementById('productModal').classList.remove('open');
+            addDebug('Product modal closed', 'info');
         };
 
         window.toggleProductType = function() {
@@ -724,14 +741,18 @@
         };
 
         window.editProduct = async function(id) {
+            addDebug(`Editing product: ${id}`, 'info');
             try {
                 const productRef = doc(db, 'products', id);
                 const productDoc = await getDoc(productRef);
                 if (!productDoc.exists()) {
+                    addDebug('Product not found', 'error');
                     showToast('error', 'Produk tidak ditemukan');
                     return;
                 }
                 const p = productDoc.data();
+                addDebug(`Product data loaded: ${p.name}`, 'success');
+
                 document.getElementById('modalTitle').textContent = 'Edit Produk';
                 document.getElementById('productId').value = id;
                 document.getElementById('productName').value = p.name;
@@ -763,15 +784,16 @@
                     }
                 }
                 document.getElementById('productModal').classList.add('open');
+                addDebug('Edit modal opened', 'success');
             } catch (error) {
-                console.error('❌ [PRODUCTS] Edit error:', error);
+                addDebug(`Error loading product: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat data produk: ' + error.message);
             }
         };
 
         document.getElementById('productForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            console.log('📤 [PRODUCTS] Saving product...');
+            addDebug('Saving product...', 'info');
 
             const id = document.getElementById('productId').value;
             const name = document.getElementById('productName').value.trim();
@@ -783,6 +805,7 @@
 
             if (!name || !category || !price || price < 1000) {
                 showToast('warning', 'Lengkapi data produk dengan benar');
+                addDebug('Validation failed', 'warning');
                 return;
             }
 
@@ -804,6 +827,7 @@
 
                 if (!downloadLink) {
                     showToast('warning', 'Link download wajib diisi');
+                    addDebug('Download link required', 'warning');
                     return;
                 }
                 data.downloadLink = downloadLink;
@@ -822,6 +846,7 @@
                 });
                 if (accounts.length === 0) {
                     showToast('warning', 'Minimal 1 akun premium wajib diisi');
+                    addDebug('Premium accounts required', 'warning');
                     return;
                 }
                 data.note = note;
@@ -833,6 +858,7 @@
             try {
                 if (id) {
                     await updateDoc(doc(db, 'products', id), data);
+                    addDebug(`Product ${id} updated`, 'success');
                     showToast('success', 'Produk berhasil diperbarui!');
                 } else {
                     data.sellerId = currentUser.uid;
@@ -845,13 +871,13 @@
                     data.isNew = true;
                     data.createdAt = serverTimestamp();
                     await addDoc(collection(db, 'products'), data);
+                    addDebug(`Product created`, 'success');
                     showToast('success', 'Produk berhasil dibuat!');
                 }
                 closeProductModal();
                 loadProducts();
             } catch (error) {
-                console.error('❌ [PRODUCTS] Save error:', error);
-                console.error('❌ [PRODUCTS] Error code:', error.code);
+                addDebug(`Error saving product: ${error.message}`, 'error');
                 showToast('error', 'Gagal menyimpan produk: ' + error.message);
                 showError('Gagal Menyimpan Produk', error.message);
             }
@@ -861,6 +887,7 @@
         // DELETE PRODUCT
         // ============================================
         window.deleteProduct = function(id) {
+            addDebug(`Delete product: ${id}`, 'warning');
             deleteId = id;
             document.getElementById('deleteModal').classList.add('open');
         };
@@ -872,28 +899,22 @@
 
         window.confirmDelete = async function() {
             if (!deleteId) return;
+            addDebug(`Confirming delete: ${deleteId}`, 'warning');
             try {
                 await deleteDoc(doc(db, 'products', deleteId));
+                addDebug(`Product ${deleteId} deleted`, 'success');
                 showToast('success', 'Produk berhasil dihapus!');
                 deleteId = null;
                 closeDeleteModal();
                 loadProducts();
             } catch (error) {
-                console.error('❌ [PRODUCTS] Delete error:', error);
+                addDebug(`Error deleting: ${error.message}`, 'error');
                 showToast('error', 'Gagal menghapus produk: ' + error.message);
             }
         };
 
-        // ============================================
-        // SEARCH DEBOUNCE
-        // ============================================
-        let searchTimeout;
-        document.getElementById('searchProduct').addEventListener('input', () => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(applyFilters, 500);
-        });
-
-        console.log('✅ [PRODUCTS] Page ready');
+        addDebug('Page ready', 'success');
+        console.log('✅ [SELLER_PRODUCTS] Page ready (OPTIMIZED - no listeners)');
     </script>
 </body>
 </html>

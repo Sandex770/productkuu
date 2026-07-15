@@ -11,520 +11,165 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="icon" href="/assets/images/favicon.ico">
     <style>
-        /* ============================================
-           LAYOUT
-           ============================================ */
-        .app-wrapper {
-            display: flex;
-            min-height: calc(100vh - 64px);
-            margin-top: 64px;
-        }
+        .app-wrapper { display: flex; min-height: calc(100vh - 64px); margin-top: 64px; }
+        .sidebar { width: 260px; background: var(--bg-primary); border-right: 1px solid var(--border-color); padding: 20px 0; position: fixed; top: 64px; bottom: 0; overflow-y: auto; z-index: 100; transition: transform 0.3s ease; }
+        .sidebar-header { padding: 0 16px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px; }
+        .sidebar-header .title { font-weight: 600; font-size: 14px; color: var(--text-secondary); }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
+        .sidebar-nav a, .sidebar-nav button { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius); color: var(--text-secondary); transition: var(--transition); font-size: 14px; font-weight: 500; text-decoration: none; background: none; border: none; width: 100%; cursor: pointer; font-family: var(--font); text-align: left; }
+        .sidebar-nav a:hover, .sidebar-nav button:hover { background: var(--bg-secondary); color: var(--text-primary); }
+        .sidebar-nav a.active { background: rgba(79,70,229,0.1); color: var(--primary); }
+        .sidebar-nav a .badge-count { margin-left: auto; background: var(--bg-tertiary); padding: 2px 8px; border-radius: 9999px; font-size: 11px; color: var(--text-secondary); }
+        .sidebar-nav .logout-btn { color: var(--danger); margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 16px; }
+        .sidebar-nav .logout-btn:hover { background: rgba(239,68,68,0.1); color: var(--danger); }
+        .sidebar-overlay { display: none; position: fixed; top: 64px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99; }
+        .sidebar-overlay.open { display: block; }
+        .main-content { margin-left: 260px; padding: 24px; flex: 1; min-height: calc(100vh - 64px); }
+        .mobile-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-primary); cursor: pointer; padding: 8px; }
+        @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); width: 280px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 16px; } .mobile-toggle { display: block !important; } }
         
-        /* ============================================
-           SIDEBAR
-           ============================================ */
-        .sidebar {
-            width: 260px;
-            background: var(--bg-primary);
-            border-right: 1px solid var(--border-color);
-            padding: 20px 0;
-            position: fixed;
-            top: 64px;
-            bottom: 0;
-            overflow-y: auto;
-            z-index: 100;
-            transition: transform 0.3s ease;
-        }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: var(--bg-primary); border-radius: var(--radius); padding: 20px 24px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+        .stat-card .stat-info { display: flex; flex-direction: column; }
+        .stat-card .stat-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+        .stat-card .stat-value { font-size: 24px; font-weight: 700; color: var(--text-primary); }
+        .stat-card .stat-icon { width: 48px; height: 48px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .stat-card .stat-icon.indigo { background: rgba(79,70,229,0.1); color: var(--primary); }
+        .stat-card .stat-icon.green { background: rgba(16,185,129,0.1); color: var(--success); }
+        .stat-card .stat-icon.yellow { background: rgba(245,158,11,0.1); color: var(--warning); }
+        .stat-card .stat-icon.purple { background: rgba(124,58,237,0.1); color: var(--secondary); }
         
-        .sidebar-header {
-            padding: 0 16px 16px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 8px;
-        }
-        .sidebar-header .title {
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .chart-box { min-height: 200px; }
+        .recent-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .recent-item:last-child { border-bottom: none; }
         
-        .sidebar-nav {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            padding: 0 12px;
-        }
-        .sidebar-nav a,
-        .sidebar-nav button {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
+        .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
+        .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
+        
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .text-center { text-align: center; }
+        .text-secondary { color: var(--text-secondary); }
+        
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
+        .btn-sm { padding: 8px 16px; font-size: 12px; }
+        
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
+        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
+        .toast-icon { font-size: 20px; }
+        .toast-content { flex: 1; }
+        .toast-message { font-size: 13px; color: var(--text-secondary); }
+        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        
+        .debug-box {
+            background: #1E1E2E;
+            border-radius: var(--radius);
             padding: 12px 16px;
-            border-radius: var(--radius);
-            color: var(--text-secondary);
-            transition: var(--transition);
-            font-size: 14px;
-            font-weight: 500;
-            text-decoration: none;
-            background: none;
-            border: none;
-            width: 100%;
-            cursor: pointer;
-            font-family: var(--font);
-            text-align: left;
-        }
-        .sidebar-nav a:hover,
-        .sidebar-nav button:hover {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-        .sidebar-nav a.active {
-            background: rgba(79, 70, 229, 0.1);
-            color: var(--primary);
-        }
-        .sidebar-nav a .badge-count {
-            margin-left: auto;
-            background: var(--bg-tertiary);
-            padding: 2px 8px;
-            border-radius: 9999px;
+            margin-bottom: 16px;
+            font-family: 'Courier New', monospace;
             font-size: 11px;
-            color: var(--text-secondary);
-        }
-        .sidebar-nav .logout-btn {
-            color: var(--danger);
-            margin-top: 8px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 16px;
-        }
-        .sidebar-nav .logout-btn:hover {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-        }
-        
-        .sidebar-overlay {
+            color: #CDD6F4;
+            max-height: 200px;
+            overflow-y: auto;
             display: none;
-            position: fixed;
-            top: 64px;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 99;
+            border: 1px solid #313244;
         }
-        .sidebar-overlay.open {
-            display: block;
-        }
+        .debug-box.show { display: block; }
+        .debug-box .debug-line { padding: 2px 0; border-bottom: 1px solid #2A2A3E; }
+        .debug-box .debug-line:last-child { border-bottom: none; }
+        .debug-box .debug-success { color: #A6E3A1; }
+        .debug-box .debug-error { color: #F38BA8; }
+        .debug-box .debug-info { color: #89B4FA; }
+        .debug-box .debug-warning { color: #F9E2AF; }
         
-        /* ============================================
-           MAIN CONTENT
-           ============================================ */
-        .main-content {
-            margin-left: 260px;
-            padding: 24px;
-            flex: 1;
-            min-height: calc(100vh - 64px);
-        }
+        .debug-toggle { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 12px; text-decoration: underline; padding: 4px 8px; margin-bottom: 8px; }
+        .debug-toggle:hover { color: var(--text-primary); }
         
-        .mobile-toggle {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 20px;
-            color: var(--text-primary);
-            cursor: pointer;
-            padding: 8px;
-        }
+        .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
+        .error-box.show { display: block; }
+        .error-box .error-title { font-weight: 700; color: var(--danger); }
+        .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
         
-        @media (max-width: 1024px) {
-            .sidebar {
-                transform: translateX(-100%);
-                width: 280px;
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .main-content {
-                margin-left: 0;
-                padding: 16px;
-            }
-            .mobile-toggle {
-                display: block !important;
-            }
-        }
-        
-        /* ============================================
-           STATS
-           ============================================ */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .stat-card {
-            background: var(--bg-primary);
-            border-radius: var(--radius);
-            padding: 20px 24px;
-            border: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .stat-card .stat-info {
-            display: flex;
-            flex-direction: column;
-        }
-        .stat-card .stat-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-        .stat-card .stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-        .stat-card .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: var(--radius);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-        .stat-card .stat-icon.indigo {
-            background: rgba(79, 70, 229, 0.1);
-            color: var(--primary);
-        }
-        .stat-card .stat-icon.green {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
-        .stat-card .stat-icon.yellow {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
-        }
-        .stat-card .stat-icon.purple {
-            background: rgba(124, 58, 237, 0.1);
-            color: var(--secondary);
-        }
-        
-        .charts-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-bottom: 24px;
-        }
-        .chart-box {
-            min-height: 200px;
-        }
-        
-        /* ============================================
-           RECENT ITEMS
-           ============================================ */
-        .recent-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .recent-item:last-child {
-            border-bottom: none;
-        }
-        
-        /* ============================================
-           CARDS & BADGES
-           ============================================ */
-        .card {
-            background: var(--bg-primary);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow);
-        }
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 12px;
-            border-radius: 9999px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .badge-success {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
-        .badge-warning {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
-        }
-        .badge-danger {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-        }
-        .badge-info {
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--info);
-        }
-        .badge-primary {
-            background: rgba(79, 70, 229, 0.1);
-            color: var(--primary);
-        }
-        
-        /* ============================================
-           UTILITY
-           ============================================ */
-        .flex-between {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        .text-center {
-            text-align: center;
-        }
-        .text-secondary {
-            color: var(--text-secondary);
-        }
-        
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 12px;
-            font-family: var(--font);
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-        }
-        .btn-secondary {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-        .btn-secondary:hover {
-            background: var(--border-color);
-            transform: translateY(-2px);
-        }
-        .btn-sm {
-            padding: 8px 16px;
-            font-size: 12px;
-        }
-        
-        /* ============================================
-           TOAST
-           ============================================ */
-        .toast-container {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 3000;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-width: 400px;
-            width: 100%;
-        }
-        .toast {
-            padding: 16px 20px;
-            border-radius: var(--radius);
-            background: var(--bg-primary);
-            box-shadow: var(--shadow-lg);
-            border-left: 4px solid var(--primary);
-            animation: slideInRight 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .toast-icon {
-            font-size: 20px;
-        }
-        .toast-content {
-            flex: 1;
-        }
-        .toast-message {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-        .toast-close {
-            background: none;
-            border: none;
-            color: var(--text-light);
-            cursor: pointer;
-            font-size: 16px;
-            padding: 4px;
-        }
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(40px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        
-        @media (max-width: 1024px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        @media (max-width: 640px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .charts-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-    <!-- ============================================
-    NAVBAR
-    ============================================ -->
     <nav class="navbar">
         <div class="navbar-inner">
-            <a href="/" class="navbar-logo">
-                <i class="fas fa-cube"></i>
-                <span>ProductKuu</span>
-            </a>
+            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
             <div class="navbar-actions">
-                <button class="btn-icon" id="themeToggle">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <button class="mobile-toggle" id="sidebarToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
+                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <button class="mobile-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
             </div>
         </div>
     </nav>
 
-    <!-- ============================================
-    SIDEBAR
-    ============================================ -->
     <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="title">Menu Seller</div>
-        </div>
+        <div class="sidebar-header"><div class="title">Menu Seller</div></div>
         <nav class="sidebar-nav">
-            <a href="/seller/dashboard" class="active">
-                <i class="fas fa-chart-pie"></i> Dashboard
-            </a>
-            <a href="/seller/products">
-                <i class="fas fa-box"></i> Produk
-                <span class="badge-count" id="productCount">0</span>
-            </a>
-            <a href="/seller/wallet">
-                <i class="fas fa-wallet"></i> Wallet
-            </a>
-            <a href="/seller/transactions">
-                <i class="fas fa-exchange-alt"></i> Transaksi
-            </a>
-            <a href="/seller/withdraw">
-                <i class="fas fa-arrow-up"></i> Withdraw
-            </a>
-            <a href="/seller/settings">
-                <i class="fas fa-cog"></i> Pengaturan
-            </a>
-            <button class="logout-btn" id="logoutBtn">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
+            <a href="/seller/dashboard" class="active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="/seller/products"><i class="fas fa-box"></i> Produk <span class="badge-count" id="productCount">0</span></a>
+            <a href="/seller/wallet"><i class="fas fa-wallet"></i> Wallet</a>
+            <a href="/seller/transactions"><i class="fas fa-exchange-alt"></i> Transaksi</a>
+            <a href="/seller/withdraw"><i class="fas fa-arrow-up"></i> Withdraw</a>
+            <a href="/seller/settings"><i class="fas fa-cog"></i> Pengaturan</a>
+            <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </nav>
     </aside>
-
-    <!-- Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- ============================================
-    MAIN CONTENT
-    ============================================ -->
     <div class="app-wrapper">
         <main class="main-content">
-            <!-- Header -->
             <div class="flex-between" style="margin-bottom:24px;">
-                <div>
-                    <h1 style="font-size:24px;">Dashboard</h1>
-                    <p style="color:var(--text-secondary);" id="welcomeMessage">Selamat datang, Seller!</p>
-                </div>
-                <button onclick="location.reload()" class="btn btn-secondary btn-sm">
+                <div><h1 style="font-size:24px;">Dashboard</h1><p style="color:var(--text-secondary);" id="welcomeMessage">Selamat datang, Seller!</p></div>
+                <button onclick="refreshData()" class="btn btn-secondary btn-sm">
                     <i class="fas fa-sync-alt"></i> Refresh
                 </button>
             </div>
 
-            <!-- Stats -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Total Produk</span>
-                        <span class="stat-value" id="totalProducts">0</span>
-                    </div>
-                    <div class="stat-icon indigo"><i class="fas fa-box"></i></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Total Penjualan</span>
-                        <span class="stat-value" id="totalSales">0</span>
-                    </div>
-                    <div class="stat-icon green"><i class="fas fa-shopping-cart"></i></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Total Pendapatan</span>
-                        <span class="stat-value" id="totalRevenue" style="color:var(--primary);">Rp0</span>
-                    </div>
-                    <div class="stat-icon yellow"><i class="fas fa-money-bill-wave"></i></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Saldo Tersedia</span>
-                        <span class="stat-value" id="availableBalance" style="color:var(--success);">Rp0</span>
-                    </div>
-                    <div class="stat-icon purple"><i class="fas fa-wallet"></i></div>
-                </div>
+            <div class="debug-box" id="debugBox">
+                <div class="debug-line debug-info">🔍 Debug Mode Active</div>
+                <div class="debug-line" id="debugLog">Menunggu data...</div>
+            </div>
+            <button class="debug-toggle" onclick="toggleDebug()">
+                <i class="fas fa-bug"></i> Toggle Debug
+            </button>
+
+            <div class="error-box" id="errorBox">
+                <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
+                <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
             </div>
 
-            <!-- Charts -->
+            <div class="stats-grid" style="margin-top:8px;">
+                <div class="stat-card"><div class="stat-info"><span class="stat-label">Total Produk</span><span class="stat-value" id="totalProducts">0</span></div><div class="stat-icon indigo"><i class="fas fa-box"></i></div></div>
+                <div class="stat-card"><div class="stat-info"><span class="stat-label">Total Penjualan</span><span class="stat-value" id="totalSales">0</span></div><div class="stat-icon green"><i class="fas fa-shopping-cart"></i></div></div>
+                <div class="stat-card"><div class="stat-info"><span class="stat-label">Total Pendapatan</span><span class="stat-value" id="totalRevenue" style="color:var(--primary);">Rp0</span></div><div class="stat-icon yellow"><i class="fas fa-money-bill-wave"></i></div></div>
+                <div class="stat-card"><div class="stat-info"><span class="stat-label">Saldo Tersedia</span><span class="stat-value" id="availableBalance" style="color:var(--success);">Rp0</span></div><div class="stat-icon purple"><i class="fas fa-wallet"></i></div></div>
+            </div>
+
             <div class="charts-grid">
-                <div class="card chart-box">
-                    <h4 style="margin-bottom:12px;">Grafik Penjualan</h4>
-                    <canvas id="salesChart" height="180"></canvas>
-                </div>
-                <div class="card chart-box">
-                    <h4 style="margin-bottom:12px;">Grafik Pendapatan</h4>
-                    <canvas id="revenueChart" height="180"></canvas>
-                </div>
+                <div class="card chart-box"><h4 style="margin-bottom:12px;">Grafik Penjualan</h4><canvas id="salesChart" height="180"></canvas></div>
+                <div class="card chart-box"><h4 style="margin-bottom:12px;">Grafik Pendapatan</h4><canvas id="revenueChart" height="180"></canvas></div>
             </div>
 
-            <!-- Recent Products -->
             <div class="card">
                 <div class="flex-between" style="margin-bottom:16px;">
                     <h4>Produk Terbaru</h4>
                     <a href="/seller/products" style="font-size:14px;color:var(--primary);">Lihat Semua →</a>
                 </div>
-                <div id="recentProducts">
-                    <div class="text-center text-secondary" style="padding:20px 0;">Memuat produk...</div>
-                </div>
+                <div id="recentProducts"><div class="text-center text-secondary" style="padding:20px 0;">Memuat produk...</div></div>
             </div>
         </main>
     </div>
 
-    <!-- ============================================
-    TOAST
-    ============================================ -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- ============================================
-    SCRIPTS
-    ============================================ -->
     <script type="importmap">
         {
             "imports": {
@@ -537,17 +182,14 @@
 
     <script type="module">
         // ============================================
-        // IMPORTS
+        // IMPORTS - TANPA onSnapshot
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, onSnapshot } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit } from "firebase/firestore";
 
-        console.log('📊 [DASHBOARD] Page loaded');
+        console.log('📊 [SELLER_DASHBOARD] Page loaded (OPTIMIZED)');
 
-        // ============================================
-        // FIREBASE CONFIG
-        // ============================================
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
             authDomain: "productkuu.firebaseapp.com",
@@ -562,13 +204,45 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        console.log('✅ [DASHBOARD] Firebase initialized');
-
         let currentUser = null;
         let userData = null;
 
         // ============================================
-        // THEME
+        // DEBUG LOG
+        // ============================================
+        let debugVisible = false;
+
+        function addDebug(message, type = 'info') {
+            const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
+            const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
+            const log = document.getElementById('debugLog');
+            const time = new Date().toLocaleTimeString();
+            log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
+            console.log(`[SELLER_DASHBOARD_DEBUG] ${message}`);
+            const box = document.getElementById('debugBox');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        window.toggleDebug = function() {
+            const box = document.getElementById('debugBox');
+            debugVisible = !debugVisible;
+            box.classList.toggle('show');
+            if (debugVisible) {
+                addDebug('Debug mode activated', 'info');
+            }
+        };
+
+        // ============================================
+        // REFRESH DATA
+        // ============================================
+        window.refreshData = function() {
+            addDebug('Manual refresh triggered', 'info');
+            showToast('info', 'Memperbarui data...');
+            loadDashboardData();
+        };
+
+        // ============================================
+        // THEME & SIDEBAR
         // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
@@ -580,13 +254,9 @@
             themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
         });
 
-        // ============================================
-        // SIDEBAR
-        // ============================================
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const sidebarToggle = document.getElementById('sidebarToggle');
-
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', () => {
                 sidebar.classList.toggle('open');
@@ -600,9 +270,6 @@
             });
         }
 
-        // ============================================
-        // SIDEBAR NAVIGATION
-        // ============================================
         document.querySelectorAll('.sidebar-nav a').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -611,20 +278,13 @@
             });
         });
 
-        // ============================================
-        // LOGOUT
-        // ============================================
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                window.location.href = '/';
-            } catch (error) {
-                showToast('error', 'Gagal logout: ' + error.message);
-            }
+            try { await signOut(auth); window.location.href = '/'; } 
+            catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
         });
 
         // ============================================
-        // TOAST
+        // TOAST & ERROR
         // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
@@ -641,6 +301,14 @@
             setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
         }
         window.showToast = showToast;
+
+        function showError(title, detail) {
+            const box = document.getElementById('errorBox');
+            document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
+            document.getElementById('errorDetail').textContent = detail || '';
+            box.classList.add('show');
+            setTimeout(() => { box.classList.remove('show'); }, 10000);
+        }
 
         // ============================================
         // FORMAT FUNCTIONS
@@ -666,34 +334,36 @@
         // ============================================
         // AUTH STATE
         // ============================================
+        addDebug('Setting up auth...', 'info');
+
         onAuthStateChanged(auth, async (user) => {
-            console.log('🔍 [DASHBOARD] Auth state:', user ? user.email : 'null');
             if (!user) {
+                addDebug('User not logged in, redirecting...', 'warning');
                 window.location.href = '/seller/login';
                 return;
             }
             currentUser = user;
-            console.log('✅ [DASHBOARD] User logged in:', user.email);
+            addDebug(`User logged in: ${user.email}`, 'success');
 
             try {
                 const userRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userRef);
                 if (!userDoc.exists() || userDoc.data().role !== 'seller') {
+                    addDebug('User is not seller, redirecting...', 'error');
                     window.location.href = '/';
                     return;
                 }
                 userData = { id: userDoc.id, ...userDoc.data() };
-                console.log('✅ [DASHBOARD] User data loaded');
-
+                addDebug(`User data loaded: ${userData.displayName || 'Seller'}`, 'success');
                 document.getElementById('welcomeMessage').textContent =
                     `Selamat datang, ${userData.storeName || userData.displayName || 'Seller'}!`;
                 document.getElementById('productCount').textContent = userData.productCount || 0;
 
                 await loadDashboardData();
-                setupRealtimeListeners();
+                // TIDAK ADA onSnapshot
 
             } catch (error) {
-                console.error('❌ [DASHBOARD] Error:', error);
+                addDebug(`Error: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat data: ' + error.message);
             }
         });
@@ -702,25 +372,31 @@
         // LOAD DASHBOARD DATA
         // ============================================
         async function loadDashboardData() {
-            console.log('📊 [DASHBOARD] Loading data...');
-            if (!currentUser) return;
+            addDebug('Loading dashboard data...', 'info');
+            if (!currentUser) {
+                addDebug('No current user, skipping', 'warning');
+                return;
+            }
 
             try {
                 const sellerId = currentUser.uid;
+                addDebug(`Seller ID: ${sellerId}`, 'info');
 
                 // Products
+                addDebug('Fetching products...', 'info');
                 const productsSnapshot = await getDocs(
                     query(collection(db, 'products'), where('sellerId', '==', sellerId))
                 );
                 document.getElementById('totalProducts').textContent = productsSnapshot.size;
-                console.log('✅ [DASHBOARD] Total products:', productsSnapshot.size);
+                addDebug(`Total products: ${productsSnapshot.size}`, 'success');
 
                 // Orders
+                addDebug('Fetching orders...', 'info');
                 const ordersSnapshot = await getDocs(
                     query(collection(db, 'orders'), where('sellerId', '==', sellerId), where('paymentStatus', '==', 'settlement'))
                 );
                 document.getElementById('totalSales').textContent = ordersSnapshot.size;
-                console.log('✅ [DASHBOARD] Total sales:', ordersSnapshot.size);
+                addDebug(`Total sales: ${ordersSnapshot.size}`, 'success');
 
                 // Revenue
                 let totalRevenue = 0;
@@ -728,18 +404,18 @@
                     totalRevenue += doc.data().amount || 0;
                 });
                 document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
-                console.log('✅ [DASHBOARD] Total revenue:', totalRevenue);
+                addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
 
                 // Wallet
                 const wallet = userData?.wallet || { available: 0 };
                 document.getElementById('availableBalance').textContent = `Rp${formatPrice(wallet.available || 0)}`;
-                console.log('✅ [DASHBOARD] Available balance:', wallet.available);
+                addDebug(`Available balance: Rp${formatPrice(wallet.available || 0)}`, 'success');
 
                 await loadRecentProducts(sellerId);
-                console.log('✅ [DASHBOARD] Data loaded successfully');
+                addDebug('Dashboard data loaded successfully', 'success');
 
             } catch (error) {
-                console.error('❌ [DASHBOARD] Error loading data:', error);
+                addDebug(`Error loading dashboard data: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat data: ' + error.message);
             }
         }
@@ -748,6 +424,7 @@
         // LOAD RECENT PRODUCTS
         // ============================================
         async function loadRecentProducts(sellerId) {
+            addDebug('Loading recent products...', 'info');
             try {
                 const q = query(
                     collection(db, 'products'),
@@ -765,6 +442,7 @@
                             Belum ada produk
                         </div>
                     `;
+                    addDebug('No recent products', 'info');
                     return;
                 }
 
@@ -786,41 +464,17 @@
                     `;
                 }).join('');
 
-                console.log('✅ [DASHBOARD] Recent products loaded:', snapshot.size);
+                addDebug(`Loaded ${snapshot.size} recent products`, 'success');
 
             } catch (error) {
-                console.error('❌ [DASHBOARD] Error loading recent products:', error);
+                addDebug(`Error loading recent products: ${error.message}`, 'error');
                 document.getElementById('recentProducts').innerHTML =
                     '<div class="text-center" style="color:var(--danger);">Gagal memuat produk</div>';
             }
         }
 
-        // ============================================
-        // REALTIME LISTENERS
-        // ============================================
-        function setupRealtimeListeners() {
-            if (!currentUser) return;
-
-            onSnapshot(
-                query(collection(db, 'orders'), where('sellerId', '==', currentUser.uid)),
-                () => {
-                    console.log('🔄 [DASHBOARD] Orders updated');
-                    loadDashboardData();
-                }
-            );
-
-            onSnapshot(
-                query(collection(db, 'products'), where('sellerId', '==', currentUser.uid)),
-                () => {
-                    console.log('🔄 [DASHBOARD] Products updated');
-                    loadDashboardData();
-                }
-            );
-
-            console.log('✅ [DASHBOARD] Realtime listeners active');
-        }
-
-        console.log('✅ [DASHBOARD] Page ready');
+        addDebug('Page ready', 'success');
+        console.log('✅ [SELLER_DASHBOARD] Page ready (OPTIMIZED - no listeners)');
     </script>
 </body>
 </html>

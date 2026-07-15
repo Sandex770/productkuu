@@ -35,6 +35,7 @@
         textarea.input { resize: vertical; min-height: 80px; }
         
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
         .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
@@ -50,6 +51,35 @@
         .toast-message { font-size: 13px; color: var(--text-secondary); }
         .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        
+        .debug-box {
+            background: #1E1E2E;
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #CDD6F4;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            border: 1px solid #313244;
+        }
+        .debug-box.show { display: block; }
+        .debug-box .debug-line { padding: 2px 0; border-bottom: 1px solid #2A2A3E; }
+        .debug-box .debug-line:last-child { border-bottom: none; }
+        .debug-box .debug-success { color: #A6E3A1; }
+        .debug-box .debug-error { color: #F38BA8; }
+        .debug-box .debug-info { color: #89B4FA; }
+        .debug-box .debug-warning { color: #F9E2AF; }
+        
+        .debug-toggle { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 12px; text-decoration: underline; padding: 4px 8px; margin-bottom: 8px; }
+        .debug-toggle:hover { color: var(--text-primary); }
+        
+        .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
+        .error-box.show { display: block; }
+        .error-box .error-title { font-weight: 700; color: var(--danger); }
+        .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -81,9 +111,25 @@
         <main class="main-content">
             <div class="flex-between" style="margin-bottom:24px;">
                 <div><h1 style="font-size:24px;">Pengaturan Toko</h1><p style="color:var(--text-secondary);">Kelola informasi toko Anda</p></div>
+                <button onclick="refreshData()" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
             </div>
 
-            <div class="card">
+            <div class="debug-box" id="debugBox">
+                <div class="debug-line debug-info">🔍 Debug Mode Active</div>
+                <div class="debug-line" id="debugLog">Menunggu data...</div>
+            </div>
+            <button class="debug-toggle" onclick="toggleDebug()">
+                <i class="fas fa-bug"></i> Toggle Debug
+            </button>
+
+            <div class="error-box" id="errorBox">
+                <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
+                <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
+            </div>
+
+            <div class="card" style="margin-top:8px;">
                 <form id="settingsForm">
                     <div class="input-group">
                         <label for="storeName">Nama Toko *</label>
@@ -131,11 +177,14 @@
     </script>
 
     <script type="module">
+        // ============================================
+        // IMPORTS - TANPA onSnapshot
+        // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
 
-        console.log('⚙️ [SETTINGS] Page loaded');
+        console.log('⚙️ [SELLER_SETTINGS] Page loaded (OPTIMIZED)');
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
@@ -153,7 +202,45 @@
 
         let currentUser = null;
 
-        // Theme
+        // ============================================
+        // DEBUG LOG
+        // ============================================
+        let debugVisible = false;
+
+        function addDebug(message, type = 'info') {
+            const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
+            const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
+            const log = document.getElementById('debugLog');
+            const time = new Date().toLocaleTimeString();
+            log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
+            console.log(`[SELLER_SETTINGS_DEBUG] ${message}`);
+            const box = document.getElementById('debugBox');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        window.toggleDebug = function() {
+            const box = document.getElementById('debugBox');
+            debugVisible = !debugVisible;
+            box.classList.toggle('show');
+            if (debugVisible) {
+                addDebug('Debug mode activated', 'info');
+            }
+        };
+
+        // ============================================
+        // REFRESH DATA
+        // ============================================
+        window.refreshData = function() {
+            addDebug('Manual refresh triggered', 'info');
+            showToast('info', 'Memperbarui data pengaturan...');
+            if (currentUser) {
+                loadSettings(currentUser.uid);
+            }
+        };
+
+        // ============================================
+        // THEME & SIDEBAR
+        // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -164,7 +251,6 @@
             themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
         });
 
-        // Sidebar
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const sidebarToggle = document.getElementById('sidebarToggle');
@@ -191,9 +277,12 @@
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             try { await signOut(auth); window.location.href = '/'; } 
-            catch (error) { showToast('error', 'Gagal logout'); }
+            catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
         });
 
+        // ============================================
+        // TOAST & ERROR
+        // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
             const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
@@ -208,17 +297,53 @@
             container.appendChild(toast);
             setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
         }
+        window.showToast = showToast;
+
+        function showError(title, detail) {
+            const box = document.getElementById('errorBox');
+            document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
+            document.getElementById('errorDetail').textContent = detail || '';
+            box.classList.add('show');
+            setTimeout(() => { box.classList.remove('show'); }, 10000);
+        }
+
+        // ============================================
+        // AUTH STATE
+        // ============================================
+        addDebug('Setting up auth...', 'info');
 
         onAuthStateChanged(auth, async (user) => {
-            if (!user) { window.location.href = '/seller/login'; return; }
+            if (!user) {
+                addDebug('User not logged in, redirecting...', 'warning');
+                window.location.href = '/seller/login';
+                return;
+            }
             currentUser = user;
-            const userRef = doc(db, 'users', user.uid);
-            const userDoc = await getDoc(userRef);
-            if (!userDoc.exists() || userDoc.data().role !== 'seller') { window.location.href = '/'; return; }
-            await loadSettings(user.uid);
+            addDebug(`User logged in: ${user.email}`, 'success');
+
+            try {
+                const userRef = doc(db, 'users', user.uid);
+                const userDoc = await getDoc(userRef);
+                if (!userDoc.exists() || userDoc.data().role !== 'seller') {
+                    addDebug('User is not seller, redirecting...', 'error');
+                    window.location.href = '/';
+                    return;
+                }
+                addDebug('User is seller', 'success');
+                await loadSettings(user.uid);
+                // TIDAK ADA onSnapshot
+
+            } catch (error) {
+                addDebug(`Error: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat data: ' + error.message);
+            }
         });
 
+        // ============================================
+        // LOAD SETTINGS
+        // ============================================
         async function loadSettings(uid) {
+            addDebug('Loading settings...', 'info');
             try {
                 const userRef = doc(db, 'users', uid);
                 const userDoc = await getDoc(userRef);
@@ -230,16 +355,27 @@
                     document.getElementById('storeWhatsapp').value = data.whatsapp || '';
                     document.getElementById('storeEmail').value = data.email || '';
                     document.getElementById('storeInstagram').value = data.instagram || '';
+                    addDebug('Settings loaded', 'success');
                 }
-            } catch (error) { console.error('❌ [SETTINGS] Error:', error); }
+            } catch (error) {
+                addDebug(`Error loading settings: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat pengaturan: ' + error.message);
+            }
         }
 
+        // ============================================
+        // SAVE SETTINGS
+        // ============================================
         document.getElementById('settingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            console.log('📤 [SETTINGS] Saving settings...');
+            addDebug('Saving settings...', 'info');
 
             const storeName = document.getElementById('storeName').value.trim();
-            if (!storeName) { showToast('warning', 'Nama toko wajib diisi'); return; }
+            if (!storeName) {
+                showToast('warning', 'Nama toko wajib diisi');
+                addDebug('Store name required', 'warning');
+                return;
+            }
 
             try {
                 await updateDoc(doc(db, 'users', currentUser.uid), {
@@ -251,21 +387,30 @@
                     instagram: document.getElementById('storeInstagram').value.trim(),
                     updatedAt: new Date().toISOString()
                 });
+                addDebug('Settings saved successfully', 'success');
                 showToast('success', 'Pengaturan berhasil disimpan!');
             } catch (error) {
-                console.error('❌ [SETTINGS] Error:', error);
+                addDebug(`Error saving settings: ${error.message}`, 'error');
                 showToast('error', 'Gagal menyimpan pengaturan: ' + error.message);
             }
         });
 
+        // ============================================
+        // RESET SETTINGS
+        // ============================================
         window.resetSettings = function() {
+            addDebug('Reset settings clicked', 'info');
             if (confirm('Reset semua pengaturan?')) {
-                loadSettings(currentUser.uid);
-                showToast('info', 'Pengaturan direset');
+                if (currentUser) {
+                    loadSettings(currentUser.uid);
+                    showToast('info', 'Pengaturan direset');
+                    addDebug('Settings reset', 'success');
+                }
             }
         };
 
-        console.log('✅ [SETTINGS] Page ready');
+        addDebug('Page ready', 'success');
+        console.log('✅ [SELLER_SETTINGS] Page ready (OPTIMIZED - no listeners)');
     </script>
 </body>
 </html>

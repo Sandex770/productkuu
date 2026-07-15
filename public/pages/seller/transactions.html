@@ -61,6 +61,35 @@
         .toast-message { font-size: 13px; color: var(--text-secondary); }
         .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        
+        .debug-box {
+            background: #1E1E2E;
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #CDD6F4;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            border: 1px solid #313244;
+        }
+        .debug-box.show { display: block; }
+        .debug-box .debug-line { padding: 2px 0; border-bottom: 1px solid #2A2A3E; }
+        .debug-box .debug-line:last-child { border-bottom: none; }
+        .debug-box .debug-success { color: #A6E3A1; }
+        .debug-box .debug-error { color: #F38BA8; }
+        .debug-box .debug-info { color: #89B4FA; }
+        .debug-box .debug-warning { color: #F9E2AF; }
+        
+        .debug-toggle { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 12px; text-decoration: underline; padding: 4px 8px; margin-bottom: 8px; }
+        .debug-toggle:hover { color: var(--text-primary); }
+        
+        .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
+        .error-box.show { display: block; }
+        .error-box .error-title { font-weight: 700; color: var(--danger); }
+        .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -92,9 +121,25 @@
         <main class="main-content">
             <div class="flex-between" style="margin-bottom:24px;">
                 <div><h1 style="font-size:24px;">Riwayat Transaksi</h1><p style="color:var(--text-secondary);">Semua transaksi penjualan Anda</p></div>
+                <button onclick="refreshData()" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
             </div>
 
-            <div class="filter-bar">
+            <div class="debug-box" id="debugBox">
+                <div class="debug-line debug-info">🔍 Debug Mode Active</div>
+                <div class="debug-line" id="debugLog">Menunggu data...</div>
+            </div>
+            <button class="debug-toggle" onclick="toggleDebug()">
+                <i class="fas fa-bug"></i> Toggle Debug
+            </button>
+
+            <div class="error-box" id="errorBox">
+                <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
+                <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
+            </div>
+
+            <div class="filter-bar" style="margin-top:8px;">
                 <div class="filter-group">
                     <select id="filterStatus"><option value="all">Semua Status</option><option value="pending">Pending</option><option value="settlement">Settlement</option><option value="failed">Failed</option><option value="expire">Expired</option></select>
                     <input type="date" id="filterDateFrom">
@@ -131,11 +176,14 @@
     </script>
 
     <script type="module">
+        // ============================================
+        // IMPORTS - TANPA onSnapshot
+        // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, onSnapshot } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter } from "firebase/firestore";
 
-        console.log('📊 [TRANSACTIONS] Page loaded');
+        console.log('📊 [SELLER_TRANSACTIONS] Page loaded (OPTIMIZED)');
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
@@ -154,7 +202,43 @@
         let currentUser = null;
         let transactions = [], lastDoc = null, hasMore = true, currentPage = 1, limitPerPage = 20;
 
-        // Theme
+        // ============================================
+        // DEBUG LOG
+        // ============================================
+        let debugVisible = false;
+
+        function addDebug(message, type = 'info') {
+            const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
+            const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
+            const log = document.getElementById('debugLog');
+            const time = new Date().toLocaleTimeString();
+            log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
+            console.log(`[SELLER_TRANSACTIONS_DEBUG] ${message}`);
+            const box = document.getElementById('debugBox');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        window.toggleDebug = function() {
+            const box = document.getElementById('debugBox');
+            debugVisible = !debugVisible;
+            box.classList.toggle('show');
+            if (debugVisible) {
+                addDebug('Debug mode activated', 'info');
+            }
+        };
+
+        // ============================================
+        // REFRESH DATA
+        // ============================================
+        window.refreshData = function() {
+            addDebug('Manual refresh triggered', 'info');
+            showToast('info', 'Memperbarui data transaksi...');
+            loadTransactions(true);
+        };
+
+        // ============================================
+        // THEME & SIDEBAR
+        // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -165,7 +249,6 @@
             themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
         });
 
-        // Sidebar
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const sidebarToggle = document.getElementById('sidebarToggle');
@@ -192,9 +275,12 @@
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             try { await signOut(auth); window.location.href = '/'; } 
-            catch (error) { showToast('error', 'Gagal logout'); }
+            catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
         });
 
+        // ============================================
+        // TOAST & ERROR
+        // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
             const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
@@ -209,7 +295,19 @@
             container.appendChild(toast);
             setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
         }
+        window.showToast = showToast;
 
+        function showError(title, detail) {
+            const box = document.getElementById('errorBox');
+            document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
+            document.getElementById('errorDetail').textContent = detail || '';
+            box.classList.add('show');
+            setTimeout(() => { box.classList.remove('show'); }, 10000);
+        }
+
+        // ============================================
+        // FORMAT FUNCTIONS
+        // ============================================
         function formatPrice(price) {
             if (!price && price !== 0) return '0';
             return new Intl.NumberFormat('id-ID').format(price);
@@ -218,46 +316,124 @@
         function formatDate(date) {
             if (!date) return '-';
             const d = date instanceof Date ? date : new Date(date);
-            return d.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            if (isNaN(d.getTime())) return '-';
+            return d.toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
         }
 
+        // ============================================
+        // AUTH STATE
+        // ============================================
+        addDebug('Setting up auth...', 'info');
+
         onAuthStateChanged(auth, async (user) => {
-            if (!user) { window.location.href = '/seller/login'; return; }
+            if (!user) {
+                addDebug('User not logged in, redirecting...', 'warning');
+                window.location.href = '/seller/login';
+                return;
+            }
             currentUser = user;
-            const userRef = doc(db, 'users', user.uid);
-            const userDoc = await getDoc(userRef);
-            if (!userDoc.exists() || userDoc.data().role !== 'seller') { window.location.href = '/'; return; }
-            await loadTransactions(true);
-            onSnapshot(query(collection(db, 'orders'), where('sellerId', '==', user.uid)), () => loadTransactions(true));
+            addDebug(`User logged in: ${user.email}`, 'success');
+
+            try {
+                const userRef = doc(db, 'users', user.uid);
+                const userDoc = await getDoc(userRef);
+                if (!userDoc.exists() || userDoc.data().role !== 'seller') {
+                    addDebug('User is not seller, redirecting...', 'error');
+                    window.location.href = '/';
+                    return;
+                }
+                addDebug('User is seller', 'success');
+                await loadTransactions(true);
+                // TIDAK ADA onSnapshot
+
+            } catch (error) {
+                addDebug(`Error: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat data: ' + error.message);
+            }
         });
 
+        // ============================================
+        // LOAD TRANSACTIONS
+        // ============================================
         async function loadTransactions(reset = true) {
-            if (!currentUser) return;
+            if (!currentUser) {
+                addDebug('No current user', 'warning');
+                return;
+            }
+            addDebug(`Loading transactions (reset: ${reset})...`, 'info');
             try {
                 if (reset) { lastDoc = null; hasMore = true; transactions = []; currentPage = 1; }
-                if (!hasMore) return;
-                let constraints = [where('sellerId', '==', currentUser.uid), orderBy('createdAt', 'desc')];
+                if (!hasMore) {
+                    addDebug('No more transactions to load', 'info');
+                    return;
+                }
+                
+                let constraints = [
+                    where('sellerId', '==', currentUser.uid),
+                    orderBy('createdAt', 'desc')
+                ];
+                
                 const status = document.getElementById('filterStatus').value;
-                if (status !== 'all') constraints.push(where('paymentStatus', '==', status));
+                if (status !== 'all') {
+                    constraints.push(where('paymentStatus', '==', status));
+                    addDebug(`Filter by status: ${status}`, 'info');
+                }
+                
                 let q = query(collection(db, 'orders'), ...constraints, limit(limitPerPage));
                 if (lastDoc) q = query(collection(db, 'orders'), ...constraints, startAfter(lastDoc), limit(limitPerPage));
+                
                 const snapshot = await getDocs(q);
-                if (snapshot.empty) { hasMore = false; if (reset) document.getElementById('transactionsBody').innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Belum ada transaksi</td></tr>'; return; }
+                addDebug(`Query returned ${snapshot.size} documents`, 'info');
+                
+                if (snapshot.empty) { 
+                    hasMore = false; 
+                    if (reset) {
+                        document.getElementById('transactionsBody').innerHTML = 
+                            '<tr><td colspan="7" class="text-center text-secondary">Belum ada transaksi</td></tr>';
+                    }
+                    return; 
+                }
+                
                 lastDoc = snapshot.docs[snapshot.docs.length - 1];
                 hasMore = snapshot.docs.length === limitPerPage;
                 const newData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 transactions = reset ? newData : [...transactions, ...newData];
+                addDebug(`Loaded ${transactions.length} transactions total`, 'success');
                 renderTransactions();
-            } catch (error) { console.error('❌ [TRANSACTIONS] Error:', error); showToast('error', 'Gagal memuat transaksi'); }
+            } catch (error) { 
+                addDebug(`Error loading transactions: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat transaksi: ' + error.message); 
+            }
         }
 
+        // ============================================
+        // RENDER TRANSACTIONS
+        // ============================================
         function renderTransactions() {
             const tbody = document.getElementById('transactionsBody');
-            if (transactions.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Tidak ada transaksi</td></tr>'; document.getElementById('pagination').innerHTML = ''; return; }
-            const statusColors = { 'pending': 'badge-warning', 'settlement': 'badge-success', 'failed': 'badge-danger', 'expire': 'badge-danger' };
+            if (transactions.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Tidak ada transaksi</td></tr>'; 
+                document.getElementById('pagination').innerHTML = ''; 
+                return; 
+            }
+            
+            const statusColors = { 
+                'pending': 'badge-warning', 
+                'settlement': 'badge-success', 
+                'failed': 'badge-danger', 
+                'expire': 'badge-danger' 
+            };
+
             tbody.innerHTML = transactions.map(t => {
                 const commission = Math.round((t.amount || 0) * 0.1);
-                return `<tr>
+                return `
+                <tr>
                     <td style="font-family:monospace;font-size:13px;">${t.orderId || '-'}</td>
                     <td>${t.productName || '-'}</td>
                     <td>${t.buyerName || '-'}</td>
@@ -265,14 +441,21 @@
                     <td style="color:var(--danger);">Rp${formatPrice(commission)}</td>
                     <td><span class="badge ${statusColors[t.paymentStatus] || 'badge-info'}">${t.paymentStatus || t.status}</span></td>
                     <td style="font-size:13px;color:var(--text-secondary);">${formatDate(t.createdAt)}</td>
-                </tr>`;
-            }).join('');
+                </tr>
+            `}).join('');
+            
             renderPagination();
         }
 
+        // ============================================
+        // PAGINATION
+        // ============================================
         function renderPagination() {
             const container = document.getElementById('pagination');
-            if (!hasMore && transactions.length <= limitPerPage) { container.innerHTML = ''; return; }
+            if (!hasMore && transactions.length <= limitPerPage) { 
+                container.innerHTML = ''; 
+                return; 
+            }
             container.innerHTML = `
                 <span style="font-size:14px;color:var(--text-secondary);">${transactions.length} transaksi</span>
                 <div style="display:flex;gap:8px;">
@@ -282,12 +465,38 @@
             `;
         }
 
-        window.loadNextPage = function() { currentPage++; loadTransactions(false); };
-        window.loadPreviousPage = function() { if (currentPage <= 1) return; currentPage--; lastDoc = null; hasMore = true; loadTransactions(true); };
-        window.applyFilters = function() { lastDoc = null; hasMore = true; loadTransactions(true); };
-        window.resetFilters = function() { document.getElementById('filterStatus').value = 'all'; document.getElementById('filterDateFrom').value = ''; document.getElementById('filterDateTo').value = ''; applyFilters(); };
+        window.loadNextPage = function() { 
+            addDebug('Next page clicked', 'info');
+            currentPage++; 
+            loadTransactions(false); 
+        };
 
-        console.log('✅ [TRANSACTIONS] Page ready');
+        window.loadPreviousPage = function() { 
+            addDebug('Previous page clicked', 'info');
+            if (currentPage <= 1) return; 
+            currentPage--; 
+            lastDoc = null; 
+            hasMore = true; 
+            loadTransactions(true); 
+        };
+
+        window.applyFilters = function() { 
+            addDebug('Applying filters', 'info');
+            lastDoc = null; 
+            hasMore = true; 
+            loadTransactions(true); 
+        };
+
+        window.resetFilters = function() { 
+            addDebug('Resetting filters', 'info');
+            document.getElementById('filterStatus').value = 'all'; 
+            document.getElementById('filterDateFrom').value = ''; 
+            document.getElementById('filterDateTo').value = ''; 
+            applyFilters(); 
+        };
+
+        addDebug('Page ready', 'success');
+        console.log('✅ [SELLER_TRANSACTIONS] Page ready (OPTIMIZED - no listeners)');
     </script>
 </body>
 </html>
