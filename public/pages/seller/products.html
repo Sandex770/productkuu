@@ -30,13 +30,113 @@
         
         .table-wrapper { overflow-x: auto; }
         .table { width: 100%; border-collapse: collapse; }
-        .table th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); border-bottom: 2px solid var(--border-color); background: var(--bg-secondary); }
-        .table td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
+        .table th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); border-bottom: 2px solid var(--border-color); background: var(--bg-secondary); white-space: nowrap; }
+        .table td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); font-size: 14px; vertical-align: middle; }
         .table tr:hover td { background: var(--bg-secondary); }
         
-        .filter-bar { background: var(--bg-primary); border-radius: var(--radius); padding: 16px 20px; border: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 24px; }
+        .product-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 160px;
+        }
+        .product-cell .product-thumb {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .product-cell .product-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .product-cell .product-thumb i {
+            font-size: 16px;
+            color: var(--text-light);
+        }
+        .product-cell .product-name {
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 130px;
+        }
+        .product-cell .product-date {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        
+        .action-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .action-dropdown > button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+        .action-dropdown > button:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        .action-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            min-width: 170px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            z-index: 100;
+            padding: 4px 0;
+        }
+        .action-dropdown-content.show {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+        .action-dropdown-content a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 14px;
+            color: var(--text-primary);
+            font-size: 13px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .action-dropdown-content a:hover {
+            background: var(--bg-secondary);
+        }
+        .action-dropdown-content a.danger {
+            color: var(--danger);
+        }
+        .action-dropdown-content a.danger:hover {
+            background: rgba(239,68,68,0.1);
+        }
+        .action-dropdown-content a i {
+            width: 16px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .filter-bar { background: var(--bg-primary); border-radius: var(--radius); padding: 12px 16px; border: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 20px; }
         .filter-bar .filter-group { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
-        .filter-bar .filter-group select, .filter-bar .filter-group input { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 13px; min-width: 120px; }
+        .filter-bar .filter-group select, .filter-bar .filter-group input { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 13px; min-width: 110px; }
         .filter-bar .filter-actions { display: flex; gap: 8px; }
         
         .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
@@ -46,13 +146,6 @@
         .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
         .badge-purple { background: rgba(124,58,237,0.1); color: var(--secondary); }
         .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
-        
-        .action-dropdown { position: relative; display: inline-block; }
-        .action-dropdown-content { display: none; position: absolute; right: 0; min-width: 180px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius); box-shadow: var(--shadow-lg); z-index: 100; }
-        .action-dropdown-content.show { display: block; }
-        .action-dropdown-content a { display: block; padding: 8px 16px; color: var(--text-primary); font-size: 14px; text-decoration: none; cursor: pointer; }
-        .action-dropdown-content a:hover { background: var(--bg-secondary); }
-        .action-dropdown-content a.danger { color: var(--danger); }
         
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         .text-center { text-align: center; }
@@ -121,7 +214,35 @@
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
         
-        @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+        @media (max-width: 1024px) {
+            .table { min-width: 700px; font-size: 13px; }
+            .table th, .table td { padding: 10px 12px; }
+            .product-cell .product-name { max-width: 100px; }
+        }
+        @media (max-width: 768px) {
+            .table { min-width: 650px; font-size: 12px; }
+            .table th, .table td { padding: 8px 10px; }
+            .table .badge { font-size: 10px; padding: 2px 8px; }
+            .product-cell { min-width: 140px; gap: 8px; }
+            .product-cell .product-thumb { width: 30px; height: 30px; }
+            .product-cell .product-name { max-width: 80px; font-size: 12px; }
+            .product-cell .product-date { font-size: 10px; }
+            .action-dropdown-content { min-width: 150px; }
+            .action-dropdown-content a { font-size: 12px; padding: 6px 12px; }
+            .filter-bar .filter-group select, .filter-bar .filter-group input { min-width: 100%; flex: 1; }
+            .filter-bar .filter-actions { width: 100%; }
+            .filter-bar .filter-actions .btn { flex: 1; }
+        }
+        @media (max-width: 480px) {
+            .table-wrapper { margin: 0 -12px; padding: 0 12px; }
+            .table { min-width: 600px; font-size: 11px; }
+            .table th, .table td { padding: 6px 8px; }
+            .product-cell { min-width: 120px; gap: 6px; }
+            .product-cell .product-thumb { width: 24px; height: 24px; }
+            .product-cell .product-name { max-width: 60px; font-size: 11px; }
+            .product-cell .product-date { font-size: 9px; }
+            .grid-2 { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -190,14 +311,14 @@
                 <div class="table-wrapper">
                     <table class="table">
                         <thead><tr>
-                            <th>Produk</th>
-                            <th>Kategori</th>
-                            <th>Type</th>
-                            <th>Harga</th>
-                            <th>Stok</th>
-                            <th>Status</th>
-                            <th>Terjual</th>
-                            <th>Aksi</th>
+                            <th style="min-width:180px;">Produk</th>
+                            <th style="min-width:100px;">Kategori</th>
+                            <th style="min-width:100px;">Type</th>
+                            <th style="min-width:100px;">Harga</th>
+                            <th style="min-width:80px;">Stok</th>
+                            <th style="min-width:90px;">Status</th>
+                            <th style="min-width:70px;text-align:center;">Terjual</th>
+                            <th style="min-width:60px;text-align:center;">Aksi</th>
                         </tr></thead>
                         <tbody id="productsTableBody">
                             <tr><td colspan="8" class="text-center text-secondary" style="padding:40px 0;">
@@ -207,7 +328,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div id="pagination" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"></div>
+                <div id="pagination" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;"></div>
             </div>
         </main>
     </div>
@@ -343,19 +464,19 @@
             <div id="promoteContent">
                 <div style="margin-bottom:16px;padding:16px;background:var(--bg-secondary);border-radius:var(--radius);">
                     <p><strong>Produk:</strong> <span id="promoteProductName">-</span></p>
-                    <p><strong>Harga per Jam:</strong> Rp<span id="promotePricePerHour">0</span></p>
+                    <p><strong>Harga Banner:</strong> Rp<span id="promotePricePerHour">0</span> <span style="font-size:12px;color:var(--text-light);">(Harga FLAT untuk durasi berapa pun)</span></p>
                     <p><strong>Saldo Anda:</strong> Rp<span id="promoteBalance">0</span></p>
                 </div>
                 <form id="promoteForm">
                     <div class="input-group" style="margin-bottom:12px;">
                         <label for="promoteDuration">Durasi (Jam)</label>
                         <input type="number" id="promoteDuration" class="input" value="24" min="1" required>
-                        <span style="font-size:12px;color:var(--text-light);">Total biaya: <strong id="promoteTotal">Rp0</strong></span>
+                        <span style="font-size:12px;color:var(--text-light);">Total biaya: <strong id="promoteTotal">Rp0</strong> (Harga FLAT)</span>
                     </div>
                     <div class="input-group" style="margin-bottom:12px;">
                         <label for="promoteImageUrl">URL Gambar Banner (Opsional)</label>
                         <input type="url" id="promoteImageUrl" class="input" placeholder="https://example.com/banner.jpg">
-                        <span style="font-size:12px;color:var(--text-light);">Kosongkan untuk menggunakan gambar default</span>
+                        <span style="font-size:12px;color:var(--text-light);">Kosongkan untuk menggunakan gambar produk</span>
                     </div>
                     <div style="display:flex;gap:12px;margin-top:12px;">
                         <button type="submit" class="btn btn-primary" style="flex:1;">
@@ -381,9 +502,6 @@
     </script>
 
     <script type="module">
-        // ============================================
-        // IMPORTS
-        // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, collection, doc, getDoc, getDocs, query, where, addDoc, updateDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
@@ -411,9 +529,6 @@
         let deleteId = null;
         let promoteProductId = null;
 
-        // ============================================
-        // DEBUG LOG
-        // ============================================
         let debugVisible = false;
 
         function addDebug(message, type = 'info') {
@@ -431,9 +546,7 @@
             const box = document.getElementById('debugBox');
             debugVisible = !debugVisible;
             box.classList.toggle('show');
-            if (debugVisible) {
-                addDebug('Debug mode activated', 'info');
-            }
+            if (debugVisible) addDebug('Debug mode activated', 'info');
         };
 
         window.refreshData = function() {
@@ -442,9 +555,6 @@
             loadProducts();
         };
 
-        // ============================================
-        // THEME & SIDEBAR
-        // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -484,9 +594,6 @@
             catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
         });
 
-        // ============================================
-        // TOAST & ERROR
-        // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
             const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
@@ -511,9 +618,6 @@
             setTimeout(() => { box.classList.remove('show'); }, 10000);
         }
 
-        // ============================================
-        // FORMAT FUNCTIONS
-        // ============================================
         function formatPrice(price) {
             if (!price && price !== 0) return '0';
             return new Intl.NumberFormat('id-ID').format(price);
@@ -531,11 +635,6 @@
                 minute: '2-digit'
             });
         }
-
-        // ============================================
-        // AUTH STATE
-        // ============================================
-        addDebug('Setting up auth...', 'info');
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
@@ -563,9 +662,6 @@
             }
         });
 
-        // ============================================
-        // LOAD PRODUCTS
-        // ============================================
         async function loadProducts() {
             if (!currentUser) {
                 addDebug('No current user', 'warning');
@@ -619,14 +715,11 @@
             }
         }
 
-        // ============================================
-        // RENDER PRODUCTS
-        // ============================================
         function renderProducts() {
             const tbody = document.getElementById('productsTableBody');
 
             if (allProducts.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-secondary">Tidak ada produk</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-secondary" style="padding:30px 0;">Tidak ada produk</td></tr>';
                 document.getElementById('pagination').innerHTML = '';
                 return;
             }
@@ -640,25 +733,25 @@
             tbody.innerHTML = pageProducts.map(p => `
                 <tr>
                     <td>
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <div style="width:40px;height:40px;border-radius:var(--radius);background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;overflow:hidden;">
-                                ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-box\\'></i>'">` : '<i class="fas fa-box"></i>'}
+                        <div class="product-cell">
+                            <div class="product-thumb">
+                                ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-box\\'></i>'">` : '<i class="fas fa-box"></i>'}
                             </div>
                             <div>
-                                <strong>${p.name}</strong>
-                                <div style="font-size:12px;color:var(--text-secondary);">${formatDate(p.createdAtDate)}</div>
+                                <div class="product-name" title="${p.name}">${p.name}</div>
+                                <div class="product-date">${formatDate(p.createdAtDate)}</div>
                             </div>
                         </div>
                     </td>
                     <td>${p.category || '-'}</td>
-                    <td><span class="badge ${p.type === 'premium-account' ? 'badge-purple' : 'badge-info'}">${p.type === 'premium-account' ? 'Premium Account' : 'Digital'}</span></td>
-                    <td style="font-weight:600;color:var(--primary);">Rp${formatPrice(p.price)}</td>
-                    <td>${p.stock === 'unlimited' ? '♾️ Unlimited' : p.stock || 0}</td>
-                    <td><span class="badge ${p.status === 'published' ? 'badge-success' : p.status === 'pending' ? 'badge-warning' : 'badge-info'}">${p.status || 'draft'}</span></td>
-                    <td>${p.sales || 0}</td>
+                    <td><span class="badge ${p.type === 'premium-account' ? 'badge-purple' : 'badge-info'}" style="font-size:11px;padding:2px 10px;">${p.type === 'premium-account' ? 'Account' : 'Digital'}</span></td>
+                    <td style="font-weight:600;color:var(--primary);white-space:nowrap;">Rp${formatPrice(p.price)}</td>
+                    <td style="white-space:nowrap;">${p.stock === 'unlimited' ? '♾️' : p.stock || 0}</td>
+                    <td><span class="badge ${p.status === 'published' ? 'badge-success' : p.status === 'pending' ? 'badge-warning' : 'badge-info'}" style="font-size:11px;padding:2px 10px;">${p.status || 'draft'}</span></td>
+                    <td style="text-align:center;">${p.sales || 0}</td>
                     <td>
                         <div class="action-dropdown">
-                            <button onclick="toggleDropdown('${p.id}')"><i class="fas fa-ellipsis-v"></i></button>
+                            <button onclick="event.stopPropagation();toggleDropdown('${p.id}')"><i class="fas fa-ellipsis-v"></i></button>
                             <div class="action-dropdown-content" id="dropdown-${p.id}">
                                 <a onclick="editProduct('${p.id}')"><i class="fas fa-edit"></i> Edit</a>
                                 <a onclick="promoteToBanner('${p.id}')"><i class="fas fa-image"></i> Promosikan di Banner</a>
@@ -672,9 +765,6 @@
             renderPagination(totalPages);
         }
 
-        // ============================================
-        // PAGINATION
-        // ============================================
         function renderPagination(totalPages) {
             const container = document.getElementById('pagination');
             if (totalPages <= 1) {
@@ -697,9 +787,6 @@
             renderProducts();
         };
 
-        // ============================================
-        // FILTER FUNCTIONS
-        // ============================================
         window.applyFilters = function() {
             currentPage = 1;
             loadProducts();
@@ -712,9 +799,6 @@
             applyFilters();
         };
 
-        // ============================================
-        // DROPDOWN
-        // ============================================
         window.toggleDropdown = function(id) {
             document.querySelectorAll('.action-dropdown-content').forEach(el => el.classList.remove('show'));
             const dropdown = document.getElementById(`dropdown-${id}`);
@@ -727,18 +811,12 @@
             }
         });
 
-        // ============================================
-        // SEARCH DEBOUNCE
-        // ============================================
         let searchTimeout;
         document.getElementById('searchProduct').addEventListener('input', () => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(applyFilters, 500);
         });
 
-        // ============================================
-        // PRODUCT CRUD
-        // ============================================
         window.openCreateProduct = function() {
             document.getElementById('modalTitle').textContent = 'Tambah Produk';
             document.getElementById('productId').value = '';
@@ -927,9 +1005,6 @@
             }
         });
 
-        // ============================================
-        // DELETE PRODUCT
-        // ============================================
         window.deleteProduct = function(id) {
             addDebug(`Delete product: ${id}`, 'warning');
             deleteId = id;
@@ -965,7 +1040,6 @@
             promoteProductId = productId;
             
             try {
-                // Get product info
                 const productRef = doc(db, 'products', productId);
                 const productDoc = await getDoc(productRef);
                 if (!productDoc.exists()) {
@@ -975,26 +1049,19 @@
                 const product = productDoc.data();
                 document.getElementById('promoteProductName').textContent = product.name;
 
-                // Get banner pricing
                 const pricingResponse = await fetch('/api/banner-pricing');
                 if (!pricingResponse.ok) throw new Error('Gagal memuat harga banner');
                 const pricing = await pricingResponse.json();
                 document.getElementById('promotePricePerHour').textContent = formatPrice(pricing.price);
 
-                // Get seller wallet
                 const userRef = doc(db, 'users', currentUser.uid);
                 const userDoc = await getDoc(userRef);
                 const wallet = userDoc.data()?.wallet || { available: 0 };
                 document.getElementById('promoteBalance').textContent = formatPrice(wallet.available);
 
-                // Set default duration
                 document.getElementById('promoteDuration').value = pricing.duration || 24;
+                document.getElementById('promoteTotal').textContent = `Rp${formatPrice(pricing.price)}`;
 
-                // Calculate total
-                const total = (pricing.duration || 24) * pricing.price;
-                document.getElementById('promoteTotal').textContent = `Rp${formatPrice(total)}`;
-
-                // Show modal
                 document.getElementById('promoteModal').classList.add('open');
                 addDebug('Promote modal opened', 'success');
 
@@ -1011,9 +1078,8 @@
         };
 
         document.getElementById('promoteDuration').addEventListener('input', function() {
-            const pricePerHour = parseInt(document.getElementById('promotePricePerHour').textContent.replace(/,/g, '')) || 0;
-            const total = parseInt(this.value || 0) * pricePerHour;
-            document.getElementById('promoteTotal').textContent = `Rp${formatPrice(total)}`;
+            const price = parseInt(document.getElementById('promotePricePerHour').textContent.replace(/,/g, '')) || 0;
+            document.getElementById('promoteTotal').textContent = `Rp${formatPrice(price)}`;
         });
 
         document.getElementById('promoteForm').addEventListener('submit', async (e) => {
