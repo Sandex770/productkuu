@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toko Seller - ProductKuu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/assets/images/favicon.ico">
+    <style>
+        .seller-header {
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            color: white;
+            padding: 60px 0 40px;
+            border-radius: 0 0 24px 24px;
+            margin-bottom: 40px;
+        }
+        .seller-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: 700;
+            border: 4px solid rgba(255,255,255,0.3);
+            margin: 0 auto 16px;
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+        .product-card {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        .product-card .product-image {
+            aspect-ratio: 1;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .product-card .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .product-card .product-body {
+            padding: 16px;
+        }
+        .product-card .product-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .product-card .product-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+        .product-card .product-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #4F46E5;
+        }
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
+        .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
+        .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
+        .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
+        .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
+        .btn-sm { padding: 8px 16px; font-size: 12px; }
+        .text-center { text-align: center; }
+        .text-secondary { color: var(--text-secondary); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
+        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
+        .toast-icon { font-size: 20px; }
+        .toast-content { flex: 1; }
+        .toast-message { font-size: 13px; color: var(--text-secondary); }
+        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        @media (max-width: 1024px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 768px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 480px) { .product-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
+            <div class="navbar-actions">
+                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <a href="/" class="btn btn-secondary btn-sm"><i class="fas fa-home"></i> Beranda</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="seller-header">
+            <div class="container text-center">
+                <div class="seller-avatar" id="sellerAvatar">S</div>
+                <h1 id="sellerName" style="font-size:32px;margin-bottom:8px;">Toko Seller</h1>
+                <p id="sellerDescription" style="opacity:0.8;max-width:500px;margin:0 auto;">Deskripsi toko</p>
+                <div style="display:flex;justify-content:center;gap:24px;margin-top:16px;flex-wrap:wrap;">
+                    <span><strong id="productCount">0</strong> Produk</span>
+                    <span><strong id="totalSales">0</strong> Terjual</span>
+                    <span id="verifiedBadge" style="display:none;"><i class="fas fa-check-circle" style="color:#34D399;"></i> Verified</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="container" style="padding-bottom:60px;">
+            <div class="flex-between" style="margin-bottom:24px;">
+                <h2 style="font-size:24px;">Produk</h2>
+                <span id="productCountLabel" style="color:var(--text-secondary);">0 produk</span>
+            </div>
+            <div class="product-grid" id="productsGrid">
+                <div class="text-center text-secondary" style="grid-column:1/-1;padding:40px 0;">
+                    <i class="fas fa-spinner fa-spin" style="font-size:24px;display:block;margin-bottom:8px;"></i>
+                    Memuat produk...
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer style="background:#111827;color:white;padding:24px 0;text-align:center;">
+        <p>&copy; 2026 ProductKuu. All rights reserved.</p>
+    </footer>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        const pathParts = window.location.pathname.split('/');
+        const sellerSlug = pathParts[1] || '';
+
+        console.log('📦 [SELLER_PAGE] Loading seller:', sellerSlug);
+
+        const themeToggle = document.getElementById('themeToggle');
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.addEventListener('click', () => {
+            darkMode = !darkMode;
+            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+            localStorage.setItem('darkMode', darkMode);
+            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        function showToast(type, message) {
+            const container = document.getElementById('toastContainer');
+            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeftColor = colors[type] || colors.info;
+            toast.innerHTML = `
+                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
+                <div class="toast-content"><div class="toast-message">${message}</div></div>
+                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
+        }
+        window.showToast = showToast;
+
+        function formatPrice(price) {
+            if (!price && price !== 0) return '0';
+            return new Intl.NumberFormat('id-ID').format(price);
+        }
+
+        async function loadSeller() {
+            try {
+                const response = await fetch(`/api/seller/${sellerSlug}`);
+                if (!response.ok) throw new Error('Seller not found');
+                
+                const data = await response.json();
+                console.log('✅ Seller data loaded:', data);
+
+                const seller = data.seller;
+                const products = data.products || [];
+
+                document.getElementById('sellerName').textContent = seller.storeName || seller.displayName || 'Seller';
+                document.getElementById('sellerDescription').textContent = seller.storeDescription || `Toko ${seller.storeName || 'Seller'}`;
+                document.getElementById('productCount').textContent = products.length;
+                document.getElementById('productCountLabel').textContent = `${products.length} produk`;
+                
+                const initial = (seller.storeName || seller.displayName || 'S')[0].toUpperCase();
+                document.getElementById('sellerAvatar').textContent = initial;
+
+                if (seller.verified) {
+                    document.getElementById('verifiedBadge').style.display = 'inline';
+                }
+
+                const totalSales = products.reduce((sum, p) => sum + (p.sales || 0), 0);
+                document.getElementById('totalSales').textContent = totalSales;
+
+                renderProducts(products);
+                document.title = `${seller.storeName || 'Toko Seller'} - ProductKuu`;
+
+            } catch (error) {
+                console.error('❌ Error loading seller:', error);
+                document.getElementById('productsGrid').innerHTML = `
+                    <div class="text-center" style="grid-column:1/-1;padding:40px 0;color:var(--danger);">
+                        <i class="fas fa-exclamation-triangle" style="font-size:48px;display:block;margin-bottom:16px;"></i>
+                        Gagal memuat toko: ${error.message}
+                    </div>
+                `;
+                showToast('error', 'Gagal memuat toko: ' + error.message);
+            }
+        }
+
+        function renderProducts(products) {
+            const grid = document.getElementById('productsGrid');
+
+            if (!products || products.length === 0) {
+                grid.innerHTML = `
+                    <div class="text-center text-secondary" style="grid-column:1/-1;padding:40px 0;">
+                        <i class="fas fa-box-open" style="font-size:48px;display:block;margin-bottom:16px;"></i>
+                        Belum ada produk dari seller ini
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = products.map(p => `
+                <div class="product-card" onclick="window.location.href='/product/${p.id}'">
+                    <div class="product-image">
+                        ${p.imageUrl ? `
+                            <img src="${p.imageUrl}" alt="${p.name}" onerror="this.src='/image/sanzz.jpg'">
+                        ` : `
+                            <img src="/image/sanzz.jpg" alt="${p.name}">
+                        `}
+                        ${p.isPremium ? `<span class="badge badge-info" style="position:absolute;top:12px;right:12px;">Premium</span>` : ''}
+                        ${p.type === 'premium-account' ? `<span class="badge badge-warning" style="position:absolute;bottom:12px;left:12px;">Account</span>` : ''}
+                    </div>
+                    <div class="product-body">
+                        <div class="product-name">${p.name}</div>
+                        <div style="font-size:13px;color:var(--text-secondary);">${p.category || 'Uncategorized'}</div>
+                        <div class="product-footer">
+                            <span class="product-price">Rp${formatPrice(p.price)}</span>
+                            <span style="font-size:13px;color:var(--text-secondary);">${p.sales || 0} terjual</span>
+                        </div>
+                        <button onclick="event.stopPropagation();window.location.href='/product/${p.id}'" 
+                                class="btn btn-primary btn-sm" style="width:100%;margin-top:8px;">
+                            <i class="fas fa-shopping-cart"></i> Beli
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        if (sellerSlug) {
+            loadSeller();
+        } else {
+            document.getElementById('productsGrid').innerHTML = `
+                <div class="text-center" style="grid-column:1/-1;padding:40px 0;color:var(--danger);">
+                    <i class="fas fa-exclamation-triangle" style="font-size:48px;display:block;margin-bottom:16px;"></i>
+                    Seller tidak ditemukan
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

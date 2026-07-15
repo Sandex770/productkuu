@@ -42,6 +42,89 @@
         .hero-stats .stat .number { font-size: 28px; font-weight: 700; }
         .hero-stats .stat .label { font-size: 13px; opacity: 0.8; }
         
+        .banner-carousel { margin-top: -32px; position: relative; z-index: 10; }
+        .banner-carousel .carousel-container {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+        .banner-carousel .slides {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+        .banner-carousel .slide {
+            min-width: 100%;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+        }
+        .banner-carousel .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .banner-carousel .slide .slide-content {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+        }
+        .banner-carousel .slide .slide-content h3 { font-size: 24px; margin-bottom: 8px; }
+        .banner-carousel .slide .slide-content p { opacity: 0.9; font-size: 14px; }
+        .banner-carousel .btn-control {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .banner-carousel .btn-control:hover { background: rgba(0,0,0,0.8); }
+        .banner-carousel .btn-prev { left: 12px; }
+        .banner-carousel .btn-next { right: 12px; }
+        .banner-carousel .indicators {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+        .banner-carousel .indicators button {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.4);
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 0;
+        }
+        .banner-carousel .indicators button.active { background: white; width: 24px; border-radius: 4px; }
+        
         .feature-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 32px; }
         .feature-card { background: var(--bg-primary); border-radius: 16px; padding: 32px 24px; text-align: center; border: 1px solid var(--border-color); transition: all 0.3s; }
         .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
@@ -61,23 +144,24 @@
         
         .grid { display: grid; gap: 24px; }
         .grid-4 { grid-template-columns: repeat(4, 1fr); }
-        .grid-6 { grid-template-columns: repeat(6, 1fr); }
-        
-        .category-card { background: var(--bg-primary); border-radius: 12px; padding: 24px; text-align: center; border: 1px solid var(--border-color); transition: all 0.3s; cursor: pointer; }
-        .category-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: #4F46E5; }
-        .category-card .icon { width: 64px; height: 64px; margin: 0 auto 12px; border-radius: 12px; background: linear-gradient(135deg, #4F46E5, #7C3AED); display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; }
-        .category-card .name { font-weight: 600; }
-        .category-card .count { font-size: 13px; color: var(--text-secondary); }
         
         .product-card { background: var(--bg-primary); border-radius: 16px; overflow: hidden; border: 1px solid var(--border-color); transition: all 0.3s; cursor: pointer; }
         .product-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
-        .product-card .product-image { aspect-ratio: 1; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; font-size: 48px; color: var(--text-light); position: relative; }
+        .product-card .product-image { aspect-ratio: 1; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        .product-card .product-image img { width: 100%; height: 100%; object-fit: cover; }
         .product-card .product-body { padding: 16px; }
         .product-card .product-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
         .product-card .product-category { font-size: 13px; color: var(--text-secondary); }
         .product-card .product-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); }
         .product-card .product-price { font-size: 20px; font-weight: 700; color: #4F46E5; }
         .product-card .product-sales { font-size: 13px; color: var(--text-secondary); }
+        .product-card .quantity-controls { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+        .product-card .quantity-controls button { width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; transition: all 0.3s; }
+        .product-card .quantity-controls .qty-minus { background: var(--bg-tertiary); color: var(--text-primary); }
+        .product-card .quantity-controls .qty-minus:hover { background: var(--border-color); }
+        .product-card .quantity-controls .qty-plus { background: #4F46E5; color: white; }
+        .product-card .quantity-controls .qty-plus:hover { background: #4338CA; }
+        .product-card .quantity-controls .qty-number { font-weight: 600; font-size: 16px; min-width: 24px; text-align: center; }
         
         .tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--border-color); margin-bottom: 24px; overflow-x: auto; padding-bottom: 0; }
         .tabs .tab { padding: 12px 20px; border: none; background: none; font-family: var(--font); font-size: 14px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.3s; border-bottom: 2px solid transparent; margin-bottom: -2px; white-space: nowrap; }
@@ -93,8 +177,81 @@
         .btn-outline:hover { background: white; color: #4F46E5; border-color: white; }
         .btn-lg { padding: 16px 32px; font-size: 16px; }
         .btn-sm { padding: 8px 16px; font-size: 12px; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { transform: translateY(-2px); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { transform: translateY(-2px); }
         
         .hero-badge { display: inline-block; background: rgba(255,255,255,0.15); padding: 6px 16px; border-radius: 9999px; font-size: 13px; font-weight: 500; margin-bottom: 16px; backdrop-filter: blur(4px); }
+        
+        /* Cart Section */
+        .cart-section {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 16px 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            margin: 24px 0;
+        }
+        .cart-section .cart-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .cart-section .cart-header .cart-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .cart-section .cart-header .cart-info i { font-size: 24px; color: #4F46E5; }
+        .cart-section .cart-header .cart-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .cart-section .cart-items { margin-top: 12px; max-height: 200px; overflow-y: auto; border-top: 1px solid var(--border-color); padding-top: 12px; display: none; }
+        .cart-section .cart-items.show { display: block; }
+        .cart-section .cart-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .cart-section .cart-item:last-child { border-bottom: none; }
+        .cart-section .cart-item .item-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .cart-section .cart-item .item-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .cart-section .cart-item .item-info .item-name { font-weight: 500; font-size: 14px; }
+        .cart-section .cart-item .item-info .item-price { font-size: 13px; color: var(--text-secondary); }
+        .cart-section .cart-item .item-qty { display: flex; align-items: center; gap: 8px; }
+        .cart-section .cart-item .item-qty button {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+        .cart-section .cart-item .item-qty .qty-btn-minus { background: var(--bg-tertiary); color: var(--text-primary); }
+        .cart-section .cart-item .item-qty .qty-btn-plus { background: #4F46E5; color: white; }
+        .cart-section .cart-item .item-qty .qty-num { font-weight: 600; min-width: 20px; text-align: center; }
+        
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
+        .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
+        .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
+        .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
+        .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
         
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
         .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
@@ -109,9 +266,9 @@
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
         
-        @media (max-width: 1024px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } .grid-6 { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 768px) { .hero h1 { font-size: 32px; } .hero p { font-size: 16px; } .hero-stats { gap: 24px; } .cta-section h2 { font-size: 24px; } }
-        @media (max-width: 640px) { .grid-4 { grid-template-columns: 1fr; } .grid-6 { grid-template-columns: repeat(2, 1fr); } .feature-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 1024px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } .feature-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .hero h1 { font-size: 32px; } .hero p { font-size: 16px; } .hero-stats { gap: 24px; } .cta-section h2 { font-size: 24px; } .banner-carousel .slide { height: 150px; } }
+        @media (max-width: 640px) { .grid-4 { grid-template-columns: 1fr; } .feature-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -169,6 +326,42 @@
             </div>
         </section>
 
+        <!-- Banner Carousel -->
+        <section class="banner-carousel container">
+            <div class="carousel-container">
+                <div class="slides" id="bannerSlides">
+                    <div class="slide">
+                        <div class="slide-content">
+                            <h3>Loading Banner...</h3>
+                            <p>Silakan tunggu</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-control btn-prev" id="prevBanner"><i class="fas fa-chevron-left"></i></button>
+                <button class="btn-control btn-next" id="nextBanner"><i class="fas fa-chevron-right"></i></button>
+                <div class="indicators" id="bannerIndicators"></div>
+            </div>
+        </section>
+
+        <!-- Cart Section -->
+        <section class="container cart-section" id="cartSection">
+            <div class="cart-header">
+                <div class="cart-info">
+                    <i class="fas fa-shopping-cart"></i>
+                    <div>
+                        <span class="font-semibold">Keranjang Belanja</span>
+                        <span class="text-secondary" style="font-size:14px;margin-left:8px;" id="cartCount">(0 item)</span>
+                    </div>
+                </div>
+                <div class="cart-actions">
+                    <span class="font-bold text-primary" style="font-size:18px;" id="cartTotal">Total: Rp0</span>
+                    <button onclick="clearCart()" class="btn btn-secondary btn-sm"><i class="fas fa-trash"></i> Kosongkan</button>
+                    <button onclick="checkout()" class="btn btn-primary btn-sm"><i class="fas fa-credit-card"></i> Checkout</button>
+                </div>
+            </div>
+            <div class="cart-items" id="cartItems"></div>
+        </section>
+
         <!-- Features -->
         <section class="container" style="padding: 40px 0;">
             <h2 class="section-title text-center" style="text-align: center;">Kenapa <span style="color: #4F46E5;">ProductKuu</span>?</h2>
@@ -178,19 +371,6 @@
                 <div class="feature-card"><div class="icon"><i class="fas fa-bolt"></i></div><h4>Proses Cepat</h4><p>Akses produk langsung setelah pembayaran berhasil</p></div>
                 <div class="feature-card"><div class="icon"><i class="fas fa-hand-holding-usd"></i></div><h4>Harga Terjangkau</h4><p>Produk digital berkualitas dengan harga kompetitif</p></div>
                 <div class="feature-card"><div class="icon"><i class="fas fa-headset"></i></div><h4>Dukungan 24/7</h4><p>Tim support siap membantu Anda setiap saat</p></div>
-            </div>
-        </section>
-
-        <!-- Categories -->
-        <section class="container" id="categories" style="padding: 40px 0;">
-            <div class="section-header">
-                <h2 class="section-title">Kategori Populer</h2>
-                <a href="/categories" class="view-all">Lihat Semua →</a>
-            </div>
-            <div class="grid grid-6" id="categoriesGrid">
-                <div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 40px 0;">
-                    <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i> Memuat kategori...
-                </div>
             </div>
         </section>
 
@@ -263,18 +443,12 @@
     </script>
 
     <script type="module">
-        // ============================================
-        // IMPORTS
-        // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged } from "firebase/auth";
-        import { getFirestore, collection, getDocs, query, where, limit, getCountFromServer } from "firebase/firestore";
+        import { getFirestore, collection, getDocs, query, where } from "firebase/firestore";
 
         console.log('🏠 [HOMEPAGE] Page loaded');
 
-        // ============================================
-        // FIREBASE CONFIG
-        // ============================================
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
             authDomain: "productkuu.firebaseapp.com",
@@ -290,6 +464,130 @@
         const db = getFirestore(app);
 
         console.log('✅ [HOMEPAGE] Firebase initialized');
+
+        // ============================================
+        // CART STATE
+        // ============================================
+        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        let products = [];
+
+        function saveCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const countEl = document.getElementById('cartCount');
+            const totalEl = document.getElementById('cartTotal');
+            const itemsEl = document.getElementById('cartItems');
+            
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            if (countEl) countEl.textContent = `(${totalItems} item)`;
+            if (totalEl) totalEl.textContent = `Total: Rp${formatPrice(totalPrice)}`;
+            
+            if (itemsEl) {
+                if (cart.length === 0) {
+                    itemsEl.classList.remove('show');
+                    itemsEl.innerHTML = '';
+                } else {
+                    itemsEl.classList.add('show');
+                    itemsEl.innerHTML = cart.map(item => `
+                        <div class="cart-item">
+                            <div class="item-info">
+                                <img src="${item.imageUrl || '/image/sanzz.jpg'}" alt="${item.name}" onerror="this.src='/image/sanzz.jpg'">
+                                <div>
+                                    <div class="item-name">${item.name}</div>
+                                    <div class="item-price">Rp${formatPrice(item.price)}</div>
+                                </div>
+                            </div>
+                            <div class="item-qty">
+                                <button class="qty-btn-minus" onclick="updateCartQty('${item.id}', -1)"><i class="fas fa-minus"></i></button>
+                                <span class="qty-num">${item.quantity}</span>
+                                <button class="qty-btn-plus" onclick="updateCartQty('${item.id}', 1)"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            // Update quantity displays on product cards
+            document.querySelectorAll('.product-card').forEach(card => {
+                const id = card.dataset.productId;
+                const qtyEl = card.querySelector('.qty-number');
+                if (qtyEl && id) {
+                    const item = cart.find(c => c.id === id);
+                    qtyEl.textContent = item ? item.quantity : 0;
+                }
+            });
+        }
+
+        window.updateCartQty = function(productId, change) {
+            const existing = cart.find(item => item.id === productId);
+            if (existing) {
+                const newQty = existing.quantity + change;
+                if (newQty <= 0) {
+                    cart = cart.filter(item => item.id !== productId);
+                } else {
+                    existing.quantity = newQty;
+                }
+            } else if (change > 0) {
+                const product = products.find(p => p.id === productId);
+                if (product) {
+                    cart.push({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        imageUrl: product.imageUrl || '/image/sanzz.jpg',
+                        quantity: 1
+                    });
+                    showToast('success', `${product.name} ditambahkan ke keranjang!`);
+                }
+            }
+            saveCart();
+        };
+
+        window.addToCart = function(productId) {
+            const existing = cart.find(item => item.id === productId);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                const product = products.find(p => p.id === productId);
+                if (product) {
+                    cart.push({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        imageUrl: product.imageUrl || '/image/sanzz.jpg',
+                        quantity: 1
+                    });
+                    showToast('success', `${product.name} ditambahkan ke keranjang!`);
+                }
+            }
+            saveCart();
+        };
+
+        window.clearCart = function() {
+            if (cart.length === 0) {
+                showToast('info', 'Keranjang kosong');
+                return;
+            }
+            if (confirm('Kosongkan keranjang?')) {
+                cart = [];
+                saveCart();
+                showToast('info', 'Keranjang dikosongkan');
+            }
+        };
+
+        window.checkout = function() {
+            if (cart.length === 0) {
+                showToast('warning', 'Keranjang kosong!');
+                return;
+            }
+            showToast('info', '🚀 Fitur checkout akan segera hadir!');
+            console.log('Cart items:', cart);
+        };
 
         // ============================================
         // THEME
@@ -342,100 +640,152 @@
         }
 
         // ============================================
-        // LOAD STATS (tanpa index)
+        // FORMAT FUNCTIONS
+        // ============================================
+        function formatPrice(price) {
+            if (!price && price !== 0) return '0';
+            return new Intl.NumberFormat('id-ID').format(price);
+        }
+
+        window.formatPrice = formatPrice;
+
+        // ============================================
+        // LOAD STATS
         // ============================================
         async function loadStats() {
             try {
-                console.log('📊 [HOMEPAGE] Loading stats...');
-                
-                // Total Products - tanpa where untuk menghindari index
                 const productsSnapshot = await getDocs(collection(db, 'products'));
                 const totalProducts = productsSnapshot.docs.filter(doc => doc.data().status === 'published').length;
                 document.getElementById('statProducts').textContent = totalProducts + '+';
-                console.log('✅ [HOMEPAGE] Total products:', totalProducts);
 
-                // Total Sellers
                 const sellersSnapshot = await getDocs(collection(db, 'users'));
                 const totalSellers = sellersSnapshot.docs.filter(doc => doc.data().role === 'seller').length;
                 document.getElementById('statSellers').textContent = totalSellers + '+';
-                console.log('✅ [HOMEPAGE] Total sellers:', totalSellers);
 
-                // Total Orders - settlement
                 const ordersSnapshot = await getDocs(collection(db, 'orders'));
                 const totalOrders = ordersSnapshot.docs.filter(doc => doc.data().paymentStatus === 'settlement').length;
                 document.getElementById('statOrders').textContent = totalOrders + '+';
-                console.log('✅ [HOMEPAGE] Total orders:', totalOrders);
-
             } catch (error) {
-                console.error('❌ [HOMEPAGE] Stats error:', error);
-                showError('Gagal memuat statistik', error.message);
+                console.error('Stats error:', error);
             }
         }
 
         // ============================================
-        // LOAD CATEGORIES (tanpa index)
+        // LOAD BANNERS
         // ============================================
-        async function loadCategories() {
+        async function loadBanners() {
             try {
-                console.log('📂 [HOMEPAGE] Loading categories...');
-                const snapshot = await getDocs(collection(db, 'categories'));
-                const grid = document.getElementById('categoriesGrid');
+                const response = await fetch('/api/banners');
+                if (!response.ok) throw new Error('Failed to load banners');
                 
-                if (snapshot.empty) {
-                    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-secondary);">Belum ada kategori</div>';
+                const banners = await response.json();
+                const slides = document.getElementById('bannerSlides');
+                const indicators = document.getElementById('bannerIndicators');
+                
+                if (!banners || banners.length === 0) {
+                    slides.innerHTML = `
+                        <div class="slide">
+                            <div class="slide-content">
+                                <h3>ProductKuu</h3>
+                                <p>Tempat belanja produk digital</p>
+                            </div>
+                        </div>
+                    `;
+                    indicators.innerHTML = '';
                     return;
                 }
 
-                // Ambil semua produk untuk menghitung count per kategori
-                const productsSnapshot = await getDocs(collection(db, 'products'));
-                const productsByCategory = {};
-                productsSnapshot.docs.forEach(doc => {
-                    const data = doc.data();
-                    if (data.status === 'published') {
-                        const cat = data.category || 'Uncategorized';
-                        productsByCategory[cat] = (productsByCategory[cat] || 0) + 1;
-                    }
-                });
+                slides.innerHTML = banners.map((banner, index) => `
+                    <div class="slide">
+                        ${banner.imageUrl ? `
+                            <img src="${banner.imageUrl}" alt="${banner.title}" onerror="this.style.display='none'">
+                        ` : ''}
+                        <div class="slide-content" style="${banner.imageUrl ? 'background:rgba(0,0,0,0.4);' : 'background:linear-gradient(135deg,#4F46E5,#7C3AED);'}">
+                            <h3>${banner.title || 'Promo Spesial'}</h3>
+                            ${banner.description ? `<p>${banner.description}</p>` : ''}
+                            ${banner.linkUrl ? `<a href="${banner.linkUrl}" style="color:white;text-decoration:underline;margin-top:8px;">Lihat Detail →</a>` : ''}
+                            ${banner.type === 'seller' ? `<span style="position:absolute;top:12px;right:12px;background:rgba(245,158,11,0.9);color:white;font-size:10px;padding:2px 10px;border-radius:9999px;">Promo Seller</span>` : ''}
+                        </div>
+                    </div>
+                `).join('');
 
-                grid.innerHTML = snapshot.docs.map(doc => {
-                    const cat = doc.data();
-                    const count = productsByCategory[cat.name] || 0;
-                    return `<a href="/category/${cat.slug}" class="category-card">
-                        <div class="icon"><i class="fas ${cat.icon || 'fa-tag'}"></i></div>
-                        <div class="name">${cat.name}</div>
-                        <div class="count">${count} produk</div>
-                    </a>`;
-                }).join('');
+                indicators.innerHTML = banners.map((_, index) => `
+                    <button class="${index === 0 ? 'active' : ''}" data-index="${index}"></button>
+                `).join('');
 
-                console.log('✅ [HOMEPAGE] Categories loaded:', snapshot.size);
+                setupBannerCarousel();
 
             } catch (error) {
-                console.error('❌ [HOMEPAGE] Categories error:', error);
-                document.getElementById('categoriesGrid').innerHTML = 
-                    '<div style="grid-column:1/-1;text-align:center;color:var(--danger);">Gagal memuat kategori: ' + error.message + '</div>';
-                showError('Gagal memuat kategori', error.message);
+                console.error('Error loading banners:', error);
             }
         }
 
         // ============================================
-        // LOAD PRODUCTS (tanpa index)
+        // BANNER CAROUSEL
+        // ============================================
+        let currentBannerIndex = 0;
+        let bannerInterval;
+
+        function setupBannerCarousel() {
+            const slides = document.getElementById('bannerSlides');
+            const indicators = document.querySelectorAll('#bannerIndicators button');
+            const prevBtn = document.getElementById('prevBanner');
+            const nextBtn = document.getElementById('nextBanner');
+            
+            if (!slides || slides.children.length === 0) return;
+
+            const totalSlides = slides.children.length;
+            
+            function goToSlide(index) {
+                if (index < 0) index = totalSlides - 1;
+                if (index >= totalSlides) index = 0;
+                currentBannerIndex = index;
+                
+                slides.style.transform = `translateX(-${index * 100}%)`;
+                
+                indicators.forEach((indicator, i) => {
+                    indicator.className = i === index ? 'active' : '';
+                });
+            }
+
+            function nextSlide() { goToSlide(currentBannerIndex + 1); }
+            function prevSlide() { goToSlide(currentBannerIndex - 1); }
+
+            if (prevBtn) prevBtn.addEventListener('click', () => { prevSlide(); resetInterval(); });
+            if (nextBtn) nextBtn.addEventListener('click', () => { nextSlide(); resetInterval(); });
+            
+            indicators.forEach((indicator, index) => {
+                indicator.addEventListener('click', () => {
+                    goToSlide(index);
+                    resetInterval();
+                });
+            });
+
+            function startInterval() {
+                bannerInterval = setInterval(nextSlide, 5000);
+            }
+
+            function resetInterval() {
+                clearInterval(bannerInterval);
+                startInterval();
+            }
+
+            const carousel = document.querySelector('.banner-carousel');
+            carousel.addEventListener('mouseenter', () => clearInterval(bannerInterval));
+            carousel.addEventListener('mouseleave', startInterval);
+
+            startInterval();
+        }
+
+        // ============================================
+        // LOAD PRODUCTS
         // ============================================
         async function loadProducts(tab = 'new') {
             try {
-                console.log('📦 [HOMEPAGE] Loading products for tab:', tab);
-                const grid = document.getElementById('productsGrid');
-
-                // Query tanpa orderBy - hanya filter status
                 const q = query(collection(db, 'products'), where('status', '==', 'published'));
                 const snapshot = await getDocs(q);
                 
-                if (snapshot.empty) {
-                    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-secondary);padding:40px 0;">Belum ada produk</div>';
-                    return;
-                }
-
-                // Convert ke array dan sorting di client
-                let products = snapshot.docs.map(doc => {
+                let productsData = snapshot.docs.map(doc => {
                     const data = doc.data();
                     return {
                         id: doc.id,
@@ -444,75 +794,89 @@
                     };
                 });
 
-                // Filter berdasarkan tab
                 if (tab === 'trending') {
-                    products = products.filter(p => p.isTrending === true);
+                    productsData = productsData.filter(p => p.isTrending === true);
                 } else if (tab === 'bestseller') {
-                    products = products.filter(p => p.isBestSeller === true);
+                    productsData = productsData.filter(p => p.isBestSeller === true);
                 } else if (tab === 'premium') {
-                    products = products.filter(p => p.isPremium === true);
+                    productsData = productsData.filter(p => p.isPremium === true);
                 }
 
-                // Sort di client
                 let sortField = 'createdAtDate';
                 if (tab === 'trending') sortField = 'views';
                 else if (tab === 'bestseller') sortField = 'sales';
                 
-                products.sort((a, b) => {
+                productsData.sort((a, b) => {
                     const aVal = a[sortField] || 0;
                     const bVal = b[sortField] || 0;
                     return bVal - aVal;
                 });
 
-                // Limit 8 produk
-                const displayProducts = products.slice(0, 8);
-
-                if (displayProducts.length === 0) {
-                    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-secondary);padding:40px 0;">Belum ada produk di kategori ini</div>';
-                    return;
-                }
-
-                grid.innerHTML = displayProducts.map(p => `
-                    <div class="product-card" onclick="window.location.href='/product/${p.id}'">
-                        <div class="product-image"><i class="fas fa-box"></i>
-                            <div style="position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:4px;">
-                                ${p.isPremium ? '<span class="badge badge-info" style="font-size:10px;padding:2px 10px;">Premium</span>' : ''}
-                                ${p.isTrending ? '<span class="badge badge-warning" style="font-size:10px;padding:2px 10px;">🔥 Trending</span>' : ''}
-                                ${p.isBestSeller ? '<span class="badge badge-success" style="font-size:10px;padding:2px 10px;">⭐ Best Seller</span>' : ''}
-                            </div>
-                            ${p.type === 'premium-account' ? '<span style="position:absolute;bottom:12px;left:12px;background:rgba(245,158,11,0.9);color:white;font-size:10px;padding:2px 10px;border-radius:9999px;">Account</span>' : ''}
-                        </div>
-                        <div class="product-body">
-                            <div class="product-name">${p.name}</div>
-                            <div class="product-category">${p.category || 'Uncategorized'}</div>
-                            <div class="product-footer">
-                                <span class="product-price">Rp${new Intl.NumberFormat('id-ID').format(p.price)}</span>
-                                <span class="product-sales">${p.sales || 0} terjual</span>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-
-                console.log('✅ [HOMEPAGE] Products loaded:', displayProducts.length);
+                products = productsData.slice(0, 8);
+                renderProducts();
 
             } catch (error) {
-                console.error('❌ [HOMEPAGE] Products error:', error);
-                console.error('❌ [HOMEPAGE] Error code:', error.code);
-                console.error('❌ [HOMEPAGE] Error message:', error.message);
-                
-                let errorMsg = 'Gagal memuat produk. ';
-                if (error.code === 'permission-denied') {
-                    errorMsg += 'Periksa Firestore Security Rules.';
-                } else {
-                    errorMsg += error.message;
-                }
-                
-                document.getElementById('productsGrid').innerHTML = 
-                    '<div style="grid-column:1/-1;text-align:center;color:var(--danger);padding:40px 0;">' +
-                    'Gagal memuat produk: ' + error.message +
-                    '</div>';
-                showError('Gagal memuat produk', errorMsg);
+                console.error('Products error:', error);
+                document.getElementById('productsGrid').innerHTML = `
+                    <div style="grid-column:1/-1;text-align:center;color:var(--danger);padding:40px 0;">
+                        Gagal memuat produk: ${error.message}
+                    </div>
+                `;
             }
+        }
+
+        // ============================================
+        // RENDER PRODUCTS
+        // ============================================
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            
+            if (!products || products.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column:1/-1;text-align:center;color:var(--text-secondary);padding:40px 0;">
+                        Belum ada produk
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = products.map(product => {
+                const cartItem = cart.find(item => item.id === product.id);
+                const quantity = cartItem ? cartItem.quantity : 0;
+
+                return `
+                    <div class="product-card" data-product-id="${product.id}">
+                        <div class="product-image">
+                            ${product.imageUrl ? `
+                                <img src="${product.imageUrl}" alt="${product.name}" onerror="this.src='/image/sanzz.jpg'">
+                            ` : `
+                                <img src="/image/sanzz.jpg" alt="${product.name}">
+                            `}
+                            ${product.isPremium ? '<span class="badge badge-info" style="position:absolute;top:12px;right:12px;">Premium</span>' : ''}
+                            ${product.type === 'premium-account' ? '<span class="badge badge-warning" style="position:absolute;bottom:12px;left:12px;">Account</span>' : ''}
+                        </div>
+                        <div class="product-body" onclick="window.location.href='/product/${product.id}'">
+                            <div class="product-name">${product.name}</div>
+                            <div class="product-category">${product.category || 'Uncategorized'}</div>
+                            <div class="product-footer">
+                                <span class="product-price">Rp${formatPrice(product.price)}</span>
+                                <span class="product-sales">${product.sales || 0} terjual</span>
+                            </div>
+                        </div>
+                        <div class="quantity-controls" style="padding:0 16px 16px;">
+                            <button class="qty-minus" onclick="event.stopPropagation();updateCartQty('${product.id}', -1)"><i class="fas fa-minus"></i></button>
+                            <span class="qty-number">${quantity}</span>
+                            <button class="qty-plus" onclick="event.stopPropagation();updateCartQty('${product.id}', 1)"><i class="fas fa-plus"></i></button>
+                            <button onclick="event.stopPropagation();addToCart('${product.id}')" 
+                                    class="btn btn-primary btn-sm" style="margin-left:auto;padding:6px 16px;">
+                                <i class="fas fa-shopping-cart"></i> Tambah
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            updateCartUI();
         }
 
         // ============================================
@@ -527,14 +891,28 @@
         });
 
         // ============================================
-        // INIT - LOAD SEMUA DATA
+        // SEARCH
+        // ============================================
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+            if (query.length > 2) {
+                searchTimeout = setTimeout(() => {
+                    window.location.href = `/search?q=${encodeURIComponent(query)}`;
+                }, 500);
+            }
+        });
+
+        // ============================================
+        // INIT
         // ============================================
         console.log('🚀 [HOMEPAGE] Initializing...');
         
-        // Load semua data
         await loadStats();
-        await loadCategories();
+        await loadBanners();
         await loadProducts('new');
+        updateCartUI();
 
         console.log('✅ [HOMEPAGE] All data loaded successfully!');
     </script>
