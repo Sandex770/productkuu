@@ -39,7 +39,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Midtrans configuration
 const snap = new midtransClient.Snap({
-    isProduction: false,
+    isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
     serverKey: process.env.MIDTRANS_SERVER_KEY,
     clientKey: process.env.MIDTRANS_CLIENT_KEY
 });
@@ -662,9 +662,9 @@ app.post('/api/payment/create', async (req, res) => {
                 secure: true
             },
             callbacks: {
-                finish: `${process.env.APP_URL || 'http://localhost:5000'}/payment/finish`,
-                error: `${process.env.APP_URL || 'http://localhost:5000'}/payment/error`,
-                pending: `${process.env.APP_URL || 'http://localhost:5000'}/payment/pending`
+                finish: `https://productkuu.vercel.app/payment/finish`,
+                error: `https://productkuu.vercel.app/payment/error`,
+                pending: `https://productkuu.vercel.app/payment/pending`
             }
         };
 
@@ -834,6 +834,40 @@ app.post('/api/payment/notification', async (req, res) => {
             details: error.message
         });
     }
+});
+
+// ============================================
+// MIDTRANS CALLBACK ENDPOINTS (Redirect ke Seller)
+// ============================================
+
+// Finish payment (success)
+app.get('/payment/finish', (req, res) => {
+    const { order_id, status_code, transaction_status } = req.query;
+    console.log(`✅ [PAYMENT FINISH] Order: ${order_id}, Status: ${transaction_status || status_code}`);
+    
+    // Redirect ke halaman seller/products dengan status success
+    const redirectUrl = `/seller/products?payment=success&order=${order_id}`;
+    res.redirect(redirectUrl);
+});
+
+// Error payment
+app.get('/payment/error', (req, res) => {
+    const { order_id, status_code, transaction_status } = req.query;
+    console.log(`❌ [PAYMENT ERROR] Order: ${order_id}, Status: ${transaction_status || status_code}`);
+    
+    // Redirect ke halaman seller/products dengan status error
+    const redirectUrl = `/seller/products?payment=error&order=${order_id}`;
+    res.redirect(redirectUrl);
+});
+
+// Pending payment
+app.get('/payment/pending', (req, res) => {
+    const { order_id, status_code, transaction_status } = req.query;
+    console.log(`⏳ [PAYMENT PENDING] Order: ${order_id}, Status: ${transaction_status || status_code}`);
+    
+    // Redirect ke halaman seller/products dengan status pending
+    const redirectUrl = `/seller/products?payment=pending&order=${order_id}`;
+    res.redirect(redirectUrl);
 });
 
 // ============================================
@@ -1301,10 +1335,6 @@ app.put('/api/banner-pricing', async (req, res) => {
 // SELLER PURCHASE BANNER (DENGAN 2 METODE)
 // ============================================
 
-// ============================================
-// SELLER PURCHASE BANNER (DENGAN 2 METODE)
-// ============================================
-
 app.post('/api/banners/purchase', async (req, res) => {
     try {
         console.log('📦 [BANNER PURCHASE] Request received:', JSON.stringify(req.body, null, 2));
@@ -1483,6 +1513,10 @@ app.post('/api/banners/purchase', async (req, res) => {
 
             // Buat parameter Midtrans
             console.log('🔐 [BANNER PURCHASE] Creating Midtrans transaction...');
+            
+            // Base URL untuk callback
+            const baseUrl = 'https://productkuu.vercel.app';
+            
             const parameter = {
                 transaction_details: {
                     order_id: orderId,
@@ -1502,9 +1536,9 @@ app.post('/api/banners/purchase', async (req, res) => {
                     }
                 ],
                 callbacks: {
-                    finish: `${process.env.APP_URL || 'http://localhost:5000'}/payment/finish`,
-                    error: `${process.env.APP_URL || 'http://localhost:5000'}/payment/error`,
-                    pending: `${process.env.APP_URL || 'http://localhost:5000'}/payment/pending`
+                    finish: `${baseUrl}/payment/finish`,
+                    error: `${baseUrl}/payment/error`,
+                    pending: `${baseUrl}/payment/pending`
                 }
             };
 
