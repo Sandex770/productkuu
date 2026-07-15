@@ -34,6 +34,7 @@
         .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border-color); }
         .login-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 12px 16px; color: var(--danger); font-size: 14px; display: none; margin-bottom: 16px; }
         .login-error.show { display: block; }
+        .login-error .error-detail { font-size: 12px; color: var(--text-light); margin-top: 4px; }
         .input-icon { position: relative; }
         .input-icon i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-light); }
         .input-icon .input { padding-left: 44px; }
@@ -45,6 +46,28 @@
         .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
         @media (max-width: 480px) { .auth-card { padding: 24px; } }
+        
+        /* Debug info box */
+        .debug-box {
+            background: #1E1E2E;
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            margin-top: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #CDD6F4;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+            border: 1px solid #313244;
+        }
+        .debug-box.show { display: block; }
+        .debug-box .debug-line { padding: 2px 0; border-bottom: 1px solid #2A2A3E; }
+        .debug-box .debug-line:last-child { border-bottom: none; }
+        .debug-box .debug-success { color: #A6E3A1; }
+        .debug-box .debug-error { color: #F38BA8; }
+        .debug-box .debug-info { color: #89B4FA; }
+        .debug-box .debug-warning { color: #F9E2AF; }
     </style>
 </head>
 <body>
@@ -72,6 +95,7 @@
                 <div class="login-error" id="loginError">
                     <i class="fas fa-exclamation-circle"></i>
                     <span id="errorMessage">Email atau password salah</span>
+                    <div class="error-detail" id="errorDetail"></div>
                 </div>
 
                 <form id="loginForm">
@@ -79,7 +103,7 @@
                         <label for="email">Email</label>
                         <div class="input-icon">
                             <i class="fas fa-envelope"></i>
-                            <input type="email" id="email" class="input" required placeholder="Masukkan email" autocomplete="email">
+                            <input type="email" id="email" class="input" required placeholder="Masukkan email" autocomplete="email" value="sanzzofficial10@gmail.com">
                         </div>
                     </div>
 
@@ -95,6 +119,15 @@
                         <i class="fas fa-sign-in-alt"></i> Masuk
                     </button>
                 </form>
+
+                <!-- Debug Box - Untuk melihat apa yang terjadi -->
+                <div class="debug-box" id="debugBox">
+                    <div class="debug-line debug-info">🔍 Debug Mode Active</div>
+                    <div class="debug-line" id="debugLog">Menunggu login...</div>
+                </div>
+                <button onclick="toggleDebug()" style="margin-top:8px;background:none;border:none;color:var(--text-light);cursor:pointer;font-size:12px;text-decoration:underline;">
+                    <i class="fas fa-bug"></i> Toggle Debug
+                </button>
 
                 <div class="auth-divider">atau</div>
                 <div class="auth-footer">
@@ -122,8 +155,8 @@
         // IMPORTS
         // ============================================
         import { initializeApp } from "firebase/app";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-        import { getFirestore, doc, getDoc } from "firebase/firestore";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
+        import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
         console.log('🔐 [LOGIN] Page loaded');
 
@@ -145,6 +178,37 @@
         const db = getFirestore(app);
 
         console.log('✅ [LOGIN] Firebase initialized');
+
+        // ============================================
+        // DEBUG LOG
+        // ============================================
+        let debugVisible = false;
+        const debugLog = document.getElementById('debugLog');
+
+        function addDebug(message, type = 'info') {
+            const colors = {
+                success: 'debug-success',
+                error: 'debug-error',
+                info: 'debug-info',
+                warning: 'debug-warning'
+            };
+            const icons = {
+                success: '✅',
+                error: '❌',
+                info: 'ℹ️',
+                warning: '⚠️'
+            };
+            const log = document.getElementById('debugLog');
+            const time = new Date().toLocaleTimeString();
+            log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
+            console.log(`[DEBUG] ${message}`);
+        }
+
+        window.toggleDebug = function() {
+            const box = document.getElementById('debugBox');
+            debugVisible = !debugVisible;
+            box.classList.toggle('show');
+        };
 
         // ============================================
         // THEME
@@ -174,31 +238,61 @@
                 <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
             `;
             container.appendChild(toast);
-            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
+            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 5000);
         }
         window.showToast = showToast;
 
         // ============================================
         // CHECK LOGIN STATUS
         // ============================================
+        addDebug('Setting up auth listener...', 'info');
+
         onAuthStateChanged(auth, async (user) => {
-            console.log('🔍 [LOGIN] Auth state:', user ? user.email : 'null');
             if (user) {
+                addDebug(`User detected: ${user.email}`, 'info');
                 try {
                     const userRef = doc(db, 'users', user.uid);
                     const userDoc = await getDoc(userRef);
                     if (userDoc.exists()) {
                         const role = userDoc.data().role;
-                        console.log('✅ [LOGIN] User role:', role);
+                        addDebug(`User role: ${role}`, 'success');
                         if (role === 'seller') {
+                            addDebug('Redirecting to seller dashboard...', 'success');
                             window.location.href = '/seller/dashboard';
                         } else if (role === 'admin') {
+                            addDebug('Redirecting to admin dashboard...', 'success');
                             window.location.href = '/admin/dashboard';
+                        } else {
+                            addDebug(`Unknown role: ${role}`, 'warning');
+                        }
+                    } else {
+                        addDebug('User document NOT FOUND in Firestore!', 'error');
+                        addDebug('Creating user document...', 'warning');
+                        // Auto create user document if missing
+                        try {
+                            await setDoc(userRef, {
+                                uid: user.uid,
+                                email: user.email,
+                                displayName: user.displayName || 'User',
+                                role: 'seller',
+                                status: 'active',
+                                storeName: user.displayName || 'Toko Saya',
+                                wallet: { available: 0, holding: 0, totalRevenue: 0, totalWithdraw: 0 },
+                                createdAt: new Date().toISOString(),
+                                updatedAt: new Date().toISOString()
+                            });
+                            addDebug('User document created! Redirecting...', 'success');
+                            showToast('success', 'Akun berhasil dibuat! Mengarahkan ke dashboard...');
+                            setTimeout(() => { window.location.href = '/seller/dashboard'; }, 1500);
+                        } catch (err) {
+                            addDebug(`Failed to create user: ${err.message}`, 'error');
                         }
                     }
                 } catch (error) {
-                    console.error('❌ [LOGIN] Error:', error);
+                    addDebug(`Error checking user: ${error.message}`, 'error');
                 }
+            } else {
+                addDebug('No user logged in', 'info');
             }
         });
 
@@ -207,55 +301,76 @@
         // ============================================
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            console.log('📤 [LOGIN] Form submitted');
+            addDebug('Login form submitted', 'info');
 
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const errorEl = document.getElementById('loginError');
             const errorMsg = document.getElementById('errorMessage');
+            const errorDetail = document.getElementById('errorDetail');
 
             errorEl.classList.remove('show');
+            errorDetail.textContent = '';
 
             if (!email || !password) {
                 showToast('warning', 'Email dan password wajib diisi');
+                addDebug('Email or password empty', 'warning');
                 return;
             }
+
+            addDebug(`Email: ${email}`, 'info');
 
             const btn = document.getElementById('loginBtn');
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
 
             try {
-                console.log('🔐 [LOGIN] Attempting login...');
+                addDebug('Attempting sign in...', 'info');
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
-                console.log('✅ [LOGIN] Login success:', user.email);
+                addDebug(`Login success: ${user.email}`, 'success');
 
                 // Get user role
                 const userRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userRef);
 
                 if (!userDoc.exists()) {
-                    await signOut(auth);
-                    errorMsg.textContent = 'Akun tidak ditemukan. Hubungi support.';
-                    errorEl.classList.add('show');
+                    addDebug('User document missing, creating...', 'warning');
+                    await setDoc(userRef, {
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: user.displayName || email.split('@')[0],
+                        role: 'seller',
+                        status: 'active',
+                        storeName: email.split('@')[0] + "'s Store",
+                        wallet: { available: 0, holding: 0, totalRevenue: 0, totalWithdraw: 0 },
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    });
+                    addDebug('User document created!', 'success');
+                    showToast('success', 'Akun berhasil dibuat!');
+                    setTimeout(() => { window.location.href = '/seller/dashboard'; }, 1500);
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Masuk';
                     return;
                 }
 
                 const userData = userDoc.data();
-                console.log('✅ [LOGIN] User role:', userData.role);
+                addDebug(`User role: ${userData.role}`, 'success');
 
                 if (userData.role === 'seller') {
                     showToast('success', 'Selamat datang, ' + (userData.storeName || userData.displayName || 'Seller') + '!');
+                    addDebug('Redirecting to seller dashboard...', 'success');
                     setTimeout(() => { window.location.href = '/seller/dashboard'; }, 500);
                 } else if (userData.role === 'admin') {
                     showToast('success', 'Selamat datang, Admin!');
+                    addDebug('Redirecting to admin dashboard...', 'success');
                     setTimeout(() => { window.location.href = '/admin/dashboard'; }, 500);
                 } else {
+                    addDebug(`Invalid role: ${userData.role}`, 'error');
                     await signOut(auth);
                     errorMsg.textContent = 'Akun Anda tidak memiliki akses.';
+                    errorDetail.textContent = `Role: ${userData.role}`;
                     errorEl.classList.add('show');
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Masuk';
@@ -263,15 +378,36 @@
 
             } catch (error) {
                 console.error('❌ [LOGIN] Error:', error);
+                addDebug(`Login error: ${error.code} - ${error.message}`, 'error');
+
                 let message = 'Email atau password salah.';
-                if (error.code === 'auth/user-not-found') message = 'Email tidak terdaftar.';
-                else if (error.code === 'auth/wrong-password') message = 'Password salah.';
-                else if (error.code === 'auth/too-many-requests') message = 'Terlalu banyak percobaan. Coba lagi nanti.';
-                else if (error.code === 'auth/invalid-email') message = 'Format email tidak valid.';
-                else if (error.code === 'auth/user-disabled') message = 'Akun dinonaktifkan. Hubungi support.';
-                else if (error.code === 'auth/network-request-failed') message = 'Koneksi internet bermasalah.';
+                let detail = `Error code: ${error.code}`;
+
+                if (error.code === 'auth/user-not-found') {
+                    message = 'Email tidak terdaftar. Silakan daftar terlebih dahulu.';
+                    detail = 'User not found in Firebase Auth';
+                } else if (error.code === 'auth/wrong-password') {
+                    message = 'Password salah. Silakan coba lagi.';
+                    detail = 'Wrong password';
+                } else if (error.code === 'auth/too-many-requests') {
+                    message = 'Terlalu banyak percobaan. Coba lagi nanti.';
+                    detail = 'Too many failed attempts';
+                } else if (error.code === 'auth/invalid-email') {
+                    message = 'Format email tidak valid.';
+                    detail = 'Invalid email format';
+                } else if (error.code === 'auth/user-disabled') {
+                    message = 'Akun dinonaktifkan. Hubungi support.';
+                    detail = 'User disabled';
+                } else if (error.code === 'auth/network-request-failed') {
+                    message = 'Koneksi internet bermasalah. Periksa koneksi Anda.';
+                    detail = 'Network error';
+                } else if (error.code === 'auth/too-many-requests') {
+                    message = 'Terlalu banyak percobaan. Coba lagi nanti.';
+                    detail = 'Rate limited';
+                }
 
                 errorMsg.textContent = message;
+                errorDetail.textContent = detail;
                 errorEl.classList.add('show');
                 showToast('error', message);
 
@@ -280,6 +416,16 @@
             }
         });
 
+        // ============================================
+        // KEYBOARD SUPPORT
+        // ============================================
+        document.getElementById('password').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        });
+
+        addDebug('Page ready', 'success');
         console.log('✅ [LOGIN] Page ready');
     </script>
 </body>
