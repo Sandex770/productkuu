@@ -55,6 +55,15 @@ const generateOrderId = () => {
     return `${prefix}-${date}-${random}`;
 };
 
+const generateProductCode = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+};
+
 const formatPrice = (price) => {
     return new Intl.NumberFormat('id-ID').format(price);
 };
@@ -253,6 +262,23 @@ app.post('/api/products', async (req, res) => {
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/^-+|-+$/g, '');
 
+        // Generate unique product code (6 characters)
+        let productCode = generateProductCode();
+        let codeExists = true;
+        let attempts = 0;
+        while (codeExists && attempts < 50) {
+            const checkSnapshot = await db.collection('products')
+                .where('productCode', '==', productCode)
+                .limit(1)
+                .get();
+            if (checkSnapshot.empty) {
+                codeExists = false;
+            } else {
+                productCode = generateProductCode();
+                attempts++;
+            }
+        }
+
         const productData = {
             name,
             slug,
@@ -272,6 +298,7 @@ app.post('/api/products', async (req, res) => {
             isPremium: false,
             isNew: true,
             imageUrl: imageUrl || '',
+            productCode: productCode,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp()
         };
@@ -341,6 +368,7 @@ app.put('/api/products/:id', async (req, res) => {
         delete updates.createdAt;
         delete updates.sales;
         delete updates.views;
+        delete updates.productCode;
 
         updates.updatedAt = admin.firestore.FieldValue.serverTimestamp();
 
@@ -906,207 +934,10 @@ app.get('/api/seller/:sellerId/withdrawals', async (req, res) => {
 });
 
 // ============================================
-// ADMIN ENDPOINTS
-// ============================================
-
-app.get('/api/admin/stats', async (req, res) => {
-    try {
-        const sellersSnapshot = await db.collection('users')
-            .where('role', '==', 'seller')
-            .count()
-            .get();
-        const totalSellers = sellersSnapshot.data().count;
-
-        const productsSnapshot = await db.collection('products')
-            .where('status', '==', 'published')
-            .count()
-            .get();
-        const totalProducts = productsSnapshot.data().count;
-
-        const ordersSnapshot = await db.collection('orders')
-            .where('paymentStatus', '==', 'settlement')
-            .count()
-            .get();
-        const totalOrders = ordersSnapshot.data().count;
-
-        const revenueSnapshot = await db.collection('orders')
-            .where('paymentStatus', '==', 'settlement')
-            .get();
-        let totalRevenue = 0;
-        revenueSnapshot.forEach(doc => {
-            totalRevenue += doc.data().amount || 0;
-        });
-
-        const pendingWithdrawals = await db.collection('withdrawals')
-            .where('status', '==', 'pending')
-            .count()
-            .get();
-
-        const activeBanners = await db.collection('banners')
-            .where('isActive', '==', true)
-            .count()
-            .get();
-
-        res.json({
-            totalSellers: totalSellers,
-            totalProducts: totalProducts,
-            totalOrders: totalOrders,
-            totalRevenue: totalRevenue,
-            pendingWithdrawals: pendingWithdrawals.data().count,
-            activeBanners: activeBanners.data().count
-        });
-
-    } catch (error) {
-        console.error('Error fetching admin stats:', error);
-        res.status(500).json({
-            error: 'Failed to fetch stats',
-            details: error.message
-        });
-    }
-});
-
-app.get('/api/admin/sellers', async (req, res) => {
-    try {
-        const { status, page = 1, limit = 20 } = req.query;
-
-        let query = db.collection('users')
-            .where('role', '==', 'seller');
-
-        if (status) {
-            query = query.where('status', '==', status);
-        }
-
-        query = query.orderBy('createdAt', 'desc')
-            .limit(parseInt(limit))
-            .offset((parseInt(page) - 1) * parseInt(limit));
-
-        const snapshot = await query.get();
-        
-        const sellers = [];
-        snapshot.forEach(doc => {
-            sellers.push({
-                id: doc.id,
-                ...doc.data(),
-                createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt
-            });
-        });
-
-        res.json({
-            sellers,
-            pagination: {
-                page: parseInt(page),
-                limit: parseInt(limit)
-            }
-        });
-
-    } catch (error) {
-        console.error('Error fetching sellers:', error);
-        res.status(500).json({
-            error: 'Failed to fetch sellers',
-            details: error.message
-        });
-    }
-});
-
-app.put('/api/admin/sellers/:sellerId', async (req, res) => {
-    try {
-        const { sellerId } = req.params;
-        const updates = req.body;
-
-        const sellerRef = db.collection('users').doc(sellerId);
-        const sellerDoc = await sellerRef.get();
-
-        if (!sellerDoc.exists) {
-            return res.status(404).json({
-                error: 'Seller not found'
-            });
-        }
-
-        delete updates.role;
-
-        await sellerRef.update({
-            ...updates,
-            updatedAt: admin.firestore.FieldValue.serverTimestamp()
-        });
-
-        res.json({
-            id: sellerId,
-            ...updates
-        });
-
-    } catch (error) {
-        console.error('Error updating seller:', error);
-        res.status(500).json({
-            error: 'Failed to update seller',
-            details: error.message
-        });
-    }
-});
-
-app.patch('/api/admin/withdrawals/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { status, adminNote } = req.body;
-
-        const withdrawalRef = db.collection('withdrawals').doc(id);
-        const withdrawalDoc = await withdrawalRef.get();
-
-        if (!withdrawalDoc.exists) {
-            return res.status(404).json({
-                error: 'Withdrawal not found'
-            });
-        }
-
-        const data = withdrawalDoc.data();
-        const updates = {
-            status,
-            adminNote: adminNote || '',
-            updatedAt: admin.firestore.FieldValue.serverTimestamp()
-        };
-
-        if (status === 'approved') {
-            const sellerRef = db.collection('users').doc(data.sellerId);
-            await sellerRef.update({
-                'wallet.holding': admin.firestore.FieldValue.increment(-data.amount)
-            });
-        } else if (status === 'rejected') {
-            const sellerRef = db.collection('users').doc(data.sellerId);
-            await sellerRef.update({
-                'wallet.available': admin.firestore.FieldValue.increment(data.amount),
-                'wallet.holding': admin.firestore.FieldValue.increment(-data.amount)
-            });
-        }
-
-        await withdrawalRef.update(updates);
-
-        await db.collection('notifications').add({
-            type: `withdraw_${status}`,
-            title: `Withdraw ${status === 'approved' ? 'Disetujui' : 'Ditolak'}`,
-            message: `Permintaan withdraw Rp ${formatPrice(data.amount)} telah ${status === 'approved' ? 'disetujui' : 'ditolak'}`,
-            userId: data.sellerId,
-            withdrawalId: id,
-            read: false,
-            createdAt: admin.firestore.FieldValue.serverTimestamp()
-        });
-
-        res.json({
-            id,
-            ...updates
-        });
-
-    } catch (error) {
-        console.error('Error updating withdrawal:', error);
-        res.status(500).json({
-            error: 'Failed to update withdrawal',
-            details: error.message
-        });
-    }
-});
-
-// ============================================
 // BANNER ENDPOINTS
 // ============================================
 
+// Get active banners for homepage
 app.get('/api/banners', async (req, res) => {
     try {
         const now = new Date();
@@ -1140,22 +971,38 @@ app.get('/api/banners', async (req, res) => {
     }
 });
 
-app.get('/api/admin/banners', async (req, res) => {
+// Get all banners with product info (Admin)
+app.get('/api/admin/banners-full', async (req, res) => {
     try {
         const snapshot = await db.collection('banners')
             .orderBy('createdAt', 'desc')
             .get();
 
         const banners = [];
-        snapshot.forEach(doc => {
+        for (const doc of snapshot.docs) {
             const data = doc.data();
+            let product = null;
+            
+            if (data.productId) {
+                const productRef = db.collection('products').doc(data.productId);
+                const productDoc = await productRef.get();
+                if (productDoc.exists) {
+                    product = {
+                        id: productDoc.id,
+                        ...productDoc.data(),
+                        createdAt: productDoc.data().createdAt?.toDate?.() || productDoc.data().createdAt
+                    };
+                }
+            }
+
             banners.push({
                 id: doc.id,
                 ...data,
+                product,
                 createdAt: data.createdAt?.toDate?.() || data.createdAt,
                 expiresAt: data.expiresAt?.toDate?.() || data.expiresAt
             });
-        });
+        }
 
         res.json(banners);
 
@@ -1165,24 +1012,99 @@ app.get('/api/admin/banners', async (req, res) => {
     }
 });
 
-app.post('/api/admin/banners', async (req, res) => {
+// Get all products with banner status (Admin)
+app.get('/api/admin/products-with-banner', async (req, res) => {
     try {
-        const { title, description, imageUrl, linkUrl, expiresAt } = req.body;
+        const productsSnapshot = await db.collection('products')
+            .where('status', '==', 'published')
+            .orderBy('createdAt', 'desc')
+            .get();
 
-        if (!title || !imageUrl) {
-            return res.status(400).json({ error: 'Title and image URL are required' });
+        const bannersSnapshot = await db.collection('banners')
+            .where('isActive', '==', true)
+            .get();
+
+        const bannerProductIds = new Set();
+        bannersSnapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.productId) {
+                bannerProductIds.add(data.productId);
+            }
+        });
+
+        const products = [];
+        productsSnapshot.forEach(doc => {
+            const data = doc.data();
+            products.push({
+                id: doc.id,
+                ...data,
+                hasBanner: bannerProductIds.has(doc.id),
+                createdAt: data.createdAt?.toDate?.() || data.createdAt
+            });
+        });
+
+        res.json(products);
+
+    } catch (error) {
+        console.error('Error fetching products with banner:', error);
+        res.status(500).json({ error: 'Failed to fetch products', details: error.message });
+    }
+});
+
+// Admin - Add product to banner by product code
+app.post('/api/admin/banners/add-product', async (req, res) => {
+    try {
+        const { productCode, duration } = req.body;
+
+        if (!productCode) {
+            return res.status(400).json({ error: 'Kode produk wajib diisi' });
         }
 
+        const productSnapshot = await db.collection('products')
+            .where('productCode', '==', productCode.toUpperCase())
+            .where('status', '==', 'published')
+            .limit(1)
+            .get();
+
+        if (productSnapshot.empty) {
+            return res.status(404).json({ error: 'Produk tidak ditemukan dengan kode tersebut' });
+        }
+
+        const productDoc = productSnapshot.docs[0];
+        const product = productDoc.data();
+
+        const sellerRef = db.collection('users').doc(product.sellerId);
+        const sellerDoc = await sellerRef.get();
+        const seller = sellerDoc.exists ? sellerDoc.data() : null;
+
+        const existingBanner = await db.collection('banners')
+            .where('productId', '==', productDoc.id)
+            .where('isActive', '==', true)
+            .get();
+
+        if (!existingBanner.empty) {
+            return res.status(400).json({ 
+                error: 'Produk sudah memiliki banner aktif',
+                bannerId: existingBanner.docs[0].id
+            });
+        }
+
+        const durationHours = parseInt(duration) || 24;
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + durationHours);
+
         const bannerData = {
-            title,
-            description: description || '',
-            imageUrl,
-            linkUrl: linkUrl || '',
+            title: product.name,
+            description: `${product.name} - oleh ${seller?.storeName || 'Seller'}`,
+            imageUrl: product.imageUrl || '',
+            linkUrl: `/product/${productDoc.id}`,
             isActive: true,
             type: 'admin',
-            sellerId: null,
-            productId: null,
-            expiresAt: expiresAt ? admin.firestore.Timestamp.fromDate(new Date(expiresAt)) : null,
+            sellerId: product.sellerId,
+            productId: productDoc.id,
+            duration: durationHours,
+            price: 0,
+            expiresAt: admin.firestore.Timestamp.fromDate(expiresAt),
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp()
         };
@@ -1191,26 +1113,41 @@ app.post('/api/admin/banners', async (req, res) => {
 
         res.status(201).json({
             id: docRef.id,
-            ...bannerData
+            ...bannerData,
+            product: {
+                id: productDoc.id,
+                ...product
+            }
         });
 
     } catch (error) {
-        console.error('Error creating banner:', error);
-        res.status(500).json({ error: 'Failed to create banner', details: error.message });
+        console.error('Error adding product to banner:', error);
+        res.status(500).json({ error: 'Failed to add product to banner', details: error.message });
     }
 });
 
-app.delete('/api/admin/banners/:id', async (req, res) => {
+// Admin - Remove product from banner
+app.delete('/api/admin/banners/:id/remove', async (req, res) => {
     try {
         const { id } = req.params;
-        await db.collection('banners').doc(id).delete();
-        res.json({ message: 'Banner deleted successfully' });
+        const bannerRef = db.collection('banners').doc(id);
+        const bannerDoc = await bannerRef.get();
+
+        if (!bannerDoc.exists) {
+            return res.status(404).json({ error: 'Banner not found' });
+        }
+
+        await bannerRef.delete();
+
+        res.json({ message: 'Banner berhasil dihapus' });
+
     } catch (error) {
-        console.error('Error deleting banner:', error);
-        res.status(500).json({ error: 'Failed to delete banner', details: error.message });
+        console.error('Error removing banner:', error);
+        res.status(500).json({ error: 'Failed to remove banner', details: error.message });
     }
 });
 
+// Admin - Toggle banner status
 app.patch('/api/admin/banners/:id/toggle', async (req, res) => {
     try {
         const { id } = req.params;
@@ -1227,7 +1164,7 @@ app.patch('/api/admin/banners/:id/toggle', async (req, res) => {
             updatedAt: admin.firestore.FieldValue.serverTimestamp()
         });
 
-        res.json({ message: `Banner ${!current ? 'activated' : 'deactivated'}` });
+        res.json({ message: `Banner ${!current ? 'diaktifkan' : 'dinonaktifkan'}` });
 
     } catch (error) {
         console.error('Error toggling banner:', error);
@@ -1236,7 +1173,7 @@ app.patch('/api/admin/banners/:id/toggle', async (req, res) => {
 });
 
 // ============================================
-// BANNER PRICING & PURCHASE
+// BANNER PRICING & PURCHASE (FLAT PRICE)
 // ============================================
 
 app.get('/api/banner-pricing', async (req, res) => {
@@ -1246,8 +1183,8 @@ app.get('/api/banner-pricing', async (req, res) => {
         
         const data = settingsDoc.exists ? settingsDoc.data() : {};
         res.json({
-            price: data.bannerPrice || 100000,
-            duration: data.bannerDuration || 24,
+            price: data.bannerPrice || 100000,      // HARGA FLAT
+            duration: data.bannerDuration || 24,    // DURASI DEFAULT (JAM)
             maxSlots: data.maxBanners || 5,
             autoSlideSpeed: data.autoSlideSpeed || 5
         });
@@ -1270,13 +1207,14 @@ app.put('/api/banner-pricing', async (req, res) => {
             updatedAt: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
-        res.json({ message: 'Banner pricing updated successfully' });
+        res.json({ message: 'Pengaturan harga banner berhasil disimpan' });
     } catch (error) {
         console.error('Error updating banner pricing:', error);
         res.status(500).json({ error: 'Failed to update banner pricing', details: error.message });
     }
 });
 
+// Seller purchase banner (FLAT PRICE)
 app.post('/api/banners/purchase', async (req, res) => {
     try {
         const { sellerId, productId, title, imageUrl, duration } = req.body;
@@ -1291,15 +1229,15 @@ app.post('/api/banners/purchase', async (req, res) => {
             return res.status(404).json({ error: 'Seller not found' });
         }
 
+        // Get pricing - FLAT PRICE (bukan per jam)
         const settingsRef = db.collection('settings').doc('marketplace');
         const settingsDoc = await settingsRef.get();
         const settings = settingsDoc.exists ? settingsDoc.data() : {};
-        const pricePerHour = settings.bannerPrice || 100000;
-        const totalPrice = pricePerHour * parseInt(duration);
+        const flatPrice = settings.bannerPrice || 100000; // HARGA FLAT
 
         const wallet = sellerDoc.data().wallet || { available: 0 };
-        if (wallet.available < totalPrice) {
-            return res.status(400).json({ error: 'Insufficient balance' });
+        if (wallet.available < flatPrice) {
+            return res.status(400).json({ error: 'Saldo tidak mencukupi' });
         }
 
         const productRef = db.collection('products').doc(productId);
@@ -1322,7 +1260,7 @@ app.post('/api/banners/purchase', async (req, res) => {
             sellerId: sellerId,
             productId: productId,
             duration: parseInt(duration),
-            price: totalPrice,
+            price: flatPrice, // HARGA FLAT
             expiresAt: admin.firestore.Timestamp.fromDate(expiresAt),
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp()
@@ -1330,8 +1268,9 @@ app.post('/api/banners/purchase', async (req, res) => {
 
         const docRef = await db.collection('banners').add(bannerData);
 
+        // Deduct flat price from wallet
         await sellerRef.update({
-            'wallet.available': admin.firestore.FieldValue.increment(-totalPrice)
+            'wallet.available': admin.firestore.FieldValue.increment(-flatPrice)
         });
 
         await db.collection('notifications').add({
@@ -1619,6 +1558,204 @@ app.get('/api/products/:productId/reviews', async (req, res) => {
         console.error('Error fetching reviews:', error);
         res.status(500).json({
             error: 'Failed to fetch reviews',
+            details: error.message
+        });
+    }
+});
+
+// ============================================
+// ADMIN ENDPOINTS
+// ============================================
+
+app.get('/api/admin/stats', async (req, res) => {
+    try {
+        const sellersSnapshot = await db.collection('users')
+            .where('role', '==', 'seller')
+            .count()
+            .get();
+        const totalSellers = sellersSnapshot.data().count;
+
+        const productsSnapshot = await db.collection('products')
+            .where('status', '==', 'published')
+            .count()
+            .get();
+        const totalProducts = productsSnapshot.data().count;
+
+        const ordersSnapshot = await db.collection('orders')
+            .where('paymentStatus', '==', 'settlement')
+            .count()
+            .get();
+        const totalOrders = ordersSnapshot.data().count;
+
+        const revenueSnapshot = await db.collection('orders')
+            .where('paymentStatus', '==', 'settlement')
+            .get();
+        let totalRevenue = 0;
+        revenueSnapshot.forEach(doc => {
+            totalRevenue += doc.data().amount || 0;
+        });
+
+        const pendingWithdrawals = await db.collection('withdrawals')
+            .where('status', '==', 'pending')
+            .count()
+            .get();
+
+        const activeBanners = await db.collection('banners')
+            .where('isActive', '==', true)
+            .count()
+            .get();
+
+        res.json({
+            totalSellers: totalSellers,
+            totalProducts: totalProducts,
+            totalOrders: totalOrders,
+            totalRevenue: totalRevenue,
+            pendingWithdrawals: pendingWithdrawals.data().count,
+            activeBanners: activeBanners.data().count
+        });
+
+    } catch (error) {
+        console.error('Error fetching admin stats:', error);
+        res.status(500).json({
+            error: 'Failed to fetch stats',
+            details: error.message
+        });
+    }
+});
+
+app.get('/api/admin/sellers', async (req, res) => {
+    try {
+        const { status, page = 1, limit = 20 } = req.query;
+
+        let query = db.collection('users')
+            .where('role', '==', 'seller');
+
+        if (status) {
+            query = query.where('status', '==', status);
+        }
+
+        query = query.orderBy('createdAt', 'desc')
+            .limit(parseInt(limit))
+            .offset((parseInt(page) - 1) * parseInt(limit));
+
+        const snapshot = await query.get();
+        
+        const sellers = [];
+        snapshot.forEach(doc => {
+            sellers.push({
+                id: doc.id,
+                ...doc.data(),
+                createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt
+            });
+        });
+
+        res.json({
+            sellers,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit)
+            }
+        });
+
+    } catch (error) {
+        console.error('Error fetching sellers:', error);
+        res.status(500).json({
+            error: 'Failed to fetch sellers',
+            details: error.message
+        });
+    }
+});
+
+app.put('/api/admin/sellers/:sellerId', async (req, res) => {
+    try {
+        const { sellerId } = req.params;
+        const updates = req.body;
+
+        const sellerRef = db.collection('users').doc(sellerId);
+        const sellerDoc = await sellerRef.get();
+
+        if (!sellerDoc.exists) {
+            return res.status(404).json({
+                error: 'Seller not found'
+            });
+        }
+
+        delete updates.role;
+
+        await sellerRef.update({
+            ...updates,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        res.json({
+            id: sellerId,
+            ...updates
+        });
+
+    } catch (error) {
+        console.error('Error updating seller:', error);
+        res.status(500).json({
+            error: 'Failed to update seller',
+            details: error.message
+        });
+    }
+});
+
+app.patch('/api/admin/withdrawals/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status, adminNote } = req.body;
+
+        const withdrawalRef = db.collection('withdrawals').doc(id);
+        const withdrawalDoc = await withdrawalRef.get();
+
+        if (!withdrawalDoc.exists) {
+            return res.status(404).json({
+                error: 'Withdrawal not found'
+            });
+        }
+
+        const data = withdrawalDoc.data();
+        const updates = {
+            status,
+            adminNote: adminNote || '',
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        };
+
+        if (status === 'approved') {
+            const sellerRef = db.collection('users').doc(data.sellerId);
+            await sellerRef.update({
+                'wallet.holding': admin.firestore.FieldValue.increment(-data.amount)
+            });
+        } else if (status === 'rejected') {
+            const sellerRef = db.collection('users').doc(data.sellerId);
+            await sellerRef.update({
+                'wallet.available': admin.firestore.FieldValue.increment(data.amount),
+                'wallet.holding': admin.firestore.FieldValue.increment(-data.amount)
+            });
+        }
+
+        await withdrawalRef.update(updates);
+
+        await db.collection('notifications').add({
+            type: `withdraw_${status}`,
+            title: `Withdraw ${status === 'approved' ? 'Disetujui' : 'Ditolak'}`,
+            message: `Permintaan withdraw Rp ${formatPrice(data.amount)} telah ${status === 'approved' ? 'disetujui' : 'ditolak'}`,
+            userId: data.sellerId,
+            withdrawalId: id,
+            read: false,
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        res.json({
+            id,
+            ...updates
+        });
+
+    } catch (error) {
+        console.error('Error updating withdrawal:', error);
+        res.status(500).json({
+            error: 'Failed to update withdrawal',
             details: error.message
         });
     }
