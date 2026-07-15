@@ -11,188 +11,65 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="icon" href="/assets/images/favicon.ico">
     <style>
-        .auth-container {
-            max-width: 480px;
-            margin: 80px auto 40px;
-            padding: 0 20px;
-        }
-        .auth-card {
-            background: var(--bg-primary);
-            border-radius: var(--radius-lg);
-            padding: 40px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-lg);
-        }
-        .auth-card .auth-header {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-        .auth-card .auth-header h1 {
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
-        .auth-card .auth-header p {
-            color: var(--text-secondary);
-            font-size: 15px;
-        }
-        .auth-card .auth-header .logo {
-            font-size: 48px;
-            color: var(--primary);
-            margin-bottom: 12px;
-            display: block;
-        }
-        .auth-divider {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin: 20px 0;
-            color: var(--text-light);
-            font-size: 13px;
-        }
-        .auth-divider::before,
-        .auth-divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border-color);
-        }
-        .auth-footer {
-            text-align: center;
-            margin-top: 24px;
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-        .auth-footer a {
-            color: var(--primary);
-            font-weight: 600;
-        }
-        .auth-footer a:hover {
-            text-decoration: underline;
-        }
-        .input-group .input-icon {
-            position: relative;
-        }
-        .input-group .input-icon i {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-light);
-        }
-        .input-group .input-icon .input {
-            padding-left: 44px;
-        }
-        .input-group .input-icon .toggle-password {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--text-light);
-            cursor: pointer;
-            font-size: 16px;
-            padding: 4px;
-        }
-        .input-group .input-icon .toggle-password:hover {
-            color: var(--text-primary);
-        }
-        .password-strength {
-            height: 4px;
-            border-radius: 2px;
-            margin-top: 6px;
-            background: var(--border-color);
-            overflow: hidden;
-            transition: var(--transition);
-        }
-        .password-strength .bar {
-            height: 100%;
-            border-radius: 2px;
-            transition: var(--transition);
-            width: 0%;
-        }
+        .auth-container { max-width: 480px; margin: 80px auto 40px; padding: 0 20px; }
+        .auth-card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 40px; border: 1px solid var(--border-color); box-shadow: var(--shadow-lg); }
+        .auth-card .auth-header { text-align: center; margin-bottom: 32px; }
+        .auth-card .auth-header h1 { font-size: 28px; margin-bottom: 8px; }
+        .auth-card .auth-header p { color: var(--text-secondary); font-size: 15px; }
+        .auth-card .auth-header .logo { font-size: 48px; color: var(--primary); margin-bottom: 12px; display: block; }
+        .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+        .input-group label { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+        .input-group .hint { font-size: 12px; color: var(--text-light); }
+        .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
+        .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
+        textarea.input { resize: vertical; min-height: 80px; }
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
+        .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-block { width: 100%; justify-content: center; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
+        .auth-footer { text-align: center; margin-top: 24px; font-size: 14px; color: var(--text-secondary); }
+        .auth-footer a { color: var(--primary); font-weight: 600; }
+        .auth-divider { display: flex; align-items: center; gap: 16px; margin: 20px 0; color: var(--text-light); font-size: 13px; }
+        .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border-color); }
+        .register-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 12px 16px; color: var(--danger); font-size: 14px; display: none; margin-bottom: 16px; }
+        .register-error.show { display: block; }
+        .register-success { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); border-radius: var(--radius); padding: 16px 20px; color: var(--success); font-size: 14px; display: none; margin-bottom: 16px; text-align: center; }
+        .register-success.show { display: block; }
+        .register-success i { font-size: 48px; display: block; margin-bottom: 12px; }
+        .input-icon { position: relative; }
+        .input-icon i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-light); }
+        .input-icon .input { padding-left: 44px; }
+        .password-strength { height: 4px; border-radius: 2px; margin-top: 6px; background: var(--border-color); overflow: hidden; }
+        .password-strength .bar { height: 100%; border-radius: 2px; transition: var(--transition); width: 0%; }
         .password-strength .bar.weak { width: 25%; background: var(--danger); }
         .password-strength .bar.medium { width: 50%; background: var(--warning); }
         .password-strength .bar.strong { width: 75%; background: var(--info); }
         .password-strength .bar.very-strong { width: 100%; background: var(--success); }
-        .password-hint {
-            font-size: 12px;
-            color: var(--text-light);
-            margin-top: 4px;
-        }
-        .terms-check {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin: 16px 0;
-        }
-        .terms-check input[type="checkbox"] {
-            margin-top: 3px;
-            width: 18px;
-            height: 18px;
-            accent-color: var(--primary);
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-        .terms-check a {
-            color: var(--primary);
-            font-weight: 500;
-        }
-        .register-error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            border-radius: var(--radius);
-            padding: 12px 16px;
-            color: var(--danger);
-            font-size: 14px;
-            display: none;
-            margin-bottom: 16px;
-        }
-        .register-error.show {
-            display: block;
-        }
-        .success-message {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            border-radius: var(--radius);
-            padding: 16px 20px;
-            color: var(--success);
-            font-size: 14px;
-            display: none;
-            margin-bottom: 16px;
-            text-align: center;
-        }
-        .success-message.show {
-            display: block;
-        }
-        .success-message i {
-            font-size: 48px;
-            display: block;
-            margin-bottom: 12px;
-        }
-        @media (max-width: 480px) {
-            .auth-card { padding: 24px; }
-            .auth-container { margin-top: 40px; }
-        }
+        .password-hint { font-size: 12px; color: var(--text-light); margin-top: 4px; }
+        .terms-check { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--text-secondary); margin: 16px 0; }
+        .terms-check input[type="checkbox"] { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0; }
+        .terms-check a { color: var(--primary); font-weight: 500; }
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
+        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
+        .toast-icon { font-size: 20px; }
+        .toast-content { flex: 1; }
+        .toast-message { font-size: 13px; color: var(--text-secondary); }
+        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        @media (max-width: 480px) { .auth-card { padding: 24px; } }
     </style>
 </head>
 <body>
     <!-- Navbar -->
     <nav class="navbar">
         <div class="navbar-inner">
-            <a href="/" class="navbar-logo">
-                <i class="fas fa-cube"></i>
-                <span>ProductKuu</span>
-            </a>
+            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
             <div class="navbar-actions">
-                <button class="btn-icon" id="themeToggle">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <a href="/seller/login" class="btn btn-secondary btn-sm hide-mobile">
-                    <i class="fas fa-sign-in-alt"></i> Login
-                </a>
+                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <a href="/seller/login" class="btn btn-secondary btn-sm"><i class="fas fa-sign-in-alt"></i> Login</a>
             </div>
         </div>
     </nav>
@@ -212,15 +89,14 @@
                     <span id="errorMessage">Terjadi kesalahan</span>
                 </div>
 
-                <div class="success-message" id="successMessage">
+                <div class="register-success" id="registerSuccess">
                     <i class="fas fa-check-circle"></i>
-                    <span id="successText">Pendaftaran berhasil!</span>
-                    <p style="font-size: 13px; color: var(--text-secondary); margin-top: 8px;">Mengarahkan ke dashboard...</p>
+                    <span id="successMessage">Pendaftaran berhasil!</span>
+                    <p style="font-size:13px;color:var(--text-secondary);margin-top:8px;">Mengarahkan ke dashboard...</p>
                 </div>
 
                 <form id="registerForm">
-                    <!-- Full Name -->
-                    <div class="input-group" style="margin-bottom: 16px;">
+                    <div class="input-group">
                         <label for="fullName">Nama Lengkap *</label>
                         <div class="input-icon">
                             <i class="fas fa-user"></i>
@@ -228,8 +104,7 @@
                         </div>
                     </div>
 
-                    <!-- Store Name -->
-                    <div class="input-group" style="margin-bottom: 16px;">
+                    <div class="input-group">
                         <label for="storeName">Nama Toko *</label>
                         <div class="input-icon">
                             <i class="fas fa-store"></i>
@@ -238,8 +113,7 @@
                         <span class="hint">Nama toko akan muncul di halaman produk Anda</span>
                     </div>
 
-                    <!-- Email -->
-                    <div class="input-group" style="margin-bottom: 16px;">
+                    <div class="input-group">
                         <label for="email">Email *</label>
                         <div class="input-icon">
                             <i class="fas fa-envelope"></i>
@@ -247,15 +121,11 @@
                         </div>
                     </div>
 
-                    <!-- Password -->
-                    <div class="input-group" style="margin-bottom: 8px;">
+                    <div class="input-group">
                         <label for="password">Password *</label>
                         <div class="input-icon">
                             <i class="fas fa-lock"></i>
                             <input type="password" id="password" class="input" required placeholder="Minimal 6 karakter">
-                            <button type="button" class="toggle-password" onclick="togglePassword('password')">
-                                <i class="fas fa-eye"></i>
-                            </button>
                         </div>
                         <div class="password-strength" id="passwordStrength">
                             <div class="bar" id="strengthBar"></div>
@@ -263,46 +133,14 @@
                         <div class="password-hint" id="passwordHint">Gunakan minimal 6 karakter dengan huruf dan angka</div>
                     </div>
 
-                    <!-- Confirm Password -->
-                    <div class="input-group" style="margin-bottom: 16px;">
+                    <div class="input-group">
                         <label for="confirmPassword">Konfirmasi Password *</label>
                         <div class="input-icon">
                             <i class="fas fa-check-circle"></i>
                             <input type="password" id="confirmPassword" class="input" required placeholder="Konfirmasi password">
-                            <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
-                                <i class="fas fa-eye"></i>
-                            </button>
                         </div>
                     </div>
 
-                    <!-- Store Description -->
-                    <div class="input-group" style="margin-bottom: 16px;">
-                        <label for="storeDescription">Deskripsi Toko (Opsional)</label>
-                        <div class="input-icon">
-                            <i class="fas fa-align-left"></i>
-                            <textarea id="storeDescription" class="input" rows="3" placeholder="Deskripsikan toko Anda" style="padding-left: 44px; padding-top: 12px;"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- WhatsApp -->
-                    <div class="input-group" style="margin-bottom: 16px;">
-                        <label for="whatsapp">WhatsApp (Opsional)</label>
-                        <div class="input-icon">
-                            <i class="fab fa-whatsapp"></i>
-                            <input type="text" id="whatsapp" class="input" placeholder="08123456789">
-                        </div>
-                    </div>
-
-                    <!-- Instagram -->
-                    <div class="input-group" style="margin-bottom: 16px;">
-                        <label for="instagram">Instagram (Opsional)</label>
-                        <div class="input-icon">
-                            <i class="fab fa-instagram"></i>
-                            <input type="text" id="instagram" class="input" placeholder="@toko_anda">
-                        </div>
-                    </div>
-
-                    <!-- Terms -->
                     <div class="terms-check">
                         <input type="checkbox" id="terms" required>
                         <label for="terms">
@@ -313,14 +151,12 @@
                         </label>
                     </div>
 
-                    <!-- Submit -->
                     <button type="submit" class="btn btn-primary btn-block" id="registerBtn">
                         <i class="fas fa-rocket"></i> Daftar Sekarang
                     </button>
                 </form>
 
                 <div class="auth-divider">atau</div>
-
                 <div class="auth-footer">
                     Sudah punya akun? <a href="/seller/login">Masuk di sini</a>
                 </div>
@@ -328,15 +164,7 @@
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="footer" style="margin-top: 48px;">
-        <div class="container">
-            <div class="footer-bottom">
-                <p>&copy; 2026 ProductKuu. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
+    <!-- Toast -->
     <div class="toast-container" id="toastContainer"></div>
 
     <script type="importmap">
@@ -351,25 +179,13 @@
 
     <script type="module">
         // ============================================
-        // FIREBASE IMPORT
+        // IMPORTS
         // ============================================
         import { initializeApp } from "firebase/app";
-        import { 
-            getAuth, 
-            createUserWithEmailAndPassword, 
-            updateProfile,
-            onAuthStateChanged
-        } from "firebase/auth";
-        import { 
-            getFirestore, 
-            doc, 
-            setDoc, 
-            getDoc,
-            collection,
-            query,
-            where,
-            getDocs
-        } from "firebase/firestore";
+        import { getAuth, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged } from "firebase/auth";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+
+        console.log('📝 [REGISTER] Page loaded');
 
         // ============================================
         // FIREBASE CONFIG
@@ -384,41 +200,14 @@
             measurementId: "G-78ZPLZMFEJ"
         };
 
-        // ============================================
-        // INIT FIREBASE
-        // ============================================
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        console.log('🔥 Firebase initialized successfully!');
+        console.log('✅ [REGISTER] Firebase initialized');
 
         // ============================================
-        // CHECK IF ALREADY LOGGED IN
-        // ============================================
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                try {
-                    const userRef = doc(db, 'users', user.uid);
-                    const userDoc = await getDoc(userRef);
-                    if (userDoc.exists()) {
-                        const data = userDoc.data();
-                        if (data.role === 'seller') {
-                            window.location.href = '/seller/dashboard';
-                            return;
-                        } else if (data.role === 'admin') {
-                            window.location.href = '/admin/dashboard';
-                            return;
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error checking user:', error);
-                }
-            }
-        });
-
-        // ============================================
-        // THEME TOGGLE
+        // THEME
         // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
@@ -431,19 +220,40 @@
         });
 
         // ============================================
-        // TOGGLE PASSWORD VISIBILITY
+        // TOAST
         // ============================================
-        window.togglePassword = function(id) {
-            const input = document.getElementById(id);
-            const icon = input.parentElement.querySelector('.toggle-password i');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.className = 'fas fa-eye-slash';
-            } else {
-                input.type = 'password';
-                icon.className = 'fas fa-eye';
+        function showToast(type, message) {
+            const container = document.getElementById('toastContainer');
+            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeftColor = colors[type] || colors.info;
+            toast.innerHTML = `
+                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
+                <div class="toast-content"><div class="toast-message">${message}</div></div>
+                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
+        }
+        window.showToast = showToast;
+
+        // ============================================
+        // CHECK LOGIN STATUS
+        // ============================================
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    const userRef = doc(db, 'users', user.uid);
+                    const userDoc = await getDoc(userRef);
+                    if (userDoc.exists()) {
+                        const role = userDoc.data().role;
+                        if (role === 'seller') window.location.href = '/seller/dashboard';
+                        else if (role === 'admin') window.location.href = '/admin/dashboard';
+                    }
+                } catch (error) { console.error('❌ [REGISTER] Error:', error); }
             }
-        };
+        });
 
         // ============================================
         // PASSWORD STRENGTH
@@ -455,7 +265,6 @@
         passwordInput.addEventListener('input', function() {
             const value = this.value;
             let strength = 0;
-
             if (value.length >= 6) strength++;
             if (value.length >= 10) strength++;
             if (/[A-Z]/.test(value) && /[a-z]/.test(value)) strength++;
@@ -488,73 +297,36 @@
         });
 
         // ============================================
-        // CHECK IF STORE NAME EXISTS (dengan error handling)
+        // CHECK STORE NAME
         // ============================================
         async function isStoreNameTaken(storeName) {
             try {
-                const usersRef = collection(db, 'users');
-                const q = query(usersRef, where('storeName', '==', storeName));
+                const q = query(collection(db, 'users'), where('storeName', '==', storeName));
                 const snapshot = await getDocs(q);
                 return !snapshot.empty;
             } catch (error) {
-                console.error('Error checking store name:', error);
-                // Jika error karena permission, skip check
-                if (error.code === 'permission-denied') {
-                    console.warn('Permission denied, skipping store name check');
-                    return false;
-                }
+                console.error('❌ [REGISTER] Check store name error:', error);
                 return false;
             }
         }
 
         // ============================================
-        // SHOW TOAST
-        // ============================================
-        function showToast(type, message) {
-            const container = document.getElementById('toastContainer');
-            const colors = {
-                success: 'var(--success)',
-                error: 'var(--danger)',
-                warning: 'var(--warning)',
-                info: 'var(--info)'
-            };
-            
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.style.borderLeftColor = colors[type] || colors.info;
-            toast.innerHTML = `
-                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
-                <div class="toast-content">
-                    <div class="toast-message">${message}</div>
-                </div>
-                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
-            `;
-            container.appendChild(toast);
-            
-            setTimeout(() => {
-                if (toast.parentElement) toast.remove();
-            }, 5000);
-        }
-
-        // ============================================
-        // REGISTER FORM SUBMIT
+        // REGISTER FORM
         // ============================================
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            console.log('📤 [REGISTER] Form submitted');
 
             const fullName = document.getElementById('fullName').value.trim();
             const storeName = document.getElementById('storeName').value.trim();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-            const storeDescription = document.getElementById('storeDescription').value.trim();
-            const whatsapp = document.getElementById('whatsapp').value.trim();
-            const instagram = document.getElementById('instagram').value.trim();
             const terms = document.getElementById('terms').checked;
 
             const errorEl = document.getElementById('registerError');
             const errorMsg = document.getElementById('errorMessage');
-            const successEl = document.getElementById('successMessage');
+            const successEl = document.getElementById('registerSuccess');
             errorEl.classList.remove('show');
             successEl.classList.remove('show');
 
@@ -566,14 +338,12 @@
             if (password.length < 6) { showToast('warning', 'Password minimal 6 karakter'); return; }
             if (password !== confirmPassword) { showToast('warning', 'Password tidak cocok'); return; }
             if (!terms) { showToast('warning', 'Anda harus menyetujui syarat & ketentuan'); return; }
-
-            // Validate email format
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 showToast('warning', 'Format email tidak valid');
                 return;
             }
 
-            // Check if store name is taken
+            // Check store name
             const storeTaken = await isStoreNameTaken(storeName);
             if (storeTaken) {
                 showToast('error', 'Nama toko sudah digunakan, silakan pilih nama lain');
@@ -585,53 +355,45 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mendaftar...';
 
             try {
-                // Create user in Firebase Auth
+                console.log('🔐 [REGISTER] Creating user...');
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
+                console.log('✅ [REGISTER] User created:', user.uid);
 
-                // Update profile with display name
                 await updateProfile(user, { displayName: fullName });
+                console.log('✅ [REGISTER] Profile updated');
 
-                // Save seller data to Firestore
                 await setDoc(doc(db, 'users', user.uid), {
                     uid: user.uid,
                     email: email,
                     displayName: fullName,
                     storeName: storeName,
-                    storeDescription: storeDescription || '',
-                    whatsapp: whatsapp || '',
-                    instagram: instagram || '',
+                    storeDescription: '',
+                    whatsapp: '',
+                    instagram: '',
                     role: 'seller',
                     status: 'active',
                     verified: false,
                     level: 'bronze',
                     productCount: 0,
                     totalSales: 0,
-                    wallet: {
-                        available: 0,
-                        holding: 0,
-                        totalRevenue: 0,
-                        totalWithdraw: 0
-                    },
+                    wallet: { available: 0, holding: 0, totalRevenue: 0, totalWithdraw: 0 },
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
                 });
+                console.log('✅ [REGISTER] User data saved');
 
-                // Show success message
                 successEl.classList.add('show');
-                document.getElementById('successText').textContent = `🎉 Selamat ${fullName}! Pendaftaran berhasil!`;
-                
-                showToast('success', '🎉 Pendaftaran berhasil! Mengarahkan ke dashboard...');
-                
-                // Redirect to dashboard
+                document.getElementById('successMessage').textContent = `🎉 Selamat ${fullName}! Pendaftaran berhasil!`;
+                showToast('success', '🎉 Pendaftaran berhasil!');
+
                 setTimeout(() => {
                     window.location.href = '/seller/dashboard';
                 }, 2000);
 
             } catch (error) {
-                console.error('Registration error:', error);
+                console.error('❌ [REGISTER] Error:', error);
                 let message = 'Gagal mendaftar. Silakan coba lagi.';
-                
                 if (error.code === 'auth/email-already-in-use') {
                     message = 'Email sudah terdaftar. Silakan gunakan email lain.';
                 } else if (error.code === 'auth/weak-password') {
@@ -641,9 +403,9 @@
                 } else if (error.code === 'auth/network-request-failed') {
                     message = 'Koneksi internet bermasalah. Periksa koneksi Anda.';
                 } else if (error.code === 'permission-denied') {
-                    message = 'Gagal menyimpan data. Pastikan Firestore Security Rules sudah diatur.';
+                    message = 'Gagal menyimpan data. Periksa Firestore Security Rules.';
                 }
-                
+
                 showToast('error', message);
                 errorMsg.textContent = message;
                 errorEl.classList.add('show');
@@ -653,22 +415,7 @@
             }
         });
 
-        // ============================================
-        // ENTER KEY SUPPORT
-        // ============================================
-        document.getElementById('password').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                document.getElementById('confirmPassword').focus();
-            }
-        });
-
-        document.getElementById('confirmPassword').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                document.getElementById('registerForm').dispatchEvent(new Event('submit'));
-            }
-        });
-
-        console.log('📝 Register page loaded successfully!');
+        console.log('✅ [REGISTER] Page ready');
     </script>
 </body>
 </html>
