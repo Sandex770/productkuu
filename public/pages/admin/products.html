@@ -32,10 +32,12 @@
         .table th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); border-bottom: 2px solid var(--border-color); background: var(--bg-secondary); }
         .table td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
         .table tr:hover td { background: var(--bg-secondary); }
+        
         .filter-bar { background: var(--bg-primary); border-radius: var(--radius); padding: 16px 20px; border: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 24px; }
         .filter-bar .filter-group { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
         .filter-bar .filter-group select, .filter-bar .filter-group input { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 13px; min-width: 120px; }
         .filter-bar .filter-actions { display: flex; gap: 8px; }
+        
         .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
         .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
         .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
@@ -43,19 +45,8 @@
         .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
         .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
         .badge-primary { background: rgba(79,70,229,0.1); color: var(--primary); }
-        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
-        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
-        .toast-icon { font-size: 20px; }
-        .toast-content { flex: 1; }
-        .toast-message { font-size: 13px; color: var(--text-secondary); }
-        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-        .text-center { text-align: center; }
-        .text-secondary { color: var(--text-secondary); }
+        
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
-        .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
         .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
         .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
         .btn-danger { background: var(--danger); color: white; }
@@ -63,6 +54,7 @@
         .btn-success { background: var(--success); color: white; }
         .btn-success:hover { transform: translateY(-2px); }
         .btn-sm { padding: 8px 16px; font-size: 12px; }
+        
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
         .modal-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
         .modal { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 32px; max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; animation: slideUp 0.3s ease; text-align: center; }
@@ -70,10 +62,21 @@
         .modal p { color: var(--text-secondary); margin-bottom: 24px; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .text-center { text-align: center; }
+        .text-secondary { color: var(--text-secondary); }
+        
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
+        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
+        .toast-icon { font-size: 20px; }
+        .toast-content { flex: 1; }
+        .toast-message { font-size: 13px; color: var(--text-secondary); }
+        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body>
-    <!-- NAVBAR -->
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
@@ -85,7 +88,6 @@
         </div>
     </nav>
 
-    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header"><div class="title">Menu Admin</div></div>
         <nav class="sidebar-nav">
@@ -101,7 +103,6 @@
     </aside>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- MAIN CONTENT -->
     <div class="app-wrapper">
         <main class="main-content">
             <div class="flex-between" style="margin-bottom:24px;">
@@ -111,18 +112,8 @@
             <div class="filter-bar">
                 <div class="filter-group">
                     <input type="text" id="searchProduct" placeholder="Cari produk..." style="min-width:200px;">
-                    <select id="filterStatus">
-                        <option value="all">Semua Status</option>
-                        <option value="published">Published</option>
-                        <option value="draft">Draft</option>
-                        <option value="pending">Pending</option>
-                        <option value="rejected">Rejected</option>
-                    </select>
-                    <select id="filterType">
-                        <option value="all">Semua Type</option>
-                        <option value="digital">Digital</option>
-                        <option value="premium-account">Premium Account</option>
-                    </select>
+                    <select id="filterStatus"><option value="all">Semua Status</option><option value="published">Published</option><option value="draft">Draft</option><option value="pending">Pending</option><option value="rejected">Rejected</option></select>
+                    <select id="filterType"><option value="all">Semua Type</option><option value="digital">Digital</option><option value="premium-account">Premium Account</option></select>
                 </div>
                 <div class="filter-actions">
                     <button onclick="applyFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Filter</button>
@@ -133,19 +124,8 @@
             <div class="card">
                 <div class="table-wrapper">
                     <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Produk</th>
-                                <th>Seller</th>
-                                <th>Harga</th>
-                                <th>Status</th>
-                                <th>Terjual</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="productsTableBody">
-                            <tr><td colspan="6" class="text-center text-secondary" style="padding:40px 0;">Memuat produk...</td></tr>
-                        </tbody>
+                        <thead><tr><th>Produk</th><th>Seller</th><th>Harga</th><th>Status</th><th>Terjual</th><th>Aksi</th></tr></thead>
+                        <tbody id="productsTableBody"><tr><td colspan="6" class="text-center text-secondary" style="padding:40px 0;">Memuat produk...</td></tr></tbody>
                     </table>
                 </div>
                 <div id="pagination" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"></div>
@@ -153,7 +133,7 @@
         </main>
     </div>
 
-    <!-- ACTION MODAL -->
+    <!-- Action Modal -->
     <div class="modal-overlay" id="actionModal">
         <div class="modal">
             <h3 class="modal-title" id="actionModalTitle">Approve Produk</h3>
@@ -182,6 +162,8 @@
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 
+        console.log('📦 [ADMIN_PRODUCTS] Page loaded');
+
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
             authDomain: "productkuu.firebaseapp.com",
@@ -195,6 +177,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
         let currentUser = null;
         let products = [], lastDoc = null, hasMore = true, currentPage = 1, actionId = null, actionType = null, limitPerPage = 10;
 
@@ -212,8 +195,19 @@
         // Sidebar
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
-        document.getElementById('sidebarToggle').addEventListener('click', () => { sidebar.classList.toggle('open'); sidebarOverlay.classList.toggle('open'); });
-        sidebarOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sidebarOverlay.classList.remove('open'); });
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('open');
+            });
+        }
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('open');
+            });
+        }
 
         document.querySelectorAll('.sidebar-nav a').forEach(link => {
             link.addEventListener('click', function(e) {
@@ -242,10 +236,17 @@
             container.appendChild(toast);
             setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
         }
-        window.showToast = showToast;
 
-        function formatPrice(price) { if (!price && price !== 0) return '0'; return new Intl.NumberFormat('id-ID').format(price); }
-        function formatDate(date) { if (!date) return '-'; const d = date instanceof Date ? date : new Date(date); return d.toLocaleDateString('id-ID', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' }); }
+        function formatPrice(price) {
+            if (!price && price !== 0) return '0';
+            return new Intl.NumberFormat('id-ID').format(price);
+        }
+
+        function formatDate(date) {
+            if (!date) return '-';
+            const d = date instanceof Date ? date : new Date(date);
+            return d.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = '/admin/login'; return; }
@@ -261,31 +262,18 @@
             try {
                 if (reset) { lastDoc = null; hasMore = true; products = []; currentPage = 1; }
                 if (!hasMore) return;
-                
                 let constraints = [orderBy('createdAt', 'desc')];
                 const status = document.getElementById('filterStatus').value;
                 const type = document.getElementById('filterType').value;
                 const search = document.getElementById('searchProduct').value.trim();
-                
                 if (status !== 'all') constraints.push(where('status', '==', status));
                 if (type !== 'all') constraints.push(where('type', '==', type));
-                
                 let q = query(collection(db, 'products'), ...constraints, limit(limitPerPage));
                 if (lastDoc) q = query(collection(db, 'products'), ...constraints, startAfter(lastDoc), limit(limitPerPage));
-                
                 const snapshot = await getDocs(q);
-                if (snapshot.empty) { 
-                    hasMore = false; 
-                    if (reset) {
-                        document.getElementById('productsTableBody').innerHTML = 
-                            '<tr><td colspan="6" class="text-center text-secondary">Belum ada produk</td></tr>';
-                    }
-                    return; 
-                }
-                
+                if (snapshot.empty) { hasMore = false; if (reset) document.getElementById('productsTableBody').innerHTML = '<tr><td colspan="6" class="text-center text-secondary">Belum ada produk</td></tr>'; return; }
                 lastDoc = snapshot.docs[snapshot.docs.length - 1];
                 hasMore = snapshot.docs.length === limitPerPage;
-                
                 const newData = [];
                 for (const doc of snapshot.docs) {
                     const data = doc.data();
@@ -293,65 +281,38 @@
                     if (data.sellerId) {
                         const sellerRef = doc(db, 'users', data.sellerId);
                         const sellerDoc = await getDoc(sellerRef);
-                        if (sellerDoc.exists()) {
-                            sellerName = sellerDoc.data().storeName || sellerDoc.data().displayName || 'Seller';
-                        }
+                        if (sellerDoc.exists()) sellerName = sellerDoc.data().storeName || sellerDoc.data().displayName || 'Seller';
                     }
                     newData.push({ id: doc.id, ...data, sellerName });
                 }
                 products = reset ? newData : [...products, ...newData];
                 renderProducts();
-            } catch (error) { 
-                console.error('Error loading products:', error); 
-                showToast('error', 'Gagal memuat produk'); 
-            }
+            } catch (error) { console.error('❌ [ADMIN_PRODUCTS] Error:', error); showToast('error', 'Gagal memuat produk'); }
         }
 
         function renderProducts() {
             const tbody = document.getElementById('productsTableBody');
-            if (products.length === 0) { 
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary">Tidak ada produk</td></tr>'; 
-                document.getElementById('pagination').innerHTML = ''; 
-                return; 
-            }
-            
+            if (products.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary">Tidak ada produk</td></tr>'; document.getElementById('pagination').innerHTML = ''; return; }
             tbody.innerHTML = products.map(p => `
                 <tr>
-                    <td>
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <div style="width:32px;height:32px;border-radius:var(--radius);background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;">
-                                <i class="fas fa-${p.type === 'premium-account' ? 'user' : 'box'}"></i>
-                            </div>
-                            <div>
-                                <strong>${p.name}</strong>
-                                <br><span style="font-size:12px;color:var(--text-secondary);">${p.category || 'Uncategorized'} • ${formatDate(p.createdAt)}</span>
-                            </div>
-                        </div>
-                    </td>
+                    <td><div style="display:flex;align-items:center;gap:8px;"><div style="width:32px;height:32px;border-radius:var(--radius);background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;"><i class="fas fa-${p.type === 'premium-account' ? 'user' : 'box'}"></i></div><div><strong>${p.name}</strong><br><span style="font-size:12px;color:var(--text-secondary);">${p.category || 'Uncategorized'} • ${formatDate(p.createdAt)}</span></div></div></td>
                     <td>${p.sellerName}</td>
                     <td style="font-weight:600;color:var(--primary);">Rp${formatPrice(p.price)}</td>
                     <td><span class="badge ${p.status === 'published' ? 'badge-success' : p.status === 'pending' ? 'badge-warning' : p.status === 'draft' ? 'badge-info' : 'badge-danger'}">${p.status || 'draft'}</span></td>
                     <td style="text-align:center;">${p.sales || 0}</td>
                     <td>
-                        ${p.status === 'pending' ? `
-                            <button onclick="approveProduct('${p.id}')" class="btn btn-success btn-sm" style="padding:4px 8px;" title="Approve"><i class="fas fa-check"></i></button>
-                            <button onclick="rejectProduct('${p.id}')" class="btn btn-danger btn-sm" style="padding:4px 8px;" title="Reject"><i class="fas fa-times"></i></button>
-                        ` : ''}
+                        ${p.status === 'pending' ? `<button onclick="approveProduct('${p.id}')" class="btn btn-success btn-sm" style="padding:4px 8px;" title="Approve"><i class="fas fa-check"></i></button> <button onclick="rejectProduct('${p.id}')" class="btn btn-danger btn-sm" style="padding:4px 8px;" title="Reject"><i class="fas fa-times"></i></button>` : ''}
                         <button onclick="viewProduct('${p.id}')" class="btn btn-secondary btn-sm" style="padding:4px 8px;" title="View"><i class="fas fa-eye"></i></button>
                         <button onclick="deleteProduct('${p.id}')" class="btn btn-danger btn-sm" style="padding:4px 8px;" title="Delete"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
             `).join('');
-            
             renderPagination();
         }
 
         function renderPagination() {
             const container = document.getElementById('pagination');
-            if (!hasMore && products.length <= limitPerPage) { 
-                container.innerHTML = ''; 
-                return; 
-            }
+            if (!hasMore && products.length <= limitPerPage) { container.innerHTML = ''; return; }
             container.innerHTML = `
                 <span style="font-size:14px;color:var(--text-secondary);">${products.length} produk</span>
                 <div style="display:flex;gap:8px;">
@@ -361,95 +322,38 @@
             `;
         }
 
-        window.loadNextPage = function() { 
-            currentPage++; 
-            loadProducts(false); 
-        };
+        window.loadNextPage = function() { currentPage++; loadProducts(false); };
+        window.loadPreviousPage = function() { if (currentPage <= 1) return; currentPage--; lastDoc = null; hasMore = true; loadProducts(true); };
+        window.applyFilters = function() { lastDoc = null; hasMore = true; loadProducts(true); };
+        window.resetFilters = function() { document.getElementById('searchProduct').value = ''; document.getElementById('filterStatus').value = 'all'; document.getElementById('filterType').value = 'all'; applyFilters(); };
 
-        window.loadPreviousPage = function() { 
-            if (currentPage <= 1) return; 
-            currentPage--; 
-            lastDoc = null; 
-            hasMore = true; 
-            loadProducts(true); 
-        };
-
-        window.applyFilters = function() { 
-            lastDoc = null; 
-            hasMore = true; 
-            loadProducts(true); 
-        };
-
-        window.resetFilters = function() { 
-            document.getElementById('searchProduct').value = ''; 
-            document.getElementById('filterStatus').value = 'all'; 
-            document.getElementById('filterType').value = 'all'; 
-            applyFilters(); 
-        };
-
-        window.approveProduct = function(id) { 
-            actionId = id; 
-            actionType = 'approve'; 
-            document.getElementById('actionModalTitle').textContent = 'Approve Produk'; 
-            document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menyetujui produk ini?'; 
-            document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-check"></i> Approve'; 
-            document.getElementById('actionModal').classList.add('open'); 
-        };
-
-        window.rejectProduct = function(id) { 
-            actionId = id; 
-            actionType = 'reject'; 
-            document.getElementById('actionModalTitle').textContent = 'Reject Produk'; 
-            document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menolak produk ini?'; 
-            document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-times"></i> Reject'; 
-            document.getElementById('actionModal').classList.add('open'); 
-        };
-
-        window.closeActionModal = function() { 
-            document.getElementById('actionModal').classList.remove('open'); 
-            actionId = null; 
-            actionType = null; 
-        };
-
+        window.approveProduct = function(id) { actionId = id; actionType = 'approve'; document.getElementById('actionModalTitle').textContent = 'Approve Produk'; document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menyetujui produk ini?'; document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-check"></i> Approve'; document.getElementById('actionModal').classList.add('open'); };
+        window.rejectProduct = function(id) { actionId = id; actionType = 'reject'; document.getElementById('actionModalTitle').textContent = 'Reject Produk'; document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menolak produk ini?'; document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-times"></i> Reject'; document.getElementById('actionModal').classList.add('open'); };
+        window.closeActionModal = function() { document.getElementById('actionModal').classList.remove('open'); actionId = null; actionType = null; };
         window.confirmAction = async function() {
             if (!actionId || !actionType) return;
             try {
-                await updateDoc(doc(db, 'products', actionId), { 
-                    status: actionType === 'approve' ? 'published' : 'rejected', 
-                    updatedAt: new Date().toISOString() 
-                });
+                await updateDoc(doc(db, 'products', actionId), { status: actionType === 'approve' ? 'published' : 'rejected', updatedAt: new Date().toISOString() });
                 showToast('success', `Produk ${actionType === 'approve' ? 'disetujui' : 'ditolak'}`);
                 closeActionModal();
                 loadProducts(true);
-            } catch (error) { 
-                console.error('Error updating product:', error); 
-                showToast('error', 'Gagal memperbarui produk'); 
-            }
+            } catch (error) { console.error('❌ [ADMIN_PRODUCTS] Error:', error); showToast('error', 'Gagal memperbarui produk'); }
         };
 
-        window.viewProduct = function(id) {
-            window.location.href = `/product/${id}`;
-        };
-
+        window.viewProduct = function(id) { window.location.href = `/product/${id}`; };
         window.deleteProduct = async function(id) {
             if (!confirm('Yakin ingin menghapus produk ini?')) return;
-            try { 
-                await deleteDoc(doc(db, 'products', id)); 
-                showToast('success', 'Produk dihapus'); 
-                loadProducts(true); 
-            } catch (error) { 
-                console.error('Error deleting product:', error); 
-                showToast('error', 'Gagal menghapus produk'); 
-            }
+            try { await deleteDoc(doc(db, 'products', id)); showToast('success', 'Produk dihapus'); loadProducts(true); } 
+            catch (error) { console.error('❌ [ADMIN_PRODUCTS] Error:', error); showToast('error', 'Gagal menghapus produk'); }
         };
 
-        let searchTimeout; 
-        document.getElementById('searchProduct').addEventListener('input', () => { 
-            clearTimeout(searchTimeout); 
-            searchTimeout = setTimeout(applyFilters, 500); 
+        let searchTimeout;
+        document.getElementById('searchProduct').addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(applyFilters, 500);
         });
 
-        console.log('📦 Admin Products page loaded!');
+        console.log('✅ [ADMIN_PRODUCTS] Page ready');
     </script>
 </body>
 </html>
