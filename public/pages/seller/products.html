@@ -11,9 +11,6 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="icon" href="/assets/images/favicon.ico">
     <style>
-        /* ============================================
-           LAYOUT
-           ============================================ */
         .app-wrapper { display: flex; min-height: calc(100vh - 64px); margin-top: 64px; }
         .sidebar { width: 260px; background: var(--bg-primary); border-right: 1px solid var(--border-color); padding: 20px 0; position: fixed; top: 64px; bottom: 0; overflow-y: auto; z-index: 100; transition: transform 0.3s ease; }
         .sidebar-header { padding: 0 16px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px; }
@@ -31,9 +28,6 @@
         .mobile-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-primary); cursor: pointer; padding: 8px; }
         @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); width: 280px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 16px; } .mobile-toggle { display: block !important; } }
         
-        /* ============================================
-           TABLE
-           ============================================ */
         .table-wrapper { overflow-x: auto; }
         .table { width: 100%; border-collapse: collapse; }
         .table th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); border-bottom: 2px solid var(--border-color); background: var(--bg-secondary); }
@@ -88,9 +82,6 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
         
-        /* ============================================
-           TOAST
-           ============================================ */
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
         .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
         .toast-icon { font-size: 20px; }
@@ -99,17 +90,7 @@
         .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
         
-        /* ============================================
-           ERROR BOX
-           ============================================ */
-        .error-box {
-            background: rgba(239,68,68,0.1);
-            border: 1px solid rgba(239,68,68,0.2);
-            border-radius: var(--radius);
-            padding: 16px 20px;
-            margin-bottom: 16px;
-            display: none;
-        }
+        .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
         .error-box.show { display: block; }
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
@@ -118,9 +99,7 @@
     </style>
 </head>
 <body>
-    <!-- ============================================
-    NAVBAR
-    ============================================ -->
+    <!-- NAVBAR -->
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
@@ -131,9 +110,7 @@
         </div>
     </nav>
 
-    <!-- ============================================
-    SIDEBAR
-    ============================================ -->
+    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header"><div class="title">Menu Seller</div></div>
         <nav class="sidebar-nav">
@@ -148,9 +125,7 @@
     </aside>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- ============================================
-    MAIN CONTENT
-    ============================================ -->
+    <!-- MAIN CONTENT -->
     <div class="app-wrapper">
         <main class="main-content">
             <div class="flex-between" style="margin-bottom:24px;">
@@ -195,9 +170,7 @@
         </main>
     </div>
 
-    <!-- ============================================
-    PRODUCT MODAL
-    ============================================ -->
+    <!-- PRODUCT MODAL -->
     <div class="modal-overlay" id="productModal">
         <div class="modal">
             <button class="modal-close" onclick="closeProductModal()"><i class="fas fa-times"></i></button>
@@ -300,9 +273,7 @@
         </div>
     </div>
 
-    <!-- ============================================
-    DELETE MODAL
-    ============================================ -->
+    <!-- DELETE MODAL -->
     <div class="modal-overlay" id="deleteModal">
         <div class="modal" style="max-width:400px;text-align:center;">
             <i class="fas fa-exclamation-triangle" style="font-size:48px;color:var(--danger);margin-bottom:16px;"></i>
@@ -315,14 +286,9 @@
         </div>
     </div>
 
-    <!-- ============================================
-    TOAST
-    ============================================ -->
+    <!-- TOAST -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- ============================================
-    SCRIPTS
-    ============================================ -->
     <script type="importmap">
         {
             "imports": {
@@ -339,7 +305,7 @@
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, addDoc, updateDoc, deleteDoc, serverTimestamp, onSnapshot } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, addDoc, updateDoc, deleteDoc, serverTimestamp, onSnapshot } from "firebase/firestore";
 
         console.log('📦 [PRODUCTS] Page loaded');
 
@@ -364,11 +330,7 @@
 
         let currentUser = null;
         let products = [];
-        let lastDoc = null;
-        let hasMore = true;
-        let currentPage = 1;
         let deleteId = null;
-        const limitPerPage = 10;
 
         // ============================================
         // THEME
@@ -497,12 +459,12 @@
                     return;
                 }
                 document.getElementById('productCount').textContent = userDoc.data().productCount || 0;
-                await loadProducts(true);
-                
+                await loadProducts();
+
                 // Realtime listener
                 onSnapshot(query(collection(db, 'products'), where('sellerId', '==', user.uid)), () => {
                     console.log('🔄 [PRODUCTS] Products updated');
-                    loadProducts(true);
+                    loadProducts();
                 });
 
             } catch (error) {
@@ -513,9 +475,9 @@
         });
 
         // ============================================
-        // LOAD PRODUCTS - DENGAN ERROR HANDLING
+        // LOAD PRODUCTS - QUERY TANPA ORDER BY
         // ============================================
-        async function loadProducts(reset = true) {
+        async function loadProducts() {
             if (!currentUser) {
                 console.warn('⚠️ [PRODUCTS] No current user');
                 return;
@@ -523,62 +485,68 @@
             console.log('📥 [PRODUCTS] Loading products...');
 
             try {
-                if (reset) {
-                    lastDoc = null;
-                    hasMore = true;
-                    products = [];
-                    currentPage = 1;
-                }
-                if (!hasMore) {
-                    console.log('ℹ️ [PRODUCTS] No more products to load');
-                    return;
-                }
-
-                // Build query
-                let constraints = [
-                    where('sellerId', '==', currentUser.uid),
-                    orderBy('createdAt', 'desc')
-                ];
-
-                const status = document.getElementById('filterStatus').value;
-                const type = document.getElementById('filterType').value;
-                const search = document.getElementById('searchProduct').value.trim();
-
-                if (status !== 'all') {
-                    constraints.push(where('status', '==', status));
-                    console.log('📌 [PRODUCTS] Filter by status:', status);
-                }
-                if (type !== 'all') {
-                    constraints.push(where('type', '==', type));
-                    console.log('📌 [PRODUCTS] Filter by type:', type);
-                }
-
-                let q = query(collection(db, 'products'), ...constraints, limit(limitPerPage));
-                if (lastDoc) {
-                    q = query(collection(db, 'products'), ...constraints, startAfter(lastDoc), limit(limitPerPage));
-                }
+                // ============================================
+                // QUERY SEDERHANA - HANYA FILTER sellerId
+                // TANPA orderBy UNTUK MENGHINDARI INDEX
+                // ============================================
+                const q = query(
+                    collection(db, 'products'),
+                    where('sellerId', '==', currentUser.uid)
+                );
 
                 console.log('📤 [PRODUCTS] Executing query...');
                 const snapshot = await getDocs(q);
                 console.log('✅ [PRODUCTS] Query returned', snapshot.size, 'documents');
 
                 if (snapshot.empty) {
-                    hasMore = false;
-                    if (reset) {
-                        document.getElementById('productsTableBody').innerHTML = 
-                            '<tr><td colspan="8" class="text-center text-secondary" style="padding:40px 0;">' +
-                            '<i class="fas fa-box-open" style="font-size:32px;display:block;margin-bottom:8px;"></i>' +
-                            'Belum ada produk' +
-                            '</td></tr>';
-                    }
+                    document.getElementById('productsTableBody').innerHTML = 
+                        '<tr><td colspan="8" class="text-center text-secondary" style="padding:40px 0;">' +
+                        '<i class="fas fa-box-open" style="font-size:32px;display:block;margin-bottom:8px;"></i>' +
+                        'Belum ada produk' +
+                        '</td></tr>';
+                    document.getElementById('pagination').innerHTML = '';
                     return;
                 }
 
-                lastDoc = snapshot.docs[snapshot.docs.length - 1];
-                hasMore = snapshot.docs.length === limitPerPage;
-                const newProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                products = reset ? newProducts : [...products, ...newProducts];
-                console.log('✅ [PRODUCTS] Loaded', products.length, 'products total');
+                // ============================================
+                // SORT MANUAL DI CLIENT (tanpa index)
+                // ============================================
+                let allProducts = snapshot.docs.map(doc => ({ 
+                    id: doc.id, 
+                    ...doc.data(),
+                    // Konversi timestamp ke Date
+                    createdAtDate: doc.data().createdAt?.toDate?.() || new Date(doc.data().createdAt)
+                }));
+
+                // Sort by createdAt descending (manual sorting)
+                allProducts.sort((a, b) => {
+                    const dateA = a.createdAtDate || new Date(0);
+                    const dateB = b.createdAtDate || new Date(0);
+                    return dateB - dateA;
+                });
+
+                // ============================================
+                // FILTER DI CLIENT
+                // ============================================
+                const status = document.getElementById('filterStatus').value;
+                const type = document.getElementById('filterType').value;
+                const search = document.getElementById('searchProduct').value.trim().toLowerCase();
+
+                if (status !== 'all') {
+                    allProducts = allProducts.filter(p => p.status === status);
+                }
+                if (type !== 'all') {
+                    allProducts = allProducts.filter(p => p.type === type);
+                }
+                if (search) {
+                    allProducts = allProducts.filter(p => 
+                        p.name?.toLowerCase().includes(search) ||
+                        p.category?.toLowerCase().includes(search)
+                    );
+                }
+
+                products = allProducts;
+                console.log('✅ [PRODUCTS] Loaded', products.length, 'products');
                 renderProducts();
 
             } catch (error) {
@@ -589,8 +557,6 @@
                 let errorMsg = 'Gagal memuat produk. ';
                 if (error.code === 'permission-denied') {
                     errorMsg += 'Periksa Firestore Security Rules.';
-                } else if (error.code === 'failed-precondition') {
-                    errorMsg += 'Index diperlukan. Buat index di Firebase Console.';
                 } else {
                     errorMsg += error.message;
                 }
@@ -607,8 +573,7 @@
         }
 
         // ============================================
-        // RENDER PRODUCTS
-        // ============================================
+        // RENDER PRODUCTS        // ============================================
         function renderProducts() {
             const tbody = document.getElementById('productsTableBody');
             if (products.length === 0) {
@@ -617,7 +582,16 @@
                 return;
             }
 
-            tbody.innerHTML = products.map(p => `
+            // Pagination di client
+            const pageSize = 10;
+            const totalPages = Math.ceil(products.length / pageSize);
+            let currentPage = parseInt(document.getElementById('pagination')?.dataset?.page) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const pageProducts = products.slice(start, end);
+
+            tbody.innerHTML = pageProducts.map(p => `
                 <tr>
                     <td>
                         <div style="display:flex;align-items:center;gap:8px;">
@@ -626,7 +600,7 @@
                             </div>
                             <div>
                                 <strong>${p.name}</strong>
-                                <div style="font-size:12px;color:var(--text-secondary);">${formatDate(p.createdAt)}</div>
+                                <div style="font-size:12px;color:var(--text-secondary);">${formatDate(p.createdAtDate || p.createdAt)}</div>
                             </div>
                         </div>
                     </td>
@@ -648,51 +622,47 @@
                 </tr>
             `).join('');
 
-            renderPagination();
+            // Render pagination
+            renderPagination(totalPages, currentPage);
         }
 
         // ============================================
         // PAGINATION
         // ============================================
-        function renderPagination() {
+        function renderPagination(totalPages, currentPage) {
             const container = document.getElementById('pagination');
-            if (!hasMore && products.length <= limitPerPage) {
+            if (totalPages <= 1) {
                 container.innerHTML = '';
                 return;
             }
             container.innerHTML = `
                 <span style="font-size:14px;color:var(--text-secondary);">${products.length} produk</span>
                 <div style="display:flex;gap:8px;">
-                    ${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}
-                    ${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}
+                    ${currentPage > 1 ? `<button onclick="goToPage(${currentPage - 1})" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}
+                    <span style="font-size:14px;color:var(--text-secondary);">Halaman ${currentPage} dari ${totalPages}</span>
+                    ${currentPage < totalPages ? `<button onclick="goToPage(${currentPage + 1})" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}
                 </div>
             `;
+            container.dataset.page = currentPage;
         }
 
-        window.loadNextPage = function() {
-            currentPage++;
-            loadProducts(false);
+        window.goToPage = function(page) {
+            document.getElementById('pagination').dataset.page = page;
+            renderProducts();
         };
 
-        window.loadPreviousPage = function() {
-            if (currentPage <= 1) return;
-            currentPage--;
-            lastDoc = null;
-            hasMore = true;
-            loadProducts(true);
-        };
-
+        // ============================================
+        // FILTER FUNCTIONS
+        // ============================================
         window.applyFilters = function() {
-            lastDoc = null;
-            hasMore = true;
-            loadProducts(true);
+            loadProducts();
         };
 
         window.resetFilters = function() {
             document.getElementById('searchProduct').value = '';
             document.getElementById('filterStatus').value = 'all';
             document.getElementById('filterType').value = 'all';
-            applyFilters();
+            loadProducts();
         };
 
         // ============================================
@@ -878,7 +848,7 @@
                     showToast('success', 'Produk berhasil dibuat!');
                 }
                 closeProductModal();
-                loadProducts(true);
+                loadProducts();
             } catch (error) {
                 console.error('❌ [PRODUCTS] Save error:', error);
                 console.error('❌ [PRODUCTS] Error code:', error.code);
@@ -907,7 +877,7 @@
                 showToast('success', 'Produk berhasil dihapus!');
                 deleteId = null;
                 closeDeleteModal();
-                loadProducts(true);
+                loadProducts();
             } catch (error) {
                 console.error('❌ [PRODUCTS] Delete error:', error);
                 showToast('error', 'Gagal menghapus produk: ' + error.message);
@@ -915,7 +885,7 @@
         };
 
         // ============================================
-        // SEARCH
+        // SEARCH DEBOUNCE
         // ============================================
         let searchTimeout;
         document.getElementById('searchProduct').addEventListener('input', () => {
