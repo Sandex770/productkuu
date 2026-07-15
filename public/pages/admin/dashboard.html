@@ -11,9 +11,6 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="icon" href="/assets/images/favicon.ico">
     <style>
-        /* ============================================
-           LAYOUT - SAMA SEPERTI SELLER DASHBOARD
-           ============================================ */
         .app-wrapper { display: flex; min-height: calc(100vh - 64px); margin-top: 64px; }
         .sidebar { width: 260px; background: var(--bg-primary); border-right: 1px solid var(--border-color); padding: 20px 0; position: fixed; top: 64px; bottom: 0; overflow-y: auto; z-index: 100; transition: transform 0.3s ease; }
         .sidebar-header { padding: 0 16px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px; }
@@ -79,6 +76,47 @@
         .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
         
+        /* ============================================
+           DEBUG BOX
+           ============================================ */
+        .debug-box {
+            background: #1E1E2E;
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #CDD6F4;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            border: 1px solid #313244;
+        }
+        .debug-box.show { display: block; }
+        .debug-box .debug-line { padding: 2px 0; border-bottom: 1px solid #2A2A3E; }
+        .debug-box .debug-line:last-child { border-bottom: none; }
+        .debug-box .debug-success { color: #A6E3A1; }
+        .debug-box .debug-error { color: #F38BA8; }
+        .debug-box .debug-info { color: #89B4FA; }
+        .debug-box .debug-warning { color: #F9E2AF; }
+        
+        .debug-toggle { 
+            background: none; 
+            border: none; 
+            color: var(--text-light); 
+            cursor: pointer; 
+            font-size: 12px; 
+            text-decoration: underline;
+            padding: 4px 8px;
+            margin-bottom: 8px;
+        }
+        .debug-toggle:hover { color: var(--text-primary); }
+        
+        .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
+        .error-box.show { display: block; }
+        .error-box .error-title { font-weight: 700; color: var(--danger); }
+        .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+        
         @media (max-width: 1024px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .stats-grid-extra { grid-template-columns: repeat(2, 1fr); }
@@ -94,72 +132,35 @@
     </style>
 </head>
 <body>
-    <!-- ============================================
-    NAVBAR
-    ============================================ -->
+    <!-- NAVBAR -->
     <nav class="navbar">
         <div class="navbar-inner">
-            <a href="/" class="navbar-logo">
-                <i class="fas fa-cube"></i>
-                <span>ProductKuu</span>
-            </a>
+            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
             <div class="navbar-actions">
                 <span class="badge badge-primary" style="font-size:11px;">Admin</span>
-                <button class="btn-icon" id="themeToggle">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <button class="mobile-toggle" id="sidebarToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
+                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <button class="mobile-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
             </div>
         </div>
     </nav>
 
-    <!-- ============================================
-    SIDEBAR
-    ============================================ -->
+    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="title">Menu Admin</div>
-        </div>
+        <div class="sidebar-header"><div class="title">Menu Admin</div></div>
         <nav class="sidebar-nav">
-            <a href="/admin/dashboard" class="active">
-                <i class="fas fa-chart-pie"></i> Dashboard
-            </a>
-            <a href="/admin/sellers">
-                <i class="fas fa-users"></i> Seller
-                <span class="badge-count" id="sellerCount">0</span>
-            </a>
-            <a href="/admin/products">
-                <i class="fas fa-box"></i> Produk
-                <span class="badge-count" id="productCount">0</span>
-            </a>
-            <a href="/admin/orders">
-                <i class="fas fa-shopping-cart"></i> Order
-                <span class="badge-count" id="orderCount">0</span>
-            </a>
-            <a href="/admin/banners">
-                <i class="fas fa-images"></i> Banner
-            </a>
-            <a href="/admin/withdrawals">
-                <i class="fas fa-arrow-up"></i> Withdraw
-                <span class="badge-count" id="pendingWithdrawCount" style="background:rgba(239,68,68,0.1);color:var(--danger);">0</span>
-            </a>
-            <a href="/admin/settings">
-                <i class="fas fa-cog"></i> Pengaturan
-            </a>
-            <button class="logout-btn" id="logoutBtn">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
+            <a href="/admin/dashboard" class="active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="/admin/sellers"><i class="fas fa-users"></i> Seller <span class="badge-count" id="sellerCount">0</span></a>
+            <a href="/admin/products"><i class="fas fa-box"></i> Produk <span class="badge-count" id="productCount">0</span></a>
+            <a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Order <span class="badge-count" id="orderCount">0</span></a>
+            <a href="/admin/banners"><i class="fas fa-images"></i> Banner</a>
+            <a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Withdraw <span class="badge-count" id="pendingWithdrawCount" style="background:rgba(239,68,68,0.1);color:var(--danger);">0</span></a>
+            <a href="/admin/settings"><i class="fas fa-cog"></i> Pengaturan</a>
+            <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </nav>
     </aside>
-
-    <!-- Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- ============================================
-    MAIN CONTENT
-    ============================================ -->
+    <!-- MAIN CONTENT -->
     <div class="app-wrapper">
         <main class="main-content">
             <!-- Header -->
@@ -168,39 +169,40 @@
                     <h1 style="font-size:24px;">Dashboard Admin</h1>
                     <p style="color:var(--text-secondary);" id="welcomeMessage">Selamat datang, Admin!</p>
                 </div>
-                <button onclick="location.reload()" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
+                <button onclick="location.reload()" class="btn btn-secondary btn-sm"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+
+            <!-- Debug Box -->
+            <div class="debug-box" id="debugBox">
+                <div class="debug-line debug-info">🔍 Debug Mode Active</div>
+                <div class="debug-line" id="debugLog">Menunggu data...</div>
+            </div>
+            <button class="debug-toggle" onclick="toggleDebug()">
+                <i class="fas fa-bug"></i> Toggle Debug
+            </button>
+
+            <!-- Error Box -->
+            <div class="error-box" id="errorBox">
+                <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
+                <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
             </div>
 
             <!-- Stats Grid -->
-            <div class="stats-grid">
+            <div class="stats-grid" style="margin-top:8px;">
                 <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Total Seller</span>
-                        <span class="stat-value" id="totalSellers">0</span>
-                    </div>
+                    <div class="stat-info"><span class="stat-label">Total Seller</span><span class="stat-value" id="totalSellers">0</span></div>
                     <div class="stat-icon indigo"><i class="fas fa-users"></i></div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Total Produk</span>
-                        <span class="stat-value" id="totalProducts">0</span>
-                    </div>
+                    <div class="stat-info"><span class="stat-label">Total Produk</span><span class="stat-value" id="totalProducts">0</span></div>
                     <div class="stat-icon green"><i class="fas fa-box"></i></div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Total Order</span>
-                        <span class="stat-value" id="totalOrders">0</span>
-                    </div>
+                    <div class="stat-info"><span class="stat-label">Total Order</span><span class="stat-value" id="totalOrders">0</span></div>
                     <div class="stat-icon yellow"><i class="fas fa-shopping-cart"></i></div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Total Pendapatan</span>
-                        <span class="stat-value" style="color:var(--primary);" id="totalRevenue">Rp0</span>
-                    </div>
+                    <div class="stat-info"><span class="stat-label">Total Pendapatan</span><span class="stat-value" style="color:var(--primary);" id="totalRevenue">Rp0</span></div>
                     <div class="stat-icon purple"><i class="fas fa-money-bill-wave"></i></div>
                 </div>
             </div>
@@ -208,45 +210,27 @@
             <!-- Extra Stats -->
             <div class="stats-grid-extra">
                 <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Withdraw Pending</span>
-                        <span class="stat-value" style="color:var(--danger);" id="pendingWithdrawals">0</span>
-                    </div>
+                    <div class="stat-info"><span class="stat-label">Withdraw Pending</span><span class="stat-value" style="color:var(--danger);" id="pendingWithdrawals">0</span></div>
                     <div class="stat-icon red"><i class="fas fa-clock"></i></div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Banner Aktif</span>
-                        <span class="stat-value" style="color:var(--info);" id="activeBanners">0</span>
-                    </div>
+                    <div class="stat-info"><span class="stat-label">Banner Aktif</span><span class="stat-value" style="color:var(--info);" id="activeBanners">0</span></div>
                     <div class="stat-icon blue"><i class="fas fa-images"></i></div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Total Komisi</span>
-                        <span class="stat-value" style="color:var(--secondary);" id="totalCommission">Rp0</span>
-                    </div>
+                    <div class="stat-info"><span class="stat-label">Total Komisi</span><span class="stat-value" style="color:var(--secondary);" id="totalCommission">Rp0</span></div>
                     <div class="stat-icon purple"><i class="fas fa-percentage"></i></div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Total Review</span>
-                        <span class="stat-value" style="color:var(--success);" id="totalReviews">0</span>
-                    </div>
+                    <div class="stat-info"><span class="stat-label">Total Review</span><span class="stat-value" style="color:var(--success);" id="totalReviews">0</span></div>
                     <div class="stat-icon green"><i class="fas fa-star"></i></div>
                 </div>
             </div>
 
             <!-- Charts -->
             <div class="charts-grid">
-                <div class="card chart-box">
-                    <h4 style="margin-bottom:12px;">Grafik Penjualan (7 Hari)</h4>
-                    <canvas id="salesChart" height="180"></canvas>
-                </div>
-                <div class="card chart-box">
-                    <h4 style="margin-bottom:12px;">Grafik Pendapatan (7 Hari)</h4>
-                    <canvas id="revenueChart" height="180"></canvas>
-                </div>
+                <div class="card chart-box"><h4 style="margin-bottom:12px;">Grafik Penjualan (7 Hari)</h4><canvas id="salesChart" height="180"></canvas></div>
+                <div class="card chart-box"><h4 style="margin-bottom:12px;">Grafik Pendapatan (7 Hari)</h4><canvas id="revenueChart" height="180"></canvas></div>
             </div>
 
             <!-- Activity -->
@@ -256,31 +240,22 @@
                         <h4>Order Terbaru</h4>
                         <a href="/admin/orders" style="font-size:14px;color:var(--primary);">Lihat Semua →</a>
                     </div>
-                    <div id="recentOrders">
-                        <div class="text-center text-secondary" style="padding:12px 0;">Memuat order...</div>
-                    </div>
+                    <div id="recentOrders"><div class="text-center text-secondary" style="padding:12px 0;">Memuat order...</div></div>
                 </div>
                 <div class="card">
                     <div class="flex-between" style="margin-bottom:16px;">
                         <h4>Withdraw Pending</h4>
                         <a href="/admin/withdrawals" style="font-size:14px;color:var(--primary);">Lihat Semua →</a>
                     </div>
-                    <div id="pendingWithdrawalsList">
-                        <div class="text-center text-secondary" style="padding:12px 0;">Memuat withdraw...</div>
-                    </div>
+                    <div id="pendingWithdrawalsList"><div class="text-center text-secondary" style="padding:12px 0;">Memuat withdraw...</div></div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- ============================================
-    TOAST
-    ============================================ -->
+    <!-- TOAST -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- ============================================
-    SCRIPTS
-    ============================================ -->
     <script type="importmap">
         {
             "imports": {
@@ -297,9 +272,9 @@
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, getCountFromServer, onSnapshot } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, onSnapshot } from "firebase/firestore";
 
-        console.log('📊 [ADMIN] Page loaded');
+        console.log('📊 [ADMIN_DASHBOARD] Page loaded');
 
         // ============================================
         // FIREBASE CONFIG
@@ -318,10 +293,46 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        console.log('✅ [ADMIN] Firebase initialized');
+        console.log('✅ [ADMIN_DASHBOARD] Firebase initialized');
 
         let currentUser = null;
         let userData = null;
+
+        // ============================================
+        // DEBUG LOG
+        // ============================================
+        let debugVisible = false;
+
+        function addDebug(message, type = 'info') {
+            const colors = {
+                success: 'debug-success',
+                error: 'debug-error',
+                info: 'debug-info',
+                warning: 'debug-warning'
+            };
+            const icons = {
+                success: '✅',
+                error: '❌',
+                info: 'ℹ️',
+                warning: '⚠️'
+            };
+            const log = document.getElementById('debugLog');
+            const time = new Date().toLocaleTimeString();
+            log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
+            console.log(`[ADMIN_DEBUG] ${message}`);
+            // Auto scroll ke bawah
+            const box = document.getElementById('debugBox');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        window.toggleDebug = function() {
+            const box = document.getElementById('debugBox');
+            debugVisible = !debugVisible;
+            box.classList.toggle('show');
+            if (debugVisible) {
+                addDebug('Debug mode activated', 'info');
+            }
+        };
 
         // ============================================
         // THEME
@@ -399,6 +410,17 @@
         window.showToast = showToast;
 
         // ============================================
+        // SHOW ERROR
+        // ============================================
+        function showError(title, detail) {
+            const box = document.getElementById('errorBox');
+            document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
+            document.getElementById('errorDetail').textContent = detail || '';
+            box.classList.add('show');
+            setTimeout(() => { box.classList.remove('show'); }, 10000);
+        }
+
+        // ============================================
         // FORMAT FUNCTIONS
         // ============================================
         function formatPrice(price) {
@@ -422,25 +444,27 @@
         // ============================================
         // AUTH STATE
         // ============================================
+        addDebug('Setting up auth listener...', 'info');
+
         onAuthStateChanged(auth, async (user) => {
-            console.log('🔍 [ADMIN] Auth state:', user ? user.email : 'null');
             if (!user) {
+                addDebug('User not logged in, redirecting...', 'warning');
                 window.location.href = '/admin/login';
                 return;
             }
             currentUser = user;
-            console.log('✅ [ADMIN] User logged in:', user.email);
+            addDebug(`User logged in: ${user.email}`, 'success');
 
             try {
                 const userRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userRef);
                 if (!userDoc.exists() || userDoc.data().role !== 'admin') {
+                    addDebug('User is not admin, redirecting...', 'error');
                     window.location.href = '/';
                     return;
                 }
                 userData = { id: userDoc.id, ...userDoc.data() };
-                console.log('✅ [ADMIN] User data loaded');
-
+                addDebug(`Admin verified: ${userData.displayName || 'Admin'}`, 'success');
                 document.getElementById('welcomeMessage').textContent =
                     `Selamat datang, ${userData.displayName || 'Admin'}!`;
 
@@ -448,137 +472,122 @@
                 setupRealtimeListeners();
 
             } catch (error) {
-                console.error('❌ [ADMIN] Error:', error);
-                showToast('error', 'Gagal memuat data: ' + error.message);
+                addDebug(`Error loading user data: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat data user: ' + error.message);
             }
         });
 
         // ============================================
-        // LOAD DASHBOARD DATA
+        // LOAD DASHBOARD DATA - TANPA INDEX
         // ============================================
         async function loadDashboardData() {
-            console.log('📊 [ADMIN] Loading data...');
+            addDebug('Loading dashboard data...', 'info');
 
             try {
-                // 1. Total Sellers
-                try {
-                    const sellersCount = await getCountFromServer(
-                        query(collection(db, 'users'), where('role', '==', 'seller'))
-                    );
-                    const totalSellers = sellersCount.data().count;
-                    document.getElementById('totalSellers').textContent = totalSellers;
-                    document.getElementById('sellerCount').textContent = totalSellers;
-                    console.log('✅ [ADMIN] Total sellers:', totalSellers);
-                } catch (error) {
-                    console.error('❌ [ADMIN] Sellers error:', error);
-                }
+                // ============================================
+                // 1. TOTAL SELLERS
+                // ============================================
+                addDebug('Fetching total sellers...', 'info');
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                const totalSellers = usersSnapshot.docs.filter(doc => doc.data().role === 'seller').length;
+                document.getElementById('totalSellers').textContent = totalSellers;
+                document.getElementById('sellerCount').textContent = totalSellers;
+                addDebug(`Total sellers: ${totalSellers}`, 'success');
 
-                // 2. Total Products
-                try {
-                    const productsCount = await getCountFromServer(
-                        query(collection(db, 'products'), where('status', '==', 'published'))
-                    );
-                    const totalProducts = productsCount.data().count;
-                    document.getElementById('totalProducts').textContent = totalProducts;
-                    document.getElementById('productCount').textContent = totalProducts;
-                    console.log('✅ [ADMIN] Total products:', totalProducts);
-                } catch (error) {
-                    console.error('❌ [ADMIN] Products error:', error);
-                }
+                // ============================================
+                // 2. TOTAL PRODUCTS
+                // ============================================
+                addDebug('Fetching total products...', 'info');
+                const productsSnapshot = await getDocs(collection(db, 'products'));
+                const totalProducts = productsSnapshot.docs.filter(doc => doc.data().status === 'published').length;
+                document.getElementById('totalProducts').textContent = totalProducts;
+                document.getElementById('productCount').textContent = totalProducts;
+                addDebug(`Total products: ${totalProducts}`, 'success');
 
-                // 3. Total Orders
-                try {
-                    const ordersCount = await getCountFromServer(
-                        query(collection(db, 'orders'), where('paymentStatus', '==', 'settlement'))
-                    );
-                    const totalOrders = ordersCount.data().count;
-                    document.getElementById('totalOrders').textContent = totalOrders;
-                    document.getElementById('orderCount').textContent = totalOrders;
-                    console.log('✅ [ADMIN] Total orders:', totalOrders);
-                } catch (error) {
-                    console.error('❌ [ADMIN] Orders error:', error);
-                }
+                // ============================================
+                // 3. TOTAL ORDERS (settlement)
+                // ============================================
+                addDebug('Fetching total orders...', 'info');
+                const ordersSnapshot = await getDocs(collection(db, 'orders'));
+                const totalOrders = ordersSnapshot.docs.filter(doc => doc.data().paymentStatus === 'settlement').length;
+                document.getElementById('totalOrders').textContent = totalOrders;
+                document.getElementById('orderCount').textContent = totalOrders;
+                addDebug(`Total orders: ${totalOrders}`, 'success');
 
-                // 4. Total Revenue
-                try {
-                    const revenueSnapshot = await getDocs(
-                        query(collection(db, 'orders'), where('paymentStatus', '==', 'settlement'))
-                    );
-                    let totalRevenue = 0;
-                    revenueSnapshot.forEach(doc => {
-                        totalRevenue += doc.data().amount || 0;
-                    });
-                    document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
-                    console.log('✅ [ADMIN] Total revenue:', totalRevenue);
-                } catch (error) {
-                    console.error('❌ [ADMIN] Revenue error:', error);
-                }
+                // ============================================
+                // 4. TOTAL REVENUE
+                // ============================================
+                addDebug('Calculating total revenue...', 'info');
+                let totalRevenue = 0;
+                ordersSnapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    if (data.paymentStatus === 'settlement') {
+                        totalRevenue += data.amount || 0;
+                    }
+                });
+                document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
+                addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
 
-                // 5. Pending Withdrawals
-                try {
-                    const pendingCount = await getCountFromServer(
-                        query(collection(db, 'withdrawals'), where('status', '==', 'pending'))
-                    );
-                    const pending = pendingCount.data().count;
-                    document.getElementById('pendingWithdrawals').textContent = pending;
-                    document.getElementById('pendingWithdrawCount').textContent = pending;
-                    console.log('✅ [ADMIN] Pending withdrawals:', pending);
-                } catch (error) {
-                    console.error('❌ [ADMIN] Withdrawals error:', error);
-                }
+                // ============================================
+                // 5. PENDING WITHDRAWALS
+                // ============================================
+                addDebug('Fetching pending withdrawals...', 'info');
+                const withdrawalsSnapshot = await getDocs(collection(db, 'withdrawals'));
+                const pendingWithdrawals = withdrawalsSnapshot.docs.filter(doc => doc.data().status === 'pending').length;
+                document.getElementById('pendingWithdrawals').textContent = pendingWithdrawals;
+                document.getElementById('pendingWithdrawCount').textContent = pendingWithdrawals;
+                addDebug(`Pending withdrawals: ${pendingWithdrawals}`, 'success');
 
-                // 6. Active Banners - Sederhana tanpa index
-                try {
-                    const bannersSnapshot = await getDocs(collection(db, 'banners'));
-                    const now = new Date();
-                    let activeCount = 0;
-                    bannersSnapshot.forEach(doc => {
-                        const data = doc.data();
-                        if (data.isActive === true) {
-                            const expiresAt = data.expiresAt?.toDate?.() || data.expiresAt;
-                            if (!expiresAt || new Date(expiresAt) > now) {
-                                activeCount++;
-                            }
+                // ============================================
+                // 6. ACTIVE BANNERS
+                // ============================================
+                addDebug('Fetching active banners...', 'info');
+                const bannersSnapshot = await getDocs(collection(db, 'banners'));
+                const now = new Date();
+                let activeBanners = 0;
+                bannersSnapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    if (data.isActive === true) {
+                        const expiresAt = data.expiresAt?.toDate?.() || data.expiresAt;
+                        if (!expiresAt || new Date(expiresAt) > now) {
+                            activeBanners++;
                         }
-                    });
-                    document.getElementById('activeBanners').textContent = activeCount;
-                    console.log('✅ [ADMIN] Active banners:', activeCount);
-                } catch (error) {
-                    console.error('❌ [ADMIN] Banners error:', error);
-                    document.getElementById('activeBanners').textContent = '0';
-                }
+                    }
+                });
+                document.getElementById('activeBanners').textContent = activeBanners;
+                addDebug(`Active banners: ${activeBanners}`, 'success');
 
-                // 7. Total Commission
-                try {
-                    const revenueSnapshot = await getDocs(
-                        query(collection(db, 'orders'), where('paymentStatus', '==', 'settlement'))
-                    );
-                    let totalRevenue = 0;
-                    revenueSnapshot.forEach(doc => {
-                        totalRevenue += doc.data().amount || 0;
-                    });
-                    document.getElementById('totalCommission').textContent = `Rp${formatPrice(Math.round(totalRevenue * 0.1))}`;
-                    console.log('✅ [ADMIN] Commission:', Math.round(totalRevenue * 0.1));
-                } catch (error) {
-                    console.error('❌ [ADMIN] Commission error:', error);
-                }
+                // ============================================
+                // 7. TOTAL COMMISSION
+                // ============================================
+                const commission = Math.round(totalRevenue * 0.1);
+                document.getElementById('totalCommission').textContent = `Rp${formatPrice(commission)}`;
+                addDebug(`Total commission: Rp${formatPrice(commission)}`, 'success');
 
-                // 8. Total Reviews
-                try {
-                    const reviewsCount = await getCountFromServer(collection(db, 'reviews'));
-                    document.getElementById('totalReviews').textContent = reviewsCount.data().count;
-                    console.log('✅ [ADMIN] Total reviews:', reviewsCount.data().count);
-                } catch (error) {
-                    console.error('❌ [ADMIN] Reviews error:', error);
-                }
+                // ============================================
+                // 8. TOTAL REVIEWS
+                // ============================================
+                addDebug('Fetching total reviews...', 'info');
+                const reviewsSnapshot = await getDocs(collection(db, 'reviews'));
+                document.getElementById('totalReviews').textContent = reviewsSnapshot.size;
+                addDebug(`Total reviews: ${reviewsSnapshot.size}`, 'success');
 
+                // ============================================
+                // 9. RECENT ORDERS
+                // ============================================
                 await loadRecentOrders();
-                await loadPendingWithdrawals();
 
-                console.log('✅ [ADMIN] Data loaded successfully');
+                // ============================================
+                // 10. PENDING WITHDRAWALS LIST
+                // ============================================
+                await loadPendingWithdrawalsList();
+
+                addDebug('All dashboard data loaded successfully!', 'success');
 
             } catch (error) {
-                console.error('❌ [ADMIN] Error loading data:', error);
+                addDebug(`Error loading dashboard data: ${error.message}`, 'error');
+                console.error('❌ [ADMIN_DASHBOARD] Error:', error);
+                showError('Gagal memuat data dashboard', error.message);
                 showToast('error', 'Gagal memuat data: ' + error.message);
             }
         }
@@ -588,12 +597,24 @@
         // ============================================
         async function loadRecentOrders() {
             try {
-                const q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'), limit(5));
-                const snapshot = await getDocs(q);
+                addDebug('Loading recent orders...', 'info');
+                const ordersSnapshot = await getDocs(collection(db, 'orders'));
                 const container = document.getElementById('recentOrders');
 
-                if (snapshot.empty) {
+                // Sort di client
+                const orders = ordersSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    createdAtDate: doc.data().createdAt?.toDate?.() || new Date(doc.data().createdAt)
+                }));
+
+                // Sort by createdAt descending
+                orders.sort((a, b) => b.createdAtDate - a.createdAtDate);
+                const recentOrders = orders.slice(0, 5);
+
+                if (recentOrders.length === 0) {
                     container.innerHTML = `<div class="text-center text-secondary" style="padding:12px 0;">Belum ada order</div>`;
+                    addDebug('No recent orders found', 'info');
                     return;
                 }
 
@@ -604,71 +625,67 @@
                     'expire': 'badge-danger'
                 };
 
-                container.innerHTML = snapshot.docs.map(doc => {
-                    const o = doc.data();
-                    return `
-                        <div class="activity-item">
-                            <div>
-                                <strong>${o.productName || 'Product'}</strong>
-                                <br><span style="font-size:13px;color:var(--text-secondary);">${o.buyerName} • ${formatDate(o.createdAt)}</span>
-                            </div>
-                            <div style="text-align:right;">
-                                <span style="font-weight:600;color:var(--primary);">Rp${formatPrice(o.amount)}</span>
-                                <br><span class="badge ${statusColors[o.paymentStatus] || 'badge-info'}">${o.paymentStatus || o.status}</span>
-                            </div>
+                container.innerHTML = recentOrders.map(o => `
+                    <div class="activity-item">
+                        <div>
+                            <strong>${o.productName || 'Product'}</strong>
+                            <br><span style="font-size:13px;color:var(--text-secondary);">${o.buyerName} • ${formatDate(o.createdAtDate)}</span>
                         </div>
-                    `;
-                }).join('');
+                        <div style="text-align:right;">
+                            <span style="font-weight:600;color:var(--primary);">Rp${formatPrice(o.amount)}</span>
+                            <br><span class="badge ${statusColors[o.paymentStatus] || 'badge-info'}">${o.paymentStatus || o.status}</span>
+                        </div>
+                    </div>
+                `).join('');
 
-                console.log('✅ [ADMIN] Recent orders loaded:', snapshot.size);
+                addDebug(`Loaded ${recentOrders.length} recent orders`, 'success');
 
             } catch (error) {
-                console.error('❌ [ADMIN] Recent orders error:', error);
+                addDebug(`Error loading recent orders: ${error.message}`, 'error');
                 document.getElementById('recentOrders').innerHTML = '<div class="text-center" style="color:var(--danger);">Gagal memuat order</div>';
             }
         }
 
         // ============================================
-        // LOAD PENDING WITHDRAWALS
+        // LOAD PENDING WITHDRAWALS LIST
         // ============================================
-        async function loadPendingWithdrawals() {
+        async function loadPendingWithdrawalsList() {
             try {
-                const q = query(
-                    collection(db, 'withdrawals'),
-                    where('status', '==', 'pending'),
-                    orderBy('createdAt', 'asc'),
-                    limit(5)
-                );
-                const snapshot = await getDocs(q);
+                addDebug('Loading pending withdrawals list...', 'info');
+                const withdrawalsSnapshot = await getDocs(collection(db, 'withdrawals'));
                 const container = document.getElementById('pendingWithdrawalsList');
 
-                if (snapshot.empty) {
+                // Filter pending di client
+                const pending = withdrawalsSnapshot.docs
+                    .map(doc => ({ id: doc.id, ...doc.data() }))
+                    .filter(w => w.status === 'pending')
+                    .slice(0, 5);
+
+                if (pending.length === 0) {
                     container.innerHTML = `<div class="text-center text-secondary" style="padding:12px 0;">Tidak ada withdraw pending</div>`;
+                    addDebug('No pending withdrawals', 'info');
                     return;
                 }
 
-                container.innerHTML = snapshot.docs.map(doc => {
-                    const w = doc.data();
-                    return `
-                        <div class="activity-item">
-                            <div>
-                                <strong>${w.accountName}</strong>
-                                <br><span style="font-size:13px;color:var(--text-secondary);">${w.method} • ${w.accountNumber}</span>
-                            </div>
-                            <div style="text-align:right;">
-                                <span style="font-weight:600;color:var(--danger);">Rp${formatPrice(w.amount)}</span>
-                                <br>
-                                <button onclick="approveWithdrawal('${doc.id}')" class="btn btn-success btn-sm" style="padding:2px 8px;font-size:11px;"><i class="fas fa-check"></i></button>
-                                <button onclick="rejectWithdrawal('${doc.id}')" class="btn btn-danger btn-sm" style="padding:2px 8px;font-size:11px;"><i class="fas fa-times"></i></button>
-                            </div>
+                container.innerHTML = pending.map(w => `
+                    <div class="activity-item">
+                        <div>
+                            <strong>${w.accountName}</strong>
+                            <br><span style="font-size:13px;color:var(--text-secondary);">${w.method} • ${w.accountNumber}</span>
                         </div>
-                    `;
-                }).join('');
+                        <div style="text-align:right;">
+                            <span style="font-weight:600;color:var(--danger);">Rp${formatPrice(w.amount)}</span>
+                            <br>
+                            <button onclick="approveWithdrawal('${w.id}')" class="btn btn-success btn-sm" style="padding:2px 8px;font-size:11px;"><i class="fas fa-check"></i></button>
+                            <button onclick="rejectWithdrawal('${w.id}')" class="btn btn-danger btn-sm" style="padding:2px 8px;font-size:11px;"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                `).join('');
 
-                console.log('✅ [ADMIN] Pending withdrawals loaded:', snapshot.size);
+                addDebug(`Loaded ${pending.length} pending withdrawals`, 'success');
 
             } catch (error) {
-                console.error('❌ [ADMIN] Pending withdrawals error:', error);
+                addDebug(`Error loading pending withdrawals: ${error.message}`, 'error');
                 document.getElementById('pendingWithdrawalsList').innerHTML = '<div class="text-center" style="color:var(--danger);">Gagal memuat withdraw</div>';
             }
         }
@@ -677,6 +694,7 @@
         // WITHDRAWAL ACTIONS
         // ============================================
         window.approveWithdrawal = async function(id) {
+            addDebug(`Approving withdrawal: ${id}`, 'info');
             if (!confirm('Setujui permintaan withdraw ini?')) return;
             try {
                 const response = await fetch(`/api/admin/withdrawals/${id}`, {
@@ -685,14 +703,17 @@
                     body: JSON.stringify({ status: 'approved', adminNote: 'Disetujui admin' })
                 });
                 if (!response.ok) throw new Error('Gagal menyetujui withdraw');
+                addDebug(`Withdrawal ${id} approved`, 'success');
                 showToast('success', '✅ Withdraw berhasil disetujui!');
                 await loadDashboardData();
             } catch (error) {
+                addDebug(`Error approving withdrawal: ${error.message}`, 'error');
                 showToast('error', '❌ Gagal: ' + error.message);
             }
         };
 
         window.rejectWithdrawal = async function(id) {
+            addDebug(`Rejecting withdrawal: ${id}`, 'warning');
             const note = prompt('Alasan penolakan:');
             if (note === null) return;
             try {
@@ -702,9 +723,11 @@
                     body: JSON.stringify({ status: 'rejected', adminNote: note || 'Ditolak admin' })
                 });
                 if (!response.ok) throw new Error('Gagal menolak withdraw');
+                addDebug(`Withdrawal ${id} rejected: ${note || 'No reason'}`, 'warning');
                 showToast('warning', '⚠️ Withdraw berhasil ditolak');
                 await loadDashboardData();
             } catch (error) {
+                addDebug(`Error rejecting withdrawal: ${error.message}`, 'error');
                 showToast('error', '❌ Gagal: ' + error.message);
             }
         };
@@ -713,26 +736,33 @@
         // REALTIME LISTENERS
         // ============================================
         function setupRealtimeListeners() {
+            addDebug('Setting up realtime listeners...', 'info');
+
             onSnapshot(collection(db, 'orders'), () => {
-                console.log('🔄 [ADMIN] Orders updated');
+                addDebug('Orders collection updated - reloading...', 'info');
                 loadDashboardData();
             });
             onSnapshot(collection(db, 'withdrawals'), () => {
-                console.log('🔄 [ADMIN] Withdrawals updated');
+                addDebug('Withdrawals collection updated - reloading...', 'info');
                 loadDashboardData();
             });
             onSnapshot(collection(db, 'products'), () => {
-                console.log('🔄 [ADMIN] Products updated');
+                addDebug('Products collection updated - reloading...', 'info');
                 loadDashboardData();
             });
             onSnapshot(collection(db, 'users'), () => {
-                console.log('🔄 [ADMIN] Users updated');
+                addDebug('Users collection updated - reloading...', 'info');
                 loadDashboardData();
             });
-            console.log('✅ [ADMIN] Realtime listeners active');
+
+            addDebug('Realtime listeners active', 'success');
         }
 
-        console.log('✅ [ADMIN] Page ready');
+        // ============================================
+        // INIT
+        // ============================================
+        addDebug('Dashboard initialization started', 'info');
+        console.log('✅ [ADMIN_DASHBOARD] Page ready');
     </script>
 </body>
 </html>

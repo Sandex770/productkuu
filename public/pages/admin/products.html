@@ -74,9 +74,51 @@
         .toast-message { font-size: 13px; color: var(--text-secondary); }
         .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        
+        /* ============================================
+           DEBUG BOX
+           ============================================ */
+        .debug-box {
+            background: #1E1E2E;
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #CDD6F4;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            border: 1px solid #313244;
+        }
+        .debug-box.show { display: block; }
+        .debug-box .debug-line { padding: 2px 0; border-bottom: 1px solid #2A2A3E; }
+        .debug-box .debug-line:last-child { border-bottom: none; }
+        .debug-box .debug-success { color: #A6E3A1; }
+        .debug-box .debug-error { color: #F38BA8; }
+        .debug-box .debug-info { color: #89B4FA; }
+        .debug-box .debug-warning { color: #F9E2AF; }
+        
+        .debug-toggle { 
+            background: none; 
+            border: none; 
+            color: var(--text-light); 
+            cursor: pointer; 
+            font-size: 12px; 
+            text-decoration: underline;
+            padding: 4px 8px;
+            margin-bottom: 8px;
+        }
+        .debug-toggle:hover { color: var(--text-primary); }
+        
+        .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
+        .error-box.show { display: block; }
+        .error-box .error-title { font-weight: 700; color: var(--danger); }
+        .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
     </style>
 </head>
 <body>
+    <!-- NAVBAR -->
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
@@ -88,6 +130,7 @@
         </div>
     </nav>
 
+    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header"><div class="title">Menu Admin</div></div>
         <nav class="sidebar-nav">
@@ -103,17 +146,44 @@
     </aside>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
+    <!-- MAIN CONTENT -->
     <div class="app-wrapper">
         <main class="main-content">
             <div class="flex-between" style="margin-bottom:24px;">
                 <div><h1 style="font-size:24px;">Manajemen Produk</h1><p style="color:var(--text-secondary);">Kelola semua produk di platform</p></div>
             </div>
 
-            <div class="filter-bar">
+            <!-- Debug Box -->
+            <div class="debug-box" id="debugBox">
+                <div class="debug-line debug-info">🔍 Debug Mode Active</div>
+                <div class="debug-line" id="debugLog">Menunggu data...</div>
+            </div>
+            <button class="debug-toggle" onclick="toggleDebug()">
+                <i class="fas fa-bug"></i> Toggle Debug
+            </button>
+
+            <!-- Error Box -->
+            <div class="error-box" id="errorBox">
+                <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
+                <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
+            </div>
+
+            <!-- Filter -->
+            <div class="filter-bar" style="margin-top:8px;">
                 <div class="filter-group">
                     <input type="text" id="searchProduct" placeholder="Cari produk..." style="min-width:200px;">
-                    <select id="filterStatus"><option value="all">Semua Status</option><option value="published">Published</option><option value="draft">Draft</option><option value="pending">Pending</option><option value="rejected">Rejected</option></select>
-                    <select id="filterType"><option value="all">Semua Type</option><option value="digital">Digital</option><option value="premium-account">Premium Account</option></select>
+                    <select id="filterStatus">
+                        <option value="all">Semua Status</option>
+                        <option value="published">Published</option>
+                        <option value="draft">Draft</option>
+                        <option value="pending">Pending</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                    <select id="filterType">
+                        <option value="all">Semua Type</option>
+                        <option value="digital">Digital</option>
+                        <option value="premium-account">Premium Account</option>
+                    </select>
                 </div>
                 <div class="filter-actions">
                     <button onclick="applyFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Filter</button>
@@ -121,11 +191,26 @@
                 </div>
             </div>
 
+            <!-- Table -->
             <div class="card">
                 <div class="table-wrapper">
                     <table class="table">
-                        <thead><tr><th>Produk</th><th>Seller</th><th>Harga</th><th>Status</th><th>Terjual</th><th>Aksi</th></tr></thead>
-                        <tbody id="productsTableBody"><tr><td colspan="6" class="text-center text-secondary" style="padding:40px 0;">Memuat produk...</td></tr></tbody>
+                        <thead>
+                            <tr>
+                                <th>Produk</th>
+                                <th>Seller</th>
+                                <th>Harga</th>
+                                <th>Status</th>
+                                <th>Terjual</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody">
+                            <tr><td colspan="6" class="text-center text-secondary" style="padding:40px 0;">
+                                <i class="fas fa-spinner fa-spin" style="font-size:24px;display:block;margin-bottom:8px;"></i>
+                                Memuat produk...
+                            </td></tr>
+                        </tbody>
                     </table>
                 </div>
                 <div id="pagination" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"></div>
@@ -133,7 +218,7 @@
         </main>
     </div>
 
-    <!-- Action Modal -->
+    <!-- ACTION MODAL -->
     <div class="modal-overlay" id="actionModal">
         <div class="modal">
             <h3 class="modal-title" id="actionModalTitle">Approve Produk</h3>
@@ -145,6 +230,7 @@
         </div>
     </div>
 
+    <!-- TOAST -->
     <div class="toast-container" id="toastContainer"></div>
 
     <script type="importmap">
@@ -158,12 +244,18 @@
     </script>
 
     <script type="module">
+        // ============================================
+        // IMPORTS
+        // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 
         console.log('📦 [ADMIN_PRODUCTS] Page loaded');
 
+        // ============================================
+        // FIREBASE CONFIG
+        // ============================================
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
             authDomain: "productkuu.firebaseapp.com",
@@ -178,10 +270,53 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let currentUser = null;
-        let products = [], lastDoc = null, hasMore = true, currentPage = 1, actionId = null, actionType = null, limitPerPage = 10;
+        console.log('✅ [ADMIN_PRODUCTS] Firebase initialized');
 
-        // Theme
+        let currentUser = null;
+        let allProducts = [];
+        let currentPage = 1;
+        const pageSize = 10;
+        let actionId = null;
+        let actionType = null;
+
+        // ============================================
+        // DEBUG LOG
+        // ============================================
+        let debugVisible = false;
+
+        function addDebug(message, type = 'info') {
+            const colors = {
+                success: 'debug-success',
+                error: 'debug-error',
+                info: 'debug-info',
+                warning: 'debug-warning'
+            };
+            const icons = {
+                success: '✅',
+                error: '❌',
+                info: 'ℹ️',
+                warning: '⚠️'
+            };
+            const log = document.getElementById('debugLog');
+            const time = new Date().toLocaleTimeString();
+            log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
+            console.log(`[ADMIN_PRODUCTS_DEBUG] ${message}`);
+            const box = document.getElementById('debugBox');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        window.toggleDebug = function() {
+            const box = document.getElementById('debugBox');
+            debugVisible = !debugVisible;
+            box.classList.toggle('show');
+            if (debugVisible) {
+                addDebug('Debug mode activated', 'info');
+            }
+        };
+
+        // ============================================
+        // THEME
+        // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -192,10 +327,13 @@
             themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
         });
 
-        // Sidebar
+        // ============================================
+        // SIDEBAR
+        // ============================================
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const sidebarToggle = document.getElementById('sidebarToggle');
+
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', () => {
                 sidebar.classList.toggle('open');
@@ -209,6 +347,9 @@
             });
         }
 
+        // ============================================
+        // SIDEBAR NAVIGATION
+        // ============================================
         document.querySelectorAll('.sidebar-nav a').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -217,11 +358,21 @@
             });
         });
 
+        // ============================================
+        // LOGOUT
+        // ============================================
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            try { await signOut(auth); window.location.href = '/'; } 
-            catch (error) { showToast('error', 'Gagal logout'); }
+            try {
+                await signOut(auth);
+                window.location.href = '/';
+            } catch (error) {
+                showToast('error', 'Gagal logout: ' + error.message);
+            }
         });
 
+        // ============================================
+        // TOAST
+        // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
             const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
@@ -236,7 +387,22 @@
             container.appendChild(toast);
             setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
         }
+        window.showToast = showToast;
 
+        // ============================================
+        // SHOW ERROR
+        // ============================================
+        function showError(title, detail) {
+            const box = document.getElementById('errorBox');
+            document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
+            document.getElementById('errorDetail').textContent = detail || '';
+            box.classList.add('show');
+            setTimeout(() => { box.classList.remove('show'); }, 10000);
+        }
+
+        // ============================================
+        // FORMAT FUNCTIONS
+        // ============================================
         function formatPrice(price) {
             if (!price && price !== 0) return '0';
             return new Intl.NumberFormat('id-ID').format(price);
@@ -245,114 +411,279 @@
         function formatDate(date) {
             if (!date) return '-';
             const d = date instanceof Date ? date : new Date(date);
-            return d.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            if (isNaN(d.getTime())) return '-';
+            return d.toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
         }
+
+        // ============================================
+        // AUTH STATE
+        // ============================================
+        addDebug('Setting up auth listener...', 'info');
 
         onAuthStateChanged(auth, async (user) => {
-            if (!user) { window.location.href = '/admin/login'; return; }
+            if (!user) {
+                addDebug('User not logged in, redirecting...', 'warning');
+                window.location.href = '/admin/login';
+                return;
+            }
             currentUser = user;
-            const userRef = doc(db, 'users', user.uid);
-            const userDoc = await getDoc(userRef);
-            if (!userDoc.exists() || userDoc.data().role !== 'admin') { window.location.href = '/'; return; }
-            await loadProducts(true);
-            onSnapshot(collection(db, 'products'), () => loadProducts(true));
+            addDebug(`User logged in: ${user.email}`, 'success');
+
+            try {
+                const userRef = doc(db, 'users', user.uid);
+                const userDoc = await getDoc(userRef);
+                if (!userDoc.exists() || userDoc.data().role !== 'admin') {
+                    addDebug('User is not admin, redirecting...', 'error');
+                    window.location.href = '/';
+                    return;
+                }
+                addDebug('Admin verified', 'success');
+                await loadProducts();
+
+                onSnapshot(collection(db, 'products'), () => {
+                    addDebug('Products collection updated - reloading...', 'info');
+                    loadProducts();
+                });
+
+            } catch (error) {
+                addDebug(`Error: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat data: ' + error.message);
+            }
         });
 
-        async function loadProducts(reset = true) {
+        // ============================================
+        // LOAD PRODUCTS - TANPA INDEX
+        // ============================================
+        async function loadProducts() {
+            addDebug('Loading products...', 'info');
+
             try {
-                if (reset) { lastDoc = null; hasMore = true; products = []; currentPage = 1; }
-                if (!hasMore) return;
-                let constraints = [orderBy('createdAt', 'desc')];
+                // Ambil semua produk
+                const snapshot = await getDocs(collection(db, 'products'));
+                addDebug(`Fetched ${snapshot.size} products from Firestore`, 'info');
+
+                // Konversi ke array
+                let products = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    createdAtDate: doc.data().createdAt?.toDate?.() || new Date(doc.data().createdAt)
+                }));
+
+                // Apply filters
                 const status = document.getElementById('filterStatus').value;
                 const type = document.getElementById('filterType').value;
-                const search = document.getElementById('searchProduct').value.trim();
-                if (status !== 'all') constraints.push(where('status', '==', status));
-                if (type !== 'all') constraints.push(where('type', '==', type));
-                let q = query(collection(db, 'products'), ...constraints, limit(limitPerPage));
-                if (lastDoc) q = query(collection(db, 'products'), ...constraints, startAfter(lastDoc), limit(limitPerPage));
-                const snapshot = await getDocs(q);
-                if (snapshot.empty) { hasMore = false; if (reset) document.getElementById('productsTableBody').innerHTML = '<tr><td colspan="6" class="text-center text-secondary">Belum ada produk</td></tr>'; return; }
-                lastDoc = snapshot.docs[snapshot.docs.length - 1];
-                hasMore = snapshot.docs.length === limitPerPage;
-                const newData = [];
-                for (const doc of snapshot.docs) {
-                    const data = doc.data();
-                    let sellerName = 'Unknown';
-                    if (data.sellerId) {
-                        const sellerRef = doc(db, 'users', data.sellerId);
-                        const sellerDoc = await getDoc(sellerRef);
-                        if (sellerDoc.exists()) sellerName = sellerDoc.data().storeName || sellerDoc.data().displayName || 'Seller';
-                    }
-                    newData.push({ id: doc.id, ...data, sellerName });
+                const search = document.getElementById('searchProduct').value.trim().toLowerCase();
+
+                if (status !== 'all') {
+                    products = products.filter(p => p.status === status);
+                    addDebug(`Filtered by status: ${status} -> ${products.length} products`, 'info');
                 }
-                products = reset ? newData : [...products, ...newData];
+                if (type !== 'all') {
+                    products = products.filter(p => p.type === type);
+                    addDebug(`Filtered by type: ${type} -> ${products.length} products`, 'info');
+                }
+                if (search) {
+                    products = products.filter(p => 
+                        p.name?.toLowerCase().includes(search) ||
+                        p.category?.toLowerCase().includes(search)
+                    );
+                    addDebug(`Filtered by search: "${search}" -> ${products.length} products`, 'info');
+                }
+
+                // Sort di client
+                products.sort((a, b) => b.createdAtDate - a.createdAtDate);
+
+                allProducts = products;
+                addDebug(`Total products after filter: ${allProducts.length}`, 'success');
+
                 renderProducts();
-            } catch (error) { console.error('❌ [ADMIN_PRODUCTS] Error:', error); showToast('error', 'Gagal memuat produk'); }
+
+            } catch (error) {
+                addDebug(`Error loading products: ${error.message}`, 'error');
+                console.error('❌ [ADMIN_PRODUCTS] Error:', error);
+                showError('Gagal memuat produk', error.message);
+                showToast('error', 'Gagal memuat produk: ' + error.message);
+            }
         }
 
+        // ============================================
+        // RENDER PRODUCTS
+        // ============================================
         function renderProducts() {
             const tbody = document.getElementById('productsTableBody');
-            if (products.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary">Tidak ada produk</td></tr>'; document.getElementById('pagination').innerHTML = ''; return; }
-            tbody.innerHTML = products.map(p => `
+
+            if (allProducts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary">Tidak ada produk</td></tr>';
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            // Pagination di client
+            const totalPages = Math.ceil(allProducts.length / pageSize);
+            if (currentPage > totalPages) currentPage = totalPages;
+            const start = (currentPage - 1) * pageSize;
+            const end = Math.min(start + pageSize, allProducts.length);
+            const pageProducts = allProducts.slice(start, end);
+
+            // Get seller names
+            const sellerCache = {};
+
+            tbody.innerHTML = pageProducts.map(p => {
+                const sellerName = p.sellerName || p.sellerId || 'Unknown';
+                return `
                 <tr>
-                    <td><div style="display:flex;align-items:center;gap:8px;"><div style="width:32px;height:32px;border-radius:var(--radius);background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;"><i class="fas fa-${p.type === 'premium-account' ? 'user' : 'box'}"></i></div><div><strong>${p.name}</strong><br><span style="font-size:12px;color:var(--text-secondary);">${p.category || 'Uncategorized'} • ${formatDate(p.createdAt)}</span></div></div></td>
-                    <td>${p.sellerName}</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <div style="width:32px;height:32px;border-radius:var(--radius);background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-${p.type === 'premium-account' ? 'user' : 'box'}"></i>
+                            </div>
+                            <div>
+                                <strong>${p.name}</strong>
+                                <br><span style="font-size:12px;color:var(--text-secondary);">${p.category || 'Uncategorized'} • ${formatDate(p.createdAtDate)}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${sellerName}</td>
                     <td style="font-weight:600;color:var(--primary);">Rp${formatPrice(p.price)}</td>
                     <td><span class="badge ${p.status === 'published' ? 'badge-success' : p.status === 'pending' ? 'badge-warning' : p.status === 'draft' ? 'badge-info' : 'badge-danger'}">${p.status || 'draft'}</span></td>
                     <td style="text-align:center;">${p.sales || 0}</td>
                     <td>
-                        ${p.status === 'pending' ? `<button onclick="approveProduct('${p.id}')" class="btn btn-success btn-sm" style="padding:4px 8px;" title="Approve"><i class="fas fa-check"></i></button> <button onclick="rejectProduct('${p.id}')" class="btn btn-danger btn-sm" style="padding:4px 8px;" title="Reject"><i class="fas fa-times"></i></button>` : ''}
+                        ${p.status === 'pending' ? `
+                            <button onclick="approveProduct('${p.id}')" class="btn btn-success btn-sm" style="padding:4px 8px;" title="Approve"><i class="fas fa-check"></i></button>
+                            <button onclick="rejectProduct('${p.id}')" class="btn btn-danger btn-sm" style="padding:4px 8px;" title="Reject"><i class="fas fa-times"></i></button>
+                        ` : ''}
                         <button onclick="viewProduct('${p.id}')" class="btn btn-secondary btn-sm" style="padding:4px 8px;" title="View"><i class="fas fa-eye"></i></button>
                         <button onclick="deleteProduct('${p.id}')" class="btn btn-danger btn-sm" style="padding:4px 8px;" title="Delete"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
-            `).join('');
-            renderPagination();
+            `}).join('');
+
+            // Render pagination
+            renderPagination(totalPages);
         }
 
-        function renderPagination() {
+        // ============================================
+        // PAGINATION
+        // ============================================
+        function renderPagination(totalPages) {
             const container = document.getElementById('pagination');
-            if (!hasMore && products.length <= limitPerPage) { container.innerHTML = ''; return; }
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
             container.innerHTML = `
-                <span style="font-size:14px;color:var(--text-secondary);">${products.length} produk</span>
+                <span style="font-size:14px;color:var(--text-secondary);">${allProducts.length} produk</span>
                 <div style="display:flex;gap:8px;">
-                    ${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}
-                    ${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}
+                    ${currentPage > 1 ? `<button onclick="goToPage(${currentPage - 1})" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}
+                    <span style="font-size:14px;color:var(--text-secondary);">Halaman ${currentPage} dari ${totalPages}</span>
+                    ${currentPage < totalPages ? `<button onclick="goToPage(${currentPage + 1})" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}
                 </div>
             `;
         }
 
-        window.loadNextPage = function() { currentPage++; loadProducts(false); };
-        window.loadPreviousPage = function() { if (currentPage <= 1) return; currentPage--; lastDoc = null; hasMore = true; loadProducts(true); };
-        window.applyFilters = function() { lastDoc = null; hasMore = true; loadProducts(true); };
-        window.resetFilters = function() { document.getElementById('searchProduct').value = ''; document.getElementById('filterStatus').value = 'all'; document.getElementById('filterType').value = 'all'; applyFilters(); };
-
-        window.approveProduct = function(id) { actionId = id; actionType = 'approve'; document.getElementById('actionModalTitle').textContent = 'Approve Produk'; document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menyetujui produk ini?'; document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-check"></i> Approve'; document.getElementById('actionModal').classList.add('open'); };
-        window.rejectProduct = function(id) { actionId = id; actionType = 'reject'; document.getElementById('actionModalTitle').textContent = 'Reject Produk'; document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menolak produk ini?'; document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-times"></i> Reject'; document.getElementById('actionModal').classList.add('open'); };
-        window.closeActionModal = function() { document.getElementById('actionModal').classList.remove('open'); actionId = null; actionType = null; };
-        window.confirmAction = async function() {
-            if (!actionId || !actionType) return;
-            try {
-                await updateDoc(doc(db, 'products', actionId), { status: actionType === 'approve' ? 'published' : 'rejected', updatedAt: new Date().toISOString() });
-                showToast('success', `Produk ${actionType === 'approve' ? 'disetujui' : 'ditolak'}`);
-                closeActionModal();
-                loadProducts(true);
-            } catch (error) { console.error('❌ [ADMIN_PRODUCTS] Error:', error); showToast('error', 'Gagal memperbarui produk'); }
+        window.goToPage = function(page) {
+            currentPage = page;
+            renderProducts();
         };
 
-        window.viewProduct = function(id) { window.location.href = `/product/${id}`; };
-        window.deleteProduct = async function(id) {
-            if (!confirm('Yakin ingin menghapus produk ini?')) return;
-            try { await deleteDoc(doc(db, 'products', id)); showToast('success', 'Produk dihapus'); loadProducts(true); } 
-            catch (error) { console.error('❌ [ADMIN_PRODUCTS] Error:', error); showToast('error', 'Gagal menghapus produk'); }
+        // ============================================
+        // FILTER FUNCTIONS
+        // ============================================
+        window.applyFilters = function() {
+            currentPage = 1;
+            loadProducts();
         };
 
+        window.resetFilters = function() {
+            document.getElementById('searchProduct').value = '';
+            document.getElementById('filterStatus').value = 'all';
+            document.getElementById('filterType').value = 'all';
+            applyFilters();
+        };
+
+        // ============================================
+        // SEARCH DEBOUNCE
+        // ============================================
         let searchTimeout;
         document.getElementById('searchProduct').addEventListener('input', () => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(applyFilters, 500);
         });
 
+        // ============================================
+        // PRODUCT ACTIONS
+        // ============================================
+        window.approveProduct = function(id) {
+            actionId = id;
+            actionType = 'approve';
+            document.getElementById('actionModalTitle').textContent = 'Approve Produk';
+            document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menyetujui produk ini?';
+            document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-check"></i> Approve';
+            document.getElementById('actionModal').classList.add('open');
+            addDebug(`Approve product: ${id}`, 'info');
+        };
+
+        window.rejectProduct = function(id) {
+            actionId = id;
+            actionType = 'reject';
+            document.getElementById('actionModalTitle').textContent = 'Reject Produk';
+            document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menolak produk ini?';
+            document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-times"></i> Reject';
+            document.getElementById('actionModal').classList.add('open');
+            addDebug(`Reject product: ${id}`, 'info');
+        };
+
+        window.closeActionModal = function() {
+            document.getElementById('actionModal').classList.remove('open');
+            actionId = null;
+            actionType = null;
+        };
+
+        window.confirmAction = async function() {
+            if (!actionId || !actionType) return;
+            try {
+                addDebug(`Processing action: ${actionType} for ${actionId}`, 'info');
+                await updateDoc(doc(db, 'products', actionId), {
+                    status: actionType === 'approve' ? 'published' : 'rejected',
+                    updatedAt: new Date().toISOString()
+                });
+                addDebug(`Product ${actionType}ed successfully`, 'success');
+                showToast('success', `Produk ${actionType === 'approve' ? 'disetujui' : 'ditolak'}`);
+                closeActionModal();
+                loadProducts();
+            } catch (error) {
+                addDebug(`Error: ${error.message}`, 'error');
+                showToast('error', 'Gagal memperbarui produk: ' + error.message);
+            }
+        };
+
+        window.viewProduct = function(id) {
+            window.location.href = `/product/${id}`;
+            addDebug(`View product: ${id}`, 'info');
+        };
+
+        window.deleteProduct = async function(id) {
+            if (!confirm('Yakin ingin menghapus produk ini?')) return;
+            addDebug(`Delete product: ${id}`, 'warning');
+            try {
+                await deleteDoc(doc(db, 'products', id));
+                addDebug(`Product ${id} deleted`, 'success');
+                showToast('success', 'Produk dihapus');
+                loadProducts();
+            } catch (error) {
+                addDebug(`Error deleting: ${error.message}`, 'error');
+                showToast('error', 'Gagal menghapus produk: ' + error.message);
+            }
+        };
+
+        addDebug('Page ready', 'success');
         console.log('✅ [ADMIN_PRODUCTS] Page ready');
     </script>
 </body>
