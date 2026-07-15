@@ -12,7 +12,7 @@
     <link rel="icon" href="/assets/images/favicon.ico">
     <style>
         /* ============================================
-           LAYOUT
+           LAYOUT - SAMA SEPERTI SELLER DASHBOARD
            ============================================ */
         .app-wrapper { display: flex; min-height: calc(100vh - 64px); margin-top: 64px; }
         .sidebar { width: 260px; background: var(--bg-primary); border-right: 1px solid var(--border-color); padding: 20px 0; position: fixed; top: 64px; bottom: 0; overflow-y: auto; z-index: 100; transition: transform 0.3s ease; }
@@ -31,9 +31,6 @@
         .mobile-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-primary); cursor: pointer; padding: 8px; }
         @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); width: 280px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 16px; } .mobile-toggle { display: block !important; } }
         
-        /* ============================================
-           STATS
-           ============================================ */
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
         .stats-grid-extra { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
         .stat-card { background: var(--bg-primary); border-radius: var(--radius); padding: 20px 24px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
@@ -61,194 +58,6 @@
         .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
         .badge-primary { background: rgba(79,70,229,0.1); color: var(--primary); }
         
-        /* ============================================
-           LOG BOX - TAMPAK DI HALAMAN WEB
-           ============================================ */
-        .log-box {
-            background: #1E1E2E;
-            border-radius: var(--radius-lg);
-            padding: 16px 20px;
-            margin-bottom: 20px;
-            border: 1px solid #313244;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            max-height: 300px;
-            overflow-y: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            line-height: 1.8;
-        }
-        .log-box::-webkit-scrollbar {
-            width: 6px;
-        }
-        .log-box::-webkit-scrollbar-track {
-            background: #1E1E2E;
-        }
-        .log-box::-webkit-scrollbar-thumb {
-            background: #45475A;
-            border-radius: 3px;
-        }
-        .log-box::-webkit-scrollbar-thumb:hover {
-            background: #585B70;
-        }
-        
-        .log-box .log-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #313244;
-        }
-        .log-box .log-header .log-title {
-            color: #CDD6F4;
-            font-weight: 700;
-            font-size: 14px;
-            font-family: var(--font);
-        }
-        .log-box .log-header .log-title i {
-            color: #89B4FA;
-            margin-right: 8px;
-        }
-        .log-box .log-header .log-actions {
-            display: flex;
-            gap: 8px;
-        }
-        .log-box .log-header .log-actions button {
-            background: #313244;
-            border: none;
-            color: #CDD6F4;
-            padding: 4px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            font-family: var(--font);
-            transition: var(--transition);
-        }
-        .log-box .log-header .log-actions button:hover {
-            background: #45475A;
-        }
-        .log-box .log-header .log-actions button i {
-            margin-right: 4px;
-        }
-        
-        .log-box .log-entry {
-            padding: 4px 0;
-            border-bottom: 1px solid #2A2A3E;
-            display: flex;
-            gap: 12px;
-            align-items: flex-start;
-        }
-        .log-box .log-entry:last-child {
-            border-bottom: none;
-        }
-        .log-box .log-entry .log-time {
-            color: #6C7086;
-            font-size: 11px;
-            white-space: nowrap;
-            min-width: 75px;
-            padding-top: 2px;
-        }
-        .log-box .log-entry .log-status {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 0 8px;
-            border-radius: 4px;
-            min-width: 60px;
-            text-align: center;
-            flex-shrink: 0;
-        }
-        .log-box .log-entry .log-status.success { color: #A6E3A1; background: #1E3B2A; }
-        .log-box .log-entry .log-status.error { color: #F38BA8; background: #3B1E2A; }
-        .log-box .log-entry .log-status.warning { color: #F9E2AF; background: #3B3A1E; }
-        .log-box .log-entry .log-status.info { color: #89B4FA; background: #1E2A3B; }
-        
-        .log-box .log-entry .log-message {
-            color: #CDD6F4;
-            flex: 1;
-            word-break: break-word;
-        }
-        .log-box .log-entry .log-message .log-code {
-            display: block;
-            background: #11111B;
-            padding: 6px 10px;
-            border-radius: 4px;
-            margin-top: 4px;
-            color: #F5C2E7;
-            font-size: 12px;
-            white-space: pre-wrap;
-            word-break: break-all;
-            cursor: pointer;
-            border: 1px solid #313244;
-            transition: var(--transition);
-            max-height: 80px;
-            overflow-y: auto;
-        }
-        .log-box .log-entry .log-message .log-code:hover {
-            border-color: #89B4FA;
-            background: #1A1A2E;
-        }
-        .log-box .log-entry .log-message .log-code.copied {
-            border-color: #A6E3A1;
-            background: #1E3B2A;
-        }
-        .log-box .log-entry .log-message .log-code .copy-hint {
-            color: #6C7086;
-            font-size: 10px;
-            float: right;
-        }
-        
-        .log-box .log-empty {
-            color: #6C7086;
-            text-align: center;
-            padding: 20px 0;
-            font-family: var(--font);
-        }
-        
-        /* ============================================
-           TOAST
-           ============================================ */
-        .toast-container {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-width: 420px;
-            width: 100%;
-        }
-        .toast {
-            padding: 16px 20px;
-            border-radius: var(--radius);
-            background: var(--bg-primary);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            border-left: 5px solid var(--primary);
-            animation: slideInRight 0.3s ease;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-        }
-        .toast-success { border-left-color: #10B981; }
-        .toast-error { border-left-color: #EF4444; }
-        .toast-warning { border-left-color: #F59E0B; }
-        .toast-info { border-left-color: #3B82F6; }
-        .toast-icon { font-size: 20px; margin-top: 2px; }
-        .toast-success .toast-icon { color: #10B981; }
-        .toast-error .toast-icon { color: #EF4444; }
-        .toast-warning .toast-icon { color: #F59E0B; }
-        .toast-info .toast-icon { color: #3B82F6; }
-        .toast-content { flex: 1; }
-        .toast-title { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
-        .toast-message { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
-        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; transition: var(--transition); }
-        .toast-close:hover { color: var(--text-primary); }
-        
-        @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(40px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         .text-center { text-align: center; }
         .text-secondary { color: var(--text-secondary); }
@@ -262,6 +71,14 @@
         .btn-danger { background: var(--danger); color: white; }
         .btn-danger:hover { transform: translateY(-2px); }
         
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
+        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
+        .toast-icon { font-size: 20px; }
+        .toast-content { flex: 1; }
+        .toast-message { font-size: 13px; color: var(--text-secondary); }
+        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        
         @media (max-width: 1024px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .stats-grid-extra { grid-template-columns: repeat(2, 1fr); }
@@ -273,10 +90,6 @@
         @media (max-width: 640px) {
             .stats-grid { grid-template-columns: 1fr; }
             .stats-grid-extra { grid-template-columns: 1fr; }
-            .toast-container { max-width: 90%; right: 10px; top: 70px; }
-            .log-box { max-height: 200px; font-size: 12px; }
-            .log-box .log-entry { flex-wrap: wrap; gap: 4px; }
-            .log-box .log-entry .log-time { min-width: 60px; font-size: 10px; }
         }
     </style>
 </head>
@@ -286,11 +99,18 @@
     ============================================ -->
     <nav class="navbar">
         <div class="navbar-inner">
-            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
+            <a href="/" class="navbar-logo">
+                <i class="fas fa-cube"></i>
+                <span>ProductKuu</span>
+            </a>
             <div class="navbar-actions">
                 <span class="badge badge-primary" style="font-size:11px;">Admin</span>
-                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
-                <button class="mobile-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                <button class="btn-icon" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="mobile-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
         </div>
     </nav>
@@ -299,16 +119,38 @@
     SIDEBAR
     ============================================ -->
     <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header"><div class="title">Menu Admin</div></div>
+        <div class="sidebar-header">
+            <div class="title">Menu Admin</div>
+        </div>
         <nav class="sidebar-nav">
-            <a href="/admin/dashboard" class="active"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a href="/admin/sellers"><i class="fas fa-users"></i> Seller <span class="badge-count" id="sellerCount">0</span></a>
-            <a href="/admin/products"><i class="fas fa-box"></i> Produk <span class="badge-count" id="productCount">0</span></a>
-            <a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Order <span class="badge-count" id="orderCount">0</span></a>
-            <a href="/admin/banners"><i class="fas fa-images"></i> Banner</a>
-            <a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Withdraw <span class="badge-count" id="pendingWithdrawCount" style="background:rgba(239,68,68,0.1);color:var(--danger);">0</span></a>
-            <a href="/admin/settings"><i class="fas fa-cog"></i> Pengaturan</a>
-            <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            <a href="/admin/dashboard" class="active">
+                <i class="fas fa-chart-pie"></i> Dashboard
+            </a>
+            <a href="/admin/sellers">
+                <i class="fas fa-users"></i> Seller
+                <span class="badge-count" id="sellerCount">0</span>
+            </a>
+            <a href="/admin/products">
+                <i class="fas fa-box"></i> Produk
+                <span class="badge-count" id="productCount">0</span>
+            </a>
+            <a href="/admin/orders">
+                <i class="fas fa-shopping-cart"></i> Order
+                <span class="badge-count" id="orderCount">0</span>
+            </a>
+            <a href="/admin/banners">
+                <i class="fas fa-images"></i> Banner
+            </a>
+            <a href="/admin/withdrawals">
+                <i class="fas fa-arrow-up"></i> Withdraw
+                <span class="badge-count" id="pendingWithdrawCount" style="background:rgba(239,68,68,0.1);color:var(--danger);">0</span>
+            </a>
+            <a href="/admin/settings">
+                <i class="fas fa-cog"></i> Pengaturan
+            </a>
+            <button class="logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
         </nav>
     </aside>
 
@@ -326,47 +168,85 @@
                     <h1 style="font-size:24px;">Dashboard Admin</h1>
                     <p style="color:var(--text-secondary);" id="welcomeMessage">Selamat datang, Admin!</p>
                 </div>
-                <button onclick="location.reload()" class="btn btn-secondary btn-sm"><i class="fas fa-sync-alt"></i> Refresh</button>
-            </div>
-
-            <!-- ============================================
-            LOG BOX - TAMPAK DI HALAMAN WEB
-            ============================================ -->
-            <div class="log-box" id="logBox">
-                <div class="log-header">
-                    <span class="log-title"><i class="fas fa-terminal"></i> System Log</span>
-                    <div class="log-actions">
-                        <button onclick="clearLog()" title="Clear log"><i class="fas fa-trash"></i> Clear</button>
-                        <button onclick="copyLog()" title="Copy log"><i class="fas fa-copy"></i> Copy</button>
-                    </div>
-                </div>
-                <div id="logEntries">
-                    <div class="log-empty">
-                        <i class="fas fa-circle" style="color: #A6E3A1; font-size: 10px;"></i> System ready - waiting for activity...
-                    </div>
-                </div>
+                <button onclick="location.reload()" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
             </div>
 
             <!-- Stats Grid -->
             <div class="stats-grid">
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Total Seller</span><span class="stat-value" id="totalSellers">0</span></div><div class="stat-icon indigo"><i class="fas fa-users"></i></div></div>
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Total Produk</span><span class="stat-value" id="totalProducts">0</span></div><div class="stat-icon green"><i class="fas fa-box"></i></div></div>
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Total Order</span><span class="stat-value" id="totalOrders">0</span></div><div class="stat-icon yellow"><i class="fas fa-shopping-cart"></i></div></div>
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Total Pendapatan</span><span class="stat-value" style="color:var(--primary);" id="totalRevenue">Rp0</span></div><div class="stat-icon purple"><i class="fas fa-money-bill-wave"></i></div></div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">Total Seller</span>
+                        <span class="stat-value" id="totalSellers">0</span>
+                    </div>
+                    <div class="stat-icon indigo"><i class="fas fa-users"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">Total Produk</span>
+                        <span class="stat-value" id="totalProducts">0</span>
+                    </div>
+                    <div class="stat-icon green"><i class="fas fa-box"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">Total Order</span>
+                        <span class="stat-value" id="totalOrders">0</span>
+                    </div>
+                    <div class="stat-icon yellow"><i class="fas fa-shopping-cart"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">Total Pendapatan</span>
+                        <span class="stat-value" style="color:var(--primary);" id="totalRevenue">Rp0</span>
+                    </div>
+                    <div class="stat-icon purple"><i class="fas fa-money-bill-wave"></i></div>
+                </div>
             </div>
 
             <!-- Extra Stats -->
             <div class="stats-grid-extra">
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Withdraw Pending</span><span class="stat-value" style="color:var(--danger);" id="pendingWithdrawals">0</span></div><div class="stat-icon red"><i class="fas fa-clock"></i></div></div>
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Banner Aktif</span><span class="stat-value" style="color:var(--info);" id="activeBanners">0</span></div><div class="stat-icon blue"><i class="fas fa-images"></i></div></div>
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Total Komisi</span><span class="stat-value" style="color:var(--secondary);" id="totalCommission">Rp0</span></div><div class="stat-icon purple"><i class="fas fa-percentage"></i></div></div>
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Total Review</span><span class="stat-value" style="color:var(--success);" id="totalReviews">0</span></div><div class="stat-icon green"><i class="fas fa-star"></i></div></div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">Withdraw Pending</span>
+                        <span class="stat-value" style="color:var(--danger);" id="pendingWithdrawals">0</span>
+                    </div>
+                    <div class="stat-icon red"><i class="fas fa-clock"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">Banner Aktif</span>
+                        <span class="stat-value" style="color:var(--info);" id="activeBanners">0</span>
+                    </div>
+                    <div class="stat-icon blue"><i class="fas fa-images"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">Total Komisi</span>
+                        <span class="stat-value" style="color:var(--secondary);" id="totalCommission">Rp0</span>
+                    </div>
+                    <div class="stat-icon purple"><i class="fas fa-percentage"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">Total Review</span>
+                        <span class="stat-value" style="color:var(--success);" id="totalReviews">0</span>
+                    </div>
+                    <div class="stat-icon green"><i class="fas fa-star"></i></div>
+                </div>
             </div>
 
             <!-- Charts -->
             <div class="charts-grid">
-                <div class="card chart-box"><h4 style="margin-bottom:12px;">Grafik Penjualan (7 Hari)</h4><canvas id="salesChart" height="180"></canvas></div>
-                <div class="card chart-box"><h4 style="margin-bottom:12px;">Grafik Pendapatan (7 Hari)</h4><canvas id="revenueChart" height="180"></canvas></div>
+                <div class="card chart-box">
+                    <h4 style="margin-bottom:12px;">Grafik Penjualan (7 Hari)</h4>
+                    <canvas id="salesChart" height="180"></canvas>
+                </div>
+                <div class="card chart-box">
+                    <h4 style="margin-bottom:12px;">Grafik Pendapatan (7 Hari)</h4>
+                    <canvas id="revenueChart" height="180"></canvas>
+                </div>
             </div>
 
             <!-- Activity -->
@@ -376,21 +256,25 @@
                         <h4>Order Terbaru</h4>
                         <a href="/admin/orders" style="font-size:14px;color:var(--primary);">Lihat Semua →</a>
                     </div>
-                    <div id="recentOrders"><div class="text-center text-secondary" style="padding:12px 0;">Memuat order...</div></div>
+                    <div id="recentOrders">
+                        <div class="text-center text-secondary" style="padding:12px 0;">Memuat order...</div>
+                    </div>
                 </div>
                 <div class="card">
                     <div class="flex-between" style="margin-bottom:16px;">
                         <h4>Withdraw Pending</h4>
                         <a href="/admin/withdrawals" style="font-size:14px;color:var(--primary);">Lihat Semua →</a>
                     </div>
-                    <div id="pendingWithdrawalsList"><div class="text-center text-secondary" style="padding:12px 0;">Memuat withdraw...</div></div>
+                    <div id="pendingWithdrawalsList">
+                        <div class="text-center text-secondary" style="padding:12px 0;">Memuat withdraw...</div>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
     <!-- ============================================
-    TOAST CONTAINER
+    TOAST
     ============================================ -->
     <div class="toast-container" id="toastContainer"></div>
 
@@ -413,19 +297,9 @@
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { 
-            getFirestore, 
-            collection, 
-            doc, 
-            getDoc, 
-            getDocs, 
-            query, 
-            where, 
-            orderBy, 
-            limit, 
-            getCountFromServer, 
-            onSnapshot 
-        } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, getCountFromServer, onSnapshot } from "firebase/firestore";
+
+        console.log('📊 [ADMIN] Page loaded');
 
         // ============================================
         // FIREBASE CONFIG
@@ -444,145 +318,13 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        console.log('✅ [ADMIN] Firebase initialized');
+
         let currentUser = null;
         let userData = null;
 
         // ============================================
-        // LOG SYSTEM - TAMPAK DI HALAMAN WEB
-        // ============================================
-        let logCount = 0;
-        const maxLogs = 100;
-
-        function addLog(status, message, code = null) {
-            logCount++;
-            const container = document.getElementById('logEntries');
-            
-            // Remove empty state if exists
-            const emptyState = container.querySelector('.log-empty');
-            if (emptyState) emptyState.remove();
-
-            // Create log entry
-            const entry = document.createElement('div');
-            entry.className = 'log-entry';
-            
-            const now = new Date();
-            const time = now.toLocaleTimeString('id-ID', { 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                second: '2-digit',
-                hour12: false
-            });
-            
-            const statusLabels = {
-                'success': '✅ SUCCESS',
-                'error': '❌ ERROR',
-                'warning': '⚠️ WARNING',
-                'info': 'ℹ️ INFO'
-            };
-            
-            const statusClass = status || 'info';
-            
-            let codeHtml = '';
-            if (code) {
-                const escapedCode = code.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                codeHtml = `
-                    <div class="log-code" onclick="copyCode(this)" title="Click to copy">
-                        ${escapedCode}
-                        <span class="copy-hint"><i class="fas fa-copy"></i> click to copy</span>
-                    </div>
-                `;
-            }
-
-            entry.innerHTML = `
-                <span class="log-time">${time}</span>
-                <span class="log-status ${statusClass}">${statusLabels[statusClass] || 'ℹ️ INFO'}</span>
-                <div class="log-message">
-                    ${message}
-                    ${codeHtml}
-                </div>
-            `;
-            
-            container.appendChild(entry);
-            
-            // Scroll to bottom
-            const logBox = document.getElementById('logBox');
-            logBox.scrollTop = logBox.scrollHeight;
-            
-            // Limit logs
-            while (container.children.length > maxLogs) {
-                container.removeChild(container.firstChild);
-            }
-        }
-
-        // ============================================
-        // COPY LOG CODE
-        // ============================================
-        window.copyCode = function(element) {
-            const text = element.textContent.replace('click to copy', '').trim();
-            navigator.clipboard.writeText(text).then(() => {
-                element.classList.add('copied');
-                element.innerHTML = text + ' <span style="color: #A6E3A1;">✅ copied!</span>';
-                setTimeout(() => {
-                    element.classList.remove('copied');
-                    element.innerHTML = text + ' <span class="copy-hint"><i class="fas fa-copy"></i> click to copy</span>';
-                }, 2000);
-            }).catch(() => {
-                // Fallback
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                textarea.remove();
-                showToast('success', 'Code copied to clipboard!');
-            });
-        };
-
-        // ============================================
-        // CLEAR LOG
-        // ============================================
-        window.clearLog = function() {
-            const container = document.getElementById('logEntries');
-            container.innerHTML = `
-                <div class="log-empty">
-                    <i class="fas fa-circle" style="color: #A6E3A1; font-size: 10px;"></i> Log cleared - waiting for activity...
-                </div>
-            `;
-            logCount = 0;
-            showToast('info', 'Log cleared');
-        };
-
-        // ============================================
-        // COPY ALL LOG
-        // ============================================
-        window.copyLog = function() {
-            const entries = document.querySelectorAll('.log-entry');
-            let text = '=== PRODUCTKUU SYSTEM LOG ===\n';
-            text += `Exported: ${new Date().toLocaleString()}\n`;
-            text += '='.repeat(40) + '\n\n';
-            
-            entries.forEach(entry => {
-                const time = entry.querySelector('.log-time')?.textContent || '';
-                const status = entry.querySelector('.log-status')?.textContent || '';
-                const message = entry.querySelector('.log-message')?.textContent?.replace(/click to copy/g, '').trim() || '';
-                text += `[${time}] ${status}: ${message}\n`;
-            });
-            
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('success', 'Log copied to clipboard!');
-            }).catch(() => {
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                textarea.remove();
-                showToast('success', 'Log copied to clipboard!');
-            });
-        };
-
-        // ============================================
-        // THEME TOGGLE
+        // THEME
         // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
@@ -592,7 +334,6 @@
             document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
             localStorage.setItem('darkMode', darkMode);
             themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
-            addLog('info', `Theme changed to ${darkMode ? 'dark' : 'light'} mode`);
         });
 
         // ============================================
@@ -606,7 +347,6 @@
             sidebarToggle.addEventListener('click', () => {
                 sidebar.classList.toggle('open');
                 sidebarOverlay.classList.toggle('open');
-                addLog('info', 'Sidebar toggled');
             });
         }
         if (sidebarOverlay) {
@@ -623,7 +363,6 @@
             link.addEventListener('click', function(e) {
                 e.preventDefault();
                 const href = this.getAttribute('href');
-                addLog('info', `Navigating to: ${href}`);
                 if (href) window.location.href = href;
             });
         });
@@ -632,53 +371,32 @@
         // LOGOUT
         // ============================================
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            addLog('warning', 'Logout initiated');
             try {
                 await signOut(auth);
-                addLog('success', 'Logout successful');
                 window.location.href = '/';
             } catch (error) {
-                addLog('error', 'Logout failed', error.message);
                 showToast('error', 'Gagal logout: ' + error.message);
             }
         });
 
         // ============================================
-        // SHOW TOAST
+        // TOAST
         // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
-            const icons = {
-                success: 'fa-check-circle',
-                error: 'fa-exclamation-circle',
-                warning: 'fa-exclamation-triangle',
-                info: 'fa-info-circle'
-            };
-            const titles = {
-                success: '✅ Sukses',
-                error: '❌ Error',
-                warning: '⚠️ Peringatan',
-                info: 'ℹ️ Informasi'
-            };
-            
+            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
             const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
+            toast.className = 'toast';
+            toast.style.borderLeftColor = colors[type] || colors.info;
             toast.innerHTML = `
-                <span class="toast-icon"><i class="fas ${icons[type] || icons.info}"></i></span>
-                <div class="toast-content">
-                    <div class="toast-title">${titles[type] || 'Informasi'}</div>
-                    <div class="toast-message">${message}</div>
-                </div>
-                <button class="toast-close" onclick="this.parentElement.remove()">
-                    <i class="fas fa-times"></i>
-                </button>
+                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
+                <div class="toast-content"><div class="toast-message">${message}</div></div>
+                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
             `;
             container.appendChild(toast);
-            
-            setTimeout(() => {
-                if (toast.parentElement) toast.remove();
-            }, 6000);
+            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
         }
+        window.showToast = showToast;
 
         // ============================================
         // FORMAT FUNCTIONS
@@ -691,6 +409,7 @@
         function formatDate(date) {
             if (!date) return '-';
             const d = date instanceof Date ? date : new Date(date);
+            if (isNaN(d.getTime())) return '-';
             return d.toLocaleDateString('id-ID', {
                 year: 'numeric',
                 month: 'long',
@@ -703,37 +422,34 @@
         // ============================================
         // AUTH STATE
         // ============================================
-        addLog('info', 'Initializing authentication...');
-        
         onAuthStateChanged(auth, async (user) => {
+            console.log('🔍 [ADMIN] Auth state:', user ? user.email : 'null');
             if (!user) {
-                addLog('warning', 'User not authenticated, redirecting to login...');
                 window.location.href = '/admin/login';
                 return;
             }
             currentUser = user;
-            addLog('success', `User authenticated: ${user.email}`);
-            
+            console.log('✅ [ADMIN] User logged in:', user.email);
+
             try {
                 const userRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userRef);
                 if (!userDoc.exists() || userDoc.data().role !== 'admin') {
-                    addLog('error', 'User is not admin, redirecting...');
                     window.location.href = '/';
                     return;
                 }
                 userData = { id: userDoc.id, ...userDoc.data() };
-                addLog('success', `Admin verified: ${userData.displayName || 'Admin'}`);
-                
+                console.log('✅ [ADMIN] User data loaded');
+
                 document.getElementById('welcomeMessage').textContent =
                     `Selamat datang, ${userData.displayName || 'Admin'}!`;
-                
+
                 await loadDashboardData();
                 setupRealtimeListeners();
-                addLog('success', 'Dashboard initialization complete');
+
             } catch (error) {
-                addLog('error', 'Failed to load user data', error.message);
-                showToast('error', 'Gagal memuat data user: ' + error.message);
+                console.error('❌ [ADMIN] Error:', error);
+                showToast('error', 'Gagal memuat data: ' + error.message);
             }
         });
 
@@ -741,8 +457,8 @@
         // LOAD DASHBOARD DATA
         // ============================================
         async function loadDashboardData() {
-            addLog('info', 'Loading dashboard data...');
-            
+            console.log('📊 [ADMIN] Loading data...');
+
             try {
                 // 1. Total Sellers
                 try {
@@ -752,9 +468,9 @@
                     const totalSellers = sellersCount.data().count;
                     document.getElementById('totalSellers').textContent = totalSellers;
                     document.getElementById('sellerCount').textContent = totalSellers;
-                    addLog('success', `Total sellers: ${totalSellers}`);
+                    console.log('✅ [ADMIN] Total sellers:', totalSellers);
                 } catch (error) {
-                    addLog('error', 'Failed to load total sellers', error.message);
+                    console.error('❌ [ADMIN] Sellers error:', error);
                 }
 
                 // 2. Total Products
@@ -765,9 +481,9 @@
                     const totalProducts = productsCount.data().count;
                     document.getElementById('totalProducts').textContent = totalProducts;
                     document.getElementById('productCount').textContent = totalProducts;
-                    addLog('success', `Total products: ${totalProducts}`);
+                    console.log('✅ [ADMIN] Total products:', totalProducts);
                 } catch (error) {
-                    addLog('error', 'Failed to load total products', error.message);
+                    console.error('❌ [ADMIN] Products error:', error);
                 }
 
                 // 3. Total Orders
@@ -778,9 +494,9 @@
                     const totalOrders = ordersCount.data().count;
                     document.getElementById('totalOrders').textContent = totalOrders;
                     document.getElementById('orderCount').textContent = totalOrders;
-                    addLog('success', `Total orders: ${totalOrders}`);
+                    console.log('✅ [ADMIN] Total orders:', totalOrders);
                 } catch (error) {
-                    addLog('error', 'Failed to load total orders', error.message);
+                    console.error('❌ [ADMIN] Orders error:', error);
                 }
 
                 // 4. Total Revenue
@@ -793,9 +509,9 @@
                         totalRevenue += doc.data().amount || 0;
                     });
                     document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
-                    addLog('success', `Total revenue: Rp${formatPrice(totalRevenue)}`);
+                    console.log('✅ [ADMIN] Total revenue:', totalRevenue);
                 } catch (error) {
-                    addLog('error', 'Failed to load total revenue', error.message);
+                    console.error('❌ [ADMIN] Revenue error:', error);
                 }
 
                 // 5. Pending Withdrawals
@@ -806,12 +522,12 @@
                     const pending = pendingCount.data().count;
                     document.getElementById('pendingWithdrawals').textContent = pending;
                     document.getElementById('pendingWithdrawCount').textContent = pending;
-                    addLog('success', `Pending withdrawals: ${pending}`);
+                    console.log('✅ [ADMIN] Pending withdrawals:', pending);
                 } catch (error) {
-                    addLog('error', 'Failed to load pending withdrawals', error.message);
+                    console.error('❌ [ADMIN] Withdrawals error:', error);
                 }
 
-                // 6. Active Banners
+                // 6. Active Banners - Sederhana tanpa index
                 try {
                     const bannersSnapshot = await getDocs(collection(db, 'banners'));
                     const now = new Date();
@@ -826,9 +542,9 @@
                         }
                     });
                     document.getElementById('activeBanners').textContent = activeCount;
-                    addLog('success', `Active banners: ${activeCount}`);
+                    console.log('✅ [ADMIN] Active banners:', activeCount);
                 } catch (error) {
-                    addLog('error', 'Failed to load active banners', error.message);
+                    console.error('❌ [ADMIN] Banners error:', error);
                     document.getElementById('activeBanners').textContent = '0';
                 }
 
@@ -842,33 +558,27 @@
                         totalRevenue += doc.data().amount || 0;
                     });
                     document.getElementById('totalCommission').textContent = `Rp${formatPrice(Math.round(totalRevenue * 0.1))}`;
-                    addLog('success', `Total commission: Rp${formatPrice(Math.round(totalRevenue * 0.1))}`);
+                    console.log('✅ [ADMIN] Commission:', Math.round(totalRevenue * 0.1));
                 } catch (error) {
-                    addLog('error', 'Failed to load total commission', error.message);
+                    console.error('❌ [ADMIN] Commission error:', error);
                 }
 
                 // 8. Total Reviews
                 try {
                     const reviewsCount = await getCountFromServer(collection(db, 'reviews'));
                     document.getElementById('totalReviews').textContent = reviewsCount.data().count;
-                    addLog('success', `Total reviews: ${reviewsCount.data().count}`);
+                    console.log('✅ [ADMIN] Total reviews:', reviewsCount.data().count);
                 } catch (error) {
-                    addLog('error', 'Failed to load total reviews', error.message);
+                    console.error('❌ [ADMIN] Reviews error:', error);
                 }
 
-                // 9. Load recent orders
                 await loadRecentOrders();
-
-                // 10. Load pending withdrawals
                 await loadPendingWithdrawals();
 
-                // 11. Render charts
-                await renderCharts();
-
-                addLog('success', 'All dashboard data loaded successfully');
+                console.log('✅ [ADMIN] Data loaded successfully');
 
             } catch (error) {
-                addLog('error', 'Failed to load dashboard data', error.message);
+                console.error('❌ [ADMIN] Error loading data:', error);
                 showToast('error', 'Gagal memuat data: ' + error.message);
             }
         }
@@ -884,7 +594,6 @@
 
                 if (snapshot.empty) {
                     container.innerHTML = `<div class="text-center text-secondary" style="padding:12px 0;">Belum ada order</div>`;
-                    addLog('info', 'No recent orders found');
                     return;
                 }
 
@@ -911,10 +620,10 @@
                     `;
                 }).join('');
 
-                addLog('success', `Loaded ${snapshot.size} recent orders`);
+                console.log('✅ [ADMIN] Recent orders loaded:', snapshot.size);
 
             } catch (error) {
-                addLog('error', 'Failed to load recent orders', error.message);
+                console.error('❌ [ADMIN] Recent orders error:', error);
                 document.getElementById('recentOrders').innerHTML = '<div class="text-center" style="color:var(--danger);">Gagal memuat order</div>';
             }
         }
@@ -935,7 +644,6 @@
 
                 if (snapshot.empty) {
                     container.innerHTML = `<div class="text-center text-secondary" style="padding:12px 0;">Tidak ada withdraw pending</div>`;
-                    addLog('info', 'No pending withdrawals found');
                     return;
                 }
 
@@ -957,10 +665,10 @@
                     `;
                 }).join('');
 
-                addLog('success', `Loaded ${snapshot.size} pending withdrawals`);
+                console.log('✅ [ADMIN] Pending withdrawals loaded:', snapshot.size);
 
             } catch (error) {
-                addLog('error', 'Failed to load pending withdrawals', error.message);
+                console.error('❌ [ADMIN] Pending withdrawals error:', error);
                 document.getElementById('pendingWithdrawalsList').innerHTML = '<div class="text-center" style="color:var(--danger);">Gagal memuat withdraw</div>';
             }
         }
@@ -969,7 +677,6 @@
         // WITHDRAWAL ACTIONS
         // ============================================
         window.approveWithdrawal = async function(id) {
-            addLog('info', `Approving withdrawal: ${id}`);
             if (!confirm('Setujui permintaan withdraw ini?')) return;
             try {
                 const response = await fetch(`/api/admin/withdrawals/${id}`, {
@@ -978,17 +685,14 @@
                     body: JSON.stringify({ status: 'approved', adminNote: 'Disetujui admin' })
                 });
                 if (!response.ok) throw new Error('Gagal menyetujui withdraw');
-                addLog('success', `Withdrawal ${id} approved`);
                 showToast('success', '✅ Withdraw berhasil disetujui!');
                 await loadDashboardData();
             } catch (error) {
-                addLog('error', 'Failed to approve withdrawal', error.message);
-                showToast('error', '❌ Gagal menyetujui withdraw: ' + error.message);
+                showToast('error', '❌ Gagal: ' + error.message);
             }
         };
 
         window.rejectWithdrawal = async function(id) {
-            addLog('info', `Rejecting withdrawal: ${id}`);
             const note = prompt('Alasan penolakan:');
             if (note === null) return;
             try {
@@ -998,149 +702,37 @@
                     body: JSON.stringify({ status: 'rejected', adminNote: note || 'Ditolak admin' })
                 });
                 if (!response.ok) throw new Error('Gagal menolak withdraw');
-                addLog('warning', `Withdrawal ${id} rejected: ${note || 'No reason given'}`);
                 showToast('warning', '⚠️ Withdraw berhasil ditolak');
                 await loadDashboardData();
             } catch (error) {
-                addLog('error', 'Failed to reject withdrawal', error.message);
-                showToast('error', '❌ Gagal menolak withdraw: ' + error.message);
+                showToast('error', '❌ Gagal: ' + error.message);
             }
         };
-
-        // ============================================
-        // RENDER CHARTS
-        // ============================================
-        async function renderCharts() {
-            try {
-                const days = 7;
-                const dates = [], salesData = [], revenueData = [];
-                for (let i = days - 1; i >= 0; i--) {
-                    const date = new Date();
-                    date.setDate(date.getDate() - i);
-                    dates.push(date.toLocaleDateString('id-ID', { weekday: 'short' }));
-                    const start = new Date(date);
-                    start.setHours(0, 0, 0, 0);
-                    const end = new Date(date);
-                    end.setHours(23, 59, 59, 999);
-                    const q = query(
-                        collection(db, 'orders'),
-                        where('paymentStatus', '==', 'settlement'),
-                        where('createdAt', '>=', start),
-                        where('createdAt', '<=', end)
-                    );
-                    const snapshot = await getDocs(q);
-                    let dailySales = 0, dailyRevenue = 0;
-                    snapshot.forEach(doc => {
-                        dailySales += 1;
-                        dailyRevenue += doc.data().amount || 0;
-                    });
-                    salesData.push(dailySales);
-                    revenueData.push(dailyRevenue);
-                }
-                renderChart('salesChart', dates, salesData, 'Penjualan');
-                renderChart('revenueChart', dates, revenueData, 'Pendapatan');
-                addLog('success', 'Charts rendered successfully');
-            } catch (error) {
-                addLog('error', 'Failed to render charts', error.message);
-            }
-        }
-
-        function renderChart(id, labels, data, label) {
-            const canvas = document.getElementById(id);
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = rect.width - 40;
-            canvas.height = 180;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            if (!data || data.every(v => v === 0)) {
-                ctx.fillStyle = '#9CA3AF';
-                ctx.font = '14px Inter, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(`Belum ada data ${label}`, canvas.width / 2, canvas.height / 2);
-                return;
-            }
-
-            const maxValue = Math.max(...data, 1) * 1.2;
-            const padding = 30;
-            const w = canvas.width - padding * 2;
-            const h = canvas.height - padding * 2;
-
-            ctx.strokeStyle = '#E5E7EB';
-            ctx.lineWidth = 1;
-            ctx.setLineDash([3, 3]);
-            for (let i = 0; i <= 4; i++) {
-                const y = padding + h - (i / 4) * h;
-                ctx.beginPath();
-                ctx.moveTo(padding, y);
-                ctx.lineTo(canvas.width - padding, y);
-                ctx.stroke();
-                ctx.fillStyle = '#6B7280';
-                ctx.font = '9px Inter, sans-serif';
-                ctx.textAlign = 'right';
-                ctx.fillText(
-                    label === 'Pendapatan' ? formatPrice(Math.round(maxValue * i / 4)) : Math.round(maxValue * i / 4),
-                    padding - 5,
-                    y + 3
-                );
-            }
-            ctx.setLineDash([]);
-
-            const barWidth = w / labels.length * 0.6;
-            const spacing = w / labels.length;
-            labels.forEach((labelText, i) => {
-                const x = padding + i * spacing + (spacing - barWidth) / 2;
-                const barHeight = (data[i] / maxValue) * h;
-                const y = padding + h - barHeight;
-                const gradient = ctx.createLinearGradient(x, y, x, padding + h);
-                gradient.addColorStop(0, id === 'salesChart' ? '#4F46E5' : '#7C3AED');
-                gradient.addColorStop(1, id === 'salesChart' ? '#818CF8' : '#A78BFA');
-                ctx.fillStyle = gradient;
-                ctx.beginPath();
-                ctx.roundRect(x, y, barWidth, barHeight, 4);
-                ctx.fill();
-                ctx.fillStyle = '#6B7280';
-                ctx.font = '9px Inter, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(labelText, x + barWidth / 2, padding + h + 15);
-            });
-        }
 
         // ============================================
         // REALTIME LISTENERS
         // ============================================
         function setupRealtimeListeners() {
-            addLog('info', 'Setting up realtime listeners...');
-            
             onSnapshot(collection(db, 'orders'), () => {
-                addLog('info', 'Orders collection updated - reloading data...');
+                console.log('🔄 [ADMIN] Orders updated');
                 loadDashboardData();
             });
             onSnapshot(collection(db, 'withdrawals'), () => {
-                addLog('info', 'Withdrawals collection updated - reloading data...');
+                console.log('🔄 [ADMIN] Withdrawals updated');
                 loadDashboardData();
             });
             onSnapshot(collection(db, 'products'), () => {
-                addLog('info', 'Products collection updated - reloading data...');
+                console.log('🔄 [ADMIN] Products updated');
                 loadDashboardData();
             });
             onSnapshot(collection(db, 'users'), () => {
-                addLog('info', 'Users collection updated - reloading data...');
+                console.log('🔄 [ADMIN] Users updated');
                 loadDashboardData();
             });
-            
-            addLog('success', 'Realtime listeners active');
+            console.log('✅ [ADMIN] Realtime listeners active');
         }
 
-        // ============================================
-        // INITIAL LOG
-        // ============================================
-        addLog('success', '🚀 System initialized successfully');
-        addLog('info', `📱 Platform: ${navigator.userAgent.split(' ').slice(0, 3).join(' ')}`);
-        addLog('info', `🕐 Server time: ${new Date().toLocaleString('id-ID')}`);
-
-        console.log('✅ Admin Dashboard loaded successfully!');
+        console.log('✅ [ADMIN] Page ready');
     </script>
 </body>
 </html>

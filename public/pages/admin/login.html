@@ -8,135 +8,54 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="../../css/style.css">
-    <link rel="icon" href="../../assets/images/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/assets/images/favicon.ico">
     <style>
-        .auth-container {
-            max-width: 440px;
-            margin: 80px auto 40px;
-            padding: 0 20px;
-        }
-        .auth-card {
-            background: var(--bg-primary);
-            border-radius: var(--radius-lg);
-            padding: 40px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-lg);
-        }
-        .auth-card .auth-header {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-        .auth-card .auth-header h1 {
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
-        .auth-card .auth-header p {
-            color: var(--text-secondary);
-            font-size: 15px;
-        }
-        .auth-card .auth-header .logo {
-            font-size: 48px;
-            color: var(--primary);
-            margin-bottom: 12px;
-            display: block;
-        }
-        .auth-divider {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin: 20px 0;
-            color: var(--text-light);
-            font-size: 13px;
-        }
-        .auth-divider::before,
-        .auth-divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border-color);
-        }
-        .auth-footer {
-            text-align: center;
-            margin-top: 24px;
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-        .auth-footer a {
-            color: var(--primary);
-            font-weight: 600;
-        }
-        .input-group .input-icon {
-            position: relative;
-        }
-        .input-group .input-icon i {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-light);
-        }
-        .input-group .input-icon .input {
-            padding-left: 44px;
-        }
-        .input-group .input-icon .toggle-password {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--text-light);
-            cursor: pointer;
-            font-size: 16px;
-            padding: 4px;
-        }
-        .input-group .input-icon .toggle-password:hover {
-            color: var(--text-primary);
-        }
-        .login-error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            border-radius: var(--radius);
-            padding: 12px 16px;
-            color: var(--danger);
-            font-size: 14px;
-            display: none;
-            margin-bottom: 16px;
-        }
-        .login-error.show {
-            display: block;
-        }
-        .admin-badge {
-            display: inline-block;
-            background: rgba(79, 70, 229, 0.1);
-            color: var(--primary);
-            padding: 4px 12px;
-            border-radius: 9999px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        @media (max-width: 480px) {
-            .auth-card { padding: 24px; }
-            .auth-container { margin-top: 40px; }
-        }
+        .auth-container { max-width: 440px; margin: 80px auto 40px; padding: 0 20px; }
+        .auth-card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 40px; border: 1px solid var(--border-color); box-shadow: var(--shadow-lg); }
+        .auth-card .auth-header { text-align: center; margin-bottom: 32px; }
+        .auth-card .auth-header h1 { font-size: 28px; margin-bottom: 8px; }
+        .auth-card .auth-header p { color: var(--text-secondary); font-size: 15px; }
+        .auth-card .auth-header .logo { font-size: 48px; color: var(--primary); margin-bottom: 12px; display: block; }
+        .auth-card .auth-header .admin-badge { display: inline-block; background: rgba(79,70,229,0.1); color: var(--primary); padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
+        .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+        .input-group label { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+        .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
+        .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
+        .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-block { width: 100%; justify-content: center; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
+        .auth-footer { text-align: center; margin-top: 24px; font-size: 14px; color: var(--text-secondary); }
+        .auth-footer a { color: var(--primary); font-weight: 600; }
+        .auth-divider { display: flex; align-items: center; gap: 16px; margin: 20px 0; color: var(--text-light); font-size: 13px; }
+        .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border-color); }
+        .login-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 12px 16px; color: var(--danger); font-size: 14px; display: none; margin-bottom: 16px; }
+        .login-error.show { display: block; }
+        .input-icon { position: relative; }
+        .input-icon i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-light); }
+        .input-icon .input { padding-left: 44px; }
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
+        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
+        .toast-icon { font-size: 20px; }
+        .toast-content { flex: 1; }
+        .toast-message { font-size: 13px; color: var(--text-secondary); }
+        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        @media (max-width: 480px) { .auth-card { padding: 24px; } }
     </style>
 </head>
 <body>
-    <!-- Minimal Navbar -->
+    <!-- Navbar -->
     <nav class="navbar">
         <div class="navbar-inner">
-            <a href="/" class="navbar-logo">
-                <i class="fas fa-cube"></i>
-                <span>ProductKuu</span>
-            </a>
+            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
             <div class="navbar-actions">
-                <button class="btn-icon" id="themeToggle">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <a href="/" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-home"></i> Beranda
-                </a>
+                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <a href="/" class="btn btn-secondary btn-sm"><i class="fas fa-home"></i> Beranda</a>
             </div>
         </div>
     </nav>
@@ -151,9 +70,7 @@
                     <p>
                         <span class="admin-badge"><i class="fas fa-lock"></i> Akses Terbatas</span>
                     </p>
-                    <p style="margin-top: 8px; font-size: 14px; color: var(--text-light);">
-                        Hanya untuk administrator ProductKuu
-                    </p>
+                    <p style="margin-top:8px;font-size:14px;color:var(--text-light);">Hanya untuk administrator ProductKuu</p>
                 </div>
 
                 <div class="login-error" id="loginError">
@@ -162,8 +79,7 @@
                 </div>
 
                 <form id="loginForm">
-                    <!-- Email -->
-                    <div class="input-group" style="margin-bottom: 16px;">
+                    <div class="input-group">
                         <label for="email">Email Admin</label>
                         <div class="input-icon">
                             <i class="fas fa-envelope"></i>
@@ -171,80 +87,73 @@
                         </div>
                     </div>
 
-                    <!-- Password -->
-                    <div class="input-group" style="margin-bottom: 8px;">
+                    <div class="input-group">
                         <label for="password">Password</label>
                         <div class="input-icon">
                             <i class="fas fa-lock"></i>
                             <input type="password" id="password" class="input" required placeholder="Masukkan password" autocomplete="current-password">
-                            <button type="button" class="toggle-password" onclick="togglePassword()">
-                                <i class="fas fa-eye"></i>
-                            </button>
                         </div>
                     </div>
 
-                    <!-- Submit -->
-                    <button type="submit" class="btn btn-primary btn-block" id="loginBtn" style="margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
                         <i class="fas fa-sign-in-alt"></i> Masuk sebagai Admin
                     </button>
                 </form>
 
                 <div class="auth-divider">atau</div>
-
                 <div class="auth-footer">
                     <a href="/seller/login">Login sebagai Seller</a>
-                    <span style="color: var(--text-light); margin: 0 8px;">•</span>
+                    <span style="color:var(--text-light);margin:0 8px;">•</span>
                     <a href="/">Kembali ke Beranda</a>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="footer" style="margin-top: 48px;">
-        <div class="container">
-            <div class="footer-bottom">
-                <p>&copy; 2026 ProductKuu. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
+    <!-- Toast -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <script type="module">
-        import { 
-            db, auth, collections,
-            doc, getDoc,
-            signInWithEmailAndPassword, onAuthStateChanged, signOut
-        } from '../../js/firebase-config.js';
-        import { showToast, navigate } from '../../js/app.js';
-
-        // ============================================
-        // CHECK IF ALREADY LOGGED IN
-        // ============================================
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                try {
-                    const userRef = doc(db, collections.users, user.uid);
-                    const userDoc = await getDoc(userRef);
-                    if (userDoc.exists()) {
-                        const data = userDoc.data();
-                        if (data.role === 'admin') {
-                            navigate('/admin/dashboard');
-                            return;
-                        } else if (data.role === 'seller') {
-                            navigate('/seller/dashboard');
-                            return;
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error checking user role:', error);
-                }
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"
             }
-        });
+        }
+    </script>
+
+    <script type="module">
+        // ============================================
+        // IMPORTS
+        // ============================================
+        import { initializeApp } from "firebase/app";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+        import { getFirestore, doc, getDoc } from "firebase/firestore";
+
+        console.log('🔐 [ADMIN_LOGIN] Page loaded');
 
         // ============================================
-        // THEME TOGGLE
+        // FIREBASE CONFIG
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
+            authDomain: "productkuu.firebaseapp.com",
+            projectId: "productkuu",
+            storageBucket: "productkuu.firebasestorage.app",
+            messagingSenderId: "6615996108",
+            appId: "1:6615996108:web:daa6e17c1275d3061cd469",
+            measurementId: "G-78ZPLZMFEJ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        console.log('✅ [ADMIN_LOGIN] Firebase initialized');
+
+        // ============================================
+        // THEME
         // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
@@ -257,25 +166,54 @@
         });
 
         // ============================================
-        // TOGGLE PASSWORD VISIBILITY
+        // TOAST
         // ============================================
-        window.togglePassword = function() {
-            const input = document.getElementById('password');
-            const icon = input.parentElement.querySelector('.toggle-password i');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.className = 'fas fa-eye-slash';
-            } else {
-                input.type = 'password';
-                icon.className = 'fas fa-eye';
-            }
-        };
+        function showToast(type, message) {
+            const container = document.getElementById('toastContainer');
+            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeftColor = colors[type] || colors.info;
+            toast.innerHTML = `
+                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
+                <div class="toast-content"><div class="toast-message">${message}</div></div>
+                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
+        }
+        window.showToast = showToast;
 
         // ============================================
-        // LOGIN FORM SUBMIT
+        // CHECK LOGIN STATUS
+        // ============================================
+        onAuthStateChanged(auth, async (user) => {
+            console.log('🔍 [ADMIN_LOGIN] Auth state:', user ? user.email : 'null');
+            if (user) {
+                try {
+                    const userRef = doc(db, 'users', user.uid);
+                    const userDoc = await getDoc(userRef);
+                    if (userDoc.exists()) {
+                        const role = userDoc.data().role;
+                        console.log('✅ [ADMIN_LOGIN] User role:', role);
+                        if (role === 'admin') {
+                            window.location.href = '/admin/dashboard';
+                        } else if (role === 'seller') {
+                            window.location.href = '/seller/dashboard';
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ [ADMIN_LOGIN] Error:', error);
+                }
+            }
+        });
+
+        // ============================================
+        // LOGIN FORM
         // ============================================
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            console.log('📤 [ADMIN_LOGIN] Form submitted');
 
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
@@ -284,23 +222,27 @@
 
             errorEl.classList.remove('show');
 
-            if (!email) { showToast('warning', 'Email wajib diisi'); return; }
-            if (!password) { showToast('warning', 'Password wajib diisi'); return; }
+            if (!email || !password) {
+                showToast('warning', 'Email dan password wajib diisi');
+                return;
+            }
 
             const btn = document.getElementById('loginBtn');
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
 
             try {
+                console.log('🔐 [ADMIN_LOGIN] Attempting login...');
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
+                console.log('✅ [ADMIN_LOGIN] Login success:', user.email);
 
-                const userRef = doc(db, collections.users, user.uid);
+                const userRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userRef);
 
                 if (!userDoc.exists()) {
                     await signOut(auth);
-                    errorMsg.textContent = 'Akun tidak ditemukan.';
+                    errorMsg.textContent = 'Akun tidak ditemukan. Hubungi support.';
                     errorEl.classList.add('show');
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Masuk sebagai Admin';
@@ -308,13 +250,14 @@
                 }
 
                 const userData = userDoc.data();
+                console.log('✅ [ADMIN_LOGIN] User role:', userData.role);
 
                 if (userData.role === 'admin') {
                     showToast('success', 'Selamat datang, Admin ' + (userData.displayName || '') + '!');
-                    navigate('/admin/dashboard');
+                    setTimeout(() => { window.location.href = '/admin/dashboard'; }, 500);
                 } else if (userData.role === 'seller') {
                     showToast('info', 'Anda login sebagai seller. Diarahkan ke dashboard seller.');
-                    navigate('/seller/dashboard');
+                    setTimeout(() => { window.location.href = '/seller/dashboard'; }, 500);
                 } else {
                     await signOut(auth);
                     errorMsg.textContent = 'Akun Anda tidak memiliki akses admin.';
@@ -324,34 +267,24 @@
                 }
 
             } catch (error) {
-                console.error('Login error:', error);
-                
+                console.error('❌ [ADMIN_LOGIN] Error:', error);
                 let message = 'Email atau password salah.';
-                if (error.code === 'auth/user-not-found') {
-                    message = 'Email tidak terdaftar.';
-                } else if (error.code === 'auth/wrong-password') {
-                    message = 'Password salah.';
-                } else if (error.code === 'auth/too-many-requests') {
-                    message = 'Terlalu banyak percobaan. Coba lagi nanti.';
-                }
+                if (error.code === 'auth/user-not-found') message = 'Email tidak terdaftar.';
+                else if (error.code === 'auth/wrong-password') message = 'Password salah.';
+                else if (error.code === 'auth/too-many-requests') message = 'Terlalu banyak percobaan. Coba lagi nanti.';
+                else if (error.code === 'auth/invalid-email') message = 'Format email tidak valid.';
+                else if (error.code === 'auth/network-request-failed') message = 'Koneksi internet bermasalah.';
 
                 errorMsg.textContent = message;
                 errorEl.classList.add('show');
+                showToast('error', message);
+
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Masuk sebagai Admin';
             }
         });
 
-        // ============================================
-        // ENTER KEY SUPPORT
-        // ============================================
-        document.getElementById('password').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
-            }
-        });
-
-        console.log('🔐 Admin Login page loaded successfully!');
+        console.log('✅ [ADMIN_LOGIN] Page ready');
     </script>
 </body>
 </html>
