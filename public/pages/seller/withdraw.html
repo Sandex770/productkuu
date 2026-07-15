@@ -29,24 +29,21 @@
         
         .withdraw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
         .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
-        .input-group { display: flex; flex-direction: column; gap: 6px; }
+        .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
         .input-group label { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
         .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
         .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
+        textarea.input { resize: vertical; min-height: 60px; }
+        
         .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
         .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
         .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
         .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
         .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
+        
         .withdraw-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
         .withdraw-item:last-child { border-bottom: none; }
-        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
-        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
-        .toast-icon { font-size: 20px; }
-        .toast-content { flex: 1; }
-        .toast-message { font-size: 13px; color: var(--text-secondary); }
-        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         .text-center { text-align: center; }
         .text-secondary { color: var(--text-secondary); }
@@ -57,9 +54,19 @@
         .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
         .btn-block { width: 100%; justify-content: center; }
         .btn-sm { padding: 8px 16px; font-size: 12px; }
+        
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
+        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
+        .toast-icon { font-size: 20px; }
+        .toast-content { flex: 1; }
+        .toast-message { font-size: 13px; color: var(--text-secondary); }
+        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        
         .balance-box { padding: 12px 16px; background: rgba(79,70,229,0.1); border-radius: var(--radius); margin-bottom: 16px; }
         .balance-box .label { font-size: 13px; color: var(--text-secondary); }
         .balance-box .value { font-size: 24px; font-weight: 700; color: var(--primary); }
+        
         @media (max-width: 768px) { .withdraw-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -102,12 +109,12 @@
                         <div class="value" id="availableBalance">Rp0</div>
                     </div>
                     <form id="withdrawForm">
-                        <div class="input-group" style="margin-bottom:12px;">
+                        <div class="input-group">
                             <label for="withdrawAmount">Nominal Withdraw *</label>
                             <input type="number" id="withdrawAmount" class="input" required placeholder="Minimal Rp50.000" min="50000">
                             <span class="hint" style="font-size:12px;color:var(--text-light);">Minimal: Rp50.000, Maksimal: Rp10.000.000</span>
                         </div>
-                        <div class="input-group" style="margin-bottom:12px;">
+                        <div class="input-group">
                             <label for="withdrawMethod">Metode Pembayaran *</label>
                             <select id="withdrawMethod" class="input" required>
                                 <option value="">Pilih Metode</option>
@@ -121,15 +128,15 @@
                                 <option value="Bank BNI">Bank BNI</option>
                             </select>
                         </div>
-                        <div class="input-group" style="margin-bottom:12px;">
+                        <div class="input-group">
                             <label for="withdrawAccountNumber">Nomor Tujuan *</label>
                             <input type="text" id="withdrawAccountNumber" class="input" required placeholder="Nomor rekening/HP">
                         </div>
-                        <div class="input-group" style="margin-bottom:12px;">
+                        <div class="input-group">
                             <label for="withdrawAccountName">Nama Pemilik *</label>
                             <input type="text" id="withdrawAccountName" class="input" required placeholder="Nama sesuai rekening">
                         </div>
-                        <div class="input-group" style="margin-bottom:16px;">
+                        <div class="input-group">
                             <label for="withdrawNote">Catatan (Opsional)</label>
                             <textarea id="withdrawNote" class="input" rows="2" placeholder="Catatan tambahan"></textarea>
                         </div>
@@ -164,6 +171,8 @@
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, onSnapshot } from "firebase/firestore";
 
+        console.log('💰 [WITHDRAW] Page loaded');
+
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
             authDomain: "productkuu.firebaseapp.com",
@@ -177,6 +186,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
         let currentUser = null;
 
         // Theme
@@ -193,13 +203,32 @@
         // Sidebar
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
-        document.getElementById('sidebarToggle').addEventListener('click', () => { sidebar.classList.toggle('open'); sidebarOverlay.classList.toggle('open'); });
-        sidebarOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sidebarOverlay.classList.remove('open'); });
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('open');
+            });
+        }
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('open');
+            });
+        }
+
         document.querySelectorAll('.sidebar-nav a').forEach(link => {
-            link.addEventListener('click', function(e) { e.preventDefault(); const href = this.getAttribute('href'); if (href) window.location.href = href; });
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                if (href) window.location.href = href;
+            });
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', async () => { try { await signOut(auth); window.location.href = '/'; } catch (error) { showToast('error', 'Gagal logout'); } });
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try { await signOut(auth); window.location.href = '/'; } 
+            catch (error) { showToast('error', 'Gagal logout'); }
+        });
 
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
@@ -207,13 +236,25 @@
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.style.borderLeftColor = colors[type] || colors.info;
-            toast.innerHTML = `<span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span><div class="toast-content"><div class="toast-message">${message}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
+            toast.innerHTML = `
+                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
+                <div class="toast-content"><div class="toast-message">${message}</div></div>
+                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            `;
             container.appendChild(toast);
             setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
         }
 
-        function formatPrice(price) { if (!price && price !== 0) return '0'; return new Intl.NumberFormat('id-ID').format(price); }
-        function formatDate(date) { if (!date) return '-'; const d = date instanceof Date ? date : new Date(date); return d.toLocaleDateString('id-ID', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' }); }
+        function formatPrice(price) {
+            if (!price && price !== 0) return '0';
+            return new Intl.NumberFormat('id-ID').format(price);
+        }
+
+        function formatDate(date) {
+            if (!date) return '-';
+            const d = date instanceof Date ? date : new Date(date);
+            return d.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = '/seller/login'; return; }
@@ -234,7 +275,7 @@
                     const wallet = userDoc.data().wallet || { available: 0 };
                     document.getElementById('availableBalance').textContent = `Rp${formatPrice(wallet.available || 0)}`;
                 }
-            } catch (error) { console.error('Error loading balance:', error); }
+            } catch (error) { console.error('❌ [WITHDRAW] Error:', error); }
         }
 
         async function loadWithdrawHistory(uid) {
@@ -257,36 +298,51 @@
                         </div>
                     </div>`;
                 }).join('');
-            } catch (error) { console.error('Error loading withdraw history:', error); document.getElementById('withdrawHistory').innerHTML = '<div class="text-center" style="color:var(--danger);">Gagal memuat riwayat</div>'; }
+            } catch (error) { console.error('❌ [WITHDRAW] Error:', error); }
         }
 
         document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            console.log('📤 [WITHDRAW] Form submitted');
+
             const amount = parseInt(document.getElementById('withdrawAmount').value);
             const method = document.getElementById('withdrawMethod').value;
             const accountNumber = document.getElementById('withdrawAccountNumber').value.trim();
             const accountName = document.getElementById('withdrawAccountName').value.trim();
             const note = document.getElementById('withdrawNote').value.trim();
+
             if (!amount || amount < 50000) { showToast('warning', 'Minimal withdraw Rp50.000'); return; }
             if (amount > 10000000) { showToast('warning', 'Maksimal withdraw Rp10.000.000'); return; }
             if (!method || !accountNumber || !accountName) { showToast('warning', 'Lengkapi data withdraw'); return; }
+
             try {
                 const userRef = doc(db, 'users', currentUser.uid);
                 const userDoc = await getDoc(userRef);
                 const available = userDoc.data()?.wallet?.available || 0;
                 if (amount > available) { showToast('error', 'Saldo tidak mencukupi'); return; }
+
                 await addDoc(collection(db, 'withdrawals'), {
-                    sellerId: currentUser.uid, amount, method, accountNumber, accountName, note,
-                    status: 'pending', createdAt: serverTimestamp(), updatedAt: serverTimestamp()
+                    sellerId: currentUser.uid,
+                    amount: amount,
+                    method: method,
+                    accountNumber: accountNumber,
+                    accountName: accountName,
+                    note: note,
+                    status: 'pending',
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
                 });
                 showToast('success', 'Permintaan withdraw berhasil diajukan!');
                 document.getElementById('withdrawForm').reset();
                 await loadBalance(currentUser.uid);
                 await loadWithdrawHistory(currentUser.uid);
-            } catch (error) { console.error('Error submitting withdraw:', error); showToast('error', 'Gagal mengajukan withdraw'); }
+            } catch (error) {
+                console.error('❌ [WITHDRAW] Error:', error);
+                showToast('error', 'Gagal mengajukan withdraw: ' + error.message);
+            }
         });
 
-        console.log('💰 Withdraw page loaded!');
+        console.log('✅ [WITHDRAW] Page ready');
     </script>
 </body>
 </html>

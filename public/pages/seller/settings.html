@@ -28,17 +28,21 @@
         @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); width: 280px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 16px; } .mobile-toggle { display: block !important; } }
         
         .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); max-width: 640px; }
-        .input-group { display: flex; flex-direction: column; gap: 6px; }
+        .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
         .input-group label { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
         .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
         .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
         textarea.input { resize: vertical; min-height: 80px; }
+        
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
         .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
         .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
         .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
         .btn-block { width: 100%; justify-content: center; }
+        .btn-sm { padding: 8px 16px; font-size: 12px; }
+        
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
         .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
         .toast-icon { font-size: 20px; }
@@ -46,7 +50,6 @@
         .toast-message { font-size: 13px; color: var(--text-secondary); }
         .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
     </style>
 </head>
 <body>
@@ -82,27 +85,27 @@
 
             <div class="card">
                 <form id="settingsForm">
-                    <div class="input-group" style="margin-bottom:12px;">
+                    <div class="input-group">
                         <label for="storeName">Nama Toko *</label>
                         <input type="text" id="storeName" class="input" required placeholder="Nama toko Anda">
                     </div>
-                    <div class="input-group" style="margin-bottom:12px;">
+                    <div class="input-group">
                         <label for="storeDescription">Deskripsi Toko</label>
                         <textarea id="storeDescription" class="input" rows="4" placeholder="Deskripsi toko Anda"></textarea>
                     </div>
-                    <div class="input-group" style="margin-bottom:12px;">
+                    <div class="input-group">
                         <label for="storeLogo">Logo Toko (URL)</label>
                         <input type="url" id="storeLogo" class="input" placeholder="https://example.com/logo.png">
                     </div>
-                    <div class="input-group" style="margin-bottom:12px;">
+                    <div class="input-group">
                         <label for="storeWhatsapp">WhatsApp</label>
                         <input type="text" id="storeWhatsapp" class="input" placeholder="08123456789">
                     </div>
-                    <div class="input-group" style="margin-bottom:12px;">
+                    <div class="input-group">
                         <label for="storeEmail">Email</label>
                         <input type="email" id="storeEmail" class="input" placeholder="toko@example.com">
                     </div>
-                    <div class="input-group" style="margin-bottom:16px;">
+                    <div class="input-group">
                         <label for="storeInstagram">Instagram</label>
                         <input type="text" id="storeInstagram" class="input" placeholder="@toko_anda">
                     </div>
@@ -132,6 +135,8 @@
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
 
+        console.log('⚙️ [SETTINGS] Page loaded');
+
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
             authDomain: "productkuu.firebaseapp.com",
@@ -145,6 +150,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
         let currentUser = null;
 
         // Theme
@@ -161,13 +167,32 @@
         // Sidebar
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
-        document.getElementById('sidebarToggle').addEventListener('click', () => { sidebar.classList.toggle('open'); sidebarOverlay.classList.toggle('open'); });
-        sidebarOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sidebarOverlay.classList.remove('open'); });
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('open');
+            });
+        }
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('open');
+            });
+        }
+
         document.querySelectorAll('.sidebar-nav a').forEach(link => {
-            link.addEventListener('click', function(e) { e.preventDefault(); const href = this.getAttribute('href'); if (href) window.location.href = href; });
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                if (href) window.location.href = href;
+            });
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', async () => { try { await signOut(auth); window.location.href = '/'; } catch (error) { showToast('error', 'Gagal logout'); } });
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try { await signOut(auth); window.location.href = '/'; } 
+            catch (error) { showToast('error', 'Gagal logout'); }
+        });
 
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
@@ -175,7 +200,11 @@
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.style.borderLeftColor = colors[type] || colors.info;
-            toast.innerHTML = `<span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span><div class="toast-content"><div class="toast-message">${message}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
+            toast.innerHTML = `
+                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
+                <div class="toast-content"><div class="toast-message">${message}</div></div>
+                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            `;
             container.appendChild(toast);
             setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
         }
@@ -202,27 +231,41 @@
                     document.getElementById('storeEmail').value = data.email || '';
                     document.getElementById('storeInstagram').value = data.instagram || '';
                 }
-            } catch (error) { console.error('Error loading settings:', error); showToast('error', 'Gagal memuat pengaturan'); }
+            } catch (error) { console.error('❌ [SETTINGS] Error:', error); }
         }
 
         document.getElementById('settingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            console.log('📤 [SETTINGS] Saving settings...');
+
             const storeName = document.getElementById('storeName').value.trim();
             if (!storeName) { showToast('warning', 'Nama toko wajib diisi'); return; }
+
             try {
                 await updateDoc(doc(db, 'users', currentUser.uid), {
-                    storeName, storeDescription: document.getElementById('storeDescription').value.trim(),
-                    logo: document.getElementById('storeLogo').value.trim(), whatsapp: document.getElementById('storeWhatsapp').value.trim(),
-                    email: document.getElementById('storeEmail').value.trim(), instagram: document.getElementById('storeInstagram').value.trim(),
+                    storeName: storeName,
+                    storeDescription: document.getElementById('storeDescription').value.trim(),
+                    logo: document.getElementById('storeLogo').value.trim(),
+                    whatsapp: document.getElementById('storeWhatsapp').value.trim(),
+                    email: document.getElementById('storeEmail').value.trim(),
+                    instagram: document.getElementById('storeInstagram').value.trim(),
                     updatedAt: new Date().toISOString()
                 });
                 showToast('success', 'Pengaturan berhasil disimpan!');
-            } catch (error) { console.error('Error saving settings:', error); showToast('error', 'Gagal menyimpan pengaturan'); }
+            } catch (error) {
+                console.error('❌ [SETTINGS] Error:', error);
+                showToast('error', 'Gagal menyimpan pengaturan: ' + error.message);
+            }
         });
 
-        window.resetSettings = function() { if (confirm('Reset semua pengaturan?')) loadSettings(currentUser.uid); };
+        window.resetSettings = function() {
+            if (confirm('Reset semua pengaturan?')) {
+                loadSettings(currentUser.uid);
+                showToast('info', 'Pengaturan direset');
+            }
+        };
 
-        console.log('⚙️ Settings page loaded!');
+        console.log('✅ [SETTINGS] Page ready');
     </script>
 </body>
 </html>
