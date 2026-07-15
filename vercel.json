@@ -88,6 +88,10 @@
       "dest": "/public/cek-order.html"
     },
     {
+      "src": "/product-seller",
+      "dest": "/public/product-seller.html"
+    },
+    {
       "src": "/css/(.*)",
       "dest": "/public/css/$1"
     },
