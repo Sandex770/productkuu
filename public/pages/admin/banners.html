@@ -114,7 +114,6 @@
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
         
-        /* Product list for banner selection */
         .product-list-item {
             display: flex;
             align-items: center;
@@ -493,6 +492,12 @@
                 addDebug(`Error loading banners: ${error.message}`, 'error');
                 showError('Gagal memuat banner', error.message);
                 showToast('error', 'Gagal memuat banner: ' + error.message);
+                document.getElementById('bannersGrid').innerHTML = `
+                    <div class="text-center text-danger" style="grid-column:1/-1;padding:40px 0;color:var(--danger);">
+                        <i class="fas fa-exclamation-triangle" style="font-size:48px;display:block;margin-bottom:16px;"></i>
+                        Gagal memuat banner: ${error.message}
+                    </div>
+                `;
             }
         }
 
@@ -732,6 +737,7 @@
                 addDebug('Pricing loaded', 'success');
             } catch (error) {
                 addDebug(`Error loading pricing: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat harga: ' + error.message);
             }
         }
 
@@ -766,13 +772,19 @@
                 const response = await fetch('/api/banner-pricing', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ price, duration, maxSlots: maxSlots, autoSlideSpeed })
+                    body: JSON.stringify({ 
+                        price: price, 
+                        duration: duration, 
+                        maxSlots: maxSlots, 
+                        autoSlideSpeed: autoSlideSpeed 
+                    })
                 });
 
                 if (!response.ok) throw new Error('Failed to save pricing');
 
                 showToast('success', 'Pengaturan harga disimpan!');
                 closePricingSettings();
+                loadPricing();
             } catch (error) {
                 addDebug(`Error saving pricing: ${error.message}`, 'error');
                 showToast('error', 'Gagal menyimpan: ' + error.message);
