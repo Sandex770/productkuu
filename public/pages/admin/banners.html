@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manajemen Banner - ProductKuu</title>
+    <title>Manajemen Banner - ProductKuu Admin</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -29,14 +29,18 @@
         
         .banner-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
         .banner-card { background: var(--bg-primary); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border-color); }
-        .banner-card .banner-image { aspect-ratio: 16/9; background: linear-gradient(135deg, #4F46E5, #7C3AED); display: flex; align-items: center; justify-content: center; font-size: 48px; color: rgba(255,255,255,0.3); }
+        .banner-card .banner-image { aspect-ratio: 16/9; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; font-size: 48px; color: var(--text-light); overflow: hidden; position: relative; }
+        .banner-card .banner-image img { width: 100%; height: 100%; object-fit: cover; }
         .banner-card .banner-body { padding: 16px; }
-        .banner-card .banner-actions { display: flex; gap: 8px; margin-top: 12px; }
+        .banner-card .banner-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
         
+        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
         .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
         .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
         .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
         .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
+        .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
+        .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
         .badge-primary { background: rgba(79,70,229,0.1); color: var(--primary); }
         
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
@@ -46,6 +50,8 @@
         .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
         .btn-danger { background: var(--danger); color: white; }
         .btn-danger:hover { transform: translateY(-2px); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { transform: translateY(-2px); }
         .btn-sm { padding: 8px 16px; font-size: 12px; }
         .btn-block { width: 100%; justify-content: center; }
         
@@ -56,7 +62,7 @@
         
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
         .modal-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
-        .modal { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 32px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; animation: slideUp 0.3s ease; }
+        .modal { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 32px; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; animation: slideUp 0.3s ease; }
         .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; color: var(--text-secondary); cursor: pointer; transition: all 0.3s; padding: 4px; }
         .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -65,6 +71,11 @@
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         .text-center { text-align: center; }
         .text-secondary { color: var(--text-secondary); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .font-bold { font-weight: 700; }
+        .text-success { color: var(--success); }
+        .text-info { color: var(--info); }
+        .text-primary { color: var(--primary); }
         
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
         .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
@@ -103,8 +114,8 @@
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
         
-        @media (max-width: 1024px) { .banner-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 640px) { .banner-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 1024px) { .banner-grid { grid-template-columns: repeat(2, 1fr); } .settings-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 640px) { .banner-grid { grid-template-columns: 1fr; } .grid-2 { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -137,12 +148,20 @@
     <div class="app-wrapper">
         <main class="main-content">
             <div class="flex-between" style="margin-bottom:24px;">
-                <div><h1 style="font-size:24px;">Manajemen Banner</h1><p style="color:var(--text-secondary);">Kelola semua banner di homepage</p></div>
-                <div style="display:flex;gap:8px;">
+                <div>
+                    <h1 style="font-size:24px;">Manajemen Banner</h1>
+                    <p style="color:var(--text-secondary);">Kelola banner homepage & pengaturan harga</p>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     <button onclick="refreshData()" class="btn btn-secondary btn-sm">
                         <i class="fas fa-sync-alt"></i> Refresh
                     </button>
-                    <button onclick="openBannerSettings()" class="btn btn-secondary"><i class="fas fa-cog"></i> Pengaturan Banner</button>
+                    <button onclick="openAddBanner()" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Tambah Banner
+                    </button>
+                    <button onclick="openPricingSettings()" class="btn btn-secondary">
+                        <i class="fas fa-cog"></i> Harga Banner
+                    </button>
                 </div>
             </div>
 
@@ -159,6 +178,59 @@
                 <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
             </div>
 
+            <!-- Pricing Settings Card -->
+            <div class="settings-grid" id="pricingCard" style="margin-top:8px;display:none;">
+                <div class="card">
+                    <h4 style="margin-bottom:16px;">Pengaturan Harga Banner</h4>
+                    <form id="pricingForm">
+                        <div class="input-group">
+                            <label for="bannerPrice">Harga per Jam (Rp)</label>
+                            <input type="number" id="bannerPrice" class="input" placeholder="100000" min="1000">
+                        </div>
+                        <div class="input-group">
+                            <label for="bannerDuration">Durasi Default (Jam)</label>
+                            <input type="number" id="bannerDuration" class="input" placeholder="24" min="1">
+                        </div>
+                        <div class="grid-2">
+                            <div class="input-group">
+                                <label for="maxBanners">Max Slot Banner</label>
+                                <input type="number" id="maxBanners" class="input" placeholder="5" min="1">
+                            </div>
+                            <div class="input-group">
+                                <label for="autoSlideSpeed">Auto Slide (detik)</label>
+                                <input type="number" id="autoSlideSpeed" class="input" placeholder="5" min="1">
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:12px;">
+                            <button type="submit" class="btn btn-primary" style="flex:1;"><i class="fas fa-save"></i> Simpan</button>
+                            <button type="button" onclick="closePricingSettings()" class="btn btn-secondary" style="flex:1;">Tutup</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card">
+                    <h4 style="margin-bottom:16px;">Statistik Banner</h4>
+                    <div id="bannerStats">
+                        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-color);">
+                            <span>Total Banner</span>
+                            <span class="font-bold" id="totalBanners">0</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-color);">
+                            <span>Banner Aktif</span>
+                            <span class="font-bold text-success" id="activeBanners">0</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-color);">
+                            <span>Banner Seller</span>
+                            <span class="font-bold text-info" id="sellerBanners">0</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;padding:8px 0;">
+                            <span>Banner Admin</span>
+                            <span class="font-bold text-primary" id="adminBanners">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Banners Grid -->
             <div class="banner-grid" id="bannersGrid" style="margin-top:8px;">
                 <div class="text-center text-secondary" style="grid-column:1/-1;padding:40px 0;">
                     <i class="fas fa-spinner fa-spin" style="font-size:24px;display:block;margin-bottom:8px;"></i>
@@ -168,29 +240,36 @@
         </main>
     </div>
 
-    <!-- Settings Modal -->
-    <div class="modal-overlay" id="settingsModal">
+    <!-- Add Banner Modal -->
+    <div class="modal-overlay" id="addBannerModal">
         <div class="modal">
-            <button class="modal-close" onclick="closeSettingsModal()"><i class="fas fa-times"></i></button>
-            <h3 class="modal-title">Pengaturan Banner</h3>
-            <form id="settingsForm">
+            <button class="modal-close" onclick="closeAddBanner()"><i class="fas fa-times"></i></button>
+            <h3 class="modal-title">Tambah Banner</h3>
+            <form id="addBannerForm">
                 <div class="input-group">
-                    <label for="bannerPrice">Harga Banner (Rp)</label>
-                    <input type="number" id="bannerPrice" class="input" placeholder="100000" min="1000">
+                    <label for="bannerTitle">Judul Banner *</label>
+                    <input type="text" id="bannerTitle" class="input" required placeholder="Masukkan judul banner">
                 </div>
                 <div class="input-group">
-                    <label for="bannerDuration">Durasi Banner (Jam)</label>
-                    <input type="number" id="bannerDuration" class="input" placeholder="24" min="1">
+                    <label for="bannerDescription">Deskripsi</label>
+                    <textarea id="bannerDescription" class="input" rows="2" placeholder="Deskripsi banner"></textarea>
                 </div>
                 <div class="input-group">
-                    <label for="maxBanners">Max Slot Banner</label>
-                    <input type="number" id="maxBanners" class="input" placeholder="5" min="1">
+                    <label for="bannerImageUrl">URL Gambar *</label>
+                    <input type="url" id="bannerImageUrl" class="input" required placeholder="https://example.com/banner.jpg">
                 </div>
                 <div class="input-group">
-                    <label for="autoSlideSpeed">Kecepatan Auto Slide (detik)</label>
-                    <input type="number" id="autoSlideSpeed" class="input" placeholder="5" min="1">
+                    <label for="bannerLinkUrl">Link Tujuan (Opsional)</label>
+                    <input type="url" id="bannerLinkUrl" class="input" placeholder="https://example.com">
                 </div>
-                <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-save"></i> Simpan Pengaturan</button>
+                <div class="input-group">
+                    <label for="bannerExpiresAt">Tanggal Kadaluarsa (Opsional)</label>
+                    <input type="datetime-local" id="bannerExpiresAt" class="input">
+                </div>
+                <div style="display:flex;gap:12px;margin-top:12px;">
+                    <button type="submit" class="btn btn-primary" style="flex:1;"><i class="fas fa-save"></i> Simpan</button>
+                    <button type="button" onclick="closeAddBanner()" class="btn btn-secondary" style="flex:1;">Batal</button>
+                </div>
             </form>
         </div>
     </div>
@@ -208,14 +287,11 @@
     </script>
 
     <script type="module">
-        // ============================================
-        // IMPORTS - TANPA onSnapshot
-        // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, updateDoc, deleteDoc, setDoc } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
 
-        console.log('🖼️ [ADMIN_BANNERS] Page loaded (OPTIMIZED)');
+        console.log('🖼️ [ADMIN_BANNERS] Page loaded');
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
@@ -233,9 +309,6 @@
 
         let currentUser = null;
 
-        // ============================================
-        // DEBUG LOG
-        // ============================================
         let debugVisible = false;
 
         function addDebug(message, type = 'info') {
@@ -253,23 +326,14 @@
             const box = document.getElementById('debugBox');
             debugVisible = !debugVisible;
             box.classList.toggle('show');
-            if (debugVisible) {
-                addDebug('Debug mode activated', 'info');
-            }
+            if (debugVisible) addDebug('Debug mode activated', 'info');
         };
 
-        // ============================================
-        // REFRESH DATA
-        // ============================================
         window.refreshData = function() {
             addDebug('Manual refresh triggered', 'info');
-            showToast('info', 'Memperbarui data banner...');
             loadBanners();
         };
 
-        // ============================================
-        // THEME & SIDEBAR
-        // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -309,9 +373,6 @@
             catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
         });
 
-        // ============================================
-        // TOAST & ERROR
-        // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
             const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
@@ -336,9 +397,11 @@
             setTimeout(() => { box.classList.remove('show'); }, 10000);
         }
 
-        // ============================================
-        // FORMAT FUNCTIONS
-        // ============================================
+        function formatPrice(price) {
+            if (!price && price !== 0) return '0';
+            return new Intl.NumberFormat('id-ID').format(price);
+        }
+
         function formatDate(date) {
             if (!date) return '-';
             const d = date instanceof Date ? date : new Date(date);
@@ -351,11 +414,6 @@
                 minute: '2-digit'
             });
         }
-
-        // ============================================
-        // AUTH STATE
-        // ============================================
-        addDebug('Setting up auth...', 'info');
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
@@ -376,157 +434,111 @@
                 }
                 addDebug('Admin verified', 'success');
                 await loadBanners();
-                await loadSettings();
-                // TIDAK ADA onSnapshot
-
+                await loadPricing();
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat data: ' + error.message);
             }
         });
 
-        // ============================================
-        // LOAD BANNERS
-        // ============================================
         async function loadBanners() {
             addDebug('Loading banners...', 'info');
-
             try {
-                const snapshot = await getDocs(collection(db, 'banners'));
-                addDebug(`Fetched ${snapshot.size} banners from Firestore`, 'info');
-
-                const container = document.getElementById('bannersGrid');
-
-                if (snapshot.empty) {
-                    container.innerHTML = `
-                        <div class="text-center text-secondary" style="grid-column:1/-1;padding:40px 0;">
-                            <i class="fas fa-images" style="font-size:48px;display:block;margin-bottom:16px;"></i>
-                            Belum ada banner
-                        </div>
-                    `;
-                    addDebug('No banners found', 'info');
-                    return;
-                }
-
-                const banners = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                    createdAtDate: doc.data().createdAt?.toDate?.() || new Date(doc.data().createdAt)
-                })).sort((a, b) => b.createdAtDate - a.createdAtDate);
-
-                container.innerHTML = banners.map(b => `
-                    <div class="banner-card">
-                        <div class="banner-image">
-                            ${b.imageUrl ? `<img src="${b.imageUrl}" alt="${b.title}" style="width:100%;height:100%;object-fit:cover;">` : '<i class="fas fa-image"></i>'}
-                        </div>
-                        <div class="banner-body">
-                            <h4>${b.title || 'Banner'}</h4>
-                            <p style="font-size:14px;color:var(--text-secondary);">${b.description || 'Tidak ada deskripsi'}</p>
-                            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
-                                <span class="badge ${b.isActive ? 'badge-success' : 'badge-danger'}">${b.isActive ? 'Active' : 'Inactive'}</span>
-                                <span style="font-size:12px;color:var(--text-light);">Exp: ${formatDate(b.expiresAt)}</span>
-                            </div>
-                            <div class="banner-actions">
-                                <button onclick="toggleBanner('${b.id}')" class="btn btn-secondary btn-sm" style="flex:1;">
-                                    <i class="fas ${b.isActive ? 'fa-pause' : 'fa-play'}"></i> ${b.isActive ? 'Nonaktifkan' : 'Aktifkan'}
-                                </button>
-                                <button onclick="deleteBanner('${b.id}')" class="btn btn-danger btn-sm" style="flex:1;">
-                                    <i class="fas fa-trash"></i> Hapus
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-
+                const response = await fetch('/api/admin/banners');
+                if (!response.ok) throw new Error('Failed to fetch banners');
+                
+                const banners = await response.json();
                 addDebug(`Loaded ${banners.length} banners`, 'success');
-
+                renderBanners(banners);
+                updateStats(banners);
             } catch (error) {
                 addDebug(`Error loading banners: ${error.message}`, 'error');
-                console.error('❌ [ADMIN_BANNERS] Error:', error);
                 showError('Gagal memuat banner', error.message);
                 showToast('error', 'Gagal memuat banner: ' + error.message);
-                document.getElementById('bannersGrid').innerHTML = `
-                    <div class="text-center" style="grid-column:1/-1;color:var(--danger);padding:40px 0;">
-                        Gagal memuat banner: ${error.message}
+            }
+        }
+
+        function renderBanners(banners) {
+            const container = document.getElementById('bannersGrid');
+            
+            if (!banners || banners.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-secondary" style="grid-column:1/-1;padding:40px 0;">
+                        <i class="fas fa-images" style="font-size:48px;display:block;margin-bottom:16px;"></i>
+                        Belum ada banner
                     </div>
                 `;
+                return;
             }
+
+            container.innerHTML = banners.map(b => `
+                <div class="banner-card">
+                    <div class="banner-image">
+                        ${b.imageUrl ? `<img src="${b.imageUrl}" alt="${b.title}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-image\\'></i>'">` : '<i class="fas fa-image"></i>'}
+                        <span style="position:absolute;top:12px;left:12px;background:rgba(0,0,0,0.7);color:white;font-size:10px;padding:2px 10px;border-radius:9999px;">
+                            ${b.type === 'seller' ? 'Seller' : 'Admin'}
+                        </span>
+                    </div>
+                    <div class="banner-body">
+                        <h4>${b.title || 'Banner'}</h4>
+                        <p style="font-size:14px;color:var(--text-secondary);">${b.description || 'Tidak ada deskripsi'}</p>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap;gap:4px;">
+                            <span class="badge ${b.isActive ? 'badge-success' : 'badge-danger'}">${b.isActive ? 'Active' : 'Inactive'}</span>
+                            ${b.expiresAt ? `<span style="font-size:12px;color:var(--text-light);">Exp: ${formatDate(b.expiresAt)}</span>` : ''}
+                        </div>
+                        ${b.type === 'seller' ? `
+                            <div style="margin-top:8px;font-size:12px;color:var(--text-secondary);">
+                                Seller: ${b.sellerId} • Rp${formatPrice(b.price)} • ${b.duration} jam
+                            </div>
+                        ` : ''}
+                        <div class="banner-actions">
+                            <button onclick="toggleBanner('${b.id}')" class="btn btn-secondary btn-sm" style="flex:1;">
+                                <i class="fas ${b.isActive ? 'fa-pause' : 'fa-play'}"></i> ${b.isActive ? 'Nonaktifkan' : 'Aktifkan'}
+                            </button>
+                            <button onclick="deleteBanner('${b.id}')" class="btn btn-danger btn-sm" style="flex:1;">
+                                <i class="fas fa-trash"></i> Hapus
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        // ============================================
-        // LOAD SETTINGS
-        // ============================================
-        async function loadSettings() {
-            try {
-                addDebug('Loading banner settings...', 'info');
-                const settingsRef = doc(db, 'settings', 'banner');
-                const settingsDoc = await getDoc(settingsRef);
+        function updateStats(banners) {
+            const total = banners?.length || 0;
+            const active = banners?.filter(b => b.isActive)?.length || 0;
+            const seller = banners?.filter(b => b.type === 'seller')?.length || 0;
+            const admin = banners?.filter(b => b.type === 'admin' || !b.type)?.length || 0;
 
-                if (settingsDoc.exists()) {
-                    const data = settingsDoc.data();
-                    document.getElementById('bannerPrice').value = data.price || 100000;
-                    document.getElementById('bannerDuration').value = data.duration || 24;
-                    document.getElementById('maxBanners').value = data.maxSlots || 5;
-                    document.getElementById('autoSlideSpeed').value = data.autoSlideSpeed || 5;
-                    addDebug('Banner settings loaded', 'success');
-                } else {
-                    addDebug('No settings found, creating default...', 'warning');
-                    await setDoc(settingsRef, {
-                        price: 100000,
-                        duration: 24,
-                        maxSlots: 5,
-                        autoSlideSpeed: 5,
-                        updatedAt: new Date().toISOString()
-                    });
-                    addDebug('Default settings created', 'success');
-                }
-            } catch (error) {
-                addDebug(`Error loading settings: ${error.message}`, 'error');
-                console.error('❌ [ADMIN_BANNERS] Settings error:', error);
-            }
+            document.getElementById('totalBanners').textContent = total;
+            document.getElementById('activeBanners').textContent = active;
+            document.getElementById('sellerBanners').textContent = seller;
+            document.getElementById('adminBanners').textContent = admin;
         }
 
-        // ============================================
-        // TOGGLE BANNER
-        // ============================================
         window.toggleBanner = async function(id) {
             addDebug(`Toggling banner: ${id}`, 'info');
-
             try {
-                const bannerRef = doc(db, 'banners', id);
-                const bannerDoc = await getDoc(bannerRef);
-                if (!bannerDoc.exists()) {
-                    addDebug('Banner not found', 'error');
-                    showToast('error', 'Banner tidak ditemukan');
-                    return;
-                }
-
-                const current = bannerDoc.data().isActive;
-                await updateDoc(bannerRef, {
-                    isActive: !current,
-                    updatedAt: new Date().toISOString()
+                const response = await fetch(`/api/admin/banners/${id}/toggle`, {
+                    method: 'PATCH'
                 });
-
-                addDebug(`Banner ${!current ? 'activated' : 'deactivated'}`, 'success');
-                showToast('success', `Banner ${!current ? 'diaktifkan' : 'dinonaktifkan'}`);
+                if (!response.ok) throw new Error('Failed to toggle banner');
+                showToast('success', 'Status banner diubah');
                 loadBanners();
             } catch (error) {
                 addDebug(`Error toggling banner: ${error.message}`, 'error');
-                showToast('error', 'Gagal mengubah status banner: ' + error.message);
+                showToast('error', 'Gagal mengubah status: ' + error.message);
             }
         };
 
-        // ============================================
-        // DELETE BANNER
-        // ============================================
         window.deleteBanner = async function(id) {
-            addDebug(`Deleting banner: ${id}`, 'warning');
-
             if (!confirm('Yakin ingin menghapus banner ini?')) return;
-
+            addDebug(`Deleting banner: ${id}`, 'warning');
             try {
-                await deleteDoc(doc(db, 'banners', id));
-                addDebug(`Banner ${id} deleted`, 'success');
+                const response = await fetch(`/api/admin/banners/${id}`, {
+                    method: 'DELETE'
+                });
+                if (!response.ok) throw new Error('Failed to delete banner');
                 showToast('success', 'Banner berhasil dihapus');
                 loadBanners();
             } catch (error) {
@@ -535,24 +547,81 @@
             }
         };
 
-        // ============================================
-        // SETTINGS MODAL
-        // ============================================
-        window.openBannerSettings = function() {
-            addDebug('Opening banner settings modal', 'info');
-            document.getElementById('settingsModal').classList.add('open');
+        window.openAddBanner = function() {
+            document.getElementById('addBannerModal').classList.add('open');
+            document.getElementById('addBannerForm').reset();
+            addDebug('Add banner modal opened', 'info');
         };
 
-        window.closeSettingsModal = function() {
-            document.getElementById('settingsModal').classList.remove('open');
+        window.closeAddBanner = function() {
+            document.getElementById('addBannerModal').classList.remove('open');
         };
 
-        // ============================================
-        // SAVE SETTINGS
-        // ============================================
-        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+        document.getElementById('addBannerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            addDebug('Saving banner settings...', 'info');
+            addDebug('Creating banner...', 'info');
+
+            const title = document.getElementById('bannerTitle').value.trim();
+            const description = document.getElementById('bannerDescription').value.trim();
+            const imageUrl = document.getElementById('bannerImageUrl').value.trim();
+            const linkUrl = document.getElementById('bannerLinkUrl').value.trim();
+            const expiresAt = document.getElementById('bannerExpiresAt').value;
+
+            if (!title || !imageUrl) {
+                showToast('warning', 'Judul dan URL gambar wajib diisi');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/admin/banners', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, description, imageUrl, linkUrl, expiresAt })
+                });
+
+                if (!response.ok) throw new Error('Failed to create banner');
+
+                showToast('success', 'Banner berhasil dibuat!');
+                closeAddBanner();
+                loadBanners();
+            } catch (error) {
+                addDebug(`Error creating banner: ${error.message}`, 'error');
+                showToast('error', 'Gagal membuat banner: ' + error.message);
+            }
+        });
+
+        async function loadPricing() {
+            try {
+                const response = await fetch('/api/banner-pricing');
+                if (!response.ok) throw new Error('Failed to load pricing');
+                const data = await response.json();
+                
+                document.getElementById('bannerPrice').value = data.price || 100000;
+                document.getElementById('bannerDuration').value = data.duration || 24;
+                document.getElementById('maxBanners').value = data.maxSlots || 5;
+                document.getElementById('autoSlideSpeed').value = data.autoSlideSpeed || 5;
+                addDebug('Pricing loaded', 'success');
+            } catch (error) {
+                addDebug(`Error loading pricing: ${error.message}`, 'error');
+            }
+        }
+
+        window.openPricingSettings = function() {
+            const card = document.getElementById('pricingCard');
+            card.style.display = card.style.display === 'none' ? 'grid' : 'none';
+            if (card.style.display === 'grid') {
+                loadPricing();
+            }
+            addDebug('Pricing settings toggled', 'info');
+        };
+
+        window.closePricingSettings = function() {
+            document.getElementById('pricingCard').style.display = 'none';
+        };
+
+        document.getElementById('pricingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            addDebug('Saving pricing...', 'info');
 
             const price = parseInt(document.getElementById('bannerPrice').value);
             const duration = parseInt(document.getElementById('bannerDuration').value);
@@ -560,51 +629,29 @@
             const autoSlideSpeed = parseInt(document.getElementById('autoSlideSpeed').value);
 
             if (!price || price < 1000) {
-                showToast('warning', 'Harga banner minimal Rp1.000');
-                addDebug('Invalid price', 'warning');
-                return;
-            }
-            if (!duration || duration < 1) {
-                showToast('warning', 'Durasi minimal 1 jam');
-                addDebug('Invalid duration', 'warning');
+                showToast('warning', 'Harga minimal Rp1.000');
                 return;
             }
 
             try {
-                const settingsRef = doc(db, 'settings', 'banner');
-                const docSnap = await getDoc(settingsRef);
-                
-                if (docSnap.exists()) {
-                    await updateDoc(settingsRef, {
-                        price: price,
-                        duration: duration,
-                        maxSlots: maxSlots,
-                        autoSlideSpeed: autoSlideSpeed,
-                        updatedAt: new Date().toISOString()
-                    });
-                    addDebug('Settings updated', 'success');
-                } else {
-                    await setDoc(settingsRef, {
-                        price: price,
-                        duration: duration,
-                        maxSlots: maxSlots,
-                        autoSlideSpeed: autoSlideSpeed,
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString()
-                    });
-                    addDebug('Settings created', 'success');
-                }
+                const response = await fetch('/api/banner-pricing', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ price, duration, maxSlots: maxSlots, autoSlideSpeed })
+                });
 
-                showToast('success', 'Pengaturan banner berhasil disimpan');
-                closeSettingsModal();
+                if (!response.ok) throw new Error('Failed to save pricing');
+
+                showToast('success', 'Pengaturan harga disimpan!');
+                closePricingSettings();
             } catch (error) {
-                addDebug(`Error saving settings: ${error.message}`, 'error');
-                showToast('error', 'Gagal menyimpan pengaturan: ' + error.message);
+                addDebug(`Error saving pricing: ${error.message}`, 'error');
+                showToast('error', 'Gagal menyimpan: ' + error.message);
             }
         });
 
         addDebug('Page ready', 'success');
-        console.log('✅ [ADMIN_BANNERS] Page ready (OPTIMIZED - no listeners)');
+        console.log('✅ [ADMIN_BANNERS] Page ready');
     </script>
 </body>
 </html>
