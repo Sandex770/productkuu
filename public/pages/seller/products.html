@@ -15,6 +15,8 @@
     <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="Mid-client-OkRCJi3x4-wno9XX"></script>
     
     <style>
+        /* ... CSS SAMA SEPERTI SEBELUMNYA ... */
+        /* (saya singkat karena panjang, gunakan CSS dari versi sebelumnya) */
         .app-wrapper { display: flex; min-height: calc(100vh - 64px); margin-top: 64px; }
         .sidebar { width: 260px; background: var(--bg-primary); border-right: 1px solid var(--border-color); padding: 20px 0; position: fixed; top: 64px; bottom: 0; overflow-y: auto; z-index: 100; transition: transform 0.3s ease; }
         .sidebar-header { padding: 0 16px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px; }
@@ -31,118 +33,31 @@
         .main-content { margin-left: 260px; padding: 24px; flex: 1; min-height: calc(100vh - 64px); }
         .mobile-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-primary); cursor: pointer; padding: 8px; }
         @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); width: 280px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 16px; } .mobile-toggle { display: block !important; } }
-        
         .table-wrapper { overflow-x: auto; }
         .table { width: 100%; border-collapse: collapse; }
         .table th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); border-bottom: 2px solid var(--border-color); background: var(--bg-secondary); white-space: nowrap; }
         .table td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); font-size: 14px; vertical-align: middle; }
         .table tr:hover td { background: var(--bg-secondary); }
-        
-        .product-cell {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            min-width: 160px;
-        }
-        .product-cell .product-thumb {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            background: var(--bg-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-        }
-        .product-cell .product-thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .product-cell .product-thumb i {
-            font-size: 16px;
-            color: var(--text-light);
-        }
-        .product-cell .product-name {
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 130px;
-        }
-        .product-cell .product-date {
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-        
-        .action-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        .action-dropdown > button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 6px;
-            transition: all 0.3s;
-            font-size: 16px;
-            color: var(--text-secondary);
-        }
-        .action-dropdown > button:hover {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-        .action-dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: 100%;
-            min-width: 170px;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-lg);
-            z-index: 100;
-            padding: 4px 0;
-        }
-        .action-dropdown-content.show {
-            display: block;
-            animation: fadeIn 0.2s ease;
-        }
-        .action-dropdown-content a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 14px;
-            color: var(--text-primary);
-            font-size: 13px;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .action-dropdown-content a:hover {
-            background: var(--bg-secondary);
-        }
-        .action-dropdown-content a.danger {
-            color: var(--danger);
-        }
-        .action-dropdown-content a.danger:hover {
-            background: rgba(239,68,68,0.1);
-        }
-        .action-dropdown-content a i {
-            width: 16px;
-            text-align: center;
-            font-size: 14px;
-        }
-        
+        .product-cell { display: flex; align-items: center; gap: 10px; min-width: 160px; }
+        .product-cell .product-thumb { width: 36px; height: 36px; border-radius: 8px; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; border: 1px solid var(--border-color); }
+        .product-cell .product-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .product-cell .product-thumb i { font-size: 16px; color: var(--text-light); }
+        .product-cell .product-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+        .product-cell .product-date { font-size: 11px; color: var(--text-secondary); }
+        .action-dropdown { position: relative; display: inline-block; }
+        .action-dropdown > button { background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: all 0.3s; font-size: 16px; color: var(--text-secondary); }
+        .action-dropdown > button:hover { background: var(--bg-secondary); color: var(--text-primary); }
+        .action-dropdown-content { display: none; position: absolute; right: 0; top: 100%; min-width: 170px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius); box-shadow: var(--shadow-lg); z-index: 100; padding: 4px 0; }
+        .action-dropdown-content.show { display: block; animation: fadeIn 0.2s ease; }
+        .action-dropdown-content a { display: flex; align-items: center; gap: 10px; padding: 8px 14px; color: var(--text-primary); font-size: 13px; text-decoration: none; cursor: pointer; transition: all 0.2s; }
+        .action-dropdown-content a:hover { background: var(--bg-secondary); }
+        .action-dropdown-content a.danger { color: var(--danger); }
+        .action-dropdown-content a.danger:hover { background: rgba(239,68,68,0.1); }
+        .action-dropdown-content a i { width: 16px; text-align: center; font-size: 14px; }
         .filter-bar { background: var(--bg-primary); border-radius: var(--radius); padding: 12px 16px; border: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 20px; }
         .filter-bar .filter-group { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
         .filter-bar .filter-group select, .filter-bar .filter-group input { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 13px; min-width: 110px; }
         .filter-bar .filter-actions { display: flex; gap: 8px; }
-        
         .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
         .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
         .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
@@ -150,11 +65,9 @@
         .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
         .badge-purple { background: rgba(124,58,237,0.1); color: var(--secondary); }
         .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
-        
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         .text-center { text-align: center; }
         .text-secondary { color: var(--text-secondary); }
-        
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
         .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
@@ -166,12 +79,10 @@
         .btn-block { width: 100%; justify-content: center; }
         .btn-success { background: var(--success); color: white; }
         .btn-success:hover { transform: translateY(-2px); }
-        
         .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
         .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
         .input-group { display: flex; flex-direction: column; gap: 6px; }
         .input-group label { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
-        
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
         .modal-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
         .modal { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 32px; max-width: 640px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; animation: slideUp 0.3s ease; }
@@ -180,60 +91,16 @@
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        
-        /* Payment method styles */
-        .payment-method-option {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: all 0.3s;
-            flex: 1;
-        }
-        .payment-method-option:hover {
-            border-color: var(--primary);
-        }
-        .payment-method-option.active {
-            border-color: var(--primary);
-            background: rgba(79,70,229,0.05);
-        }
-        .payment-method-option input[type="radio"] {
-            accent-color: var(--primary);
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-        .payment-method-option .method-icon {
-            font-size: 20px;
-            width: 32px;
-            text-align: center;
-        }
-        .payment-method-option .method-label {
-            font-weight: 500;
-            font-size: 14px;
-        }
-        .payment-method-option .method-desc {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-        .payment-method-option .method-status {
-            margin-left: auto;
-            font-size: 12px;
-            padding: 2px 10px;
-            border-radius: 9999px;
-        }
-        .payment-method-option .method-status.available {
-            background: rgba(16,185,129,0.1);
-            color: var(--success);
-        }
-        .payment-method-option .method-status.insufficient {
-            background: rgba(239,68,68,0.1);
-            color: var(--danger);
-        }
-        
+        .payment-method-option { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); cursor: pointer; transition: all 0.3s; flex: 1; }
+        .payment-method-option:hover { border-color: var(--primary); }
+        .payment-method-option.active { border-color: var(--primary); background: rgba(79,70,229,0.05); }
+        .payment-method-option input[type="radio"] { accent-color: var(--primary); width: 18px; height: 18px; cursor: pointer; }
+        .payment-method-option .method-icon { font-size: 20px; width: 32px; text-align: center; }
+        .payment-method-option .method-label { font-weight: 500; font-size: 14px; }
+        .payment-method-option .method-desc { font-size: 12px; color: var(--text-secondary); }
+        .payment-method-option .method-status { margin-left: auto; font-size: 12px; padding: 2px 10px; border-radius: 9999px; }
+        .payment-method-option .method-status.available { background: rgba(16,185,129,0.1); color: var(--success); }
+        .payment-method-option .method-status.insufficient { background: rgba(239,68,68,0.1); color: var(--danger); }
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
         .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
         .toast-icon { font-size: 20px; }
@@ -241,20 +108,7 @@
         .toast-message { font-size: 13px; color: var(--text-secondary); }
         .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-        
-        .debug-box {
-            background: #1E1E2E;
-            border-radius: var(--radius);
-            padding: 12px 16px;
-            margin-bottom: 16px;
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            color: #CDD6F4;
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
-            border: 1px solid #313244;
-        }
+        .debug-box { background: #1E1E2E; border-radius: var(--radius); padding: 12px 16px; margin-bottom: 16px; font-family: 'Courier New', monospace; font-size: 11px; color: #CDD6F4; max-height: 200px; overflow-y: auto; display: none; border: 1px solid #313244; }
         .debug-box.show { display: block; }
         .debug-box .debug-line { padding: 2px 0; border-bottom: 1px solid #2A2A3E; }
         .debug-box .debug-line:last-child { border-bottom: none; }
@@ -262,49 +116,19 @@
         .debug-box .debug-error { color: #F38BA8; }
         .debug-box .debug-info { color: #89B4FA; }
         .debug-box .debug-warning { color: #F9E2AF; }
-        
         .debug-toggle { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 12px; text-decoration: underline; padding: 4px 8px; margin-bottom: 8px; }
         .debug-toggle:hover { color: var(--text-primary); }
-        
         .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
         .error-box.show { display: block; }
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
-        
-        @media (max-width: 1024px) {
-            .table { min-width: 700px; font-size: 13px; }
-            .table th, .table td { padding: 10px 12px; }
-            .product-cell .product-name { max-width: 100px; }
-        }
-        @media (max-width: 768px) {
-            .table { min-width: 650px; font-size: 12px; }
-            .table th, .table td { padding: 8px 10px; }
-            .table .badge { font-size: 10px; padding: 2px 8px; }
-            .product-cell { min-width: 140px; gap: 8px; }
-            .product-cell .product-thumb { width: 30px; height: 30px; }
-            .product-cell .product-name { max-width: 80px; font-size: 12px; }
-            .product-cell .product-date { font-size: 10px; }
-            .action-dropdown-content { min-width: 150px; }
-            .action-dropdown-content a { font-size: 12px; padding: 6px 12px; }
-            .filter-bar .filter-group select, .filter-bar .filter-group input { min-width: 100%; flex: 1; }
-            .filter-bar .filter-actions { width: 100%; }
-            .filter-bar .filter-actions .btn { flex: 1; }
-            .payment-method-option { flex: 1 1 100%; }
-        }
-        @media (max-width: 480px) {
-            .table-wrapper { margin: 0 -12px; padding: 0 12px; }
-            .table { min-width: 600px; font-size: 11px; }
-            .table th, .table td { padding: 6px 8px; }
-            .product-cell { min-width: 120px; gap: 6px; }
-            .product-cell .product-thumb { width: 24px; height: 24px; }
-            .product-cell .product-name { max-width: 60px; font-size: 11px; }
-            .product-cell .product-date { font-size: 9px; }
-            .grid-2 { grid-template-columns: 1fr; }
-            .payment-method-option { flex: 1 1 100%; }
-        }
+        @media (max-width: 1024px) { .table { min-width: 700px; font-size: 13px; } .table th, .table td { padding: 10px 12px; } .product-cell .product-name { max-width: 100px; } }
+        @media (max-width: 768px) { .table { min-width: 650px; font-size: 12px; } .table th, .table td { padding: 8px 10px; } .table .badge { font-size: 10px; padding: 2px 8px; } .product-cell { min-width: 140px; gap: 8px; } .product-cell .product-thumb { width: 30px; height: 30px; } .product-cell .product-name { max-width: 80px; font-size: 12px; } .product-cell .product-date { font-size: 10px; } .action-dropdown-content { min-width: 150px; } .action-dropdown-content a { font-size: 12px; padding: 6px 12px; } .filter-bar .filter-group select, .filter-bar .filter-group input { min-width: 100%; flex: 1; } .filter-bar .filter-actions { width: 100%; } .filter-bar .filter-actions .btn { flex: 1; } .payment-method-option { flex: 1 1 100%; } }
+        @media (max-width: 480px) { .table-wrapper { margin: 0 -12px; padding: 0 12px; } .table { min-width: 600px; font-size: 11px; } .table th, .table td { padding: 6px 8px; } .product-cell { min-width: 120px; gap: 6px; } .product-cell .product-thumb { width: 24px; height: 24px; } .product-cell .product-name { max-width: 60px; font-size: 11px; } .product-cell .product-date { font-size: 9px; } .grid-2 { grid-template-columns: 1fr; } .payment-method-option { flex: 1 1 100%; } }
     </style>
 </head>
 <body>
+    <!-- NAVBAR SAMA SEPERTI SEBELUMNYA -->
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
@@ -315,6 +139,7 @@
         </div>
     </nav>
 
+    <!-- SIDEBAR SAMA SEPERTI SEBELUMNYA -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header"><div class="title">Menu Seller</div></div>
         <nav class="sidebar-nav">
@@ -331,29 +156,29 @@
 
     <div class="app-wrapper">
         <main class="main-content">
+            <!-- HEADER -->
             <div class="flex-between" style="margin-bottom:24px;">
                 <div><h1 style="font-size:24px;">Kelola Produk</h1><p style="color:var(--text-secondary);">Atur dan kelola semua produk Anda</p></div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <button onclick="refreshData()" class="btn btn-secondary btn-sm">
-                        <i class="fas fa-sync-alt"></i> Refresh
-                    </button>
+                    <button onclick="refreshData()" class="btn btn-secondary btn-sm"><i class="fas fa-sync-alt"></i> Refresh</button>
                     <button onclick="openCreateProduct()" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Produk</button>
                 </div>
             </div>
 
+            <!-- DEBUG BOX -->
             <div class="debug-box" id="debugBox">
                 <div class="debug-line debug-info">🔍 Debug Mode Active</div>
                 <div class="debug-line" id="debugLog">Menunggu data...</div>
             </div>
-            <button class="debug-toggle" onclick="toggleDebug()">
-                <i class="fas fa-bug"></i> Toggle Debug
-            </button>
+            <button class="debug-toggle" onclick="toggleDebug()"><i class="fas fa-bug"></i> Toggle Debug</button>
 
+            <!-- ERROR BOX -->
             <div class="error-box" id="errorBox">
                 <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
                 <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
             </div>
 
+            <!-- FILTER BAR -->
             <div class="filter-bar" style="margin-top:8px;">
                 <div class="filter-group">
                     <input type="text" id="searchProduct" placeholder="Cari produk..." style="min-width:200px;">
@@ -366,6 +191,7 @@
                 </div>
             </div>
 
+            <!-- TABLE -->
             <div class="card">
                 <div class="table-wrapper">
                     <table class="table">
@@ -399,12 +225,10 @@
             <h3 class="modal-title" id="modalTitle">Tambah Produk</h3>
             <form id="productForm">
                 <input type="hidden" id="productId">
-                
                 <div class="input-group" style="margin-bottom:12px;">
                     <label for="productName">Nama Produk *</label>
                     <input type="text" id="productName" class="input" required placeholder="Masukkan nama produk">
                 </div>
-                
                 <div class="grid-2" style="margin-bottom:12px;">
                     <div class="input-group">
                         <label for="productCategory">Kategori *</label>
@@ -430,20 +254,15 @@
                         </select>
                     </div>
                 </div>
-                
                 <div class="input-group" style="margin-bottom:12px;">
                     <label for="productPrice">Harga (Rp) *</label>
                     <input type="number" id="productPrice" class="input" required placeholder="10000" min="1000">
                 </div>
-
-                <!-- Gambar Produk -->
                 <div class="input-group" style="margin-bottom:12px;">
                     <label for="productImageUrl">URL Gambar Produk (Opsional)</label>
                     <input type="url" id="productImageUrl" class="input" placeholder="https://example.com/gambar.jpg">
                     <span style="font-size:12px;color:var(--text-light);">Kosongkan untuk menggunakan gambar default</span>
                 </div>
-                
-                <!-- Digital Fields -->
                 <div id="digitalFields">
                     <div class="input-group" style="margin-bottom:12px;">
                         <label for="productDownloadLink">Link Download *</label>
@@ -464,8 +283,6 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- Premium Fields -->
                 <div id="premiumFields" style="display:none;">
                     <div class="input-group" style="margin-bottom:12px;">
                         <label for="productNote">Catatan (Opsional)</label>
@@ -483,17 +300,14 @@
                         <button type="button" onclick="addPremiumAccount()" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i> Tambah Akun</button>
                     </div>
                 </div>
-                
                 <div class="input-group" style="margin-bottom:12px;">
                     <label for="productDescription">Deskripsi</label>
                     <textarea id="productDescription" class="input" rows="4" placeholder="Deskripsi produk"></textarea>
                 </div>
-                
                 <div class="input-group" style="margin-bottom:12px;">
                     <label for="productTags">Tags</label>
                     <input type="text" id="productTags" class="input" placeholder="preset, alight motion, edit">
                 </div>
-                
                 <div style="display:flex;gap:12px;margin-top:16px;">
                     <button type="submit" class="btn btn-primary" style="flex:1;"><i class="fas fa-save"></i> Simpan</button>
                     <button type="button" onclick="closeProductModal()" class="btn btn-secondary" style="flex:1;">Batal</button>
@@ -521,7 +335,6 @@
             <button class="modal-close" onclick="closePromoteModal()"><i class="fas fa-times"></i></button>
             <h3 class="modal-title">Promosikan Produk di Banner</h3>
             <div id="promoteContent">
-                <!-- Product Info -->
                 <div style="margin-bottom:16px;padding:16px;background:var(--bg-secondary);border-radius:var(--radius);">
                     <p><strong>Produk:</strong> <span id="promoteProductName">-</span></p>
                     <p><strong>Harga Banner:</strong> Rp<span id="promotePrice">0</span> <span style="font-size:12px;color:var(--text-light);">(Harga FLAT)</span></p>
@@ -530,27 +343,20 @@
                         <span id="balanceStatus" style="font-size:12px;"></span>
                     </div>
                 </div>
-
                 <form id="promoteForm">
-                    <!-- Durasi -->
                     <div class="input-group" style="margin-bottom:12px;">
                         <label for="promoteDuration">Durasi (Jam)</label>
                         <input type="number" id="promoteDuration" class="input" value="24" min="1" required>
                         <span style="font-size:12px;color:var(--text-light);">Total biaya: <strong id="promoteTotal">Rp0</strong></span>
                     </div>
-
-                    <!-- Gambar Banner -->
                     <div class="input-group" style="margin-bottom:12px;">
                         <label for="promoteImageUrl">URL Gambar Banner (Opsional)</label>
                         <input type="url" id="promoteImageUrl" class="input" placeholder="https://example.com/banner.jpg">
                         <span style="font-size:12px;color:var(--text-light);">Kosongkan untuk menggunakan gambar produk</span>
                     </div>
-
-                    <!-- Metode Pembayaran -->
                     <div class="input-group" style="margin-bottom:12px;">
                         <label>Metode Pembayaran</label>
                         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                            <!-- Wallet -->
                             <label class="payment-method-option active" id="walletOption" style="flex:1;">
                                 <input type="radio" name="paymentMethod" value="wallet" checked>
                                 <span class="method-icon"><i class="fas fa-wallet" style="color:var(--primary);"></i></span>
@@ -560,7 +366,6 @@
                                 </div>
                                 <span class="method-status available" id="walletStatus">✅ Tersedia</span>
                             </label>
-                            <!-- Midtrans -->
                             <label class="payment-method-option" id="midtransOption" style="flex:1;">
                                 <input type="radio" name="paymentMethod" value="midtrans">
                                 <span class="method-icon"><i class="fas fa-credit-card" style="color:var(--success);"></i></span>
@@ -572,11 +377,7 @@
                             </label>
                         </div>
                     </div>
-
-                    <!-- Error Message -->
                     <div id="promoteError" style="display:none;margin-top:8px;padding:12px;background:rgba(239,68,68,0.1);border-radius:var(--radius);color:var(--danger);font-size:13px;"></div>
-
-                    <!-- Buttons -->
                     <div style="display:flex;gap:12px;margin-top:16px;">
                         <button type="submit" class="btn btn-primary" style="flex:1;" id="promoteSubmitBtn">
                             <i class="fas fa-credit-card"></i> Bayar & Promosikan
@@ -696,23 +497,9 @@
 
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
-            // Bersihkan toast lama
             container.innerHTML = '';
-            
-            const colors = { 
-                success: 'var(--success)', 
-                error: 'var(--danger)', 
-                warning: 'var(--warning)', 
-                info: 'var(--info)' 
-            };
-            
-            const icons = {
-                success: 'fa-check-circle',
-                error: 'fa-exclamation-circle',
-                warning: 'fa-exclamation-triangle',
-                info: 'fa-info-circle'
-            };
-            
+            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
+            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.style.borderLeftColor = colors[type] || colors.info;
@@ -722,10 +509,7 @@
                 <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
             `;
             container.appendChild(toast);
-            
-            setTimeout(() => {
-                if (toast.parentElement) toast.remove();
-            }, 5000);
+            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 5000);
         }
         window.showToast = showToast;
 
@@ -746,13 +530,7 @@
             if (!date) return '-';
             const d = date instanceof Date ? date : new Date(date);
             if (isNaN(d.getTime())) return '-';
-            return d.toLocaleDateString('id-ID', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+            return d.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
 
         // ============================================
@@ -768,14 +546,83 @@
 
             if (payment === 'success' && orderId) {
                 showToast('success', `🎉 Pembayaran berhasil! Banner untuk order ${orderId} sedang diaktifkan.`);
+                // Coba aktifkan banner dari order
+                activateBannerFromOrder(orderId);
                 window.history.replaceState({}, document.title, window.location.pathname);
-                setTimeout(() => loadProducts(), 2000);
             } else if (payment === 'error' && orderId) {
                 showToast('error', `❌ Pembayaran gagal untuk order ${orderId}. Silakan coba lagi.`);
                 window.history.replaceState({}, document.title, window.location.pathname);
             } else if (payment === 'pending' && orderId) {
                 showToast('info', `⏳ Pembayaran untuk order ${orderId} sedang diproses.`);
                 window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        // ============================================
+        // AKTIFKAN BANNER DARI ORDER (MIDTRANS SUCCESS)
+        // ============================================
+
+        async function activateBannerFromOrder(orderId) {
+            try {
+                console.log('📦 [ACTIVATE BANNER] Activating banner for order:', orderId);
+                
+                const ordersSnapshot = await getDocs(
+                    query(collection(db, 'orders'), where('orderId', '==', orderId))
+                );
+                
+                if (ordersSnapshot.empty) {
+                    console.log('⚠️ [ACTIVATE BANNER] Order not found');
+                    return;
+                }
+                
+                const orderDoc = ordersSnapshot.docs[0];
+                const orderData = orderDoc.data();
+                
+                // Cek jika sudah settlement
+                if (orderData.paymentStatus === 'settlement') {
+                    console.log('✅ [ACTIVATE BANNER] Order already settled');
+                    showToast('success', '✅ Banner sudah aktif!');
+                    loadProducts();
+                    return;
+                }
+                
+                // Cek jika ini banner purchase
+                if (orderData.type === 'banner_purchase') {
+                    const bannerData = orderData.bannerData || {};
+                    const expiresAt = new Date(bannerData.expiresAt) || new Date();
+                    expiresAt.setHours(expiresAt.getHours() + 24);
+
+                    // Buat banner
+                    await addDoc(collection(db, 'banners'), {
+                        title: bannerData.title || 'Banner Promosi',
+                        description: bannerData.description || '',
+                        imageUrl: bannerData.imageUrl || '',
+                        linkUrl: `/product/${orderData.productId}`,
+                        isActive: true,
+                        type: 'seller',
+                        sellerId: orderData.sellerId,
+                        productId: orderData.productId,
+                        duration: bannerData.duration || 24,
+                        price: orderData.amount || 0,
+                        paymentMethod: 'midtrans',
+                        expiresAt: expiresAt,
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    });
+
+                    // Update order
+                    await updateDoc(orderDoc.ref, {
+                        status: 'paid',
+                        paymentStatus: 'settlement',
+                        updatedAt: serverTimestamp()
+                    });
+
+                    showToast('success', '✅ Banner berhasil diaktifkan!');
+                    loadProducts();
+                }
+            } catch (error) {
+                console.error('❌ [ACTIVATE BANNER] Error:', error);
+                showToast('warning', '⚠️ Gagal mengaktifkan banner, tapi pembayaran sudah berhasil.');
             }
         }
 
@@ -820,11 +667,7 @@
             addDebug('Loading products...', 'info');
 
             try {
-                const q = query(
-                    collection(db, 'products'),
-                    where('sellerId', '==', currentUser.uid)
-                );
-
+                const q = query(collection(db, 'products'), where('sellerId', '==', currentUser.uid));
                 const snapshot = await getDocs(q);
                 addDebug(`Fetched ${snapshot.size} products from Firestore`, 'info');
 
@@ -847,10 +690,7 @@
                     products = products.filter(p => p.type === type);
                 }
                 if (search) {
-                    products = products.filter(p => 
-                        p.name?.toLowerCase().includes(search) ||
-                        p.category?.toLowerCase().includes(search)
-                    );
+                    products = products.filter(p => p.name?.toLowerCase().includes(search) || p.category?.toLowerCase().includes(search));
                 }
 
                 allProducts = products;
@@ -1195,12 +1035,23 @@
         // PROMOTE TO BANNER (DIRECT TANPA API)
         // ============================================
 
+        // === AMBIL HARGA BANNER ===
+        async function getBannerPricing() {
+            try {
+                const response = await fetch('/api/banner-pricing');
+                if (!response.ok) throw new Error('Gagal memuat harga banner');
+                return await response.json();
+            } catch (error) {
+                console.error('Error getting banner pricing:', error);
+                return { price: 100000, duration: 24 };
+            }
+        }
+
         window.promoteToBanner = async function(productId) {
             addDebug(`Promoting product to banner: ${productId}`, 'info');
             promoteProductId = productId;
             
             try {
-                // Get product info
                 const productRef = doc(db, 'products', productId);
                 const productDoc = await getDoc(productRef);
                 if (!productDoc.exists()) {
@@ -1210,19 +1061,14 @@
                 const product = productDoc.data();
                 document.getElementById('promoteProductName').textContent = product.name;
 
-                // Get banner pricing (dari settings/banner)
-                const pricingResponse = await fetch('/api/banner-pricing');
-                if (!pricingResponse.ok) throw new Error('Gagal memuat harga banner');
-                pricingData = await pricingResponse.json();
+                pricingData = await getBannerPricing();
                 document.getElementById('promotePrice').textContent = formatPrice(pricingData.price);
 
-                // Get seller wallet
                 const userRef = doc(db, 'users', currentUser.uid);
                 const userDoc = await getDoc(userRef);
                 const wallet = userDoc.data()?.wallet || { available: 0 };
                 document.getElementById('promoteBalance').textContent = formatPrice(wallet.available);
 
-                // Update wallet status
                 const balanceStatus = document.getElementById('balanceStatus');
                 const walletStatus = document.getElementById('walletStatus');
                 if (wallet.available >= pricingData.price) {
@@ -1236,19 +1082,14 @@
                     walletStatus.className = 'method-status insufficient';
                 }
 
-                // Set default duration and total
                 document.getElementById('promoteDuration').value = pricingData.duration || 24;
                 document.getElementById('promoteTotal').textContent = `Rp${formatPrice(pricingData.price)}`;
-
-                // Reset error
                 document.getElementById('promoteError').style.display = 'none';
 
-                // Reset payment method to wallet
                 document.querySelector('input[name="paymentMethod"][value="wallet"]').checked = true;
                 document.getElementById('walletOption').classList.add('active');
                 document.getElementById('midtransOption').classList.remove('active');
 
-                // Show modal
                 document.getElementById('promoteModal').classList.add('open');
                 addDebug('Promote modal opened', 'success');
 
@@ -1264,7 +1105,7 @@
             addDebug('Promote modal closed', 'info');
         };
 
-        // Payment method toggle styling
+        // Payment method toggle
         document.querySelectorAll('.payment-method-option').forEach(option => {
             option.addEventListener('click', function() {
                 const radio = this.querySelector('input[type="radio"]');
@@ -1290,7 +1131,6 @@
             });
         });
 
-        // Update total when duration changes (HARGA FLAT)
         document.getElementById('promoteDuration').addEventListener('input', function() {
             const price = pricingData?.price || 0;
             document.getElementById('promoteTotal').textContent = `Rp${formatPrice(price)}`;
@@ -1329,7 +1169,6 @@
                 // METODE WALLET - LANGSUNG BUAT BANNER
                 // ============================================
                 if (paymentMethod === 'wallet') {
-                    // Cek saldo
                     const userRef = doc(db, 'users', currentUser.uid);
                     const userDoc = await getDoc(userRef);
                     const wallet = userDoc.data()?.wallet || { available: 0 };
@@ -1342,11 +1181,10 @@
                         return;
                     }
 
-                    // Buat banner langsung di Firestore
                     const expiresAt = new Date();
                     expiresAt.setHours(expiresAt.getHours() + duration);
 
-                    const bannerData = {
+                    await addDoc(collection(db, 'banners'), {
                         title: document.getElementById('promoteProductName').textContent || 'Banner Promosi',
                         description: `Promosi produk oleh ${userDoc.data().storeName || 'Seller'}`,
                         imageUrl: imageUrl || '',
@@ -1361,11 +1199,8 @@
                         expiresAt: expiresAt,
                         createdAt: serverTimestamp(),
                         updatedAt: serverTimestamp()
-                    };
+                    });
 
-                    await addDoc(collection(db, 'banners'), bannerData);
-
-                    // Kurangi saldo wallet
                     await updateDoc(userRef, {
                         'wallet.available': wallet.available - price
                     });
@@ -1375,14 +1210,13 @@
                     loadProducts();
                     
                 // ============================================
-                // METODE MIDTRANS - PAKAI SNAP
+                // METODE MIDTRANS - PAKAI SNAP + SIMPAN ORDER
                 // ============================================
                 } else if (paymentMethod === 'midtrans') {
-                    // Generate order ID
                     const orderId = `BANNER-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
                     // Simpan order ke Firestore
-                    const orderData = {
+                    await addDoc(collection(db, 'orders'), {
                         orderId: orderId,
                         type: 'banner_purchase',
                         sellerId: currentUser.uid,
@@ -1401,12 +1235,10 @@
                         },
                         createdAt: serverTimestamp(),
                         updatedAt: serverTimestamp()
-                    };
+                    });
 
-                    await addDoc(collection(db, 'orders'), orderData);
-
-                    // Panggil API Midtrans
-                    const response = await fetch('/api/payment/create-banner', {
+                    // Panggil API Midtrans - HANYA UNTUK DAPAT TOKEN
+                    const response = await fetch('/api/payment/create', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -1433,53 +1265,8 @@
                                 showToast('success', '🎉 Pembayaran berhasil! Banner akan aktif.');
                                 closePromoteModal();
                                 
-                                // Update order status dan buat banner
-                                try {
-                                    // Cari order
-                                    const ordersSnapshot = await getDocs(
-                                        query(collection(db, 'orders'), where('orderId', '==', orderId))
-                                    );
-                                    
-                                    if (!ordersSnapshot.empty) {
-                                        const orderDoc = ordersSnapshot.docs[0];
-                                        const orderData = orderDoc.data();
-                                        
-                                        // Buat banner
-                                        const bannerData = orderData.bannerData || {};
-                                        const expiresAt = new Date(bannerData.expiresAt) || new Date();
-                                        expiresAt.setHours(expiresAt.getHours() + 24);
-
-                                        await addDoc(collection(db, 'banners'), {
-                                            title: bannerData.title || 'Banner Promosi',
-                                            description: bannerData.description || '',
-                                            imageUrl: bannerData.imageUrl || '',
-                                            linkUrl: `/product/${orderData.productId}`,
-                                            isActive: true,
-                                            type: 'seller',
-                                            sellerId: orderData.sellerId,
-                                            productId: orderData.productId,
-                                            duration: bannerData.duration || 24,
-                                            price: orderData.amount || 0,
-                                            paymentMethod: 'midtrans',
-                                            expiresAt: expiresAt,
-                                            createdAt: serverTimestamp(),
-                                            updatedAt: serverTimestamp()
-                                        });
-
-                                        // Update order
-                                        await updateDoc(orderDoc.ref, {
-                                            status: 'paid',
-                                            paymentStatus: 'settlement',
-                                            updatedAt: serverTimestamp()
-                                        });
-
-                                        showToast('success', '✅ Banner berhasil diaktifkan!');
-                                        loadProducts();
-                                    }
-                                } catch (err) {
-                                    console.error('Error activating banner:', err);
-                                    showToast('warning', '⚠️ Pembayaran berhasil, tapi banner sedang diproses.');
-                                }
+                                // Aktifkan banner dari order
+                                await activateBannerFromOrder(orderId);
                             },
                             onPending: function(result) {
                                 console.log('⏳ Payment Pending:', result);
