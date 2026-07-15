@@ -597,6 +597,9 @@
         }
     </script>
 
+    <!-- Midtrans Snap Script -->
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="YOUR_CLIENT_KEY"></script>
+
     <script type="module">
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
@@ -752,6 +755,36 @@
             } else if (paymentStatus === 'pending') {
                 showToast('info', `⏳ Pembayaran untuk order ${orderId || ''} sedang diproses. Silakan tunggu konfirmasi.`);
                 window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        // ============================================
+        // CONFIRM BANNER PAYMENT DARI FRONTEND
+        // ============================================
+
+        async function confirmBannerPayment(orderId) {
+            try {
+                const response = await fetch('/api/banners/confirm-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        orderId: orderId,
+                        transactionStatus: 'settlement'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    console.log('✅ Banner payment confirmed:', data);
+                    showToast('success', '✅ Banner berhasil diaktifkan!');
+                    loadProducts();
+                } else {
+                    console.error('❌ Failed to confirm banner payment:', data);
+                    showToast('warning', '⚠️ Banner sedang diproses, akan aktif dalam beberapa menit.');
+                }
+            } catch (error) {
+                console.error('Error confirming banner payment:', error);
             }
         }
 
@@ -1168,7 +1201,7 @@
         };
 
         // ============================================
-        // PROMOTE TO BANNER (DENGAN 2 METODE)
+        // PROMOTE TO BANNER (DENGAN SNAP CALLBACK)
         // ============================================
 
         window.promoteToBanner = async function(productId) {
@@ -1324,31 +1357,65 @@
                     closePromoteModal();
                     loadProducts();
                 } else if (paymentMethod === 'midtrans') {
-                    // Redirect ke Midtrans
-                    if (data.redirect_url) {
-                        window.open(data.redirect_url, '_blank');
-                        showToast('info', '🔄 Silakan selesaikan pembayaran di halaman Midtrans');
-                        closePromoteModal();
-                    } else if (data.token) {
-                        // Jika pakai Snap
-                        if (typeof snap !== 'undefined') {
-                            snap.pay(data.token, {
-                                onSuccess: function(result) {
-                                    showToast('success', '🎉 Pembayaran berhasil! Banner akan aktif.');
-                                    loadProducts();
-                                },
-                                onPending: function(result) {
-                                    showToast('info', '⏳ Menunggu pembayaran...');
-                                },
-                                onError: function(result) {
-                                    showToast('error', '❌ Pembayaran gagal: ' + result.status_message);
+                    // ============================================
+                    // PAKAI SNAP MIDTRANS DENGAN CALLBACK JS
+                    // SEPERTI CONTOH DI script.js
+                    // ============================================
+                    if (data.token && typeof snap !== 'undefined') {
+                        window.snap.pay(data.token, {
+                            onSuccess: async function(result) {
+                                console.log('✅ Payment Success:', result);
+                                showToast('success', '🎉 Pembayaran berhasil! Banner akan diaktifkan.');
+                                closePromoteModal();
+                                
+                                // ============================================
+                                // UPDATE STATUS VIA API
+                                // ============================================
+                                try {
+                                    const updateResponse = await fetch('/api/banners/confirm-payment', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            orderId: data.orderId,
+                                            transactionStatus: 'settlement',
+                                            result: result
+                                        })
+                                    });
+                                    
+                                    if (updateResponse.ok) {
+                                        const updateData = await updateResponse.json();
+                                        console.log('✅ Banner activated:', updateData);
+                                        showToast('success', '✅ Banner berhasil diaktifkan!');
+                                        loadProducts();
+                                    } else {
+                                        const errorData = await updateResponse.json();
+                                        console.error('❌ Failed to activate banner:', errorData);
+                                        showToast('warning', '⚠️ Banner sedang diproses, akan aktif dalam beberapa menit.');
+                                    }
+                                } catch (err) {
+                                    console.error('Error confirming payment:', err);
+                                    showToast('warning', '⚠️ Gagal mengkonfirmasi pembayaran, tapi pembayaran sudah berhasil.');
                                 }
-                            });
-                        } else {
-                            showToast('warning', '⚠️ Midtrans tidak terload, buka link: ' + data.redirect_url);
-                            window.open(data.redirect_url, '_blank');
-                        }
-                        closePromoteModal();
+                            },
+                            onPending: function(result) {
+                                console.log('⏳ Payment Pending:', result);
+                                showToast('info', '⏳ Menunggu pembayaran...');
+                                closePromoteModal();
+                            },
+                            onError: function(result) {
+                                console.log('❌ Payment Error:', result);
+                                showToast('error', '❌ Pembayaran gagal: ' + (result.status_message || 'Silakan coba lagi'));
+                            },
+                            onClose: function() {
+                                console.log('🔒 Payment window closed');
+                                showToast('info', 'Pembayaran dibatalkan');
+                            }
+                        });
+                    } else if (data.redirect_url) {
+                        // Fallback: redirect ke halaman Midtrans
+                        window.location.href = data.redirect_url;
+                    } else {
+                        throw new Error('No payment method available');
                     }
                 }
 
