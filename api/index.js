@@ -39,7 +39,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Midtrans configuration
 const snap = new midtransClient.Snap({
-    isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
+    isProduction: false,
     serverKey: process.env.MIDTRANS_SERVER_KEY,
     clientKey: process.env.MIDTRANS_CLIENT_KEY
 });
@@ -1301,45 +1301,85 @@ app.put('/api/banner-pricing', async (req, res) => {
 // SELLER PURCHASE BANNER (DENGAN 2 METODE)
 // ============================================
 
+// ============================================
+// SELLER PURCHASE BANNER (DENGAN 2 METODE)
+// ============================================
+
 app.post('/api/banners/purchase', async (req, res) => {
     try {
+        console.log('📦 [BANNER PURCHASE] Request received:', JSON.stringify(req.body, null, 2));
+
         const { sellerId, productId, title, imageUrl, duration, paymentMethod } = req.body;
 
-        if (!sellerId || !productId || !duration) {
-            return res.status(400).json({ error: 'Seller ID, product ID, and duration are required' });
+        // VALIDASI INPUT
+        if (!sellerId) {
+            console.error('❌ [BANNER PURCHASE] sellerId is missing');
+            return res.status(400).json({ error: 'Seller ID is required' });
         }
 
-        // Get pricing from settings/banner
+        if (!productId) {
+            console.error('❌ [BANNER PURCHASE] productId is missing');
+            return res.status(400).json({ error: 'Product ID is required' });
+        }
+
+        if (!duration) {
+            console.error('❌ [BANNER PURCHASE] duration is missing');
+            return res.status(400).json({ error: 'Duration is required' });
+        }
+
+        // GET PRICING
+        console.log('💰 [BANNER PURCHASE] Getting pricing from settings/banner...');
         const settingsRef = db.collection('settings').doc('banner');
         const settingsDoc = await settingsRef.get();
-        const settings = settingsDoc.exists ? settingsDoc.data() : {};
-        const flatPrice = settings.price || 100000;
-
-        // Get seller data
-        const sellerRef = db.collection('users').doc(sellerId);
-        const sellerDoc = await sellerRef.get();
-        if (!sellerDoc.exists) {
-            return res.status(404).json({ error: 'Seller not found' });
+        
+        let flatPrice = 100000; // default
+        if (settingsDoc.exists) {
+            const settings = settingsDoc.data();
+            flatPrice = settings.price || 100000;
+            console.log(`💰 [BANNER PURCHASE] Price from settings: Rp${flatPrice}`);
+        } else {
+            console.log('⚠️ [BANNER PURCHASE] Settings not found, using default price: Rp100000');
         }
 
-        // Get product data
+        // GET SELLER DATA
+        console.log(`👤 [BANNER PURCHASE] Getting seller data for ID: ${sellerId}`);
+        const sellerRef = db.collection('users').doc(sellerId);
+        const sellerDoc = await sellerRef.get();
+        
+        if (!sellerDoc.exists) {
+            console.error('❌ [BANNER PURCHASE] Seller not found');
+            return res.status(404).json({ error: 'Seller not found' });
+        }
+        const sellerData = sellerDoc.data();
+        console.log(`👤 [BANNER PURCHASE] Seller found: ${sellerData.storeName || sellerData.displayName || 'Unknown'}`);
+
+        // GET PRODUCT DATA
+        console.log(`📦 [BANNER PURCHASE] Getting product data for ID: ${productId}`);
         const productRef = db.collection('products').doc(productId);
         const productDoc = await productRef.get();
+        
         if (!productDoc.exists) {
+            console.error('❌ [BANNER PURCHASE] Product not found');
             return res.status(404).json({ error: 'Product not found' });
         }
         const product = productDoc.data();
+        console.log(`📦 [BANNER PURCHASE] Product found: ${product.name}`);
 
         const expiresAt = new Date();
         expiresAt.setHours(expiresAt.getHours() + parseInt(duration));
+        console.log(`⏰ [BANNER PURCHASE] Expires at: ${expiresAt.toISOString()}`);
 
         // ============================================
         // METODE 1: BAYAR PAKAI SALDO WALLET
         // ============================================
         if (paymentMethod === 'wallet' || !paymentMethod) {
-            const wallet = sellerDoc.data().wallet || { available: 0 };
+            console.log('💳 [BANNER PURCHASE] Payment method: WALLET');
+            
+            const wallet = sellerData.wallet || { available: 0 };
+            console.log(`💰 [BANNER PURCHASE] Wallet balance: Rp${wallet.available}, Price: Rp${flatPrice}`);
             
             if (wallet.available < flatPrice) {
+                console.error(`❌ [BANNER PURCHASE] Insufficient balance: ${wallet.available} < ${flatPrice}`);
                 return res.status(400).json({ 
                     error: 'Saldo tidak mencukupi',
                     available: wallet.available,
@@ -1349,9 +1389,10 @@ app.post('/api/banners/purchase', async (req, res) => {
             }
 
             // Create banner
+            console.log('📝 [BANNER PURCHASE] Creating banner...');
             const bannerData = {
                 title: title || product.name,
-                description: `Promosi produk ${product.name} oleh ${sellerDoc.data().storeName || 'Seller'}`,
+                description: `Promosi produk ${product.name} oleh ${sellerData.storeName || 'Seller'}`,
                 imageUrl: imageUrl || '',
                 linkUrl: `/product/${productId}`,
                 isActive: true,
@@ -1367,23 +1408,27 @@ app.post('/api/banners/purchase', async (req, res) => {
             };
 
             const docRef = await db.collection('banners').add(bannerData);
+            console.log(`✅ [BANNER PURCHASE] Banner created with ID: ${docRef.id}`);
 
             // Deduct from wallet
+            console.log(`💰 [BANNER PURCHASE] Deducting Rp${flatPrice} from wallet...`);
             await sellerRef.update({
                 'wallet.available': admin.firestore.FieldValue.increment(-flatPrice)
             });
+            console.log(`✅ [BANNER PURCHASE] Wallet deducted successfully`);
 
             // Notification for admin
             await db.collection('notifications').add({
                 type: 'banner_purchase_wallet',
                 title: 'Pembelian Banner (Wallet)',
-                message: `${sellerDoc.data().storeName || 'Seller'} membeli banner untuk produk ${product.name} dengan saldo wallet`,
+                message: `${sellerData.storeName || 'Seller'} membeli banner untuk produk ${product.name} dengan saldo wallet`,
                 userId: 'admin',
                 sellerId: sellerId,
                 bannerId: docRef.id,
                 read: false,
                 createdAt: admin.firestore.FieldValue.serverTimestamp()
             });
+            console.log(`📧 [BANNER PURCHASE] Admin notification created`);
 
             return res.status(201).json({
                 id: docRef.id,
@@ -1396,8 +1441,11 @@ app.post('/api/banners/purchase', async (req, res) => {
         // METODE 2: BAYAR PAKAI MIDTRANS
         // ============================================
         if (paymentMethod === 'midtrans') {
+            console.log('💳 [BANNER PURCHASE] Payment method: MIDTRANS');
+            
             // Generate order ID untuk Midtrans
             const orderId = `BANNER-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+            console.log(`🆔 [BANNER PURCHASE] Order ID: ${orderId}`);
 
             // Buat order di database
             const orderData = {
@@ -1406,13 +1454,13 @@ app.post('/api/banners/purchase', async (req, res) => {
                 sellerId: sellerId,
                 productId: productId,
                 productName: product.name,
-                sellerName: sellerDoc.data().storeName || sellerDoc.data().displayName || 'Seller',
+                sellerName: sellerData.storeName || sellerData.displayName || 'Seller',
                 amount: flatPrice,
                 status: 'pending',
                 paymentStatus: 'pending',
                 bannerData: {
                     title: title || product.name,
-                    description: `Promosi produk ${product.name} oleh ${sellerDoc.data().storeName || 'Seller'}`,
+                    description: `Promosi produk ${product.name} oleh ${sellerData.storeName || 'Seller'}`,
                     imageUrl: imageUrl || '',
                     duration: parseInt(duration),
                     expiresAt: expiresAt.toISOString()
@@ -1422,17 +1470,28 @@ app.post('/api/banners/purchase', async (req, res) => {
             };
 
             const orderRef = await db.collection('orders').add(orderData);
+            console.log(`✅ [BANNER PURCHASE] Order created with ID: ${orderRef.id}`);
+
+            // Cek Midtrans config
+            if (!process.env.MIDTRANS_SERVER_KEY) {
+                console.error('❌ [BANNER PURCHASE] MIDTRANS_SERVER_KEY is not set!');
+                return res.status(500).json({ 
+                    error: 'Payment gateway not configured',
+                    details: 'MIDTRANS_SERVER_KEY is missing'
+                });
+            }
 
             // Buat parameter Midtrans
+            console.log('🔐 [BANNER PURCHASE] Creating Midtrans transaction...');
             const parameter = {
                 transaction_details: {
                     order_id: orderId,
                     gross_amount: flatPrice
                 },
                 customer_details: {
-                    first_name: sellerDoc.data().displayName || sellerDoc.data().storeName || 'Seller',
-                    email: sellerDoc.data().email || 'seller@example.com',
-                    phone: sellerDoc.data().whatsapp || '08123456789'
+                    first_name: sellerData.displayName || sellerData.storeName || 'Seller',
+                    email: sellerData.email || 'seller@example.com',
+                    phone: sellerData.whatsapp || '08123456789'
                 },
                 item_details: [
                     {
@@ -1449,27 +1508,43 @@ app.post('/api/banners/purchase', async (req, res) => {
                 }
             };
 
-            const transaction = await snap.createTransaction(parameter);
+            try {
+                const transaction = await snap.createTransaction(parameter);
+                console.log(`✅ [BANNER PURCHASE] Midtrans transaction created: ${transaction.token}`);
 
-            // Simpan transaksi ke order
-            await orderRef.update({
-                midtransToken: transaction.token,
-                midtransRedirect: transaction.redirect_url
-            });
+                // Simpan transaksi ke order
+                await orderRef.update({
+                    midtransToken: transaction.token,
+                    midtransRedirect: transaction.redirect_url
+                });
+                console.log(`✅ [BANNER PURCHASE] Midtrans token saved to order`);
 
-            return res.status(200).json({
-                orderId: orderId,
-                token: transaction.token,
-                redirect_url: transaction.redirect_url,
-                paymentMethod: 'midtrans'
-            });
+                return res.status(200).json({
+                    orderId: orderId,
+                    token: transaction.token,
+                    redirect_url: transaction.redirect_url,
+                    paymentMethod: 'midtrans'
+                });
+
+            } catch (midtransError) {
+                console.error('❌ [BANNER PURCHASE] Midtrans error:', midtransError.message);
+                return res.status(500).json({ 
+                    error: 'Failed to create Midtrans transaction',
+                    details: midtransError.message
+                });
+            }
         }
 
+        console.error(`❌ [BANNER PURCHASE] Invalid payment method: ${paymentMethod}`);
         return res.status(400).json({ error: 'Metode pembayaran tidak valid' });
 
     } catch (error) {
-        console.error('Error purchasing banner:', error);
-        res.status(500).json({ error: 'Failed to purchase banner', details: error.message });
+        console.error('❌ [BANNER PURCHASE] Unexpected error:', error);
+        console.error('❌ [BANNER PURCHASE] Error stack:', error.stack);
+        res.status(500).json({ 
+            error: 'Failed to purchase banner', 
+            details: error.message 
+        });
     }
 });
 
