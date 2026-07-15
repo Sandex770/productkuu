@@ -1,11 +1,9 @@
 const express = require('express');
 const midtransClient = require('midtrans-client');
+const path = require('path');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const admin = require('firebase-admin');
-const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
-const compression = require('compression');
+const dotenv = require('dotenv');
 
 dotenv.config();
 
@@ -19,25 +17,15 @@ admin.initializeApp({
 const db = admin.firestore();
 const app = express();
 
-// Security middleware
-app.use(helmet());
-app.use(compression());
-app.use(cors({
-    origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
-    credentials: true
-}));
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
-// Rate limiting
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100
-});
-app.use('/api/', limiter);
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, '../public')));
 
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Midtrans configuration
+// Create Snap API instance
 const snap = new midtransClient.Snap({
     isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
     serverKey: process.env.MIDTRANS_SERVER_KEY,
@@ -262,7 +250,6 @@ app.post('/api/products', async (req, res) => {
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/^-+|-+$/g, '');
 
-        // Generate unique product code (6 characters)
         let productCode = generateProductCode();
         let codeExists = true;
         let attempts = 0;
@@ -623,68 +610,7 @@ app.get('/api/seller/:sellerId/orders', async (req, res) => {
 // PAYMENT ENDPOINTS
 // ============================================
 
-app.post('/api/payment/create', async (req, res) => {
-    try {
-        const { 
-            orderId, 
-            amount, 
-            buyerName, 
-            buyerEmail, 
-            buyerPhone, 
-            productName
-        } = req.body;
-
-        if (!orderId || !amount || amount < 10000) {
-            return res.status(400).json({
-                error: 'Invalid amount or order ID (minimum Rp 10,000)'
-            });
-        }
-
-        const parameter = {
-            transaction_details: {
-                order_id: orderId,
-                gross_amount: parseInt(amount)
-            },
-            customer_details: {
-                first_name: buyerName || 'Customer',
-                email: buyerEmail || 'customer@example.com',
-                phone: buyerPhone || '08123456789'
-            },
-            item_details: [
-                {
-                    id: 'PROD001',
-                    price: parseInt(amount),
-                    quantity: 1,
-                    name: productName || 'Digital Product'
-                }
-            ],
-            credit_card: {
-                secure: true
-            },
-            callbacks: {
-                finish: `https://productkuu.vercel.app/payment/finish`,
-                error: `https://productkuu.vercel.app/payment/error`,
-                pending: `https://productkuu.vercel.app/payment/pending`
-            }
-        };
-
-        const transaction = await snap.createTransaction(parameter);
-        
-        res.json({
-            token: transaction.token,
-            redirect_url: transaction.redirect_url,
-            order_id: orderId
-        });
-
-    } catch (error) {
-        console.error('Error creating payment:', error);
-        res.status(500).json({
-            error: 'Failed to create payment',
-            details: error.message
-        });
-    }
-});
-
+// Payment notification webhook (dari Midtrans)
 app.post('/api/payment/notification', async (req, res) => {
     try {
         const notification = req.body;
@@ -707,13 +633,10 @@ app.post('/api/payment/notification', async (req, res) => {
         let newStatus = 'pending';
         let newPaymentStatus = 'pending';
 
-        // ============================================
         // CEK JIKA INI BANNER PURCHASE
-        // ============================================
         if (orderData.type === 'banner_purchase') {
             if (transaction_status === 'capture' || transaction_status === 'settlement') {
                 if (fraud_status === 'accept') {
-                    // Buat banner
                     const bannerData = orderData.bannerData || {};
                     const expiresAt = new Date(bannerData.expiresAt) || new Date();
                     expiresAt.setHours(expiresAt.getHours() + 24);
@@ -738,7 +661,6 @@ app.post('/api/payment/notification', async (req, res) => {
                     newStatus = 'paid';
                     newPaymentStatus = 'settlement';
 
-                    // Update order dengan bannerId
                     await orderDoc.ref.update({
                         status: newStatus,
                         paymentStatus: newPaymentStatus,
@@ -747,7 +669,6 @@ app.post('/api/payment/notification', async (req, res) => {
                         updatedAt: admin.firestore.FieldValue.serverTimestamp()
                     });
 
-                    // Notification untuk admin
                     await db.collection('notifications').add({
                         type: 'banner_purchase_midtrans',
                         title: 'Pembelian Banner (Midtrans)',
@@ -779,9 +700,7 @@ app.post('/api/payment/notification', async (req, res) => {
             return res.status(200).json({ message: 'Banner order updated' });
         }
 
-        // ============================================
         // REGULAR PRODUCT ORDER
-        // ============================================
         if (transaction_status === 'capture' || transaction_status === 'settlement') {
             if (fraud_status === 'accept') {
                 newStatus = 'paid';
@@ -837,35 +756,151 @@ app.post('/api/payment/notification', async (req, res) => {
 });
 
 // ============================================
-// MIDTRANS CALLBACK ENDPOINTS (Redirect ke Seller)
+// CONFIRM BANNER PAYMENT (DARI SNAP CALLBACK)
 // ============================================
 
-// Finish payment (success)
+app.post('/api/banners/confirm-payment', async (req, res) => {
+    try {
+        const { orderId, transactionStatus, result } = req.body;
+
+        console.log('📦 [CONFIRM PAYMENT] Request:', { orderId, transactionStatus });
+
+        if (!orderId) {
+            return res.status(400).json({ error: 'Order ID is required' });
+        }
+
+        // Cari order di database
+        const snapshot = await db.collection('orders')
+            .where('orderId', '==', orderId)
+            .limit(1)
+            .get();
+
+        if (snapshot.empty) {
+            console.error('❌ [CONFIRM PAYMENT] Order not found:', orderId);
+            return res.status(404).json({ error: 'Order not found' });
+        }
+
+        const orderDoc = snapshot.docs[0];
+        const orderData = orderDoc.data();
+
+        console.log('📦 [CONFIRM PAYMENT] Order found:', {
+            id: orderDoc.id,
+            type: orderData.type,
+            paymentStatus: orderData.paymentStatus
+        });
+
+        // Jika sudah settlement, skip
+        if (orderData.paymentStatus === 'settlement') {
+            console.log('✅ [CONFIRM PAYMENT] Order already settled');
+            return res.json({ 
+                message: 'Order already settled', 
+                bannerId: orderData.bannerId 
+            });
+        }
+
+        // Cek jika ini banner purchase
+        if (orderData.type === 'banner_purchase') {
+            console.log('📦 [CONFIRM PAYMENT] Creating banner...');
+            
+            // Buat banner
+            const bannerData = orderData.bannerData || {};
+            const expiresAt = new Date(bannerData.expiresAt) || new Date();
+            expiresAt.setHours(expiresAt.getHours() + 24);
+
+            const docRef = await db.collection('banners').add({
+                title: bannerData.title || 'Banner Promosi',
+                description: bannerData.description || '',
+                imageUrl: bannerData.imageUrl || '',
+                linkUrl: `/product/${orderData.productId}`,
+                isActive: true,
+                type: 'seller',
+                sellerId: orderData.sellerId,
+                productId: orderData.productId,
+                duration: bannerData.duration || 24,
+                price: orderData.amount || 0,
+                paymentMethod: 'midtrans',
+                expiresAt: admin.firestore.Timestamp.fromDate(expiresAt),
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+
+            console.log('✅ [CONFIRM PAYMENT] Banner created:', docRef.id);
+
+            // Update order
+            await orderDoc.ref.update({
+                status: 'paid',
+                paymentStatus: 'settlement',
+                bannerId: docRef.id,
+                midtransResponse: result || null,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+
+            console.log('✅ [CONFIRM PAYMENT] Order updated');
+
+            // Notification untuk admin
+            await db.collection('notifications').add({
+                type: 'banner_purchase_midtrans',
+                title: 'Pembelian Banner (Midtrans) - Confirmed',
+                message: `${orderData.sellerName || 'Seller'} membeli banner untuk produk ${orderData.productName || 'Produk'}`,
+                userId: 'admin',
+                sellerId: orderData.sellerId,
+                bannerId: docRef.id,
+                read: false,
+                createdAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+
+            console.log('✅ [CONFIRM PAYMENT] Admin notification created');
+
+            return res.json({ 
+                success: true, 
+                message: 'Banner activated successfully',
+                bannerId: docRef.id 
+            });
+        }
+
+        // Untuk order biasa (bukan banner)
+        await orderDoc.ref.update({
+            status: 'paid',
+            paymentStatus: 'settlement',
+            midtransResponse: result || null,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        res.json({ message: 'Order updated successfully' });
+
+    } catch (error) {
+        console.error('❌ [CONFIRM PAYMENT] Error:', error);
+        res.status(500).json({ 
+            error: 'Failed to confirm payment', 
+            details: error.message 
+        });
+    }
+});
+
+// ============================================
+// PAYMENT CALLBACK - REDIRECT KE FRONTEND
+// ============================================
+
 app.get('/payment/finish', (req, res) => {
     const { order_id, status_code, transaction_status } = req.query;
     console.log(`✅ [PAYMENT FINISH] Order: ${order_id}, Status: ${transaction_status || status_code}`);
     
-    // Redirect ke halaman seller/products dengan status success
     const redirectUrl = `/seller/products?payment=success&order=${order_id}`;
     res.redirect(redirectUrl);
 });
 
-// Error payment
 app.get('/payment/error', (req, res) => {
     const { order_id, status_code, transaction_status } = req.query;
     console.log(`❌ [PAYMENT ERROR] Order: ${order_id}, Status: ${transaction_status || status_code}`);
     
-    // Redirect ke halaman seller/products dengan status error
     const redirectUrl = `/seller/products?payment=error&order=${order_id}`;
     res.redirect(redirectUrl);
 });
 
-// Pending payment
 app.get('/payment/pending', (req, res) => {
     const { order_id, status_code, transaction_status } = req.query;
     console.log(`⏳ [PAYMENT PENDING] Order: ${order_id}, Status: ${transaction_status || status_code}`);
     
-    // Redirect ke halaman seller/products dengan status pending
     const redirectUrl = `/seller/products?payment=pending&order=${order_id}`;
     res.redirect(redirectUrl);
 });
@@ -1080,7 +1115,212 @@ app.get('/api/banners', async (req, res) => {
     }
 });
 
-// Get all banners with product info (Admin)
+// Get banner pricing
+app.get('/api/banner-pricing', async (req, res) => {
+    try {
+        const settingsRef = db.collection('settings').doc('banner');
+        const settingsDoc = await settingsRef.get();
+        
+        const data = settingsDoc.exists ? settingsDoc.data() : {};
+        res.json({
+            price: data.price || 100000,
+            duration: data.duration || 24,
+            maxSlots: data.maxSlots || 5,
+            autoSlideSpeed: data.autoSlideSpeed || 5
+        });
+    } catch (error) {
+        console.error('Error fetching banner pricing:', error);
+        res.status(500).json({ 
+            error: 'Failed to fetch banner pricing', 
+            details: error.message 
+        });
+    }
+});
+
+// ============================================
+// SELLER PURCHASE BANNER
+// ============================================
+
+app.post('/api/banners/purchase', async (req, res) => {
+    try {
+        console.log('📦 [BANNER PURCHASE] Request received:', JSON.stringify(req.body, null, 2));
+
+        const { sellerId, productId, title, imageUrl, duration, paymentMethod } = req.body;
+
+        if (!sellerId) {
+            return res.status(400).json({ error: 'Seller ID is required' });
+        }
+        if (!productId) {
+            return res.status(400).json({ error: 'Product ID is required' });
+        }
+        if (!duration) {
+            return res.status(400).json({ error: 'Duration is required' });
+        }
+
+        // GET PRICING
+        const settingsRef = db.collection('settings').doc('banner');
+        const settingsDoc = await settingsRef.get();
+        let flatPrice = 100000;
+        if (settingsDoc.exists) {
+            flatPrice = settingsDoc.data().price || 100000;
+        }
+
+        // GET SELLER DATA
+        const sellerRef = db.collection('users').doc(sellerId);
+        const sellerDoc = await sellerRef.get();
+        if (!sellerDoc.exists) {
+            return res.status(404).json({ error: 'Seller not found' });
+        }
+        const sellerData = sellerDoc.data();
+
+        // GET PRODUCT DATA
+        const productRef = db.collection('products').doc(productId);
+        const productDoc = await productRef.get();
+        if (!productDoc.exists) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+        const product = productDoc.data();
+
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + parseInt(duration));
+
+        // METODE 1: WALLET
+        if (paymentMethod === 'wallet' || !paymentMethod) {
+            const wallet = sellerData.wallet || { available: 0 };
+            
+            if (wallet.available < flatPrice) {
+                return res.status(400).json({ 
+                    error: 'Saldo tidak mencukupi',
+                    available: wallet.available,
+                    price: flatPrice
+                });
+            }
+
+            const bannerData = {
+                title: title || product.name,
+                description: `Promosi produk ${product.name} oleh ${sellerData.storeName || 'Seller'}`,
+                imageUrl: imageUrl || '',
+                linkUrl: `/product/${productId}`,
+                isActive: true,
+                type: 'seller',
+                sellerId: sellerId,
+                productId: productId,
+                duration: parseInt(duration),
+                price: flatPrice,
+                paymentMethod: 'wallet',
+                expiresAt: admin.firestore.Timestamp.fromDate(expiresAt),
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            };
+
+            const docRef = await db.collection('banners').add(bannerData);
+
+            await sellerRef.update({
+                'wallet.available': admin.firestore.FieldValue.increment(-flatPrice)
+            });
+
+            await db.collection('notifications').add({
+                type: 'banner_purchase_wallet',
+                title: 'Pembelian Banner (Wallet)',
+                message: `${sellerData.storeName || 'Seller'} membeli banner untuk produk ${product.name}`,
+                userId: 'admin',
+                sellerId: sellerId,
+                bannerId: docRef.id,
+                read: false,
+                createdAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+
+            return res.status(201).json({
+                id: docRef.id,
+                ...bannerData,
+                paymentMethod: 'wallet'
+            });
+        }
+
+        // METODE 2: MIDTRANS
+        if (paymentMethod === 'midtrans') {
+            const orderId = `BANNER-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+            const orderData = {
+                orderId: orderId,
+                type: 'banner_purchase',
+                sellerId: sellerId,
+                productId: productId,
+                productName: product.name,
+                sellerName: sellerData.storeName || sellerData.displayName || 'Seller',
+                amount: flatPrice,
+                status: 'pending',
+                paymentStatus: 'pending',
+                bannerData: {
+                    title: title || product.name,
+                    description: `Promosi produk ${product.name} oleh ${sellerData.storeName || 'Seller'}`,
+                    imageUrl: imageUrl || '',
+                    duration: parseInt(duration),
+                    expiresAt: expiresAt.toISOString()
+                },
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            };
+
+            const orderRef = await db.collection('orders').add(orderData);
+
+            const baseUrl = process.env.APP_URL || 'https://productkuu.vercel.app';
+
+            const parameter = {
+                transaction_details: {
+                    order_id: orderId,
+                    gross_amount: flatPrice
+                },
+                customer_details: {
+                    first_name: sellerData.displayName || sellerData.storeName || 'Seller',
+                    email: sellerData.email || 'seller@example.com',
+                    phone: sellerData.whatsapp || '08123456789'
+                },
+                item_details: [
+                    {
+                        id: 'BANNER_PROMO',
+                        price: flatPrice,
+                        quantity: 1,
+                        name: `Banner Promosi - ${product.name}`
+                    }
+                ],
+                callbacks: {
+                    finish: `${baseUrl}/payment/finish`,
+                    error: `${baseUrl}/payment/error`,
+                    pending: `${baseUrl}/payment/pending`
+                }
+            };
+
+            const transaction = await snap.createTransaction(parameter);
+
+            await orderRef.update({
+                midtransToken: transaction.token,
+                midtransRedirect: transaction.redirect_url
+            });
+
+            return res.status(200).json({
+                orderId: orderId,
+                token: transaction.token,
+                redirect_url: transaction.redirect_url,
+                paymentMethod: 'midtrans'
+            });
+        }
+
+        return res.status(400).json({ error: 'Metode pembayaran tidak valid' });
+
+    } catch (error) {
+        console.error('❌ [BANNER PURCHASE] Error:', error);
+        res.status(500).json({ 
+            error: 'Failed to purchase banner', 
+            details: error.message 
+        });
+    }
+});
+
+// ============================================
+// ADMIN BANNER ENDPOINTS
+// ============================================
+
 app.get('/api/admin/banners-full', async (req, res) => {
     try {
         const snapshot = await db.collection('banners')
@@ -1121,7 +1361,6 @@ app.get('/api/admin/banners-full', async (req, res) => {
     }
 });
 
-// Get all products with banner status (Admin)
 app.get('/api/admin/products-with-banner', async (req, res) => {
     try {
         const productsSnapshot = await db.collection('products')
@@ -1160,7 +1399,6 @@ app.get('/api/admin/products-with-banner', async (req, res) => {
     }
 });
 
-// Admin - Add product to banner by product code
 app.post('/api/admin/banners/add-product', async (req, res) => {
     try {
         const { productCode, duration } = req.body;
@@ -1176,7 +1414,7 @@ app.post('/api/admin/banners/add-product', async (req, res) => {
             .get();
 
         if (productSnapshot.empty) {
-            return res.status(404).json({ error: 'Produk tidak ditemukan dengan kode tersebut' });
+            return res.status(404).json({ error: 'Produk tidak ditemukan' });
         }
 
         const productDoc = productSnapshot.docs[0];
@@ -1235,28 +1473,17 @@ app.post('/api/admin/banners/add-product', async (req, res) => {
     }
 });
 
-// Admin - Remove product from banner
 app.delete('/api/admin/banners/:id/remove', async (req, res) => {
     try {
         const { id } = req.params;
-        const bannerRef = db.collection('banners').doc(id);
-        const bannerDoc = await bannerRef.get();
-
-        if (!bannerDoc.exists) {
-            return res.status(404).json({ error: 'Banner not found' });
-        }
-
-        await bannerRef.delete();
-
+        await db.collection('banners').doc(id).delete();
         res.json({ message: 'Banner berhasil dihapus' });
-
     } catch (error) {
         console.error('Error removing banner:', error);
         res.status(500).json({ error: 'Failed to remove banner', details: error.message });
     }
 });
 
-// Admin - Toggle banner status
 app.patch('/api/admin/banners/:id/toggle', async (req, res) => {
     try {
         const { id } = req.params;
@@ -1274,491 +1501,9 @@ app.patch('/api/admin/banners/:id/toggle', async (req, res) => {
         });
 
         res.json({ message: `Banner ${!current ? 'diaktifkan' : 'dinonaktifkan'}` });
-
     } catch (error) {
         console.error('Error toggling banner:', error);
         res.status(500).json({ error: 'Failed to toggle banner', details: error.message });
-    }
-});
-
-// ============================================
-// BANNER PRICING ENDPOINTS
-// ============================================
-
-// Get banner pricing
-app.get('/api/banner-pricing', async (req, res) => {
-    try {
-        const settingsRef = db.collection('settings').doc('banner');
-        const settingsDoc = await settingsRef.get();
-        
-        const data = settingsDoc.exists ? settingsDoc.data() : {};
-        res.json({
-            price: data.price || 100000,
-            duration: data.duration || 24,
-            maxSlots: data.maxSlots || 5,
-            autoSlideSpeed: data.autoSlideSpeed || 5
-        });
-    } catch (error) {
-        console.error('Error fetching banner pricing:', error);
-        res.status(500).json({ 
-            error: 'Failed to fetch banner pricing', 
-            details: error.message 
-        });
-    }
-});
-
-// Update banner pricing (Admin)
-app.put('/api/banner-pricing', async (req, res) => {
-    try {
-        const { price, duration, maxSlots, autoSlideSpeed } = req.body;
-        
-        const settingsRef = db.collection('settings').doc('banner');
-        await settingsRef.set({
-            price: price || 100000,
-            duration: duration || 24,
-            maxSlots: maxSlots || 5,
-            autoSlideSpeed: autoSlideSpeed || 5,
-            updatedAt: admin.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-
-        res.json({ message: 'Pengaturan harga banner berhasil disimpan' });
-    } catch (error) {
-        console.error('Error updating banner pricing:', error);
-        res.status(500).json({ 
-            error: 'Failed to update banner pricing', 
-            details: error.message 
-        });
-    }
-});
-
-// ============================================
-// SELLER PURCHASE BANNER (DENGAN 2 METODE)
-// ============================================
-
-app.post('/api/banners/purchase', async (req, res) => {
-    try {
-        console.log('📦 [BANNER PURCHASE] Request received:', JSON.stringify(req.body, null, 2));
-
-        const { sellerId, productId, title, imageUrl, duration, paymentMethod } = req.body;
-
-        // VALIDASI INPUT
-        if (!sellerId) {
-            console.error('❌ [BANNER PURCHASE] sellerId is missing');
-            return res.status(400).json({ error: 'Seller ID is required' });
-        }
-
-        if (!productId) {
-            console.error('❌ [BANNER PURCHASE] productId is missing');
-            return res.status(400).json({ error: 'Product ID is required' });
-        }
-
-        if (!duration) {
-            console.error('❌ [BANNER PURCHASE] duration is missing');
-            return res.status(400).json({ error: 'Duration is required' });
-        }
-
-        // GET PRICING
-        console.log('💰 [BANNER PURCHASE] Getting pricing from settings/banner...');
-        const settingsRef = db.collection('settings').doc('banner');
-        const settingsDoc = await settingsRef.get();
-        
-        let flatPrice = 100000; // default
-        if (settingsDoc.exists) {
-            const settings = settingsDoc.data();
-            flatPrice = settings.price || 100000;
-            console.log(`💰 [BANNER PURCHASE] Price from settings: Rp${flatPrice}`);
-        } else {
-            console.log('⚠️ [BANNER PURCHASE] Settings not found, using default price: Rp100000');
-        }
-
-        // GET SELLER DATA
-        console.log(`👤 [BANNER PURCHASE] Getting seller data for ID: ${sellerId}`);
-        const sellerRef = db.collection('users').doc(sellerId);
-        const sellerDoc = await sellerRef.get();
-        
-        if (!sellerDoc.exists) {
-            console.error('❌ [BANNER PURCHASE] Seller not found');
-            return res.status(404).json({ error: 'Seller not found' });
-        }
-        const sellerData = sellerDoc.data();
-        console.log(`👤 [BANNER PURCHASE] Seller found: ${sellerData.storeName || sellerData.displayName || 'Unknown'}`);
-
-        // GET PRODUCT DATA
-        console.log(`📦 [BANNER PURCHASE] Getting product data for ID: ${productId}`);
-        const productRef = db.collection('products').doc(productId);
-        const productDoc = await productRef.get();
-        
-        if (!productDoc.exists) {
-            console.error('❌ [BANNER PURCHASE] Product not found');
-            return res.status(404).json({ error: 'Product not found' });
-        }
-        const product = productDoc.data();
-        console.log(`📦 [BANNER PURCHASE] Product found: ${product.name}`);
-
-        const expiresAt = new Date();
-        expiresAt.setHours(expiresAt.getHours() + parseInt(duration));
-        console.log(`⏰ [BANNER PURCHASE] Expires at: ${expiresAt.toISOString()}`);
-
-        // ============================================
-        // METODE 1: BAYAR PAKAI SALDO WALLET
-        // ============================================
-        if (paymentMethod === 'wallet' || !paymentMethod) {
-            console.log('💳 [BANNER PURCHASE] Payment method: WALLET');
-            
-            const wallet = sellerData.wallet || { available: 0 };
-            console.log(`💰 [BANNER PURCHASE] Wallet balance: Rp${wallet.available}, Price: Rp${flatPrice}`);
-            
-            if (wallet.available < flatPrice) {
-                console.error(`❌ [BANNER PURCHASE] Insufficient balance: ${wallet.available} < ${flatPrice}`);
-                return res.status(400).json({ 
-                    error: 'Saldo tidak mencukupi',
-                    available: wallet.available,
-                    price: flatPrice,
-                    suggestion: 'Gunakan metode pembayaran lain atau isi saldo terlebih dahulu'
-                });
-            }
-
-            // Create banner
-            console.log('📝 [BANNER PURCHASE] Creating banner...');
-            const bannerData = {
-                title: title || product.name,
-                description: `Promosi produk ${product.name} oleh ${sellerData.storeName || 'Seller'}`,
-                imageUrl: imageUrl || '',
-                linkUrl: `/product/${productId}`,
-                isActive: true,
-                type: 'seller',
-                sellerId: sellerId,
-                productId: productId,
-                duration: parseInt(duration),
-                price: flatPrice,
-                paymentMethod: 'wallet',
-                expiresAt: admin.firestore.Timestamp.fromDate(expiresAt),
-                createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                updatedAt: admin.firestore.FieldValue.serverTimestamp()
-            };
-
-            const docRef = await db.collection('banners').add(bannerData);
-            console.log(`✅ [BANNER PURCHASE] Banner created with ID: ${docRef.id}`);
-
-            // Deduct from wallet
-            console.log(`💰 [BANNER PURCHASE] Deducting Rp${flatPrice} from wallet...`);
-            await sellerRef.update({
-                'wallet.available': admin.firestore.FieldValue.increment(-flatPrice)
-            });
-            console.log(`✅ [BANNER PURCHASE] Wallet deducted successfully`);
-
-            // Notification for admin
-            await db.collection('notifications').add({
-                type: 'banner_purchase_wallet',
-                title: 'Pembelian Banner (Wallet)',
-                message: `${sellerData.storeName || 'Seller'} membeli banner untuk produk ${product.name} dengan saldo wallet`,
-                userId: 'admin',
-                sellerId: sellerId,
-                bannerId: docRef.id,
-                read: false,
-                createdAt: admin.firestore.FieldValue.serverTimestamp()
-            });
-            console.log(`📧 [BANNER PURCHASE] Admin notification created`);
-
-            return res.status(201).json({
-                id: docRef.id,
-                ...bannerData,
-                paymentMethod: 'wallet'
-            });
-        }
-
-        // ============================================
-        // METODE 2: BAYAR PAKAI MIDTRANS
-        // ============================================
-        if (paymentMethod === 'midtrans') {
-            console.log('💳 [BANNER PURCHASE] Payment method: MIDTRANS');
-            
-            // Generate order ID untuk Midtrans
-            const orderId = `BANNER-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-            console.log(`🆔 [BANNER PURCHASE] Order ID: ${orderId}`);
-
-            // Buat order di database
-            const orderData = {
-                orderId: orderId,
-                type: 'banner_purchase',
-                sellerId: sellerId,
-                productId: productId,
-                productName: product.name,
-                sellerName: sellerData.storeName || sellerData.displayName || 'Seller',
-                amount: flatPrice,
-                status: 'pending',
-                paymentStatus: 'pending',
-                bannerData: {
-                    title: title || product.name,
-                    description: `Promosi produk ${product.name} oleh ${sellerData.storeName || 'Seller'}`,
-                    imageUrl: imageUrl || '',
-                    duration: parseInt(duration),
-                    expiresAt: expiresAt.toISOString()
-                },
-                createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                updatedAt: admin.firestore.FieldValue.serverTimestamp()
-            };
-
-            const orderRef = await db.collection('orders').add(orderData);
-            console.log(`✅ [BANNER PURCHASE] Order created with ID: ${orderRef.id}`);
-
-            // Cek Midtrans config
-            if (!process.env.MIDTRANS_SERVER_KEY) {
-                console.error('❌ [BANNER PURCHASE] MIDTRANS_SERVER_KEY is not set!');
-                return res.status(500).json({ 
-                    error: 'Payment gateway not configured',
-                    details: 'MIDTRANS_SERVER_KEY is missing'
-                });
-            }
-
-            // Buat parameter Midtrans
-            console.log('🔐 [BANNER PURCHASE] Creating Midtrans transaction...');
-            
-            // Base URL untuk callback
-            const baseUrl = 'https://productkuu.vercel.app';
-            
-            const parameter = {
-                transaction_details: {
-                    order_id: orderId,
-                    gross_amount: flatPrice
-                },
-                customer_details: {
-                    first_name: sellerData.displayName || sellerData.storeName || 'Seller',
-                    email: sellerData.email || 'seller@example.com',
-                    phone: sellerData.whatsapp || '08123456789'
-                },
-                item_details: [
-                    {
-                        id: 'BANNER_PROMO',
-                        price: flatPrice,
-                        quantity: 1,
-                        name: `Banner Promosi - ${product.name}`
-                    }
-                ],
-                callbacks: {
-                    finish: `${baseUrl}/payment/finish`,
-                    error: `${baseUrl}/payment/error`,
-                    pending: `${baseUrl}/payment/pending`
-                }
-            };
-
-            try {
-                const transaction = await snap.createTransaction(parameter);
-                console.log(`✅ [BANNER PURCHASE] Midtrans transaction created: ${transaction.token}`);
-
-                // Simpan transaksi ke order
-                await orderRef.update({
-                    midtransToken: transaction.token,
-                    midtransRedirect: transaction.redirect_url
-                });
-                console.log(`✅ [BANNER PURCHASE] Midtrans token saved to order`);
-
-                return res.status(200).json({
-                    orderId: orderId,
-                    token: transaction.token,
-                    redirect_url: transaction.redirect_url,
-                    paymentMethod: 'midtrans'
-                });
-
-            } catch (midtransError) {
-                console.error('❌ [BANNER PURCHASE] Midtrans error:', midtransError.message);
-                return res.status(500).json({ 
-                    error: 'Failed to create Midtrans transaction',
-                    details: midtransError.message
-                });
-            }
-        }
-
-        console.error(`❌ [BANNER PURCHASE] Invalid payment method: ${paymentMethod}`);
-        return res.status(400).json({ error: 'Metode pembayaran tidak valid' });
-
-    } catch (error) {
-        console.error('❌ [BANNER PURCHASE] Unexpected error:', error);
-        console.error('❌ [BANNER PURCHASE] Error stack:', error.stack);
-        res.status(500).json({ 
-            error: 'Failed to purchase banner', 
-            details: error.message 
-        });
-    }
-});
-
-// Get seller's banner purchases
-app.get('/api/seller/:sellerId/banners', async (req, res) => {
-    try {
-        const { sellerId } = req.params;
-        const snapshot = await db.collection('banners')
-            .where('sellerId', '==', sellerId)
-            .where('type', '==', 'seller')
-            .orderBy('createdAt', 'desc')
-            .get();
-
-        const banners = [];
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            banners.push({
-                id: doc.id,
-                ...data,
-                createdAt: data.createdAt?.toDate?.() || data.createdAt,
-                expiresAt: data.expiresAt?.toDate?.() || data.expiresAt
-            });
-        });
-
-        res.json(banners);
-
-    } catch (error) {
-        console.error('Error fetching seller banners:', error);
-        res.status(500).json({ error: 'Failed to fetch banners', details: error.message });
-    }
-});
-
-
-// ============================================
-// PAYMENT CALLBACK ROUTES
-// ============================================
-
-// Finish payment (success)
-app.get('/payment/finish', async (req, res) => {
-    const { order_id, status_code, transaction_status } = req.query;
-    console.log(`✅ [PAYMENT FINISH] Order: ${order_id}, Status: ${transaction_status || status_code}`);
-    
-    try {
-        // Update order status di database jika belum diupdate oleh webhook
-        const snapshot = await db.collection('orders')
-            .where('orderId', '==', order_id)
-            .limit(1)
-            .get();
-        
-        if (!snapshot.empty) {
-            const orderDoc = snapshot.docs[0];
-            const orderData = orderDoc.data();
-            
-            // Jika order masih pending, update menjadi settlement
-            if (orderData.paymentStatus === 'pending') {
-                // Cek jika ini banner purchase
-                if (orderData.type === 'banner_purchase') {
-                    // Buat banner
-                    const bannerData = orderData.bannerData || {};
-                    const expiresAt = new Date(bannerData.expiresAt) || new Date();
-                    expiresAt.setHours(expiresAt.getHours() + 24);
-
-                    const docRef = await db.collection('banners').add({
-                        title: bannerData.title || 'Banner Promosi',
-                        description: bannerData.description || '',
-                        imageUrl: bannerData.imageUrl || '',
-                        linkUrl: `/product/${orderData.productId}`,
-                        isActive: true,
-                        type: 'seller',
-                        sellerId: orderData.sellerId,
-                        productId: orderData.productId,
-                        duration: bannerData.duration || 24,
-                        price: orderData.amount || 0,
-                        paymentMethod: 'midtrans',
-                        expiresAt: admin.firestore.Timestamp.fromDate(expiresAt),
-                        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                        updatedAt: admin.firestore.FieldValue.serverTimestamp()
-                    });
-
-                    await orderDoc.ref.update({
-                        status: 'paid',
-                        paymentStatus: 'settlement',
-                        bannerId: docRef.id,
-                        updatedAt: admin.firestore.FieldValue.serverTimestamp()
-                    });
-
-                    // Notification untuk admin
-                    await db.collection('notifications').add({
-                        type: 'banner_purchase_midtrans',
-                        title: 'Pembelian Banner (Midtrans)',
-                        message: `${orderData.sellerName || 'Seller'} membeli banner untuk produk ${orderData.productName || 'Produk'}`,
-                        userId: 'admin',
-                        sellerId: orderData.sellerId,
-                        bannerId: docRef.id,
-                        read: false,
-                        createdAt: admin.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-            }
-        }
-    } catch (error) {
-        console.error('Error updating order from callback:', error);
-    }
-    
-    // Redirect ke halaman seller/products dengan status success
-    const redirectUrl = `/seller/products?payment=success&order=${order_id}`;
-    res.redirect(redirectUrl);
-});
-
-// Error payment
-app.get('/payment/error', (req, res) => {
-    const { order_id, status_code, transaction_status } = req.query;
-    console.log(`❌ [PAYMENT ERROR] Order: ${order_id}, Status: ${transaction_status || status_code}`);
-    
-    // Redirect ke halaman seller/products dengan status error
-    const redirectUrl = `/seller/products?payment=error&order=${order_id}`;
-    res.redirect(redirectUrl);
-});
-
-// Pending payment
-app.get('/payment/pending', (req, res) => {
-    const { order_id, status_code, transaction_status } = req.query;
-    console.log(`⏳ [PAYMENT PENDING] Order: ${order_id}, Status: ${transaction_status || status_code}`);
-    
-    // Redirect ke halaman seller/products dengan status pending
-    const redirectUrl = `/seller/products?payment=pending&order=${order_id}`;
-    res.redirect(redirectUrl);
-});
-
-// ============================================
-// SELLER PAGE ENDPOINT
-// ============================================
-
-app.get('/api/seller/:username', async (req, res) => {
-    try {
-        const { username } = req.params;
-        
-        const snapshot = await db.collection('users')
-            .where('role', '==', 'seller')
-            .get();
-
-        let seller = null;
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            const storeSlug = data.storeName?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || '';
-            const displaySlug = data.displayName?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || '';
-            if (storeSlug === username || displaySlug === username || doc.id === username) {
-                seller = { id: doc.id, ...data };
-            }
-        });
-
-        if (!seller) {
-            return res.status(404).json({ error: 'Seller not found' });
-        }
-
-        const productsSnapshot = await db.collection('products')
-            .where('sellerId', '==', seller.id)
-            .where('status', '==', 'published')
-            .orderBy('createdAt', 'desc')
-            .get();
-
-        const products = [];
-        productsSnapshot.forEach(doc => {
-            const data = doc.data();
-            products.push({
-                id: doc.id,
-                ...data,
-                createdAt: data.createdAt?.toDate?.() || data.createdAt
-            });
-        });
-
-        res.json({
-            seller,
-            products,
-            totalProducts: products.length
-        });
-
-    } catch (error) {
-        console.error('Error fetching seller:', error);
-        res.status(500).json({ error: 'Failed to fetch seller', details: error.message });
     }
 });
 
@@ -2147,6 +1892,68 @@ app.patch('/api/admin/withdrawals/:id', async (req, res) => {
 });
 
 // ============================================
+// SELLER PAGE ENDPOINT
+// ============================================
+
+app.get('/api/seller/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+        
+        const snapshot = await db.collection('users')
+            .where('role', '==', 'seller')
+            .get();
+
+        let seller = null;
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const storeSlug = data.storeName?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || '';
+            const displaySlug = data.displayName?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || '';
+            if (storeSlug === username || displaySlug === username || doc.id === username) {
+                seller = { id: doc.id, ...data };
+            }
+        });
+
+        if (!seller) {
+            return res.status(404).json({ error: 'Seller not found' });
+        }
+
+        const productsSnapshot = await db.collection('products')
+            .where('sellerId', '==', seller.id)
+            .where('status', '==', 'published')
+            .orderBy('createdAt', 'desc')
+            .get();
+
+        const products = [];
+        productsSnapshot.forEach(doc => {
+            const data = doc.data();
+            products.push({
+                id: doc.id,
+                ...data,
+                createdAt: data.createdAt?.toDate?.() || data.createdAt
+            });
+        });
+
+        res.json({
+            seller,
+            products,
+            totalProducts: products.length
+        });
+
+    } catch (error) {
+        console.error('Error fetching seller:', error);
+        res.status(500).json({ error: 'Failed to fetch seller', details: error.message });
+    }
+});
+
+// ============================================
+// HANDLE ROOT ROUTE
+// ============================================
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
+// ============================================
 // ERROR HANDLING
 // ============================================
 
@@ -2158,4 +1965,5 @@ app.use((err, req, res, next) => {
     });
 });
 
+// Export for Vercel
 module.exports = app;
