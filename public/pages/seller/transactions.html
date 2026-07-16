@@ -90,6 +90,45 @@
         .error-box.show { display: block; }
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+        
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --bg-tertiary: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-light: #9ca3af;
+            --border-color: #e5e7eb;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+            --radius: 8px;
+            --radius-lg: 16px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --primary: #4F46E5;
+            --transition: all 0.3s ease;
+        }
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #374151;
+            --bg-tertiary: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-light: #6b7280;
+            --border-color: #374151;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font); background: var(--bg-secondary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
+        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); height: 64px; }
+        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .navbar-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
+        .navbar-logo i { color: #4F46E5; }
+        .navbar-actions { display: flex; align-items: center; gap: 8px; }
+        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
+        .btn-icon:hover { background: var(--bg-secondary); }
     </style>
 </head>
 <body>
@@ -177,13 +216,13 @@
 
     <script type="module">
         // ============================================
-        // IMPORTS - TANPA onSnapshot
+        // IMPORTS
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter } from "firebase/firestore";
 
-        console.log('📊 [SELLER_TRANSACTIONS] Page loaded (OPTIMIZED)');
+        console.log('📊 [SELLER_TRANSACTIONS] Page loaded');
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
@@ -306,24 +345,56 @@
         }
 
         // ============================================
-        // FORMAT FUNCTIONS
+        // FORMAT FUNCTIONS - FIXED
         // ============================================
         function formatPrice(price) {
             if (!price && price !== 0) return '0';
             return new Intl.NumberFormat('id-ID').format(price);
         }
 
-        function formatDate(date) {
-            if (!date) return '-';
-            const d = date instanceof Date ? date : new Date(date);
-            if (isNaN(d.getTime())) return '-';
-            return d.toLocaleDateString('id-ID', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+        function formatDate(timestamp) {
+            if (!timestamp) return '-';
+            
+            // Jika timestamp adalah Firestore Timestamp
+            if (timestamp.toDate && typeof timestamp.toDate === 'function') {
+                const date = timestamp.toDate();
+                return date.toLocaleDateString('id-ID', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+            
+            // Jika timestamp adalah Date object
+            if (timestamp instanceof Date) {
+                return timestamp.toLocaleDateString('id-ID', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+            
+            // Jika timestamp adalah string atau number
+            try {
+                const date = new Date(timestamp);
+                if (!isNaN(date.getTime())) {
+                    return date.toLocaleDateString('id-ID', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
+            } catch (e) {
+                // ignore
+            }
+            
+            return '-';
         }
 
         // ============================================
@@ -350,7 +421,6 @@
                 }
                 addDebug('User is seller', 'success');
                 await loadTransactions(true);
-                // TIDAK ADA onSnapshot
 
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
@@ -386,7 +456,9 @@
                 }
                 
                 let q = query(collection(db, 'orders'), ...constraints, limit(limitPerPage));
-                if (lastDoc) q = query(collection(db, 'orders'), ...constraints, startAfter(lastDoc), limit(limitPerPage));
+                if (lastDoc) {
+                    q = query(collection(db, 'orders'), ...constraints, startAfter(lastDoc), limit(limitPerPage));
+                }
                 
                 const snapshot = await getDocs(q);
                 addDebug(`Query returned ${snapshot.size} documents`, 'info');
@@ -402,10 +474,21 @@
                 
                 lastDoc = snapshot.docs[snapshot.docs.length - 1];
                 hasMore = snapshot.docs.length === limitPerPage;
-                const newData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                const newData = snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        ...data,
+                        // Simpan createdAt sebagai timestamp asli
+                        createdAtTimestamp: data.createdAt || null
+                    };
+                });
+                
                 transactions = reset ? newData : [...transactions, ...newData];
                 addDebug(`Loaded ${transactions.length} transactions total`, 'success');
                 renderTransactions();
+                
             } catch (error) { 
                 addDebug(`Error loading transactions: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat transaksi: ' + error.message); 
@@ -413,7 +496,7 @@
         }
 
         // ============================================
-        // RENDER TRANSACTIONS
+        // RENDER TRANSACTIONS - FIXED
         // ============================================
         function renderTransactions() {
             const tbody = document.getElementById('transactionsBody');
@@ -432,6 +515,9 @@
 
             tbody.innerHTML = transactions.map(t => {
                 const commission = Math.round((t.amount || 0) * 0.1);
+                // Gunakan formatDate yang sudah diperbaiki
+                const formattedDate = formatDate(t.createdAtTimestamp);
+                
                 return `
                 <tr>
                     <td style="font-family:monospace;font-size:13px;">${t.orderId || '-'}</td>
@@ -439,8 +525,8 @@
                     <td>${t.buyerName || '-'}</td>
                     <td style="font-weight:600;color:var(--primary);">Rp${formatPrice(t.amount)}</td>
                     <td style="color:var(--danger);">Rp${formatPrice(commission)}</td>
-                    <td><span class="badge ${statusColors[t.paymentStatus] || 'badge-info'}">${t.paymentStatus || t.status}</span></td>
-                    <td style="font-size:13px;color:var(--text-secondary);">${t.createdAt}</td>
+                    <td><span class="badge ${statusColors[t.paymentStatus] || 'badge-info'}">${t.paymentStatus || t.status || '-'}</span></td>
+                    <td style="font-size:13px;color:var(--text-secondary);">${formattedDate}</td>
                 </tr>
             `}).join('');
             
@@ -453,7 +539,7 @@
         function renderPagination() {
             const container = document.getElementById('pagination');
             if (!hasMore && transactions.length <= limitPerPage) { 
-                container.innerHTML = ''; 
+                container.innerHTML = `<span style="font-size:14px;color:var(--text-secondary);">${transactions.length} transaksi</span>`;
                 return; 
             }
             container.innerHTML = `
@@ -496,7 +582,7 @@
         };
 
         addDebug('Page ready', 'success');
-        console.log('✅ [SELLER_TRANSACTIONS] Page ready (OPTIMIZED - no listeners)');
+        console.log('✅ [SELLER_TRANSACTIONS] Page ready');
     </script>
 </body>
 </html>
