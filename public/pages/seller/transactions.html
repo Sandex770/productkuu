@@ -440,7 +440,7 @@
                     <td style="font-weight:600;color:var(--primary);">Rp${formatPrice(t.amount)}</td>
                     <td style="color:var(--danger);">Rp${formatPrice(commission)}</td>
                     <td><span class="badge ${statusColors[t.paymentStatus] || 'badge-info'}">${t.paymentStatus || t.status}</span></td>
-                    <td style="font-size:13px;color:var(--text-secondary);">${formatDate(t.createdAt)}</td>
+                    <td style="font-size:13px;color:var(--text-secondary);">${t.createdAt}</td>
                 </tr>
             `}).join('');
             
