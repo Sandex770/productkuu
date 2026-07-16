@@ -8,6 +8,35 @@ import {
 } from './firebase-config.js';
 
 // ============================================
+// DEBUG MODE
+// ============================================
+const DEBUG = true; // Set ke false untuk nonaktifkan debug
+
+function debugLog(...args) {
+    if (DEBUG) {
+        console.log('🔍 [DEBUG]:', ...args);
+    }
+}
+
+function debugError(...args) {
+    if (DEBUG) {
+        console.error('❌ [ERROR]:', ...args);
+    }
+}
+
+function debugSuccess(...args) {
+    if (DEBUG) {
+        console.log('✅ [SUCCESS]:', ...args);
+    }
+}
+
+function debugInfo(...args) {
+    if (DEBUG) {
+        console.log('ℹ️ [INFO]:', ...args);
+    }
+}
+
+// ============================================
 // APPLICATION STATE
 // ============================================
 
@@ -23,6 +52,8 @@ const state = {
     loading: false
 };
 
+debugInfo('Application state initialized', state);
+
 // ============================================
 // DOM REFS
 // ============================================
@@ -34,9 +65,6 @@ const themeToggle = document.getElementById('themeToggle');
 // ROUTER
 // ============================================
 
-// Tambahkan routes ini ke dalam object routes di app.js
-
-// Tambahkan route ini ke object routes
 const routes = {
     '/': homePage,
     '/product/:id': productDetailPage,
@@ -46,13 +74,16 @@ const routes = {
     '/seller/login': sellerLoginPage,
     '/seller/register': sellerRegisterPage,
     '/seller/dashboard': sellerDashboardPage,
-    '/admin/login': adminLoginPage,  // <-- Tambahkan ini
+    '/admin/login': adminLoginPage,
     '/admin/dashboard': adminDashboardPage,
     '/order/:id': orderDetailPage
 };
 
+debugInfo('Routes initialized', Object.keys(routes));
+
 // Tambahkan fungsi adminLoginPage
 async function adminLoginPage() {
+    debugInfo('Loading admin login page');
     const response = await fetch('/pages/admin/login.html');
     const html = await response.text();
     app.innerHTML = html;
@@ -68,11 +99,10 @@ async function adminLoginPage() {
 
 // Update fungsi halaman login dan register
 async function sellerLoginPage() {
-    // Load login.html content
+    debugInfo('Loading seller login page');
     const response = await fetch('/pages/seller/login.html');
     const html = await response.text();
     app.innerHTML = html;
-    // Re-initialize scripts
     const scripts = app.querySelectorAll('script');
     scripts.forEach(script => {
         const newScript = document.createElement('script');
@@ -83,11 +113,10 @@ async function sellerLoginPage() {
 }
 
 async function sellerRegisterPage() {
-    // Load register.html content
+    debugInfo('Loading seller register page');
     const response = await fetch('/pages/seller/register.html');
     const html = await response.text();
     app.innerHTML = html;
-    // Re-initialize scripts
     const scripts = app.querySelectorAll('script');
     scripts.forEach(script => {
         const newScript = document.createElement('script');
@@ -97,9 +126,8 @@ async function sellerRegisterPage() {
     });
 }
 
-
-
 function navigate(path) {
+    debugInfo('Navigating to:', path);
     window.history.pushState({}, '', path);
     renderPage(path);
 }
@@ -111,6 +139,7 @@ window.navigate = navigate;
 // ============================================
 
 async function renderPage(path) {
+    debugInfo('Rendering page:', path);
     // Show loading
     app.innerHTML = `
         <div class="flex justify-center items-center min-h-[60vh]">
@@ -129,22 +158,26 @@ async function renderPage(path) {
         if (path.startsWith('/product/')) {
             route = '/product/:id';
             params.id = path.split('/')[2];
+            debugInfo('Product route detected, ID:', params.id);
         } else if (path.startsWith('/category/')) {
             route = '/category/:slug';
             params.slug = path.split('/')[2];
+            debugInfo('Category route detected, Slug:', params.slug);
         } else if (path.startsWith('/order/')) {
             route = '/order/:id';
             params.id = path.split('/')[2];
+            debugInfo('Order route detected, ID:', params.id);
         }
         
         const pageFunction = routes[route] || notFoundPage;
+        debugInfo('Page function:', pageFunction.name || 'anonymous');
         await pageFunction(params);
         
         // Update active nav
         updateActiveNav(path);
         
     } catch (error) {
-        console.error('Error rendering page:', error);
+        debugError('Error rendering page:', error);
         app.innerHTML = `
             <div class="container mx-auto px-4 py-20 text-center">
                 <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
@@ -159,7 +192,6 @@ async function renderPage(path) {
 }
 
 function updateActiveNav(path) {
-    // Update nav active state
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('text-indigo-600', 'dark:text-indigo-400');
         if (link.getAttribute('href') === path) {
@@ -173,6 +205,7 @@ function updateActiveNav(path) {
 // ============================================
 
 async function homePage() {
+    debugInfo('Loading home page');
     const html = `
         <!-- Hero Section -->
         <section class="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white py-20 md:py-28">
@@ -209,7 +242,6 @@ async function homePage() {
                     <div id="bannerSlides" class="flex transition-transform duration-500 ease-in-out">
                         <!-- Banners will be loaded here -->
                     </div>
-                    <!-- Controls -->
                     <button id="prevBanner" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition">
                         <i class="fas fa-chevron-left"></i>
                     </button>
@@ -269,6 +301,7 @@ async function homePage() {
 // ============================================
 
 async function loadCategories() {
+    debugInfo('Loading categories');
     try {
         const categoriesRef = collection(db, collections.categories);
         const q = query(categoriesRef, orderBy('name'), limit(12));
@@ -297,9 +330,10 @@ async function loadCategories() {
         `).join('');
 
         state.categories = categories;
+        debugSuccess('Categories loaded:', categories.length);
         
     } catch (error) {
-        console.error('Error loading categories:', error);
+        debugError('Error loading categories:', error);
         const grid = document.getElementById('categoriesGrid');
         grid.innerHTML = '<div class="col-span-full text-center text-red-500">Gagal memuat kategori</div>';
     }
@@ -310,13 +344,13 @@ async function loadCategories() {
 // ============================================
 
 async function loadProducts(tab = 'new') {
+    debugInfo('Loading products with tab:', tab);
     try {
         let productsRef = collection(db, collections.products);
         let constraints = [];
         
         constraints.push(where('status', '==', 'published'));
         
-        // Filter by tab
         if (tab === 'trending') {
             constraints.push(where('isTrending', '==', true));
         } else if (tab === 'bestseller') {
@@ -325,7 +359,6 @@ async function loadProducts(tab = 'new') {
             constraints.push(where('isPremium', '==', true));
         }
         
-        // Sort
         let sortField = 'createdAt';
         let sortOrder = 'desc';
         
@@ -383,9 +416,10 @@ async function loadProducts(tab = 'new') {
         `).join('');
 
         state.products = products;
+        debugSuccess('Products loaded:', products.length);
         
     } catch (error) {
-        console.error('Error loading products:', error);
+        debugError('Error loading products:', error);
         const grid = document.getElementById('productsGrid');
         grid.innerHTML = '<div class="col-span-full text-center text-red-500">Gagal memuat produk</div>';
     }
@@ -396,6 +430,7 @@ async function loadProducts(tab = 'new') {
 // ============================================
 
 async function loadBanners() {
+    debugInfo('Loading banners');
     try {
         const bannersRef = collection(db, collections.banners);
         const now = new Date();
@@ -457,9 +492,10 @@ async function loadBanners() {
         `).join('');
 
         state.banners = banners;
+        debugSuccess('Banners loaded:', banners.length);
         
     } catch (error) {
-        console.error('Error loading banners:', error);
+        debugError('Error loading banners:', error);
     }
 }
 
@@ -471,6 +507,7 @@ let currentBannerIndex = 0;
 let bannerInterval;
 
 function setupBannerCarousel() {
+    debugInfo('Setting up banner carousel');
     const slides = document.getElementById('bannerSlides');
     const indicators = document.querySelectorAll('#bannerIndicators button');
     const prevBtn = document.getElementById('prevBanner');
@@ -479,6 +516,7 @@ function setupBannerCarousel() {
     if (!slides || slides.children.length === 0) return;
 
     const totalSlides = slides.children.length;
+    debugInfo('Total slides:', totalSlides);
     
     function goToSlide(index) {
         if (index < 0) index = totalSlides - 1;
@@ -500,7 +538,6 @@ function setupBannerCarousel() {
         goToSlide(currentBannerIndex - 1);
     }
 
-    // Event listeners
     if (prevBtn) prevBtn.addEventListener('click', () => { prevSlide(); resetInterval(); });
     if (nextBtn) nextBtn.addEventListener('click', () => { nextSlide(); resetInterval(); });
     
@@ -511,7 +548,6 @@ function setupBannerCarousel() {
         });
     });
 
-    // Auto slide
     function startInterval() {
         bannerInterval = setInterval(nextSlide, 5000);
     }
@@ -521,7 +557,6 @@ function setupBannerCarousel() {
         startInterval();
     }
 
-    // Pause on hover
     const carousel = document.getElementById('bannerCarousel');
     carousel.addEventListener('mouseenter', () => clearInterval(bannerInterval));
     carousel.addEventListener('mouseleave', startInterval);
@@ -534,6 +569,7 @@ function setupBannerCarousel() {
 // ============================================
 
 function setupTabs() {
+    debugInfo('Setting up tabs');
     const tabs = document.querySelectorAll('.tab-btn');
     
     tabs.forEach(tab => {
@@ -542,6 +578,7 @@ function setupTabs() {
             tab.classList.add('active', 'border-indigo-500', 'text-indigo-600', 'dark:text-indigo-400');
             
             const tabName = tab.dataset.tab;
+            debugInfo('Tab clicked:', tabName);
             loadProducts(tabName);
         });
     });
@@ -552,6 +589,7 @@ function setupTabs() {
 // ============================================
 
 async function productDetailPage(params) {
+    debugInfo('Loading product detail for ID:', params.id);
     try {
         const productId = params.id;
         const response = await fetch(`/api/products/${productId}`);
@@ -561,6 +599,7 @@ async function productDetailPage(params) {
         }
         
         const product = await response.json();
+        debugSuccess('Product loaded:', product.name);
         
         // Add to recently viewed
         const recent = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
@@ -580,12 +619,10 @@ async function productDetailPage(params) {
                 </nav>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                    <!-- Product Image -->
                     <div class="bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl p-12 flex items-center justify-center aspect-square">
                         <i class="fas fa-box text-8xl text-indigo-400 dark:text-indigo-500"></i>
                     </div>
 
-                    <!-- Product Info -->
                     <div>
                         <div class="flex flex-wrap items-center gap-3 mb-4">
                             ${product.isTrending ? '<span class="badge badge-warning">🔥 Trending</span>' : ''}
@@ -685,7 +722,6 @@ async function productDetailPage(params) {
                     </div>
                 </div>
 
-                <!-- Reviews -->
                 <div class="mt-16">
                     <h3 class="text-2xl font-bold mb-6">Ulasan Pembeli</h3>
                     <div id="reviewsSection">
@@ -693,7 +729,6 @@ async function productDetailPage(params) {
                     </div>
                 </div>
 
-                <!-- Related Products -->
                 <div class="mt-16">
                     <h3 class="text-2xl font-bold mb-6">Produk Serupa</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="relatedProducts">
@@ -706,7 +741,7 @@ async function productDetailPage(params) {
         app.innerHTML = html;
         
     } catch (error) {
-        console.error('Error loading product:', error);
+        debugError('Error loading product:', error);
         app.innerHTML = `
             <div class="container mx-auto px-4 py-20 text-center">
                 <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
@@ -725,6 +760,7 @@ async function productDetailPage(params) {
 // ============================================
 
 async function renderReviews(productId) {
+    debugInfo('Loading reviews for product:', productId);
     try {
         const response = await fetch(`/api/products/${productId}/reviews`);
         if (!response.ok) throw new Error('Failed to load reviews');
@@ -794,7 +830,7 @@ async function renderReviews(productId) {
             </div>
         `;
     } catch (error) {
-        console.error('Error loading reviews:', error);
+        debugError('Error loading reviews:', error);
         return '<p class="text-red-500">Gagal memuat ulasan</p>';
     }
 }
@@ -810,6 +846,7 @@ function renderStars(rating) {
 // ============================================
 
 async function renderRelatedProducts(category, excludeId) {
+    debugInfo('Loading related products for category:', category);
     try {
         const response = await fetch(`/api/products?category=${category}&limit=4`);
         if (!response.ok) throw new Error('Failed to load related products');
@@ -842,7 +879,7 @@ async function renderRelatedProducts(category, excludeId) {
             </div>
         `).join('');
     } catch (error) {
-        console.error('Error loading related products:', error);
+        debugError('Error loading related products:', error);
         return '<div class="col-span-full text-center text-red-500">Gagal memuat produk serupa</div>';
     }
 }
@@ -852,6 +889,7 @@ async function renderRelatedProducts(category, excludeId) {
 // ============================================
 
 async function checkOrderPage() {
+    debugInfo('Loading check order page');
     const html = `
         <div class="container mx-auto px-4 py-12 max-w-2xl">
             <h1 class="text-3xl font-bold text-center mb-8">Cek Status Order</h1>
@@ -883,6 +921,7 @@ async function checkOrderPage() {
     document.getElementById('checkOrderForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const orderId = document.getElementById('orderIdInput').value.trim();
+        debugInfo('Checking order:', orderId);
         
         if (!orderId) {
             showToast('warning', 'Masukkan Order ID');
@@ -900,6 +939,7 @@ async function checkOrderPage() {
             displayOrderResult(data);
 
         } catch (error) {
+            debugError('Error checking order:', error);
             showToast('error', error.message);
             document.getElementById('orderResult').classList.add('hidden');
         }
@@ -907,6 +947,7 @@ async function checkOrderPage() {
 }
 
 function displayOrderResult(order) {
+    debugInfo('Displaying order result:', order.orderId);
     const resultDiv = document.getElementById('orderResult');
     const detailDiv = document.getElementById('orderDetail');
     
@@ -967,7 +1008,6 @@ function displayOrderResult(order) {
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
                     <h4 class="font-semibold mb-3">Akses Produk</h4>
                     <div id="productAccess">
-                        <!-- Will be loaded from product data -->
                         ${await renderProductAccess(order.productId)}
                     </div>
                 </div>
@@ -989,6 +1029,7 @@ function displayOrderResult(order) {
 }
 
 async function renderProductAccess(productId) {
+    debugInfo('Loading product access for:', productId);
     try {
         const response = await fetch(`/api/products/${productId}`);
         if (!response.ok) throw new Error('Product not found');
@@ -996,7 +1037,6 @@ async function renderProductAccess(productId) {
         const product = await response.json();
 
         if (product.type === 'premium-account') {
-            // For premium account, show credentials
             const accounts = product.premiumAccounts || [];
             if (accounts.length > 0) {
                 const account = accounts[0];
@@ -1035,7 +1075,6 @@ async function renderProductAccess(productId) {
             }
             return '<p class="text-gray-500">Tidak ada akun tersedia</p>';
         } else {
-            // Digital product - show download link
             return `
                 <div class="space-y-3">
                     <a href="${product.downloadLink}" target="_blank" 
@@ -1064,33 +1103,32 @@ async function renderProductAccess(productId) {
             `;
         }
     } catch (error) {
-        console.error('Error loading product access:', error);
+        debugError('Error loading product access:', error);
         return '<p class="text-red-500">Gagal memuat akses produk</p>';
     }
 }
 
 // ============================================
-// BUY NOW FUNCTION
+// BUY NOW - UPDATE
 // ============================================
-
 window.buyNow = async function(productId) {
-    // Check if product is in stock
+    debugInfo('Buy now clicked for product:', productId);
     try {
         const response = await fetch(`/api/products/${productId}`);
         if (!response.ok) throw new Error('Product not found');
-        
         const product = await response.json();
-        
+        debugInfo('Product data:', product);
+
         if (product.stock === 0) {
             showToast('error', 'Maaf, produk ini sedang habis');
             return;
         }
-        
+
         showCheckoutModal(productId);
-        
+
     } catch (error) {
-        console.error('Error:', error);
-        showToast('error', 'Gagal memulai pembayaran');
+        debugError('Error in buyNow:', error);
+        showToast('error', 'Gagal memulai pembayaran: ' + error.message);
     }
 };
 
@@ -1099,6 +1137,7 @@ window.buyNow = async function(productId) {
 // ============================================
 
 function showCheckoutModal(productId) {
+    debugInfo('Showing checkout modal for product:', productId);
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm fade-in';
     modal.id = 'checkoutModal';
@@ -1126,7 +1165,7 @@ function showCheckoutModal(productId) {
                     <input type="tel" id="buyerPhone" class="input-premium" placeholder="Masukkan nomor HP">
                 </div>
                 
-                <button type="submit" class="btn-primary w-full py-3">
+                <button type="submit" id="payNowBtn" class="btn-primary w-full py-3">
                     <i class="fas fa-credit-card mr-2"></i>
                     Bayar Sekarang
                 </button>
@@ -1143,43 +1182,51 @@ function showCheckoutModal(productId) {
 }
 
 window.closeCheckoutModal = function() {
+    debugInfo('Closing checkout modal');
     const modal = document.getElementById('checkoutModal');
     if (modal) modal.remove();
 };
 
 // ============================================
-// PROCESS PAYMENT
+// PROCESS PAYMENT - UPDATE (FIXED)
 // ============================================
-
 async function processPayment(productId) {
+    debugInfo('Processing payment for product:', productId);
     const name = document.getElementById('buyerName').value.trim();
     const email = document.getElementById('buyerEmail').value.trim();
     const phone = document.getElementById('buyerPhone').value.trim();
-    
+
+    debugInfo('Buyer details:', { name, email, phone });
+
     if (!name || !email) {
         showToast('warning', 'Nama dan email wajib diisi');
         return;
     }
-    
-    // Validate email
+
     if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
         showToast('warning', 'Format email tidak valid');
         return;
     }
-    
+
+    const btn = document.getElementById('payNowBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+
     try {
-        // Get product details
+        debugInfo('Fetching product data...');
         const productResponse = await fetch(`/api/products/${productId}`);
         if (!productResponse.ok) throw new Error('Product not found');
         const product = await productResponse.json();
-        
-        // Check stock
+        debugInfo('Product data:', product);
+
         if (product.stock === 0) {
             showToast('error', 'Maaf, produk ini sedang habis');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-credit-card mr-2"></i> Bayar Sekarang';
             return;
         }
-        
-        // Create order
+
+        debugInfo('Creating order...');
         const orderResponse = await fetch('/api/orders', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1189,14 +1236,16 @@ async function processPayment(productId) {
                 buyerEmail: email,
                 buyerPhone: phone,
                 sellerId: product.sellerId || '',
-                amount: product.price
+                amount: product.price,
+                productName: product.name
             })
         });
-        
+
         if (!orderResponse.ok) throw new Error('Failed to create order');
         const order = await orderResponse.json();
-        
-        // Create payment
+        debugSuccess('Order created:', order);
+
+        debugInfo('Creating payment...');
         const paymentResponse = await fetch('/api/payment/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1209,44 +1258,81 @@ async function processPayment(productId) {
                 productName: product.name
             })
         });
-        
+
         if (!paymentResponse.ok) throw new Error('Failed to create payment');
         const payment = await paymentResponse.json();
-        
+        debugSuccess('Payment created:', payment);
+
         if (payment.token) {
-            // Open Midtrans Snap
+            debugInfo('Opening Midtrans Snap with token:', payment.token);
             window.snap.pay(payment.token, {
-                onSuccess: async (result) => {
-                    await updateOrderStatus(order.id, 'settlement', result);
-                    showToast('success', 'Pembayaran berhasil! 🎉');
-                    closeCheckoutModal();
-                    navigate(`/order/${order.id}`);
+                onSuccess: async function(result) {
+                    debugSuccess('Payment SUCCESS! Result:', result);
+                    try {
+                        await updateOrderStatus(order.id, 'settlement', result);
+                        debugSuccess('Order status updated to settlement');
+                        showToast('success', '🎉 Pembayaran berhasil!');
+                        closeCheckoutModal();
+                        
+                        const redirectUrl = `/success.html?order=${order.orderId}&status=success`;
+                        debugInfo('Redirecting to:', redirectUrl);
+                        
+                        setTimeout(function() {
+                            window.location.replace(redirectUrl);
+                        }, 1500);
+                    } catch (error) {
+                        debugError('Error in onSuccess:', error);
+                        window.location.replace(`/success.html?order=${order.orderId}&status=success`);
+                    }
                 },
-                onPending: async (result) => {
-                    await updateOrderStatus(order.id, 'pending', result);
-                    showToast('info', 'Menunggu pembayaran...');
-                    closeCheckoutModal();
-                    navigate(`/order/${order.id}`);
+                onPending: async function(result) {
+                    debugInfo('Payment PENDING:', result);
+                    try {
+                        await updateOrderStatus(order.id, 'pending', result);
+                        showToast('info', '⏳ Menunggu pembayaran...');
+                        closeCheckoutModal();
+                        setTimeout(function() {
+                            window.location.replace(`/success.html?order=${order.orderId}&status=pending`);
+                        }, 1500);
+                    } catch (error) {
+                        debugError('Error in onPending:', error);
+                        window.location.replace(`/success.html?order=${order.orderId}&status=pending`);
+                    }
                 },
-                onError: async (result) => {
-                    await updateOrderStatus(order.id, 'failed', result);
-                    showToast('error', 'Pembayaran gagal, silakan coba lagi');
+                onError: async function(result) {
+                    debugError('Payment ERROR:', result);
+                    try {
+                        await updateOrderStatus(order.id, 'failed', result);
+                        showToast('error', '❌ Pembayaran gagal');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-credit-card mr-2"></i> Bayar Sekarang';
+                    } catch (error) {
+                        debugError('Error in onError:', error);
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-credit-card mr-2"></i> Bayar Sekarang';
+                    }
                 },
-                onClose: () => {
+                onClose: function() {
+                    debugInfo('Payment modal closed by user');
                     showToast('info', 'Pembayaran dibatalkan');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-credit-card mr-2"></i> Bayar Sekarang';
                 }
             });
         }
-        
+
     } catch (error) {
-        console.error('Payment error:', error);
-        showToast('error', error.message || 'Gagal memproses pembayaran');
+        debugError('Payment error:', error);
+        showToast('error', 'Gagal memproses pembayaran: ' + error.message);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-credit-card mr-2"></i> Bayar Sekarang';
     }
 }
 
 async function updateOrderStatus(orderId, status, result) {
+    debugInfo('Updating order status:', { orderId, status });
     try {
-        await fetch(`/api/orders/${orderId}`, {
+        const response = await fetch(`/api/orders/${orderId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
@@ -1255,8 +1341,10 @@ async function updateOrderStatus(orderId, status, result) {
                 midtransResult: result
             })
         });
+        if (!response.ok) throw new Error('Failed to update order');
+        debugSuccess('Order status updated successfully');
     } catch (error) {
-        console.error('Error updating order:', error);
+        debugError('Error updating order:', error);
     }
 }
 
@@ -1265,6 +1353,7 @@ async function updateOrderStatus(orderId, status, result) {
 // ============================================
 
 async function notFoundPage() {
+    debugInfo('Showing 404 page');
     return `
         <div class="container mx-auto px-4 py-20 text-center">
             <i class="fas fa-exclamation-circle text-6xl text-gray-400 mb-4"></i>
@@ -1298,6 +1387,7 @@ function formatDate(date) {
 }
 
 function showToast(type, message) {
+    debugInfo('Showing toast:', { type, message });
     const toast = document.createElement('div');
     const colors = {
         success: 'bg-green-500',
@@ -1321,10 +1411,10 @@ function showToast(type, message) {
 window.showToast = showToast;
 
 function copyText(text) {
+    debugInfo('Copying text:', text);
     navigator.clipboard.writeText(text).then(() => {
         showToast('success', 'Berhasil disalin!');
     }).catch(() => {
-        // Fallback
         const input = document.createElement('input');
         input.value = text;
         document.body.appendChild(input);
@@ -1338,6 +1428,7 @@ function copyText(text) {
 window.copyText = copyText;
 
 function addToWishlist(productId) {
+    debugInfo('Toggle wishlist for product:', productId);
     let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
     if (wishlist.includes(productId)) {
         wishlist = wishlist.filter(id => id !== productId);
@@ -1370,6 +1461,7 @@ themeToggle?.addEventListener('click', () => {
     } else {
         icon.className = 'fas fa-moon';
     }
+    debugInfo('Dark mode toggled:', state.darkMode);
 });
 
 // ============================================
@@ -1379,10 +1471,11 @@ themeToggle?.addEventListener('click', () => {
 onAuthStateChanged(auth, (user) => {
     if (user) {
         state.user = user;
-        // Load user data from Firestore
+        debugInfo('User logged in:', user.uid);
         loadUserData(user.uid);
     } else {
         state.user = null;
+        debugInfo('User logged out');
     }
 });
 
@@ -1392,9 +1485,10 @@ async function loadUserData(uid) {
         const userDoc = await getDoc(userRef);
         if (userDoc.exists()) {
             state.userData = userDoc.data();
+            debugInfo('User data loaded:', state.userData);
         }
     } catch (error) {
-        console.error('Error loading user data:', error);
+        debugError('Error loading user data:', error);
     }
 }
 
@@ -1406,6 +1500,7 @@ const searchInput = document.getElementById('searchInput');
 if (searchInput) {
     searchInput.addEventListener('input', debounce((e) => {
         const query = e.target.value.trim();
+        debugInfo('Search input:', query);
         if (query.length > 2) {
             navigate(`/search?q=${encodeURIComponent(query)}`);
         }
@@ -1425,18 +1520,28 @@ function debounce(func, wait) {
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Handle initial route
+    debugInfo('DOM Content Loaded');
     const path = window.location.pathname;
+    debugInfo('Initial path:', path);
     renderPage(path || '/');
 });
 
-// Handle popstate
 window.addEventListener('popstate', () => {
+    debugInfo('Popstate event, path:', window.location.pathname);
     renderPage(window.location.pathname);
 });
 
-// Make functions globally available
 window.formatPrice = formatPrice;
 window.formatDate = formatDate;
 
+// Toggle debug dari console
+window.toggleDebug = function() {
+    const newDebug = !DEBUG;
+    console.log(`🔧 Debug mode toggled to: ${newDebug ? 'ON' : 'OFF'}`);
+    // Note: Ini hanya untuk demonstrasi, karena DEBUG adalah const
+    // Untuk toggle yang sebenarnya, ganti const DEBUG dengan let DEBUG
+};
+
 console.log('🚀 ProductKuu v1.0 loaded successfully!');
+console.log('🔍 Debug mode is:', DEBUG ? 'ON' : 'OFF');
+console.log('💡 To toggle debug, run: toggleDebug()');
