@@ -45,10 +45,13 @@
         .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
         .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
         .badge-primary { background: rgba(79,70,229,0.1); color: var(--primary); }
+        .badge-purple { background: rgba(124,58,237,0.1); color: #7C3AED; }
+        .badge-muted { background: rgba(107,114,128,0.1); color: var(--text-secondary); }
         
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         .text-center { text-align: center; }
         .text-secondary { color: var(--text-secondary); }
+        .text-muted { color: var(--text-light); font-size: 13px; }
         
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
         .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
@@ -91,6 +94,11 @@
         .error-box.show { display: block; }
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+        
+        .pending-expired {
+            background: rgba(239,68,68,0.05);
+            opacity: 0.6;
+        }
         
         :root {
             --bg-primary: #ffffff;
@@ -162,7 +170,10 @@
     <div class="app-wrapper">
         <main class="main-content">
             <div class="flex-between" style="margin-bottom:24px;">
-                <div><h1 style="font-size:24px;">Manajemen Order</h1><p style="color:var(--text-secondary);">Kelola semua order di platform</p></div>
+                <div>
+                    <h1 style="font-size:24px;">Manajemen Order</h1>
+                    <p style="color:var(--text-secondary);">Kelola semua order di platform (termasuk banner)</p>
+                </div>
                 <button onclick="refreshData()" class="btn btn-secondary btn-sm">
                     <i class="fas fa-sync-alt"></i> Refresh
                 </button>
@@ -184,7 +195,18 @@
             <div class="filter-bar" style="margin-top:8px;">
                 <div class="filter-group">
                     <input type="text" id="searchOrder" placeholder="Cari order ID..." style="min-width:200px;">
-                    <select id="filterStatus"><option value="all">Semua Status</option><option value="pending">Pending</option><option value="settlement">Settlement</option><option value="failed">Failed</option><option value="expire">Expired</option></select>
+                    <select id="filterStatus">
+                        <option value="all">Semua Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="settlement">Settlement</option>
+                        <option value="failed">Failed</option>
+                        <option value="expire">Expired</option>
+                    </select>
+                    <select id="filterType">
+                        <option value="all">Semua Type</option>
+                        <option value="product_purchase">Produk</option>
+                        <option value="banner_purchase">Banner</option>
+                    </select>
                     <input type="date" id="filterDateFrom">
                     <input type="date" id="filterDateTo">
                 </div>
@@ -197,8 +219,19 @@
             <div class="card">
                 <div class="table-wrapper">
                     <table class="table">
-                        <thead><tr><th>Order ID</th><th>Produk</th><th>Buyer</th><th>Seller</th><th>Harga</th><th>Status</th><th>Tanggal</th></tr></thead>
-                        <tbody id="ordersTableBody"><tr><td colspan="7" class="text-center text-secondary" style="padding:40px 0;">Memuat order...</td></tr></tbody>
+                        <thead><tr>
+                            <th>Order ID</th>
+                            <th>Type</th>
+                            <th>Produk</th>
+                            <th>Buyer</th>
+                            <th>Seller</th>
+                            <th>Harga</th>
+                            <th>Status</th>
+                            <th>Tanggal</th>
+                        </tr></thead>
+                        <tbody id="ordersTableBody">
+                            <tr><td colspan="8" class="text-center text-secondary" style="padding:40px 0;">Memuat order...</td></tr>
+                        </tbody>
                     </table>
                 </div>
                 <div id="pagination" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"></div>
@@ -220,14 +253,14 @@
 
     <script type="module">
         // ============================================
-        // IMPORTS - FIXED
+        // IMPORTS
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { 
             getFirestore, 
             collection, 
-            doc,           // <-- doc diimport dengan benar
+            doc,
             getDoc, 
             getDocs, 
             query, 
@@ -237,7 +270,7 @@
             startAfter 
         } from "firebase/firestore";
 
-        console.log('📦 [ADMIN_ORDERS] Page loaded (FIXED)');
+        console.log('📦 [ADMIN_ORDERS] Page loaded');
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
@@ -369,17 +402,66 @@
             return new Intl.NumberFormat('id-ID').format(price);
         }
 
-        function formatDate(date) {
-            if (!date) return '-';
-            const d = date instanceof Date ? date : new Date(date);
-            if (isNaN(d.getTime())) return '-';
-            return d.toLocaleDateString('id-ID', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+        function formatDate(timestamp) {
+            if (!timestamp) return '-';
+            
+            if (timestamp.toDate && typeof timestamp.toDate === 'function') {
+                const date = timestamp.toDate();
+                return date.toLocaleDateString('id-ID', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+            
+            if (timestamp instanceof Date) {
+                return timestamp.toLocaleDateString('id-ID', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+            
+            try {
+                const date = new Date(timestamp);
+                if (!isNaN(date.getTime())) {
+                    return date.toLocaleDateString('id-ID', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
+            } catch (e) {}
+            
+            return '-';
+        }
+
+        // ============================================
+        // CEK APAKAH PENDING SUDAH EXPIRED (> 24 JAM)
+        // ============================================
+        function isPendingExpired(timestamp) {
+            if (!timestamp) return false;
+            
+            let date;
+            if (timestamp.toDate && typeof timestamp.toDate === 'function') {
+                date = timestamp.toDate();
+            } else if (timestamp instanceof Date) {
+                date = timestamp;
+            } else {
+                date = new Date(timestamp);
+            }
+            
+            if (isNaN(date.getTime())) return false;
+            
+            const now = new Date();
+            const diffHours = (now - date) / (1000 * 60 * 60);
+            return diffHours > 24;
         }
 
         // ============================================
@@ -414,7 +496,7 @@
         });
 
         // ============================================
-        // LOAD ORDERS - FIXED
+        // LOAD ORDERS - SEMUA TRANSAKSI (PRODUK + BANNER)
         // ============================================
         async function loadOrders(reset = true) {
             addDebug(`Loading orders (reset: ${reset})...`, 'info');
@@ -427,11 +509,17 @@
                 
                 let constraints = [orderBy('createdAt', 'desc')];
                 const status = document.getElementById('filterStatus').value;
+                const type = document.getElementById('filterType').value;
                 const search = document.getElementById('searchOrder').value.trim();
                 
                 if (status !== 'all') {
                     constraints.push(where('paymentStatus', '==', status));
                     addDebug(`Filter by status: ${status}`, 'info');
+                }
+                
+                if (type !== 'all') {
+                    constraints.push(where('type', '==', type));
+                    addDebug(`Filter by type: ${type}`, 'info');
                 }
                 
                 let q = query(collection(db, 'orders'), ...constraints, limit(limitPerPage));
@@ -446,7 +534,7 @@
                     hasMore = false; 
                     if (reset) {
                         document.getElementById('ordersTableBody').innerHTML = 
-                            '<tr><td colspan="7" class="text-center text-secondary">Belum ada order</td></tr>';
+                            '<tr><td colspan="8" class="text-center text-secondary">Belum ada order</td></tr>';
                     }
                     return; 
                 }
@@ -459,7 +547,6 @@
                     const data = orderDoc.data();
                     let sellerName = 'Unknown';
                     
-                    // FIX: Gunakan doc dengan benar
                     if (data.sellerId) {
                         try {
                             const sellerRef = doc(db, 'users', data.sellerId);
@@ -478,7 +565,8 @@
                     newData.push({ 
                         id: orderDoc.id, 
                         ...data, 
-                        sellerName 
+                        sellerName,
+                        createdAtTimestamp: data.createdAt || null
                     });
                 }
                 
@@ -494,12 +582,25 @@
         }
 
         // ============================================
-        // RENDER ORDERS
+        // RENDER ORDERS - PENDING > 24 JAM OTOMATIS HILANG
         // ============================================
         function renderOrders() {
             const tbody = document.getElementById('ordersTableBody');
-            if (orders.length === 0) { 
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Tidak ada order</td></tr>'; 
+            
+            // FILTER: Hapus order pending yang sudah > 24 jam
+            const filteredOrders = orders.filter(o => {
+                if (o.paymentStatus === 'pending') {
+                    const isExpired = isPendingExpired(o.createdAtTimestamp);
+                    if (isExpired) {
+                        addDebug(`🚫 Hiding expired pending order: ${o.orderId}`, 'warning');
+                        return false; // Sembunyikan
+                    }
+                }
+                return true;
+            });
+            
+            if (filteredOrders.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-secondary">Tidak ada order</td></tr>'; 
                 document.getElementById('pagination').innerHTML = ''; 
                 return; 
             }
@@ -512,15 +613,26 @@
                 'paid': 'badge-success'
             };
 
-            tbody.innerHTML = orders.map(o => `
+            const typeColors = {
+                'product_purchase': 'badge-primary',
+                'banner_purchase': 'badge-purple'
+            };
+
+            const typeLabels = {
+                'product_purchase': 'Produk',
+                'banner_purchase': 'Banner'
+            };
+
+            tbody.innerHTML = filteredOrders.map(o => `
                 <tr onclick="viewOrder('${o.id}')" style="cursor:pointer;">
                     <td style="font-family:monospace;font-size:13px;">${o.orderId || '-'}</td>
+                    <td><span class="badge ${typeColors[o.type] || 'badge-muted'}">${typeLabels[o.type] || o.type || '-'}</span></td>
                     <td>${o.productName || '-'}</td>
                     <td>${o.buyerName || '-'}</td>
                     <td>${o.sellerName}</td>
                     <td style="font-weight:600;color:var(--primary);">Rp${formatPrice(o.amount)}</td>
                     <td><span class="badge ${statusColors[o.paymentStatus] || 'badge-info'}">${o.paymentStatus || o.status || '-'}</span></td>
-                    <td style="font-size:13px;color:var(--text-secondary);">${formatDate(o.createdAt)}</td>
+                    <td style="font-size:13px;color:var(--text-secondary);">${formatDate(o.createdAtTimestamp)}</td>
                 </tr>
             `).join('');
             
@@ -571,6 +683,7 @@
             addDebug('Resetting filters', 'info');
             document.getElementById('searchOrder').value = ''; 
             document.getElementById('filterStatus').value = 'all'; 
+            document.getElementById('filterType').value = 'all';
             document.getElementById('filterDateFrom').value = ''; 
             document.getElementById('filterDateTo').value = ''; 
             applyFilters(); 
@@ -591,7 +704,7 @@
         });
 
         addDebug('Page ready', 'success');
-        console.log('✅ [ADMIN_ORDERS] Page ready (FIXED - doc is a function)');
+        console.log('✅ [ADMIN_ORDERS] Page ready - SEMUA transaksi (produk + banner), pending > 24 jam otomatis hilang');
     </script>
 </body>
 </html>
