@@ -361,18 +361,22 @@
         // ============================================
         // STORE LINK FUNCTIONS
         // ============================================
-        function updateStoreLink() {
-            const storeName = userData?.storeName || userData?.displayName || '';
-            if (storeName) {
-                const slug = storeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-                const url = `${window.location.origin}/${slug}`;
-                const linkInput = document.getElementById('storeLink');
-                const linkBtn = document.getElementById('storeLinkBtn');
-                if (linkInput) linkInput.value = url;
-                if (linkBtn) linkBtn.href = url;
-                addDebug(`Store link updated: ${url}`, 'success');
-            }
-        }
+        // ============================================
+// STORE LINK FUNCTIONS - UPDATE
+// ============================================
+function updateStoreLink() {
+    const storeName = userData?.storeName || userData?.displayName || '';
+    if (storeName) {
+        const slug = storeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        // Gunakan /{slug}/product-seller
+        const url = `${window.location.origin}/${slug}/product-seller`;
+        const linkInput = document.getElementById('storeLink');
+        const linkBtn = document.getElementById('storeLinkBtn');
+        if (linkInput) linkInput.value = url;
+        if (linkBtn) linkBtn.href = url;
+        addDebug(`Store link updated: ${url}`, 'success');
+    }
+}
 
         window.copyStoreLink = function() {
             const input = document.getElementById('storeLink');
@@ -528,68 +532,65 @@
         // ============================================
         // LOAD DASHBOARD DATA
         // ============================================
-        async function loadDashboardData() {
-            addDebug('Loading dashboard data...', 'info');
-            if (!currentUser) {
-                addDebug('No current user, skipping', 'warning');
-                return;
-            }
+        // ============================================
+// LOAD DASHBOARD DATA - SUDAH BENAR
+// ============================================
+async function loadDashboardData() {
+    addDebug('Loading dashboard data...', 'info');
+    if (!currentUser) {
+        addDebug('No current user, skipping', 'warning');
+        return;
+    }
 
-            try {
-                const sellerId = currentUser.uid;
-                addDebug(`Seller ID: ${sellerId}`, 'info');
+    try {
+        const sellerId = currentUser.uid;
+        addDebug(`Seller ID: ${sellerId}`, 'info');
 
-                // Products
-                addDebug('Fetching products...', 'info');
-                const productsSnapshot = await getDocs(
-                    query(collection(db, 'products'), where('sellerId', '==', sellerId))
-                );
-                document.getElementById('totalProducts').textContent = productsSnapshot.size;
-                addDebug(`Total products: ${productsSnapshot.size}`, 'success');
+        // Products
+        const productsSnapshot = await getDocs(
+            query(collection(db, 'products'), where('sellerId', '==', sellerId))
+        );
+        document.getElementById('totalProducts').textContent = productsSnapshot.size;
+        addDebug(`Total products: ${productsSnapshot.size}`, 'success');
 
-                // Orders (settled)
-                addDebug('Fetching orders...', 'info');
-                const ordersSnapshot = await getDocs(
-                    query(collection(db, 'orders'), where('sellerId', '==', sellerId), where('paymentStatus', '==', 'settlement'))
-                );
-                document.getElementById('totalSales').textContent = ordersSnapshot.size;
-                addDebug(`Total sales: ${ordersSnapshot.size}`, 'success');
+        // Orders (hanya milik seller ini)
+        const ordersSnapshot = await getDocs(
+            query(collection(db, 'orders'), where('sellerId', '==', sellerId), where('paymentStatus', '==', 'settlement'))
+        );
+        document.getElementById('totalSales').textContent = ordersSnapshot.size;
+        addDebug(`Total sales: ${ordersSnapshot.size}`, 'success');
 
-                // Revenue
-                let totalRevenue = 0;
-                const revenueData = [];
-                ordersSnapshot.forEach(doc => {
-                    const order = doc.data();
-                    const amount = order.amount || 0;
-                    totalRevenue += amount;
-                    revenueData.push({
-                        date: order.createdAt?.toDate?.() || new Date(order.createdAt),
-                        amount: amount
-                    });
-                });
-                document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
-                addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
+        // Revenue (hanya milik seller ini)
+        let totalRevenue = 0;
+        const revenueData = [];
+        ordersSnapshot.forEach(doc => {
+            const order = doc.data();
+            const amount = order.amount || 0;
+            totalRevenue += amount;
+            revenueData.push({
+                date: order.createdAt?.toDate?.() || new Date(order.createdAt),
+                amount: amount
+            });
+        });
+        document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
+        addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
 
-                // Wallet
-                const wallet = userData?.wallet || { available: 0 };
-                document.getElementById('availableBalance').textContent = `Rp${formatPrice(wallet.available || 0)}`;
-                addDebug(`Available balance: Rp${formatPrice(wallet.available || 0)}`, 'success');
+        // Wallet
+        const wallet = userData?.wallet || { available: 0 };
+        document.getElementById('availableBalance').textContent = `Rp${formatPrice(wallet.available || 0)}`;
+        addDebug(`Available balance: Rp${formatPrice(wallet.available || 0)}`, 'success');
 
-                // Update store link again (in case userData changed)
-                updateStoreLink();
+        updateStoreLink();
+        await loadRecentProducts(sellerId);
+        renderCharts(revenueData);
+        
+        addDebug('Dashboard data loaded successfully', 'success');
 
-                await loadRecentProducts(sellerId);
-                
-                // Render charts
-                renderCharts(revenueData);
-                
-                addDebug('Dashboard data loaded successfully', 'success');
-
-            } catch (error) {
-                addDebug(`Error loading dashboard data: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat data: ' + error.message);
-            }
-        }
+    } catch (error) {
+        addDebug(`Error loading dashboard data: ${error.message}`, 'error');
+        showToast('error', 'Gagal memuat data: ' + error.message);
+    }
+}
 
         // ============================================
         // LOAD RECENT PRODUCTS
