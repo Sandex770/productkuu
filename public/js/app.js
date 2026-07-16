@@ -1274,7 +1274,7 @@ async function processPayment(productId) {
                         showToast('success', '🎉 Pembayaran berhasil!');
                         closeCheckoutModal();
                         
-                        const redirectUrl = `/success.html?order=${order.orderId}&status=success`;
+                        const redirectUrl = `/public/success.html?order=${order.orderId}&status=success`;
                         debugInfo('Redirecting to:', redirectUrl);
                         
                         setTimeout(function() {
@@ -1296,7 +1296,7 @@ async function processPayment(productId) {
                         }, 1500);
                     } catch (error) {
                         debugError('Error in onPending:', error);
-                        window.location.replace(`/success.html?order=${order.orderId}&status=pending`);
+                        window.location.replace(`/public/success.html?order=${order.orderId}&status=pending`);
                     }
                 },
                 onError: async function(result) {
