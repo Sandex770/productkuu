@@ -2382,13 +2382,13 @@
 
                                 setTimeout(() => {
                                     window.location.href =
-                                    `/success.html?order=${orderId}&status=success`;
-                                }, 1500);
+                                    `/public/success.html?order=${orderId}&status=success`;
+                                }, 1000);
                             } else {
                                 setTimeout(() => {
                                     window.location.href =
-                                    `/success.html?order=${orderId}&status=success`;
-                                }, 1500);
+                                    `/public/success.html?order=${orderId}&status=success`;
+                                }, 1000);
                             }
                         },
                         onPending: async function(result) {
@@ -2397,8 +2397,8 @@
                             await updateOrderStatus(orderId, 'pending', result);
                             setTimeout(() => {
                                 window.location.href =
-                                `/success.html?order=${orderId}&status=pending`;
-                            }, 1500);
+                                `/public/success.html?order=${orderId}&status=pending`;
+                            }, 1000);
                         },
                         onError: async function(result) {
                             console.log('❌ Payment ERROR:', result);
