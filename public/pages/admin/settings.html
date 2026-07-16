@@ -42,7 +42,10 @@
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
         .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
         .btn-block { width: 100%; justify-content: center; }
+        .btn-sm { padding: 8px 16px; font-size: 12px; }
         
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         .text-secondary { color: var(--text-secondary); }
@@ -85,6 +88,45 @@
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
         
         @media (max-width: 768px) { .settings-grid { grid-template-columns: 1fr; } }
+        
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --bg-tertiary: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-light: #9ca3af;
+            --border-color: #e5e7eb;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+            --radius: 8px;
+            --radius-lg: 16px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --primary: #4F46E5;
+            --transition: all 0.3s ease;
+        }
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #374151;
+            --bg-tertiary: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-light: #6b7280;
+            --border-color: #374151;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font); background: var(--bg-secondary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
+        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); height: 64px; }
+        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .navbar-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
+        .navbar-logo i { color: #4F46E5; }
+        .navbar-actions { display: flex; align-items: center; gap: 8px; }
+        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
+        .btn-icon:hover { background: var(--bg-secondary); }
     </style>
 </head>
 <body>
@@ -259,13 +301,13 @@
 
     <script type="module">
         // ============================================
-        // IMPORTS - TANPA onSnapshot
+        // IMPORTS
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 
-        console.log('⚙️ [ADMIN_SETTINGS] Page loaded (OPTIMIZED)');
+        console.log('⚙️ [ADMIN_SETTINGS] Page loaded');
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
@@ -410,7 +452,6 @@
                 }
                 addDebug('Admin verified', 'success');
                 await loadAllSettings();
-                // TIDAK ADA onSnapshot
 
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
@@ -419,13 +460,43 @@
         });
 
         // ============================================
+        // SAVE SETTINGS HELPER - FIXED
+        // ============================================
+        async function saveSettings(docId, data) {
+            try {
+                const docRef = doc(db, 'settings', docId);
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    // Update existing document
+                    await updateDoc(docRef, {
+                        ...data,
+                        updatedAt: serverTimestamp()
+                    });
+                    addDebug(`Settings ${docId} updated`, 'success');
+                } else {
+                    // Create new document
+                    await setDoc(docRef, {
+                        ...data,
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    });
+                    addDebug(`Settings ${docId} created`, 'success');
+                }
+                return true;
+            } catch (error) {
+                addDebug(`Error saving ${docId}: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        // ============================================
         // LOAD ALL SETTINGS
         // ============================================
         async function loadAllSettings() {
             addDebug('Loading all settings...', 'info');
             try {
                 // Website
-                addDebug('Loading website settings...', 'info');
                 const websiteRef = doc(db, 'settings', 'website');
                 const websiteDoc = await getDoc(websiteRef);
                 if (websiteDoc.exists()) {
@@ -436,10 +507,15 @@
                     document.getElementById('primaryColor').value = data.primaryColor || '#4F46E5';
                     document.getElementById('secondaryColor').value = data.secondaryColor || '#7C3AED';
                     addDebug('Website settings loaded', 'success');
+                } else {
+                    // Set default values
+                    document.getElementById('siteName').value = 'ProductKuu';
+                    document.getElementById('primaryColor').value = '#4F46E5';
+                    document.getElementById('secondaryColor').value = '#7C3AED';
+                    addDebug('Website settings not found, using defaults', 'warning');
                 }
 
                 // Marketplace
-                addDebug('Loading marketplace settings...', 'info');
                 const marketplaceRef = doc(db, 'settings', 'marketplace');
                 const marketplaceDoc = await getDoc(marketplaceRef);
                 if (marketplaceDoc.exists()) {
@@ -451,10 +527,17 @@
                     document.getElementById('withdrawMethods').value = (data.withdrawMethods || ['DANA', 'OVO', 'GoPay']).join(', ');
                     document.getElementById('maintenanceMode').checked = data.maintenanceMode || false;
                     addDebug('Marketplace settings loaded', 'success');
+                } else {
+                    // Set default values
+                    document.getElementById('holdingDays').value = 7;
+                    document.getElementById('commission').value = 10;
+                    document.getElementById('minWithdraw').value = 50000;
+                    document.getElementById('maxWithdraw').value = 10000000;
+                    document.getElementById('withdrawMethods').value = 'DANA, OVO, GoPay, Bank BCA';
+                    addDebug('Marketplace settings not found, using defaults', 'warning');
                 }
 
                 // Social
-                addDebug('Loading social settings...', 'info');
                 const socialRef = doc(db, 'settings', 'social');
                 const socialDoc = await getDoc(socialRef);
                 if (socialDoc.exists()) {
@@ -469,7 +552,6 @@
                 }
 
                 // Footer
-                addDebug('Loading footer settings...', 'info');
                 const footerRef = doc(db, 'settings', 'footer');
                 const footerDoc = await getDoc(footerRef);
                 if (footerDoc.exists()) {
@@ -481,6 +563,14 @@
                         { label: 'Syarat & Ketentuan', url: '/syarat-ketentuan' }
                     ], null, 2);
                     addDebug('Footer settings loaded', 'success');
+                } else {
+                    document.getElementById('footerText').value = '&copy; 2026 ProductKuu. All rights reserved.';
+                    document.getElementById('footerLinks').value = JSON.stringify([
+                        { label: 'Tentang', url: '/tentang' },
+                        { label: 'Kontak', url: '/kontak' },
+                        { label: 'Syarat & Ketentuan', url: '/syarat-ketentuan' }
+                    ], null, 2);
+                    addDebug('Footer settings not found, using defaults', 'warning');
                 }
 
                 addDebug('All settings loaded successfully', 'success');
@@ -492,91 +582,80 @@
         }
 
         // ============================================
-        // WEBSITE SETTINGS
+        // WEBSITE SETTINGS - FIXED
         // ============================================
         document.getElementById('websiteSettingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             addDebug('Saving website settings...', 'info');
             try {
-                await updateDoc(doc(db, 'settings', 'website'), {
+                await saveSettings('website', {
                     siteName: document.getElementById('siteName').value,
                     logo: document.getElementById('siteLogo').value,
                     favicon: document.getElementById('siteFavicon').value,
                     primaryColor: document.getElementById('primaryColor').value,
-                    secondaryColor: document.getElementById('secondaryColor').value,
-                    updatedAt: new Date().toISOString()
+                    secondaryColor: document.getElementById('secondaryColor').value
                 });
-                addDebug('Website settings saved', 'success');
                 showToast('success', 'Pengaturan website disimpan');
             } catch (error) {
-                addDebug(`Error saving website settings: ${error.message}`, 'error');
                 showToast('error', 'Gagal menyimpan pengaturan: ' + error.message);
             }
         });
 
         // ============================================
-        // MARKETPLACE SETTINGS
+        // MARKETPLACE SETTINGS - FIXED
         // ============================================
         document.getElementById('marketplaceSettingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             addDebug('Saving marketplace settings...', 'info');
             try {
                 const methods = document.getElementById('withdrawMethods').value.split(',').map(m => m.trim()).filter(m => m);
-                await updateDoc(doc(db, 'settings', 'marketplace'), {
-                    holdingDays: parseInt(document.getElementById('holdingDays').value),
-                    commission: parseInt(document.getElementById('commission').value),
-                    minWithdraw: parseInt(document.getElementById('minWithdraw').value),
-                    maxWithdraw: parseInt(document.getElementById('maxWithdraw').value),
+                await saveSettings('marketplace', {
+                    holdingDays: parseInt(document.getElementById('holdingDays').value) || 7,
+                    commission: parseInt(document.getElementById('commission').value) || 10,
+                    minWithdraw: parseInt(document.getElementById('minWithdraw').value) || 50000,
+                    maxWithdraw: parseInt(document.getElementById('maxWithdraw').value) || 10000000,
                     withdrawMethods: methods,
-                    maintenanceMode: document.getElementById('maintenanceMode').checked,
-                    updatedAt: new Date().toISOString()
+                    maintenanceMode: document.getElementById('maintenanceMode').checked
                 });
-                addDebug('Marketplace settings saved', 'success');
                 showToast('success', 'Pengaturan marketplace disimpan');
             } catch (error) {
-                addDebug(`Error saving marketplace settings: ${error.message}`, 'error');
                 showToast('error', 'Gagal menyimpan pengaturan: ' + error.message);
             }
         });
 
         // ============================================
-        // SOCIAL SETTINGS
+        // SOCIAL SETTINGS - FIXED
         // ============================================
         document.getElementById('socialSettingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             addDebug('Saving social settings...', 'info');
             try {
-                await updateDoc(doc(db, 'settings', 'social'), {
+                await saveSettings('social', {
                     whatsapp: document.getElementById('socialWhatsapp').value,
                     email: document.getElementById('socialEmail').value,
                     instagram: document.getElementById('socialInstagram').value,
                     facebook: document.getElementById('socialFacebook').value,
                     tiktok: document.getElementById('socialTiktok').value,
-                    youtube: document.getElementById('socialYoutube').value,
-                    updatedAt: new Date().toISOString()
+                    youtube: document.getElementById('socialYoutube').value
                 });
-                addDebug('Social settings saved', 'success');
                 showToast('success', 'Media sosial disimpan');
             } catch (error) {
-                addDebug(`Error saving social settings: ${error.message}`, 'error');
                 showToast('error', 'Gagal menyimpan pengaturan: ' + error.message);
             }
         });
 
         // ============================================
-        // FOOTER SETTINGS
+        // FOOTER SETTINGS - FIXED
         // ============================================
         document.getElementById('footerSettingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             addDebug('Saving footer settings...', 'info');
             try {
                 const links = JSON.parse(document.getElementById('footerLinks').value);
-                await updateDoc(doc(db, 'settings', 'footer'), {
+                await saveSettings('footer', {
                     footerText: document.getElementById('footerText').value,
-                    footerLinks: links,
-                    updatedAt: new Date().toISOString()
+                    footerLinks: links
                 });
-                addDebug('Footer settings saved', 'success');
                 showToast('success', 'Pengaturan footer disimpan');
             } catch (error) {
                 addDebug(`Error saving footer settings: ${error.message}`, 'error');
@@ -585,7 +664,7 @@
         });
 
         addDebug('Page ready', 'success');
-        console.log('✅ [ADMIN_SETTINGS] Page ready (OPTIMIZED - no listeners)');
+        console.log('✅ [ADMIN_SETTINGS] Page ready');
     </script>
 </body>
 </html>
