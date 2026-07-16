@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran Berhasil - ProductKuu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/assets/images/favicon.ico">
+    <style>
+        .success-container { max-width: 640px; margin: 80px auto 40px; padding: 0 20px; }
+        .success-card { background: var(--bg-primary); border-radius: 16px; padding: 40px; border: 1px solid var(--border-color); box-shadow: var(--shadow-lg); }
+        .success-header { text-align: center; margin-bottom: 32px; }
+        .success-header .icon { font-size: 72px; color: #10B981; margin-bottom: 8px; }
+        .success-header h1 { font-size: 28px; color: var(--text-primary); }
+        .success-header p { color: var(--text-secondary); }
+        .order-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+        .order-detail .full { grid-column: 1/-1; }
+        .order-detail .label { font-size: 13px; color: var(--text-secondary); }
+        .order-detail .value { font-weight: 600; font-size: 15px; color: var(--text-primary); }
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
+        .badge-success { background: rgba(16,185,129,0.1); color: #10B981; }
+        .badge-warning { background: rgba(245,158,11,0.1); color: #F59E0B; }
+        .badge-info { background: rgba(59,130,246,0.1); color: #3B82F6; }
+        .product-access { background: var(--bg-secondary); border-radius: 12px; padding: 20px; margin-top: 16px; border: 1px solid var(--border-color); }
+        .product-access .access-title { font-weight: 700; margin-bottom: 12px; font-size: 16px; color: var(--text-primary); }
+        .product-access .access-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
+        .product-access .access-item:last-child { border-bottom: none; }
+        .product-access .access-item .label { font-size: 13px; color: var(--text-secondary); }
+        .product-access .access-item .value { font-family: monospace; font-size: 14px; word-break: break-all; color: var(--text-primary); }
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
+        .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
+        .btn-block { width: 100%; justify-content: center; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .text-center { text-align: center; }
+        .text-secondary { color: var(--text-secondary); }
+        .mt-2 { margin-top: 16px; }
+        .mb-2 { margin-bottom: 16px; }
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
+        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
+        .toast-icon { font-size: 20px; }
+        .toast-content { flex: 1; }
+        .toast-message { font-size: 13px; color: var(--text-secondary); }
+        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        .loading-spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(79,70,229,0.2); border-top-color: #4F46E5; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 640px) { .order-detail { grid-template-columns: 1fr; } .success-card { padding: 24px; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
+            <div class="navbar-actions">
+                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <a href="/" class="btn-icon"><i class="fas fa-home"></i></a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="success-container">
+            <div class="success-card">
+                <div class="success-header">
+                    <div class="icon"><i class="fas fa-check-circle"></i></div>
+                    <h1>🎉 Pembayaran Berhasil!</h1>
+                    <p>Terima kasih telah berbelanja di ProductKuu</p>
+                </div>
+
+                <div id="orderContent">
+                    <div class="text-center" style="padding: 40px 0;">
+                        <div class="loading-spinner"></div>
+                        <p class="text-secondary" style="margin-top: 12px;">Memuat detail order...</p>
+                    </div>
+                </div>
+
+                <div class="flex-between mt-2">
+                    <a href="/" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Kembali ke Beranda
+                    </a>
+                    <a href="/cek-order" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Cek Order Lain
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer style="background:#111827;color:white;padding:24px 0;text-align:center;margin-top:40px;">
+        <p>&copy; 2026 ProductKuu. All rights reserved.</p>
+    </footer>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "firebase/app";
+        import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
+            authDomain: "productkuu.firebaseapp.com",
+            projectId: "productkuu",
+            storageBucket: "productkuu.firebasestorage.app",
+            messagingSenderId: "6615996108",
+            appId: "1:6615996108:web:daa6e17c1275d3061cd469",
+            measurementId: "G-78ZPLZMFEJ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Theme
+        const themeToggle = document.getElementById('themeToggle');
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.addEventListener('click', () => {
+            darkMode = !darkMode;
+            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+            localStorage.setItem('darkMode', darkMode);
+            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        function showToast(type, message) {
+            const container = document.getElementById('toastContainer');
+            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeftColor = colors[type] || colors.info;
+            toast.innerHTML = `
+                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
+                <div class="toast-content"><div class="toast-message">${message}</div></div>
+                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
+        }
+        window.showToast = showToast;
+
+        function formatPrice(price) {
+            if (!price && price !== 0) return '0';
+            return new Intl.NumberFormat('id-ID').format(price);
+        }
+
+        function formatDate(date) {
+            if (!date) return '-';
+            const d = date instanceof Date ? date : new Date(date);
+            return d.toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // ============================================
+        // GET ORDER ID FROM URL
+        // ============================================
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('order') || urlParams.get('order_id');
+        const status = urlParams.get('status') || urlParams.get('transaction_status');
+
+        console.log('📦 [SUCCESS] Order ID:', orderId, 'Status:', status);
+
+        // ============================================
+        // LOAD ORDER DATA
+        // ============================================
+        async function loadOrder() {
+            if (!orderId) {
+                document.getElementById('orderContent').innerHTML = `
+                    <div class="text-center" style="padding: 20px 0; color: var(--danger);">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; display: block; margin-bottom: 12px;"></i>
+                        <h3>Order ID tidak ditemukan</h3>
+                        <p class="text-secondary">Silakan cek kembali link Anda</p>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                // Cari order berdasarkan orderId
+                const q = query(collection(db, 'orders'), where('orderId', '==', orderId));
+                const snapshot = await getDocs(q);
+
+                if (snapshot.empty) {
+                    document.getElementById('orderContent').innerHTML = `
+                        <div class="text-center" style="padding: 20px 0; color: var(--danger);">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 48px; display: block; margin-bottom: 12px;"></i>
+                            <h3>Order Tidak Ditemukan</h3>
+                            <p class="text-secondary">Order dengan ID ${orderId} tidak ditemukan</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const orderDoc = snapshot.docs[0];
+                const order = { id: orderDoc.id, ...orderDoc.data() };
+
+                // Cek status pembayaran
+                if (order.paymentStatus !== 'settlement' && order.paymentStatus !== 'paid') {
+                    document.getElementById('orderContent').innerHTML = `
+                        <div class="text-center" style="padding: 20px 0; color: var(--warning);">
+                            <i class="fas fa-clock" style="font-size: 48px; display: block; margin-bottom: 12px;"></i>
+                            <h3>Menunggu Pembayaran</h3>
+                            <p class="text-secondary">Pembayaran Anda sedang diproses</p>
+                            <span class="badge badge-warning">${order.paymentStatus || 'pending'}</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Tampilkan detail order dan akses produk
+                await renderOrderSuccess(order);
+
+            } catch (error) {
+                console.error('❌ Error loading order:', error);
+                document.getElementById('orderContent').innerHTML = `
+                    <div class="text-center" style="padding: 20px 0; color: var(--danger);">
+                        <i class="fas fa-exclamation-circle" style="font-size: 48px; display: block; margin-bottom: 12px;"></i>
+                        <h3>Gagal Memuat Order</h3>
+                        <p class="text-secondary">${error.message}</p>
+                    </div>
+                `;
+                showToast('error', 'Gagal memuat order: ' + error.message);
+            }
+        }
+
+        // ============================================
+        // RENDER ORDER SUCCESS
+        // ============================================
+        async function renderOrderSuccess(order) {
+            const container = document.getElementById('orderContent');
+
+            // Get product data
+            let product = null;
+            let accessHtml = '';
+
+            if (order.productId) {
+                try {
+                    const productRef = doc(db, 'products', order.productId);
+                    const productDoc = await getDoc(productRef);
+                    if (productDoc.exists()) {
+                        product = { id: productDoc.id, ...productDoc.data() };
+                        accessHtml = renderProductAccess(product);
+                    }
+                } catch (error) {
+                    console.error('Error loading product:', error);
+                }
+            }
+
+            const statusColors = {
+                'paid': 'badge-success',
+                'settlement': 'badge-success',
+                'pending': 'badge-warning',
+                'failed': 'badge-danger',
+                'expire': 'badge-danger'
+            };
+            const statusClass = statusColors[order.paymentStatus] || 'badge-info';
+
+            // Mask email
+            const emailParts = order.buyerEmail?.split('@') || ['', ''];
+            const maskedEmail = emailParts[0].length > 2 
+                ? emailParts[0].substring(0, 2) + '*'.repeat(Math.min(emailParts[0].length - 2, 4)) + '@' + emailParts[1]
+                : order.buyerEmail;
+
+            container.innerHTML = `
+                <!-- Order Detail -->
+                <div class="order-detail">
+                    <div>
+                        <div class="label">Order ID</div>
+                        <div class="value">${order.orderId}</div>
+                    </div>
+                    <div>
+                        <div class="label">Status</div>
+                        <span class="badge ${statusClass}">${order.paymentStatus || order.status}</span>
+                    </div>
+                    <div>
+                        <div class="label">Produk</div>
+                        <div class="value">${order.productName || 'Product'}</div>
+                    </div>
+                    <div>
+                        <div class="label">Pembeli</div>
+                        <div class="value">${order.buyerName}</div>
+                    </div>
+                    <div>
+                        <div class="label">Email</div>
+                        <div class="value">${maskedEmail}</div>
+                    </div>
+                    <div>
+                        <div class="label">Harga</div>
+                        <div class="value" style="color: #4F46E5; font-size: 20px;">Rp${formatPrice(order.amount)}</div>
+                    </div>
+                    <div class="full">
+                        <div class="label">Tanggal Pembelian</div>
+                        <div class="value">${formatDate(order.createdAt)}</div>
+                    </div>
+                </div>
+
+                <!-- Product Access -->
+                ${accessHtml}
+            `;
+        }
+
+        // ============================================
+        // RENDER PRODUCT ACCESS
+        // ============================================
+        function renderProductAccess(product) {
+            if (!product) {
+                return `
+                    <div class="product-access">
+                        <div class="access-title">⚠️ Akses Produk</div>
+                        <p class="text-secondary">Data produk tidak tersedia</p>
+                    </div>
+                `;
+            }
+
+            // Digital Product
+            if (product.type === 'digital') {
+                return `
+                    <div class="product-access">
+                        <div class="access-title"><i class="fas fa-download" style="color: #4F46E5;"></i> Akses Produk Digital</div>
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+                            <a href="${product.downloadLink}" target="_blank" class="btn btn-primary btn-block">
+                                <i class="fas fa-download"></i> Download Produk
+                            </a>
+                            <button onclick="copyText('${product.downloadLink}')" class="btn btn-secondary btn-block">
+                                <i class="fas fa-copy"></i> Salin Link Download
+                            </button>
+                            ${product.demoLink ? `
+                                <a href="${product.demoLink}" target="_blank" class="btn btn-secondary btn-block">
+                                    <i class="fas fa-play"></i> Lihat Demo
+                                </a>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Premium Account
+            if (product.type === 'premium-account') {
+                const accounts = product.premiumAccounts || [];
+                if (accounts.length === 0) {
+                    return `
+                        <div class="product-access">
+                            <div class="access-title">⚠️ Premium Account</div>
+                            <p class="text-secondary">Tidak ada akun tersedia</p>
+                        </div>
+                    `;
+                }
+
+                const account = accounts[0];
+                return `
+                    <div class="product-access">
+                        <div class="access-title"><i class="fas fa-user-circle" style="color: #4F46E5;"></i> Premium Account</div>
+                        <div style="margin-top: 8px;">
+                            <div class="access-item">
+                                <span class="label">Email</span>
+                                <span class="value">${account.email}</span>
+                                <button onclick="copyText('${account.email}')" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <div class="access-item">
+                                <span class="label">Password</span>
+                                <span class="value">${account.password}</span>
+                                <button onclick="copyText('${account.password}')" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            ${product.note ? `
+                                <div style="margin-top: 12px; padding: 12px; background: rgba(245,158,11,0.1); border-radius: 8px; font-size: 14px; color: var(--warning);">
+                                    <i class="fas fa-info-circle"></i> ${product.note}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="product-access">
+                    <div class="access-title">📦 Produk</div>
+                    <p class="text-secondary">Jenis produk tidak dikenal</p>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // COPY TEXT
+        // ============================================
+        window.copyText = function(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('success', '✅ Berhasil disalin!');
+            }).catch(() => {
+                const input = document.createElement('input');
+                input.value = text;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                input.remove();
+                showToast('success', '✅ Berhasil disalin!');
+            });
+        };
+
+        // ============================================
+        // INIT
+        // ============================================
+        console.log('✅ [SUCCESS] Page loaded');
+        loadOrder();
+    </script>
+</body>
+</html>
