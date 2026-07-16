@@ -145,6 +145,46 @@
         @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .charts-grid { grid-template-columns: 1fr; } }
         @media (max-width: 768px) { .store-link-card .store-link-input input { min-width: 200px; } }
         @media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr; } .store-link-card { flex-direction: column; align-items: stretch; } .store-link-card .store-link-input input { min-width: 100%; } }
+        
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --bg-tertiary: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-light: #9ca3af;
+            --border-color: #e5e7eb;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+            --radius: 8px;
+            --radius-lg: 16px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --primary: #4F46E5;
+            --secondary: #7C3AED;
+            --transition: all 0.3s ease;
+        }
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #374151;
+            --bg-tertiary: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-light: #6b7280;
+            --border-color: #374151;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font); background: var(--bg-secondary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
+        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); height: 64px; }
+        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .navbar-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
+        .navbar-logo i { color: #4F46E5; }
+        .navbar-actions { display: flex; align-items: center; gap: 8px; }
+        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
+        .btn-icon:hover { background: var(--bg-secondary); }
     </style>
 </head>
 <body>
@@ -302,7 +342,7 @@
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit } from "firebase/firestore";
 
-        console.log('📊 [SELLER_DASHBOARD] Page loaded (OPTIMIZED)');
+        console.log('📊 [SELLER_DASHBOARD] Page loaded');
 
         // ============================================
         // FIREBASE CONFIG
@@ -361,22 +401,18 @@
         // ============================================
         // STORE LINK FUNCTIONS
         // ============================================
-        // ============================================
-// STORE LINK FUNCTIONS - UPDATE
-// ============================================
-function updateStoreLink() {
-    const storeName = userData?.storeName || userData?.displayName || '';
-    if (storeName) {
-        const slug = storeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-        // Gunakan /{slug}/product-seller
-        const url = `${window.location.origin}/${slug}/product-seller`;
-        const linkInput = document.getElementById('storeLink');
-        const linkBtn = document.getElementById('storeLinkBtn');
-        if (linkInput) linkInput.value = url;
-        if (linkBtn) linkBtn.href = url;
-        addDebug(`Store link updated: ${url}`, 'success');
-    }
-}
+        function updateStoreLink() {
+            const storeName = userData?.storeName || userData?.displayName || '';
+            if (storeName) {
+                const slug = storeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+                const url = `${window.location.origin}/${slug}/product-seller`;
+                const linkInput = document.getElementById('storeLink');
+                const linkBtn = document.getElementById('storeLinkBtn');
+                if (linkInput) linkInput.value = url;
+                if (linkBtn) linkBtn.href = url;
+                addDebug(`Store link updated: ${url}`, 'success');
+            }
+        }
 
         window.copyStoreLink = function() {
             const input = document.getElementById('storeLink');
@@ -390,7 +426,6 @@ function updateStoreLink() {
                 showToast('success', '✅ Link toko berhasil disalin!');
                 addDebug('Store link copied', 'success');
             } catch (err) {
-                // Fallback
                 navigator.clipboard.writeText(input.value).then(() => {
                     showToast('success', '✅ Link toko berhasil disalin!');
                 }).catch(() => {
@@ -517,11 +552,8 @@ function updateStoreLink() {
                     `Selamat datang, ${userData.storeName || userData.displayName || 'Seller'}!`;
                 document.getElementById('productCount').textContent = userData.productCount || 0;
 
-                // Update store link
                 updateStoreLink();
-
                 await loadDashboardData();
-                // TIDAK ADA onSnapshot
 
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
@@ -530,104 +562,110 @@ function updateStoreLink() {
         });
 
         // ============================================
-        // LOAD DASHBOARD DATA
+        // LOAD DASHBOARD DATA - HANYA PRODUK (BUKAN BANNER)
         // ============================================
-        // ============================================
-// LOAD DASHBOARD DATA - SUDAH BENAR
-// ============================================
-// ============================================
-// LOAD DASHBOARD DATA - FIXED (REPLACE di dashboard.html)
-// ============================================
-async function loadDashboardData() {
-    addDebug('Loading dashboard data...', 'info');
-    if (!currentUser) {
-        addDebug('No current user, skipping', 'warning');
-        return;
-    }
-
-    try {
-        const sellerId = currentUser.uid;
-        addDebug(`Seller ID: ${sellerId}`, 'info');
-
-        // Products
-        const productsSnapshot = await getDocs(
-            query(collection(db, 'products'), where('sellerId', '==', sellerId))
-        );
-        document.getElementById('totalProducts').textContent = productsSnapshot.size;
-        addDebug(`Total products: ${productsSnapshot.size}`, 'success');
-
-        // Orders (SEMUA order milik seller ini)
-        const allOrdersSnapshot = await getDocs(
-            query(collection(db, 'orders'), where('sellerId', '==', sellerId))
-        );
-        
-        let totalSales = 0;
-        let totalRevenue = 0;
-        let availableAmount = 0;
-        
-        // Ambil setting holding time dari Firestore
-        let holdingDays = 7;
-        let holdingHours = 0;
-        let holdingMinutes = 0;
-        try {
-            const settingsRef = doc(db, 'settings', 'marketplace');
-            const settingsDoc = await getDoc(settingsRef);
-            if (settingsDoc.exists()) {
-                const settings = settingsDoc.data();
-                holdingDays = settings.holdingDays || 7;
-                holdingHours = settings.holdingHours || 0;
-                holdingMinutes = settings.holdingMinutes || 0;
-                addDebug(`Holding settings: ${holdingDays}d ${holdingHours}h ${holdingMinutes}m`, 'info');
+        async function loadDashboardData() {
+            addDebug('Loading dashboard data...', 'info');
+            if (!currentUser) {
+                addDebug('No current user, skipping', 'warning');
+                return;
             }
-        } catch (e) {
-            addDebug('Using default holding settings', 'warning');
-        }
-        
-        const holdingMilliseconds = (holdingDays * 24 * 60 * 60 * 1000) + 
-                                    (holdingHours * 60 * 60 * 1000) + 
-                                    (holdingMinutes * 60 * 1000);
-        
-        const now = new Date();
-        
-        allOrdersSnapshot.forEach(doc => {
-            const order = doc.data();
-            const amount = order.amount || 0;
-            const status = order.paymentStatus || order.status || '';
-            
-            // Hanya hitung yang settlement/paid untuk pendapatan
-            if (status === 'settlement' || status === 'paid') {
-                totalRevenue += amount;
-                totalSales++;
+
+            try {
+                const sellerId = currentUser.uid;
+                addDebug(`Seller ID: ${sellerId}`, 'info');
+
+                // Products
+                const productsSnapshot = await getDocs(
+                    query(collection(db, 'products'), where('sellerId', '==', sellerId))
+                );
+                document.getElementById('totalProducts').textContent = productsSnapshot.size;
+                addDebug(`Total products: ${productsSnapshot.size}`, 'success');
+
+                // Orders - HANYA PRODUCT (bukan banner)
+                const allOrdersSnapshot = await getDocs(
+                    query(
+                        collection(db, 'orders'), 
+                        where('sellerId', '==', sellerId),
+                        where('type', '==', 'product_purchase')
+                    )
+                );
                 
-                // Cek apakah sudah melewati holding period
-                const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
-                const elapsed = now - createdAt;
+                let totalSales = 0;
+                let totalRevenue = 0;
+                let availableAmount = 0;
                 
-                if (elapsed >= holdingMilliseconds) {
-                    availableAmount += amount;
+                // Ambil setting holding time dari Firestore
+                let holdingDays = 7;
+                let holdingHours = 0;
+                let holdingMinutes = 0;
+                try {
+                    const settingsRef = doc(db, 'settings', 'marketplace');
+                    const settingsDoc = await getDoc(settingsRef);
+                    if (settingsDoc.exists()) {
+                        const settings = settingsDoc.data();
+                        holdingDays = settings.holdingDays || 7;
+                        holdingHours = settings.holdingHours || 0;
+                        holdingMinutes = settings.holdingMinutes || 0;
+                        addDebug(`Holding settings: ${holdingDays}d ${holdingHours}h ${holdingMinutes}m`, 'info');
+                    }
+                } catch (e) {
+                    addDebug('Using default holding settings', 'warning');
                 }
+                
+                const holdingMilliseconds = (holdingDays * 24 * 60 * 60 * 1000) + 
+                                            (holdingHours * 60 * 60 * 1000) + 
+                                            (holdingMinutes * 60 * 1000);
+                
+                const now = new Date();
+                
+                // Data untuk chart
+                const chartData = [];
+                
+                allOrdersSnapshot.forEach(doc => {
+                    const order = doc.data();
+                    const amount = order.amount || 0;
+                    const status = order.paymentStatus || order.status || '';
+                    
+                    // Hanya hitung yang settlement/paid untuk pendapatan
+                    if (status === 'settlement' || status === 'paid') {
+                        totalRevenue += amount;
+                        totalSales++;
+                        
+                        // Cek apakah sudah melewati holding period
+                        const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
+                        const elapsed = now - createdAt;
+                        
+                        if (elapsed >= holdingMilliseconds) {
+                            availableAmount += amount;
+                        }
+                        
+                        chartData.push({
+                            date: createdAt,
+                            amount: amount
+                        });
+                    }
+                });
+                
+                document.getElementById('totalSales').textContent = totalSales;
+                document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
+                document.getElementById('availableBalance').textContent = `Rp${formatPrice(availableAmount)}`;
+                
+                addDebug(`Total sales: ${totalSales}`, 'success');
+                addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
+                addDebug(`Available: Rp${formatPrice(availableAmount)}`, 'success');
+
+                updateStoreLink();
+                await loadRecentProducts(sellerId);
+                renderCharts(chartData);
+                
+                addDebug('Dashboard data loaded successfully', 'success');
+
+            } catch (error) {
+                addDebug(`Error loading dashboard data: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat data: ' + error.message);
             }
-        });
-        
-        document.getElementById('totalSales').textContent = totalSales;
-        document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
-        document.getElementById('availableBalance').textContent = `Rp${formatPrice(availableAmount)}`;
-        
-        addDebug(`Total sales: ${totalSales}`, 'success');
-        addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
-        addDebug(`Available: Rp${formatPrice(availableAmount)}`, 'success');
-
-        updateStoreLink();
-        await loadRecentProducts(sellerId);
-        renderCharts(allOrdersSnapshot);
-        
-        addDebug('Dashboard data loaded successfully', 'success');
-
-    } catch (error) {
-        addDebug(`Error loading dashboard data: ${error.message}`, 'error');
-        showToast('error', 'Gagal memuat data: ' + error.message);
-    }
-}
+        }
 
         // ============================================
         // LOAD RECENT PRODUCTS
@@ -690,23 +728,25 @@ async function loadDashboardData() {
         // ============================================
         // RENDER CHARTS
         // ============================================
-        function renderCharts(revenueData) {
+        function renderCharts(chartData) {
             addDebug('Rendering charts...', 'info');
             
             try {
                 // Sales Chart
                 const salesCtx = document.getElementById('salesChart');
                 if (salesCtx) {
-                    const salesData = revenueData.map(() => 1); // Each order is 1 sale
-                    renderChart(salesCtx, revenueData.map(d => d.date), salesData, 'Penjualan');
+                    const salesData = chartData.map(() => 1);
+                    const dates = chartData.map(d => d.date);
+                    renderChart(salesCtx, dates, salesData, 'Penjualan');
                     addDebug('Sales chart rendered', 'success');
                 }
 
                 // Revenue Chart
                 const revenueCtx = document.getElementById('revenueChart');
                 if (revenueCtx) {
-                    const revData = revenueData.map(d => d.amount);
-                    renderChart(revenueCtx, revenueData.map(d => d.date), revData, 'Pendapatan');
+                    const revData = chartData.map(d => d.amount);
+                    const dates = chartData.map(d => d.date);
+                    renderChart(revenueCtx, dates, revData, 'Pendapatan');
                     addDebug('Revenue chart rendered', 'success');
                 }
             } catch (error) {
@@ -787,7 +827,7 @@ async function loadDashboardData() {
         // INIT
         // ============================================
         addDebug('Page ready', 'success');
-        console.log('✅ [SELLER_DASHBOARD] Page ready (OPTIMIZED - no listeners)');
+        console.log('✅ [SELLER_DASHBOARD] Page ready - Hanya transaksi PRODUK');
     </script>
 </body>
 </html>
