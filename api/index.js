@@ -673,10 +673,10 @@ app.post('/api/payment/create', async (req, res) => {
             },
             // Callback tetap disertakan untuk fallback
             callbacks: {
-                finish: `${baseUrl}/seller/products?payment=success&order=${orderId}`,
-                error: `${baseUrl}/seller/products?payment=error&order=${orderId}`,
-                pending: `${baseUrl}/seller/products?payment=pending&order=${orderId}`
-            }
+    finish: `${baseUrl}/success.html?order=${orderId}&status=success`,
+    error: `${baseUrl}/success.html?order=${orderId}&status=error`,
+    pending: `${baseUrl}/success.html?order=${orderId}&status=pending`
+}
         };
 
         console.log('🔐 [PAYMENT CREATE] Creating Midtrans transaction...');
@@ -1376,10 +1376,10 @@ app.post('/api/banners/purchase', async (req, res) => {
                     }
                 ],
                 callbacks: {
-                    finish: `${baseUrl}/payment/finish`,
-                    error: `${baseUrl}/payment/error`,
-                    pending: `${baseUrl}/payment/pending`
-                }
+    finish: `${baseUrl}/success.html?order=${orderId}&status=success`,
+    error: `${baseUrl}/success.html?order=${orderId}&status=error`,
+    pending: `${baseUrl}/success.html?order=${orderId}&status=pending`
+}
             };
 
             const transaction = await snap.createTransaction(parameter);
@@ -1404,6 +1404,73 @@ app.post('/api/banners/purchase', async (req, res) => {
         res.status(500).json({ 
             error: 'Failed to purchase banner', 
             details: error.message 
+        });
+    }
+});
+
+
+// ============================================
+// ADMIN STATS - PERBAIKAN
+// ============================================
+
+app.get('/api/admin/stats', async (req, res) => {
+    try {
+        // Total Sellers
+        const sellersSnapshot = await db.collection('users')
+            .where('role', '==', 'seller')
+            .count()
+            .get();
+        const totalSellers = sellersSnapshot.data().count;
+
+        // Total Products
+        const productsSnapshot = await db.collection('products')
+            .where('status', '==', 'published')
+            .count()
+            .get();
+        const totalProducts = productsSnapshot.data().count;
+
+        // Total Orders (semua settlement)
+        const ordersSnapshot = await db.collection('orders')
+            .where('paymentStatus', '==', 'settlement')
+            .get();
+        const totalOrders = ordersSnapshot.size;
+
+        // Total Revenue (semua settlement)
+        let totalRevenue = 0;
+        ordersSnapshot.forEach(doc => {
+            totalRevenue += doc.data().amount || 0;
+        });
+
+        // Total Komisi (10% dari total revenue)
+        const totalCommission = Math.round(totalRevenue * 0.1);
+
+        // Pending Withdrawals
+        const pendingWithdrawals = await db.collection('withdrawals')
+            .where('status', '==', 'pending')
+            .count()
+            .get();
+
+        // Active Banners
+        const activeBanners = await db.collection('banners')
+            .where('isActive', '==', true)
+            .count()
+            .get();
+
+        res.json({
+            totalSellers: totalSellers,
+            totalProducts: totalProducts,
+            totalOrders: totalOrders,
+            totalRevenue: totalRevenue,
+            totalCommission: totalCommission,
+            pendingWithdrawals: pendingWithdrawals.data().count,
+            activeBanners: activeBanners.data().count
+        });
+
+    } catch (error) {
+        console.error('Error fetching admin stats:', error);
+        res.status(500).json({
+            error: 'Failed to fetch stats',
+            details: error.message
         });
     }
 });
