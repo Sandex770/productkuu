@@ -44,10 +44,12 @@
         .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
         .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
         .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
+        .badge-muted { background: rgba(107,114,128,0.1); color: var(--text-secondary); }
         
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         .text-center { text-align: center; }
         .text-secondary { color: var(--text-secondary); }
+        .text-muted { color: var(--text-light); font-size: 13px; }
         
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
         .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
@@ -90,6 +92,15 @@
         .error-box.show { display: block; }
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+        
+        .pending-expired {
+            background: rgba(239,68,68,0.05);
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+        .pending-expired .badge {
+            opacity: 0.5;
+        }
         
         :root {
             --bg-primary: #ffffff;
@@ -159,7 +170,10 @@
     <div class="app-wrapper">
         <main class="main-content">
             <div class="flex-between" style="margin-bottom:24px;">
-                <div><h1 style="font-size:24px;">Riwayat Transaksi</h1><p style="color:var(--text-secondary);">Semua transaksi penjualan Anda</p></div>
+                <div>
+                    <h1 style="font-size:24px;">Riwayat Transaksi</h1>
+                    <p style="color:var(--text-secondary);">Semua transaksi penjualan produk Anda</p>
+                </div>
                 <button onclick="refreshData()" class="btn btn-secondary btn-sm">
                     <i class="fas fa-sync-alt"></i> Refresh
                 </button>
@@ -180,7 +194,13 @@
 
             <div class="filter-bar" style="margin-top:8px;">
                 <div class="filter-group">
-                    <select id="filterStatus"><option value="all">Semua Status</option><option value="pending">Pending</option><option value="settlement">Settlement</option><option value="failed">Failed</option><option value="expire">Expired</option></select>
+                    <select id="filterStatus">
+                        <option value="all">Semua Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="settlement">Settlement</option>
+                        <option value="failed">Failed</option>
+                        <option value="expire">Expired</option>
+                    </select>
                     <input type="date" id="filterDateFrom">
                     <input type="date" id="filterDateTo">
                 </div>
@@ -193,8 +213,18 @@
             <div class="card">
                 <div class="table-wrapper">
                     <table class="table">
-                        <thead><tr><th>Order ID</th><th>Produk</th><th>Buyer</th><th>Harga</th><th>Komisi</th><th>Status</th><th>Tanggal</th></tr></thead>
-                        <tbody id="transactionsBody"><tr><td colspan="7" class="text-center text-secondary" style="padding:40px 0;">Memuat transaksi...</td></tr></tbody>
+                        <thead><tr>
+                            <th>Order ID</th>
+                            <th>Produk</th>
+                            <th>Buyer</th>
+                            <th>Harga</th>
+                            <th>Komisi</th>
+                            <th>Status</th>
+                            <th>Tanggal</th>
+                        </tr></thead>
+                        <tbody id="transactionsBody">
+                            <tr><td colspan="7" class="text-center text-secondary" style="padding:40px 0;">Memuat transaksi...</td></tr>
+                        </tbody>
                     </table>
                 </div>
                 <div id="pagination" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"></div>
@@ -322,12 +352,14 @@
         // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
+            container.innerHTML = '';
             const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
+            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.style.borderLeftColor = colors[type] || colors.info;
             toast.innerHTML = `
-                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
+                <span class="toast-icon"><i class="fas ${icons[type] || 'fa-info-circle'}"></i></span>
                 <div class="toast-content"><div class="toast-message">${message}</div></div>
                 <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
             `;
@@ -345,7 +377,7 @@
         }
 
         // ============================================
-        // FORMAT FUNCTIONS - FIXED
+        // FORMAT FUNCTIONS
         // ============================================
         function formatPrice(price) {
             if (!price && price !== 0) return '0';
@@ -355,7 +387,6 @@
         function formatDate(timestamp) {
             if (!timestamp) return '-';
             
-            // Jika timestamp adalah Firestore Timestamp
             if (timestamp.toDate && typeof timestamp.toDate === 'function') {
                 const date = timestamp.toDate();
                 return date.toLocaleDateString('id-ID', {
@@ -367,7 +398,6 @@
                 });
             }
             
-            // Jika timestamp adalah Date object
             if (timestamp instanceof Date) {
                 return timestamp.toLocaleDateString('id-ID', {
                     year: 'numeric',
@@ -378,7 +408,6 @@
                 });
             }
             
-            // Jika timestamp adalah string atau number
             try {
                 const date = new Date(timestamp);
                 if (!isNaN(date.getTime())) {
@@ -390,11 +419,31 @@
                         minute: '2-digit'
                     });
                 }
-            } catch (e) {
-                // ignore
-            }
+            } catch (e) {}
             
             return '-';
+        }
+
+        // ============================================
+        // CEK APAKAH PENDING SUDAH EXPIRED (> 24 JAM)
+        // ============================================
+        function isPendingExpired(timestamp) {
+            if (!timestamp) return false;
+            
+            let date;
+            if (timestamp.toDate && typeof timestamp.toDate === 'function') {
+                date = timestamp.toDate();
+            } else if (timestamp instanceof Date) {
+                date = timestamp;
+            } else {
+                date = new Date(timestamp);
+            }
+            
+            if (isNaN(date.getTime())) return false;
+            
+            const now = new Date();
+            const diffHours = (now - date) / (1000 * 60 * 60);
+            return diffHours > 24;
         }
 
         // ============================================
@@ -429,7 +478,7 @@
         });
 
         // ============================================
-        // LOAD TRANSACTIONS
+        // LOAD TRANSACTIONS - HANYA PRODUK (BUKAN BANNER)
         // ============================================
         async function loadTransactions(reset = true) {
             if (!currentUser) {
@@ -444,8 +493,10 @@
                     return;
                 }
                 
+                // FILTER: Hanya transaksi PRODUK (bukan banner)
                 let constraints = [
                     where('sellerId', '==', currentUser.uid),
+                    where('type', '==', 'product_purchase'), // <-- HANYA PRODUK
                     orderBy('createdAt', 'desc')
                 ];
                 
@@ -467,7 +518,7 @@
                     hasMore = false; 
                     if (reset) {
                         document.getElementById('transactionsBody').innerHTML = 
-                            '<tr><td colspan="7" class="text-center text-secondary">Belum ada transaksi</td></tr>';
+                            '<tr><td colspan="7" class="text-center text-secondary">Belum ada transaksi produk</td></tr>';
                     }
                     return; 
                 }
@@ -480,7 +531,6 @@
                     return {
                         id: doc.id,
                         ...data,
-                        // Simpan createdAt sebagai timestamp asli
                         createdAtTimestamp: data.createdAt || null
                     };
                 });
@@ -496,11 +546,24 @@
         }
 
         // ============================================
-        // RENDER TRANSACTIONS - FIXED
+        // RENDER TRANSACTIONS - PENDING > 24 JAM OTOMATIS HILANG
         // ============================================
         function renderTransactions() {
             const tbody = document.getElementById('transactionsBody');
-            if (transactions.length === 0) { 
+            
+            // FILTER: Hapus transaksi pending yang sudah > 24 jam
+            const filteredTransactions = transactions.filter(t => {
+                if (t.paymentStatus === 'pending') {
+                    const isExpired = isPendingExpired(t.createdAtTimestamp);
+                    if (isExpired) {
+                        addDebug(`🚫 Hiding expired pending order: ${t.orderId}`, 'warning');
+                        return false; // Sembunyikan
+                    }
+                }
+                return true;
+            });
+            
+            if (filteredTransactions.length === 0) { 
                 tbody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Tidak ada transaksi</td></tr>'; 
                 document.getElementById('pagination').innerHTML = ''; 
                 return; 
@@ -510,12 +573,12 @@
                 'pending': 'badge-warning', 
                 'settlement': 'badge-success', 
                 'failed': 'badge-danger', 
-                'expire': 'badge-danger' 
+                'expire': 'badge-danger',
+                'paid': 'badge-success'
             };
 
-            tbody.innerHTML = transactions.map(t => {
+            tbody.innerHTML = filteredTransactions.map(t => {
                 const commission = Math.round((t.amount || 0) * 0.1);
-                // Gunakan formatDate yang sudah diperbaiki
                 const formattedDate = formatDate(t.createdAtTimestamp);
                 
                 return `
@@ -582,7 +645,7 @@
         };
 
         addDebug('Page ready', 'success');
-        console.log('✅ [SELLER_TRANSACTIONS] Page ready');
+        console.log('✅ [SELLER_TRANSACTIONS] Page ready - Hanya transaksi PRODUK, pending > 24 jam otomatis hilang');
     </script>
 </body>
 </html>
