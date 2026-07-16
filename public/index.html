@@ -946,7 +946,7 @@
                             
                             // Redirect ke halaman sukses
                             setTimeout(() => {
-                                window.location.href = `/success.html?order=${orderId}&status=success`;
+                                window.location.href = `/public/success.html?order=${orderId}&status=success`;
                             }, 1500);
                         },
                         onPending: function(result) {
@@ -956,7 +956,7 @@
                             
                             // Redirect ke halaman pending
                             setTimeout(() => {
-                                window.location.href = `/success.html?order=${orderId}&status=pending`;
+                                window.location.href = `/public/success.html?order=${orderId}&status=pending`;
                             }, 1500);
                         },
                         onError: function(result) {
