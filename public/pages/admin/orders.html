@@ -91,6 +91,45 @@
         .error-box.show { display: block; }
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+        
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --bg-tertiary: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-light: #9ca3af;
+            --border-color: #e5e7eb;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+            --radius: 8px;
+            --radius-lg: 16px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --primary: #4F46E5;
+            --transition: all 0.3s ease;
+        }
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #374151;
+            --bg-tertiary: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-light: #6b7280;
+            --border-color: #374151;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font); background: var(--bg-secondary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
+        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); height: 64px; }
+        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .navbar-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
+        .navbar-logo i { color: #4F46E5; }
+        .navbar-actions { display: flex; align-items: center; gap: 8px; }
+        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
+        .btn-icon:hover { background: var(--bg-secondary); }
     </style>
 </head>
 <body>
@@ -181,13 +220,24 @@
 
     <script type="module">
         // ============================================
-        // IMPORTS - TANPA onSnapshot
+        // IMPORTS - FIXED
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter } from "firebase/firestore";
+        import { 
+            getFirestore, 
+            collection, 
+            doc,           // <-- doc diimport dengan benar
+            getDoc, 
+            getDocs, 
+            query, 
+            where, 
+            orderBy, 
+            limit, 
+            startAfter 
+        } from "firebase/firestore";
 
-        console.log('📦 [ADMIN_ORDERS] Page loaded (OPTIMIZED)');
+        console.log('📦 [ADMIN_ORDERS] Page loaded (FIXED)');
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
@@ -287,12 +337,14 @@
         // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
+            container.innerHTML = '';
             const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
+            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.style.borderLeftColor = colors[type] || colors.info;
             toast.innerHTML = `
-                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
+                <span class="toast-icon"><i class="fas ${icons[type] || 'fa-info-circle'}"></i></span>
                 <div class="toast-content"><div class="toast-message">${message}</div></div>
                 <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
             `;
@@ -354,7 +406,6 @@
                 }
                 addDebug('Admin verified', 'success');
                 await loadOrders(true);
-                // TIDAK ADA onSnapshot
 
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
@@ -363,7 +414,7 @@
         });
 
         // ============================================
-        // LOAD ORDERS
+        // LOAD ORDERS - FIXED
         // ============================================
         async function loadOrders(reset = true) {
             addDebug(`Loading orders (reset: ${reset})...`, 'info');
@@ -384,7 +435,9 @@
                 }
                 
                 let q = query(collection(db, 'orders'), ...constraints, limit(limitPerPage));
-                if (lastDoc) q = query(collection(db, 'orders'), ...constraints, startAfter(lastDoc), limit(limitPerPage));
+                if (lastDoc) {
+                    q = query(collection(db, 'orders'), ...constraints, startAfter(lastDoc), limit(limitPerPage));
+                }
                 
                 const snapshot = await getDocs(q);
                 addDebug(`Query returned ${snapshot.size} documents`, 'info');
@@ -402,22 +455,41 @@
                 hasMore = snapshot.docs.length === limitPerPage;
                 
                 const newData = [];
-                for (const doc of snapshot.docs) {
-                    const data = doc.data();
+                for (const orderDoc of snapshot.docs) {
+                    const data = orderDoc.data();
                     let sellerName = 'Unknown';
+                    
+                    // FIX: Gunakan doc dengan benar
                     if (data.sellerId) {
-                        const sellerRef = doc(db, 'users', data.sellerId);
-                        const sellerDoc = await getDoc(sellerRef);
-                        if (sellerDoc.exists()) sellerName = sellerDoc.data().storeName || sellerDoc.data().displayName || 'Seller';
+                        try {
+                            const sellerRef = doc(db, 'users', data.sellerId);
+                            const sellerDoc = await getDoc(sellerRef);
+                            if (sellerDoc.exists()) {
+                                sellerName = sellerDoc.data().storeName || 
+                                            sellerDoc.data().displayName || 
+                                            sellerDoc.data().name || 
+                                            'Seller';
+                            }
+                        } catch (sellerError) {
+                            addDebug(`Error getting seller ${data.sellerId}: ${sellerError.message}`, 'warning');
+                        }
                     }
-                    newData.push({ id: doc.id, ...data, sellerName });
+                    
+                    newData.push({ 
+                        id: orderDoc.id, 
+                        ...data, 
+                        sellerName 
+                    });
                 }
+                
                 orders = reset ? newData : [...orders, ...newData];
                 addDebug(`Loaded ${orders.length} orders total`, 'success');
                 renderOrders();
+                
             } catch (error) { 
                 addDebug(`Error loading orders: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat order: ' + error.message); 
+                showError('Gagal Memuat Order', error.message);
             }
         }
 
@@ -436,7 +508,8 @@
                 'pending': 'badge-warning', 
                 'settlement': 'badge-success', 
                 'failed': 'badge-danger', 
-                'expire': 'badge-danger' 
+                'expire': 'badge-danger',
+                'paid': 'badge-success'
             };
 
             tbody.innerHTML = orders.map(o => `
@@ -446,7 +519,7 @@
                     <td>${o.buyerName || '-'}</td>
                     <td>${o.sellerName}</td>
                     <td style="font-weight:600;color:var(--primary);">Rp${formatPrice(o.amount)}</td>
-                    <td><span class="badge ${statusColors[o.paymentStatus] || 'badge-info'}">${o.paymentStatus || o.status}</span></td>
+                    <td><span class="badge ${statusColors[o.paymentStatus] || 'badge-info'}">${o.paymentStatus || o.status || '-'}</span></td>
                     <td style="font-size:13px;color:var(--text-secondary);">${formatDate(o.createdAt)}</td>
                 </tr>
             `).join('');
@@ -460,7 +533,7 @@
         function renderPagination() {
             const container = document.getElementById('pagination');
             if (!hasMore && orders.length <= limitPerPage) { 
-                container.innerHTML = ''; 
+                container.innerHTML = `<span style="font-size:14px;color:var(--text-secondary);">${orders.length} order</span>`;
                 return; 
             }
             container.innerHTML = `
@@ -518,7 +591,7 @@
         });
 
         addDebug('Page ready', 'success');
-        console.log('✅ [ADMIN_ORDERS] Page ready (OPTIMIZED - no listeners)');
+        console.log('✅ [ADMIN_ORDERS] Page ready (FIXED - doc is a function)');
     </script>
 </body>
 </html>
