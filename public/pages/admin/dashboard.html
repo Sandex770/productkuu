@@ -63,10 +63,6 @@
         .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
         .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
         .btn-sm { padding: 8px 16px; font-size: 12px; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-success:hover { transform: translateY(-2px); }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-danger:hover { transform: translateY(-2px); }
         
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
         .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
@@ -105,12 +101,22 @@
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
         
-        @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .stats-grid-extra { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } .activity-grid { grid-template-columns: 1fr; } }
-        @media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr; } .stats-grid-extra { grid-template-columns: 1fr; } }
+        @media (max-width: 1024px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-grid-extra { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .charts-grid { grid-template-columns: 1fr; }
+            .activity-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 640px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .stats-grid-extra { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
+    <!-- NAVBAR -->
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
@@ -122,6 +128,7 @@
         </div>
     </nav>
 
+    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header"><div class="title">Menu Admin</div></div>
         <nav class="sidebar-nav">
@@ -137,8 +144,10 @@
     </aside>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
+    <!-- MAIN CONTENT -->
     <div class="app-wrapper">
         <main class="main-content">
+            <!-- Header -->
             <div class="flex-between" style="margin-bottom:24px;">
                 <div>
                     <h1 style="font-size:24px;">Dashboard Admin</h1>
@@ -149,6 +158,7 @@
                 </button>
             </div>
 
+            <!-- Debug Box -->
             <div class="debug-box" id="debugBox">
                 <div class="debug-line debug-info">🔍 Debug Mode Active</div>
                 <div class="debug-line" id="debugLog">Menunggu data...</div>
@@ -157,30 +167,89 @@
                 <i class="fas fa-bug"></i> Toggle Debug
             </button>
 
+            <!-- Error Box -->
             <div class="error-box" id="errorBox">
                 <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
                 <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
             </div>
 
+            <!-- Stats Grid -->
             <div class="stats-grid" style="margin-top:8px;">
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Total Seller</span><span class="stat-value" id="totalSellers">0</span></div><div class="stat-icon indigo"><i class="fas fa-users"></i></div></div>
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Total Produk</span><span class="stat-value" id="totalProducts">0</span></div><div class="stat-icon green"><i class="fas fa-box"></i></div></div>
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Total Order</span><span class="stat-value" id="totalOrders">0</span></div><div class="stat-icon yellow"><i class="fas fa-shopping-cart"></i></div></div>
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Total Pendapatan</span><span class="stat-value" style="color:var(--primary);" id="totalRevenue">Rp0</span></div><div class="stat-icon purple"><i class="fas fa-money-bill-wave"></i></div></div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">Total Seller</span>
+                        <span class="stat-value" id="totalSellers">0</span>
+                    </div>
+                    <div class="stat-icon indigo"><i class="fas fa-users"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">Total Produk</span>
+                        <span class="stat-value" id="totalProducts">0</span>
+                    </div>
+                    <div class="stat-icon green"><i class="fas fa-box"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">Total Order</span>
+                        <span class="stat-value" id="totalOrders">0</span>
+                    </div>
+                    <div class="stat-icon yellow"><i class="fas fa-shopping-cart"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">Total Pendapatan</span>
+                        <span class="stat-value" style="color:var(--primary);" id="totalRevenue">Rp0</span>
+                    </div>
+                    <div class="stat-icon purple"><i class="fas fa-money-bill-wave"></i></div>
+                </div>
             </div>
 
+            <!-- Extra Stats -->
             <div class="stats-grid-extra">
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Withdraw Pending</span><span class="stat-value" style="color:var(--danger);" id="pendingWithdrawals">0</span></div><div class="stat-icon red"><i class="fas fa-clock"></i></div></div>
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Banner Aktif</span><span class="stat-value" style="color:var(--info);" id="activeBanners">0</span></div><div class="stat-icon blue"><i class="fas fa-images"></i></div></div>
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Total Komisi</span><span class="stat-value" style="color:var(--secondary);" id="totalCommission">Rp0</span></div><div class="stat-icon purple"><i class="fas fa-percentage"></i></div></div>
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Total Review</span><span class="stat-value" style="color:var(--success);" id="totalReviews">0</span></div><div class="stat-icon green"><i class="fas fa-star"></i></div></div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">Total Komisi (10%)</span>
+                        <span class="stat-value" style="color:var(--secondary);" id="totalCommission">Rp0</span>
+                    </div>
+                    <div class="stat-icon purple"><i class="fas fa-percentage"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">Withdraw Pending</span>
+                        <span class="stat-value" style="color:var(--danger);" id="pendingWithdrawals">0</span>
+                    </div>
+                    <div class="stat-icon red"><i class="fas fa-clock"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">Banner Aktif</span>
+                        <span class="stat-value" style="color:var(--info);" id="activeBanners">0</span>
+                    </div>
+                    <div class="stat-icon blue"><i class="fas fa-images"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">Total Review</span>
+                        <span class="stat-value" style="color:var(--success);" id="totalReviews">0</span>
+                    </div>
+                    <div class="stat-icon green"><i class="fas fa-star"></i></div>
+                </div>
             </div>
 
+            <!-- Charts -->
             <div class="charts-grid">
-                <div class="card chart-box"><h4 style="margin-bottom:12px;">Grafik Penjualan (7 Hari)</h4><canvas id="salesChart" height="180"></canvas></div>
-                <div class="card chart-box"><h4 style="margin-bottom:12px;">Grafik Pendapatan (7 Hari)</h4><canvas id="revenueChart" height="180"></canvas></div>
+                <div class="card chart-box">
+                    <h4 style="margin-bottom:12px;">Grafik Penjualan (7 Hari)</h4>
+                    <canvas id="salesChart" height="180"></canvas>
+                </div>
+                <div class="card chart-box">
+                    <h4 style="margin-bottom:12px;">Grafik Pendapatan (7 Hari)</h4>
+                    <canvas id="revenueChart" height="180"></canvas>
+                </div>
             </div>
 
+            <!-- Activity -->
             <div class="activity-grid">
                 <div class="card">
                     <div class="flex-between" style="margin-bottom:16px;">
@@ -200,6 +269,7 @@
         </main>
     </div>
 
+    <!-- TOAST -->
     <div class="toast-container" id="toastContainer"></div>
 
     <script type="importmap">
@@ -214,7 +284,7 @@
 
     <script type="module">
         // ============================================
-        // IMPORTS
+        // IMPORTS - TANPA onSnapshot
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
@@ -250,7 +320,7 @@
             const log = document.getElementById('debugLog');
             const time = new Date().toLocaleTimeString();
             log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
-            console.log(`[DEBUG] ${message}`);
+            console.log(`[ADMIN_DEBUG] ${message}`);
             const box = document.getElementById('debugBox');
             box.scrollTop = box.scrollHeight;
         }
@@ -259,7 +329,18 @@
             const box = document.getElementById('debugBox');
             debugVisible = !debugVisible;
             box.classList.toggle('show');
-            if (debugVisible) addDebug('Debug mode activated', 'info');
+            if (debugVisible) {
+                addDebug('Debug mode activated', 'info');
+            }
+        };
+
+        // ============================================
+        // REFRESH DATA
+        // ============================================
+        window.refreshData = function() {
+            addDebug('Manual refresh triggered', 'info');
+            showToast('info', 'Memperbarui data...');
+            loadDashboardData();
         };
 
         // ============================================
@@ -353,15 +434,6 @@
         }
 
         // ============================================
-        // REFRESH DATA - TANPA LISTENER
-        // ============================================
-        window.refreshData = function() {
-            addDebug('Manual refresh triggered', 'info');
-            loadDashboardData();
-            showToast('info', 'Data diperbarui!');
-        };
-
-        // ============================================
         // AUTH STATE
         // ============================================
         addDebug('Setting up auth...', 'info');
@@ -389,23 +461,22 @@
                     `Selamat datang, ${userData.displayName || 'Admin'}!`;
 
                 await loadDashboardData();
-                // TIDAK ADA onSnapshot - DATA DI-LOAD SEKALI SAJA
+                // TIDAK ADA onSnapshot
 
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat data user: ' + error.message);
+                showToast('error', 'Gagal memuat data: ' + error.message);
             }
         });
 
         // ============================================
-        // LOAD DASHBOARD DATA - TANPA INDEX
+        // LOAD DASHBOARD DATA
         // ============================================
         async function loadDashboardData() {
-            addDebug('Loading dashboard data...', 'info');
+            addDebug('Loading admin dashboard data...', 'info');
 
             try {
                 // 1. Total Sellers
-                addDebug('Fetching total sellers...', 'info');
                 const usersSnapshot = await getDocs(collection(db, 'users'));
                 const totalSellers = usersSnapshot.docs.filter(doc => doc.data().role === 'seller').length;
                 document.getElementById('totalSellers').textContent = totalSellers;
@@ -413,35 +484,34 @@
                 addDebug(`Total sellers: ${totalSellers}`, 'success');
 
                 // 2. Total Products
-                addDebug('Fetching total products...', 'info');
                 const productsSnapshot = await getDocs(collection(db, 'products'));
                 const totalProducts = productsSnapshot.docs.filter(doc => doc.data().status === 'published').length;
                 document.getElementById('totalProducts').textContent = totalProducts;
                 document.getElementById('productCount').textContent = totalProducts;
                 addDebug(`Total products: ${totalProducts}`, 'success');
 
-                // 3. Total Orders
-                addDebug('Fetching total orders...', 'info');
+                // 3. Total Orders & Revenue
                 const ordersSnapshot = await getDocs(collection(db, 'orders'));
-                const totalOrders = ordersSnapshot.docs.filter(doc => doc.data().paymentStatus === 'settlement').length;
-                document.getElementById('totalOrders').textContent = totalOrders;
-                document.getElementById('orderCount').textContent = totalOrders;
-                addDebug(`Total orders: ${totalOrders}`, 'success');
-
-                // 4. Total Revenue
-                addDebug('Calculating total revenue...', 'info');
+                let totalOrders = 0;
                 let totalRevenue = 0;
                 ordersSnapshot.docs.forEach(doc => {
                     const data = doc.data();
                     if (data.paymentStatus === 'settlement') {
+                        totalOrders++;
                         totalRevenue += data.amount || 0;
                     }
                 });
+                document.getElementById('totalOrders').textContent = totalOrders;
+                document.getElementById('orderCount').textContent = totalOrders;
                 document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
-                addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
+                addDebug(`Total orders: ${totalOrders}, revenue: Rp${formatPrice(totalRevenue)}`, 'success');
+
+                // 4. Total Commission (10%)
+                const totalCommission = Math.round(totalRevenue * 0.1);
+                document.getElementById('totalCommission').textContent = `Rp${formatPrice(totalCommission)}`;
+                addDebug(`Total commission: Rp${formatPrice(totalCommission)}`, 'success');
 
                 // 5. Pending Withdrawals
-                addDebug('Fetching pending withdrawals...', 'info');
                 const withdrawalsSnapshot = await getDocs(collection(db, 'withdrawals'));
                 const pendingWithdrawals = withdrawalsSnapshot.docs.filter(doc => doc.data().status === 'pending').length;
                 document.getElementById('pendingWithdrawals').textContent = pendingWithdrawals;
@@ -449,7 +519,6 @@
                 addDebug(`Pending withdrawals: ${pendingWithdrawals}`, 'success');
 
                 // 6. Active Banners
-                addDebug('Fetching active banners...', 'info');
                 const bannersSnapshot = await getDocs(collection(db, 'banners'));
                 const now = new Date();
                 let activeBanners = 0;
@@ -465,29 +534,18 @@
                 document.getElementById('activeBanners').textContent = activeBanners;
                 addDebug(`Active banners: ${activeBanners}`, 'success');
 
-                // 7. Total Commission
-                const commission = Math.round(totalRevenue * 0.1);
-                document.getElementById('totalCommission').textContent = `Rp${formatPrice(commission)}`;
-                addDebug(`Total commission: Rp${formatPrice(commission)}`, 'success');
-
-                // 8. Total Reviews
-                addDebug('Fetching total reviews...', 'info');
+                // 7. Total Reviews
                 const reviewsSnapshot = await getDocs(collection(db, 'reviews'));
                 document.getElementById('totalReviews').textContent = reviewsSnapshot.size;
                 addDebug(`Total reviews: ${reviewsSnapshot.size}`, 'success');
 
-                // 9. Recent Orders
                 await loadRecentOrders();
+                await loadPendingWithdrawals();
 
-                // 10. Pending Withdrawals List
-                await loadPendingWithdrawalsList();
-
-                addDebug('All dashboard data loaded successfully!', 'success');
+                addDebug('All admin dashboard data loaded successfully', 'success');
 
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
-                console.error('❌ Error:', error);
-                showError('Gagal memuat data dashboard', error.message);
                 showToast('error', 'Gagal memuat data: ' + error.message);
             }
         }
@@ -540,11 +598,11 @@
         }
 
         // ============================================
-        // LOAD PENDING WITHDRAWALS LIST
+        // LOAD PENDING WITHDRAWALS
         // ============================================
-        async function loadPendingWithdrawalsList() {
+        async function loadPendingWithdrawals() {
             try {
-                addDebug('Loading pending withdrawals list...', 'info');
+                addDebug('Loading pending withdrawals...', 'info');
                 const withdrawalsSnapshot = await getDocs(collection(db, 'withdrawals'));
                 const container = document.getElementById('pendingWithdrawalsList');
 
