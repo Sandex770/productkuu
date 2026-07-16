@@ -108,6 +108,14 @@
       "dest": "/public/pages/$1"
     },
     {
+      "src": "/[^/]+/product-seller",
+      "dest": "/public/pages/seller/product-seller.html"
+    },
+    {
+      "src": "/([^/]+)",
+      "dest": "/public/pages/seller/product-seller.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/public/$1"
     }
