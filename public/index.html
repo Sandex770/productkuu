@@ -181,6 +181,7 @@
         .btn-success:hover { transform: translateY(-2px); }
         .btn-danger { background: var(--danger); color: white; }
         .btn-danger:hover { transform: translateY(-2px); }
+        .btn-block { width: 100%; justify-content: center; }
         
         .hero-badge { display: inline-block; background: rgba(255,255,255,0.15); padding: 6px 16px; border-radius: 9999px; font-size: 13px; font-weight: 500; margin-bottom: 16px; backdrop-filter: blur(4px); }
         
@@ -303,12 +304,201 @@
             padding: 4px;
         }
         .checkout-modal .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+        .checkout-modal .input-group { margin-bottom: 16px; }
+        .checkout-modal .input-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--text-secondary); }
+        .checkout-modal .input-group .input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: var(--font);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s;
+        }
+        .checkout-modal .input-group .input:focus { border-color: #4F46E5; outline: none; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+        
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
         
-        @media (max-width: 1024px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } .feature-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 768px) { .hero h1 { font-size: 32px; } .hero p { font-size: 16px; } .hero-stats { gap: 24px; } .cta-section h2 { font-size: 24px; } .banner-carousel .slide { height: 150px; } }
-        @media (max-width: 640px) { .grid-4 { grid-template-columns: 1fr; } .feature-grid { grid-template-columns: 1fr; } }
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 24px;
+        }
+        .navbar-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 16px;
+        }
+        .navbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+        .navbar-logo i { color: #4F46E5; }
+        .navbar-search {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .navbar-search .icon {
+            position: absolute;
+            left: 12px;
+            color: var(--text-light);
+        }
+        .navbar-search input {
+            width: 100%;
+            padding: 8px 12px 8px 36px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        .navbar-search input:focus { border-color: #4F46E5; outline: none; }
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .navbar-actions .btn-icon {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+        .navbar-actions .btn-icon:hover { background: var(--bg-secondary); }
+        .navbar-mobile-toggle {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 20px;
+        }
+        .navbar-mobile-menu {
+            display: none;
+            padding: 16px 0;
+            border-top: 1px solid var(--border-color);
+        }
+        .navbar-mobile-menu.open { display: block; }
+        .navbar-mobile-menu .search-mobile { padding: 0 16px 12px; }
+        .navbar-mobile-menu .search-mobile input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        .navbar-mobile-menu .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 0 16px;
+        }
+        .navbar-mobile-menu .nav-links a {
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .navbar-mobile-menu .nav-links a:hover { background: var(--bg-secondary); color: var(--text-primary); }
+        
+        .hide-mobile { display: inline-flex; }
+        
+        /* Container */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        /* Variables */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --bg-tertiary: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-light: #9ca3af;
+            --border-color: #e5e7eb;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+            --radius: 8px;
+            --radius-lg: 16px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+        }
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #374151;
+            --bg-tertiary: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-light: #6b7280;
+            --border-color: #374151;
+            --shadow: 0 1px 3px rgba(0,0,0,0.3);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font); background: var(--bg-secondary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+        .text-primary { color: #4F46E5; }
+        .text-secondary { color: var(--text-secondary); }
+        .text-center { text-align: center; }
+        
+        @media (max-width: 1024px) { 
+            .grid-4 { grid-template-columns: repeat(2, 1fr); } 
+            .feature-grid { grid-template-columns: repeat(2, 1fr); } 
+        }
+        @media (max-width: 768px) { 
+            .hero h1 { font-size: 32px; } 
+            .hero p { font-size: 16px; } 
+            .hero-stats { gap: 24px; } 
+            .cta-section h2 { font-size: 24px; } 
+            .banner-carousel .slide { height: 150px; }
+            .navbar-search { display: none; }
+            .navbar-mobile-toggle { display: flex; }
+            .hide-mobile { display: none; }
+            .cart-section .cart-header { flex-direction: column; align-items: stretch; }
+        }
+        @media (max-width: 640px) { 
+            .grid-4 { grid-template-columns: 1fr; } 
+            .feature-grid { grid-template-columns: 1fr; } 
+        }
     </style>
 </head>
 <body>
@@ -479,15 +669,15 @@
                 <p style="font-size:13px;color:var(--text-secondary);margin-top:4px;"><span id="checkoutItems">0</span> item dalam keranjang</p>
             </div>
             <form id="checkoutForm">
-                <div class="input-group" style="margin-bottom:12px;">
+                <div class="input-group">
                     <label for="checkoutName">Nama Lengkap *</label>
                     <input type="text" id="checkoutName" class="input" required placeholder="Masukkan nama Anda">
                 </div>
-                <div class="input-group" style="margin-bottom:12px;">
+                <div class="input-group">
                     <label for="checkoutEmail">Email *</label>
                     <input type="email" id="checkoutEmail" class="input" required placeholder="Masukkan email Anda">
                 </div>
-                <div class="input-group" style="margin-bottom:12px;">
+                <div class="input-group">
                     <label for="checkoutPhone">Nomor HP</label>
                     <input type="tel" id="checkoutPhone" class="input" placeholder="Masukkan nomor HP">
                 </div>
@@ -753,20 +943,34 @@
                             
                             // Update order status
                             updateOrderStatus(orderId, 'settlement', result);
+                            
+                            // Redirect ke halaman sukses
+                            setTimeout(() => {
+                                window.location.href = `/success.html?order=${orderId}&status=success`;
+                            }, 1500);
                         },
                         onPending: function(result) {
                             console.log('⏳ Payment Pending:', result);
                             showToast('info', '⏳ Menunggu pembayaran...');
                             updateOrderStatus(orderId, 'pending', result);
+                            
+                            // Redirect ke halaman pending
+                            setTimeout(() => {
+                                window.location.href = `/success.html?order=${orderId}&status=pending`;
+                            }, 1500);
                         },
                         onError: function(result) {
                             console.log('❌ Payment Error:', result);
                             showToast('error', '❌ Pembayaran gagal: ' + (result.status_message || 'Silakan coba lagi'));
                             updateOrderStatus(orderId, 'failed', result);
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
                         },
                         onClose: function() {
                             console.log('🔒 Payment window closed');
                             showToast('info', 'Pembayaran dibatalkan');
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
                         }
                     });
                 } else if (data.redirect_url) {
@@ -778,7 +982,6 @@
             } catch (error) {
                 console.error('Checkout error:', error);
                 showToast('error', 'Gagal memproses checkout: ' + error.message);
-            } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
             }
@@ -798,6 +1001,7 @@
                         midtransResult: result,
                         updatedAt: serverTimestamp()
                     });
+                    console.log('✅ Order status updated to:', status);
                 }
             } catch (error) {
                 console.error('Error updating order:', error);
@@ -886,7 +1090,7 @@
         }
 
         // ============================================
-        // LOAD BANNERS (DIPERBAIKI)
+        // LOAD BANNERS
         // ============================================
         async function loadBanners() {
             try {
@@ -1126,6 +1330,17 @@
         // ============================================
         let searchTimeout;
         document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+            if (query.length > 2) {
+                searchTimeout = setTimeout(() => {
+                    window.location.href = `/search?q=${encodeURIComponent(query)}`;
+                }, 500);
+            }
+        });
+
+        // Mobile search
+        document.getElementById('mobileSearchInput').addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
             const query = e.target.value.trim();
             if (query.length > 2) {
