@@ -117,11 +117,11 @@
     },
     {
       "src": "/success",
-      "dest": "/success.html"
+      "dest": "/public/success.html"
     },
     {
       "src": "/success.html",
-      "dest": "/success.html"
+      "dest": "/public/success.html"
     },
     {
       "src": "/(.*)",
