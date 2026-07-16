@@ -35,9 +35,13 @@
         .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
         textarea.input { resize: vertical; min-height: 80px; }
         input[type="color"].input { height: 48px; padding: 4px; cursor: pointer; }
+        input[type="number"].input { -moz-appearance: textfield; }
+        input[type="number"].input::-webkit-outer-spin-button,
+        input[type="number"].input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         
         .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
         .badge-primary { background: rgba(79,70,229,0.1); color: var(--primary); }
+        .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
         
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
         .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
@@ -49,6 +53,7 @@
         
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         .text-secondary { color: var(--text-secondary); }
+        .text-light { color: var(--text-light); font-size: 12px; }
         
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
         .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
@@ -87,6 +92,19 @@
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
         
+        .holding-preview {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            margin-top: 4px;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+        .holding-preview span {
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
         @media (max-width: 768px) { .settings-grid { grid-template-columns: 1fr; } }
         
         :root {
@@ -107,6 +125,7 @@
             --danger: #ef4444;
             --info: #3b82f6;
             --primary: #4F46E5;
+            --secondary: #7C3AED;
             --transition: all 0.3s ease;
         }
         [data-theme="dark"] {
@@ -203,14 +222,10 @@
                     </form>
                 </div>
 
-                <!-- Marketplace Settings -->
+                <!-- Marketplace Settings dengan Holding Time -->
                 <div class="card">
                     <h4 style="margin-bottom:16px;">Pengaturan Marketplace</h4>
                     <form id="marketplaceSettingsForm">
-                        <div class="input-group">
-                            <label for="holdingDays">Holding Balance (Hari)</label>
-                            <input type="number" id="holdingDays" class="input" placeholder="7" min="1">
-                        </div>
                         <div class="input-group">
                             <label for="commission">Komisi Marketplace (%)</label>
                             <input type="number" id="commission" class="input" placeholder="10" min="0" max="100">
@@ -228,10 +243,35 @@
                             <input type="text" id="withdrawMethods" class="input" placeholder="DANA, OVO, GoPay, Bank BCA">
                             <span style="font-size:12px;color:var(--text-light);">Pisahkan dengan koma</span>
                         </div>
-                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                        
+                        <!-- HOLDING TIME -->
+                        <div style="border-top:1px solid var(--border-color);padding-top:16px;margin-top:8px;">
+                            <label style="font-size:14px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:8px;">Holding Balance Time</label>
+                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+                                <div class="input-group" style="margin-bottom:0;">
+                                    <label for="holdingDays" style="font-size:12px;">Hari</label>
+                                    <input type="number" id="holdingDays" class="input" placeholder="7" min="0" value="7">
+                                </div>
+                                <div class="input-group" style="margin-bottom:0;">
+                                    <label for="holdingHours" style="font-size:12px;">Jam</label>
+                                    <input type="number" id="holdingHours" class="input" placeholder="0" min="0" max="23" value="0">
+                                </div>
+                                <div class="input-group" style="margin-bottom:0;">
+                                    <label for="holdingMinutes" style="font-size:12px;">Menit</label>
+                                    <input type="number" id="holdingMinutes" class="input" placeholder="0" min="0" max="59" value="0">
+                                </div>
+                            </div>
+                            <div class="holding-preview" style="margin-top:8px;">
+                                <i class="fas fa-clock" style="color:var(--warning);"></i>
+                                Total holding: <span id="holdingTotalDisplay">7 hari 0 jam 0 menit</span>
+                            </div>
+                            <span style="font-size:11px;color:var(--text-light);">Saldo akan masuk ke saldo tersedia setelah melewati waktu holding</span>
+                        </div>
+                        
+                        <div style="display:flex;align-items:center;gap:8px;margin-top:12px;">
                             <input type="checkbox" id="maintenanceMode"> <label for="maintenanceMode" style="font-size:14px;">Mode Maintenance</label>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-save"></i> Simpan Marketplace</button>
+                        <button type="submit" class="btn btn-primary btn-block" style="margin-top:12px;"><i class="fas fa-save"></i> Simpan Marketplace</button>
                     </form>
                 </div>
 
@@ -300,9 +340,6 @@
     </script>
 
     <script type="module">
-        // ============================================
-        // IMPORTS
-        // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
@@ -345,14 +382,9 @@
             const box = document.getElementById('debugBox');
             debugVisible = !debugVisible;
             box.classList.toggle('show');
-            if (debugVisible) {
-                addDebug('Debug mode activated', 'info');
-            }
+            if (debugVisible) addDebug('Debug mode activated', 'info');
         };
 
-        // ============================================
-        // REFRESH DATA
-        // ============================================
         window.refreshData = function() {
             addDebug('Manual refresh triggered', 'info');
             showToast('info', 'Memperbarui data pengaturan...');
@@ -429,6 +461,27 @@
         }
 
         // ============================================
+        // HOLDING TIME DISPLAY
+        // ============================================
+        function updateHoldingDisplay() {
+            const days = parseInt(document.getElementById('holdingDays').value) || 0;
+            const hours = parseInt(document.getElementById('holdingHours').value) || 0;
+            const minutes = parseInt(document.getElementById('holdingMinutes').value) || 0;
+            
+            let parts = [];
+            if (days > 0) parts.push(`${days} hari`);
+            if (hours > 0) parts.push(`${hours} jam`);
+            if (minutes > 0) parts.push(`${minutes} menit`);
+            if (parts.length === 0) parts.push('0 menit');
+            
+            document.getElementById('holdingTotalDisplay').textContent = parts.join(' ');
+        }
+
+        document.getElementById('holdingDays').addEventListener('input', updateHoldingDisplay);
+        document.getElementById('holdingHours').addEventListener('input', updateHoldingDisplay);
+        document.getElementById('holdingMinutes').addEventListener('input', updateHoldingDisplay);
+
+        // ============================================
         // AUTH STATE
         // ============================================
         addDebug('Setting up auth...', 'info');
@@ -460,7 +513,7 @@
         });
 
         // ============================================
-        // SAVE SETTINGS HELPER - FIXED
+        // SAVE SETTINGS HELPER
         // ============================================
         async function saveSettings(docId, data) {
             try {
@@ -468,19 +521,10 @@
                 const docSnap = await getDoc(docRef);
                 
                 if (docSnap.exists()) {
-                    // Update existing document
-                    await updateDoc(docRef, {
-                        ...data,
-                        updatedAt: serverTimestamp()
-                    });
+                    await updateDoc(docRef, { ...data, updatedAt: serverTimestamp() });
                     addDebug(`Settings ${docId} updated`, 'success');
                 } else {
-                    // Create new document
-                    await setDoc(docRef, {
-                        ...data,
-                        createdAt: serverTimestamp(),
-                        updatedAt: serverTimestamp()
-                    });
+                    await setDoc(docRef, { ...data, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
                     addDebug(`Settings ${docId} created`, 'success');
                 }
                 return true;
@@ -507,12 +551,6 @@
                     document.getElementById('primaryColor').value = data.primaryColor || '#4F46E5';
                     document.getElementById('secondaryColor').value = data.secondaryColor || '#7C3AED';
                     addDebug('Website settings loaded', 'success');
-                } else {
-                    // Set default values
-                    document.getElementById('siteName').value = 'ProductKuu';
-                    document.getElementById('primaryColor').value = '#4F46E5';
-                    document.getElementById('secondaryColor').value = '#7C3AED';
-                    addDebug('Website settings not found, using defaults', 'warning');
                 }
 
                 // Marketplace
@@ -520,20 +558,28 @@
                 const marketplaceDoc = await getDoc(marketplaceRef);
                 if (marketplaceDoc.exists()) {
                     const data = marketplaceDoc.data();
-                    document.getElementById('holdingDays').value = data.holdingDays || 7;
                     document.getElementById('commission').value = data.commission || 10;
                     document.getElementById('minWithdraw').value = data.minWithdraw || 50000;
                     document.getElementById('maxWithdraw').value = data.maxWithdraw || 10000000;
                     document.getElementById('withdrawMethods').value = (data.withdrawMethods || ['DANA', 'OVO', 'GoPay']).join(', ');
                     document.getElementById('maintenanceMode').checked = data.maintenanceMode || false;
+                    
+                    // Holding Time
+                    document.getElementById('holdingDays').value = data.holdingDays || 7;
+                    document.getElementById('holdingHours').value = data.holdingHours || 0;
+                    document.getElementById('holdingMinutes').value = data.holdingMinutes || 0;
+                    updateHoldingDisplay();
+                    
                     addDebug('Marketplace settings loaded', 'success');
                 } else {
-                    // Set default values
-                    document.getElementById('holdingDays').value = 7;
                     document.getElementById('commission').value = 10;
                     document.getElementById('minWithdraw').value = 50000;
                     document.getElementById('maxWithdraw').value = 10000000;
                     document.getElementById('withdrawMethods').value = 'DANA, OVO, GoPay, Bank BCA';
+                    document.getElementById('holdingDays').value = 7;
+                    document.getElementById('holdingHours').value = 0;
+                    document.getElementById('holdingMinutes').value = 0;
+                    updateHoldingDisplay();
                     addDebug('Marketplace settings not found, using defaults', 'warning');
                 }
 
@@ -563,14 +609,6 @@
                         { label: 'Syarat & Ketentuan', url: '/syarat-ketentuan' }
                     ], null, 2);
                     addDebug('Footer settings loaded', 'success');
-                } else {
-                    document.getElementById('footerText').value = '&copy; 2026 ProductKuu. All rights reserved.';
-                    document.getElementById('footerLinks').value = JSON.stringify([
-                        { label: 'Tentang', url: '/tentang' },
-                        { label: 'Kontak', url: '/kontak' },
-                        { label: 'Syarat & Ketentuan', url: '/syarat-ketentuan' }
-                    ], null, 2);
-                    addDebug('Footer settings not found, using defaults', 'warning');
                 }
 
                 addDebug('All settings loaded successfully', 'success');
@@ -582,7 +620,7 @@
         }
 
         // ============================================
-        // WEBSITE SETTINGS - FIXED
+        // WEBSITE SETTINGS
         // ============================================
         document.getElementById('websiteSettingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -602,7 +640,7 @@
         });
 
         // ============================================
-        // MARKETPLACE SETTINGS - FIXED
+        // MARKETPLACE SETTINGS - DENGAN HOLDING TIME
         // ============================================
         document.getElementById('marketplaceSettingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -610,12 +648,14 @@
             try {
                 const methods = document.getElementById('withdrawMethods').value.split(',').map(m => m.trim()).filter(m => m);
                 await saveSettings('marketplace', {
-                    holdingDays: parseInt(document.getElementById('holdingDays').value) || 7,
                     commission: parseInt(document.getElementById('commission').value) || 10,
                     minWithdraw: parseInt(document.getElementById('minWithdraw').value) || 50000,
                     maxWithdraw: parseInt(document.getElementById('maxWithdraw').value) || 10000000,
                     withdrawMethods: methods,
-                    maintenanceMode: document.getElementById('maintenanceMode').checked
+                    maintenanceMode: document.getElementById('maintenanceMode').checked,
+                    holdingDays: parseInt(document.getElementById('holdingDays').value) || 0,
+                    holdingHours: parseInt(document.getElementById('holdingHours').value) || 0,
+                    holdingMinutes: parseInt(document.getElementById('holdingMinutes').value) || 0
                 });
                 showToast('success', 'Pengaturan marketplace disimpan');
             } catch (error) {
@@ -624,7 +664,7 @@
         });
 
         // ============================================
-        // SOCIAL SETTINGS - FIXED
+        // SOCIAL SETTINGS
         // ============================================
         document.getElementById('socialSettingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -645,7 +685,7 @@
         });
 
         // ============================================
-        // FOOTER SETTINGS - FIXED
+        // FOOTER SETTINGS
         // ============================================
         document.getElementById('footerSettingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
