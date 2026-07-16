@@ -535,6 +535,9 @@ function updateStoreLink() {
         // ============================================
 // LOAD DASHBOARD DATA - SUDAH BENAR
 // ============================================
+// ============================================
+// LOAD DASHBOARD DATA - FIXED (REPLACE di dashboard.html)
+// ============================================
 async function loadDashboardData() {
     addDebug('Loading dashboard data...', 'info');
     if (!currentUser) {
@@ -553,36 +556,70 @@ async function loadDashboardData() {
         document.getElementById('totalProducts').textContent = productsSnapshot.size;
         addDebug(`Total products: ${productsSnapshot.size}`, 'success');
 
-        // Orders (hanya milik seller ini)
-        const ordersSnapshot = await getDocs(
-            query(collection(db, 'orders'), where('sellerId', '==', sellerId), where('paymentStatus', '==', 'settlement'))
+        // Orders (SEMUA order milik seller ini)
+        const allOrdersSnapshot = await getDocs(
+            query(collection(db, 'orders'), where('sellerId', '==', sellerId))
         );
-        document.getElementById('totalSales').textContent = ordersSnapshot.size;
-        addDebug(`Total sales: ${ordersSnapshot.size}`, 'success');
-
-        // Revenue (hanya milik seller ini)
+        
+        let totalSales = 0;
         let totalRevenue = 0;
-        const revenueData = [];
-        ordersSnapshot.forEach(doc => {
+        let availableAmount = 0;
+        
+        // Ambil setting holding time dari Firestore
+        let holdingDays = 7;
+        let holdingHours = 0;
+        let holdingMinutes = 0;
+        try {
+            const settingsRef = doc(db, 'settings', 'marketplace');
+            const settingsDoc = await getDoc(settingsRef);
+            if (settingsDoc.exists()) {
+                const settings = settingsDoc.data();
+                holdingDays = settings.holdingDays || 7;
+                holdingHours = settings.holdingHours || 0;
+                holdingMinutes = settings.holdingMinutes || 0;
+                addDebug(`Holding settings: ${holdingDays}d ${holdingHours}h ${holdingMinutes}m`, 'info');
+            }
+        } catch (e) {
+            addDebug('Using default holding settings', 'warning');
+        }
+        
+        const holdingMilliseconds = (holdingDays * 24 * 60 * 60 * 1000) + 
+                                    (holdingHours * 60 * 60 * 1000) + 
+                                    (holdingMinutes * 60 * 1000);
+        
+        const now = new Date();
+        
+        allOrdersSnapshot.forEach(doc => {
             const order = doc.data();
             const amount = order.amount || 0;
-            totalRevenue += amount;
-            revenueData.push({
-                date: order.createdAt?.toDate?.() || new Date(order.createdAt),
-                amount: amount
-            });
+            const status = order.paymentStatus || order.status || '';
+            
+            // Hanya hitung yang settlement/paid untuk pendapatan
+            if (status === 'settlement' || status === 'paid') {
+                totalRevenue += amount;
+                totalSales++;
+                
+                // Cek apakah sudah melewati holding period
+                const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
+                const elapsed = now - createdAt;
+                
+                if (elapsed >= holdingMilliseconds) {
+                    availableAmount += amount;
+                }
+            }
         });
+        
+        document.getElementById('totalSales').textContent = totalSales;
         document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
+        document.getElementById('availableBalance').textContent = `Rp${formatPrice(availableAmount)}`;
+        
+        addDebug(`Total sales: ${totalSales}`, 'success');
         addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
-
-        // Wallet
-        const wallet = userData?.wallet || { available: 0 };
-        document.getElementById('availableBalance').textContent = `Rp${formatPrice(wallet.available || 0)}`;
-        addDebug(`Available balance: Rp${formatPrice(wallet.available || 0)}`, 'success');
+        addDebug(`Available: Rp${formatPrice(availableAmount)}`, 'success');
 
         updateStoreLink();
         await loadRecentProducts(sellerId);
-        renderCharts(revenueData);
+        renderCharts(allOrdersSnapshot);
         
         addDebug('Dashboard data loaded successfully', 'success');
 

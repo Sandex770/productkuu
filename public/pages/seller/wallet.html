@@ -372,24 +372,144 @@
         // ============================================
         // LOAD WALLET DATA
         // ============================================
-        async function loadWalletData(uid) {
-            addDebug('Loading wallet data...', 'info');
-            try {
-                const userRef = doc(db, 'users', uid);
-                const userDoc = await getDoc(userRef);
-                if (userDoc.exists()) {
-                    const wallet = userDoc.data().wallet || { available: 0, holding: 0, totalRevenue: 0, totalWithdraw: 0 };
-                    document.getElementById('availableBalance').textContent = `Rp${formatPrice(wallet.available || 0)}`;
-                    document.getElementById('holdingBalance').textContent = `Rp${formatPrice(wallet.holding || 0)}`;
-                    document.getElementById('totalRevenue').textContent = `Rp${formatPrice(wallet.totalRevenue || 0)}`;
-                    document.getElementById('totalWithdraw').textContent = `Rp${formatPrice(wallet.totalWithdraw || 0)}`;
-                    addDebug('Wallet data loaded', 'success');
-                }
-            } catch (error) {
-                addDebug(`Error loading wallet: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat wallet: ' + error.message);
+        // ============================================
+// LOAD WALLET DATA - FIXED (REPLACE di wallet.html)
+// ============================================
+async function loadWalletData(uid) {
+    addDebug('Loading wallet data...', 'info');
+    try {
+        // Ambil setting holding time dari Firestore
+        let holdingDays = 3;
+        let holdingHours = 0;
+        let holdingMinutes = 0;
+        try {
+            const settingsRef = doc(db, 'settings', 'marketplace');
+            const settingsDoc = await getDoc(settingsRef);
+            if (settingsDoc.exists()) {
+                const settings = settingsDoc.data();
+                holdingDays = settings.holdingDays || 3;
+                holdingHours = settings.holdingHours || 0;
+                holdingMinutes = settings.holdingMinutes || 0;
+                addDebug(`Holding settings: ${holdingDays}d ${holdingHours}h ${holdingMinutes}m`, 'info');
             }
+        } catch (e) {
+            addDebug('Using default holding settings', 'warning');
         }
+        
+        const holdingMilliseconds = (holdingDays * 24 * 60 * 60 * 1000) + 
+                                    (holdingHours * 60 * 60 * 1000) + 
+                                    (holdingMinutes * 60 * 1000);
+        
+        const now = new Date();
+        
+        // Ambil semua order seller
+        const ordersSnapshot = await getDocs(
+            query(collection(db, 'orders'), where('sellerId', '==', uid))
+        );
+        
+        let totalRevenue = 0;
+        let holdingAmount = 0;
+        let availableAmount = 0;
+        let totalWithdraw = 0;
+        let transactions = [];
+        
+        ordersSnapshot.forEach(doc => {
+            const order = doc.data();
+            const amount = order.amount || 0;
+            const status = order.paymentStatus || order.status || '';
+            
+            // Hanya hitung yang settlement/paid
+            if (status === 'settlement' || status === 'paid') {
+                totalRevenue += amount;
+                
+                const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
+                const elapsed = now - createdAt;
+                
+                if (elapsed >= holdingMilliseconds) {
+                    availableAmount += amount;
+                } else {
+                    holdingAmount += amount;
+                }
+                
+                transactions.push({
+                    ...order,
+                    createdAtDate: createdAt,
+                    isAvailable: elapsed >= holdingMilliseconds
+                });
+            }
+        });
+        
+        document.getElementById('availableBalance').textContent = `Rp${formatPrice(availableAmount)}`;
+        document.getElementById('holdingBalance').textContent = `Rp${formatPrice(holdingAmount)}`;
+        document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
+        document.getElementById('totalWithdraw').textContent = `Rp${formatPrice(totalWithdraw)}`;
+        
+        addDebug(`Available: Rp${formatPrice(availableAmount)}`, 'success');
+        addDebug(`Holding: Rp${formatPrice(holdingAmount)}`, 'success');
+        addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
+        
+        // Render transactions
+        renderTransactions(transactions);
+        
+    } catch (error) {
+        addDebug(`Error loading wallet: ${error.message}`, 'error');
+        showToast('error', 'Gagal memuat wallet: ' + error.message);
+    }
+}
+
+// ============================================
+// RENDER TRANSACTIONS - FIXED
+// ============================================
+function renderTransactions(transactions) {
+    const container = document.getElementById('transactionHistory');
+    
+    if (!transactions || transactions.length === 0) {
+        container.innerHTML = `
+            <div class="text-center text-secondary" style="padding:20px 0;">
+                <i class="fas fa-receipt" style="font-size:24px;display:block;margin-bottom:8px;"></i>
+                Belum ada transaksi
+            </div>
+        `;
+        return;
+    }
+    
+    const statusColors = {
+        'pending': 'badge-warning',
+        'settlement': 'badge-success',
+        'failed': 'badge-danger',
+        'expire': 'badge-danger'
+    };
+    
+    container.innerHTML = transactions.map(t => {
+        const statusText = t.paymentStatus || t.status || 'pending';
+        const isAvailable = t.isAvailable;
+        
+        return `
+            <div class="transaction-item">
+                <div>
+                    <strong>${t.productName || 'Product'}</strong>
+                    <br>
+                    <span style="font-size:13px;color:var(--text-secondary);">
+                        ${t.buyerName || 'Anonymous'} • ${formatDate(t.createdAtDate)}
+                    </span>
+                    <br>
+                    <span style="font-size:11px;color:var(--text-light);">
+                        ${isAvailable ? '✅ Saldo tersedia' : '⏳ Dalam holding'}
+                    </span>
+                </div>
+                <div style="text-align:right;">
+                    <span style="font-weight:600;color:${statusText === 'settlement' || statusText === 'paid' ? 'var(--success)' : 'var(--text-secondary)'};">
+                        ${statusText === 'settlement' || statusText === 'paid' ? '+' : ''}Rp${formatPrice(t.amount)}
+                    </span>
+                    <br>
+                    <span class="badge ${statusColors[statusText] || 'badge-info'}">${statusText}</span>
+                    <br>
+                    <span style="font-size:11px;color:var(--text-light);">${t.orderId || ''}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
 
         // ============================================
         // LOAD TRANSACTIONS
