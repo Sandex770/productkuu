@@ -418,11 +418,18 @@
         let cart = JSON.parse(localStorage.getItem('sellerCart') || '[]');
 
         // ============================================
-        // GET SELLER FROM QUERY PARAMETER
+        // GET SELLER SLUG - DARI URL PATH
         // ============================================
+        const pathParts = window.location.pathname.split('/');
+        // Contoh URL: /product-seller/tokoseller
+        // pathParts = ['', 'product-seller', 'tokoseller']
+        const sellerSlug = pathParts[2] || '';
+        console.log('🔍 [SELLER_PAGE] Seller slug:', sellerSlug);
+
+        // Jika tidak ada slug, cek query parameter sebagai fallback
         const urlParams = new URLSearchParams(window.location.search);
         const sellerParam = urlParams.get('seller') || '';
-        console.log('🔍 [SELLER_PAGE] Seller param:', sellerParam);
+        const sellerIdentifier = sellerSlug || sellerParam;
 
         // ============================================
         // THEME
@@ -671,26 +678,26 @@
         }
 
         // ============================================
-        // LOAD SELLER - MENGGUNAKAN QUERY PARAMETER
+        // LOAD SELLER - MENGGUNAKAN SLUG DARI URL
         // ============================================
         async function loadSeller() {
-            if (!sellerParam) {
+            if (!sellerIdentifier) {
                 document.getElementById('productsGrid').innerHTML = `
                     <div class="text-center" style="grid-column:1/-1;padding:40px 0;color:var(--danger);">
                         <i class="fas fa-exclamation-triangle" style="font-size:48px;display:block;margin-bottom:16px;"></i>
-                        Seller tidak ditemukan. Gunakan ?seller=nama_toko
+                        Seller tidak ditemukan
                     </div>
                 `;
                 return;
             }
 
             try {
-                console.log('🔍 [SELLER_PAGE] Mencari seller dengan:', sellerParam);
+                console.log('🔍 [SELLER_PAGE] Mencari seller dengan slug:', sellerIdentifier);
 
                 const usersRef = collection(db, 'users');
                 
-                // CARA 1: Cari berdasarkan storeName
-                const q1 = query(usersRef, where('storeName', '==', sellerParam));
+                // CARA 1: Cari berdasarkan storeName (slug)
+                const q1 = query(usersRef, where('storeName', '==', sellerIdentifier));
                 const snapshot1 = await getDocs(q1);
                 
                 if (!snapshot1.empty) {
@@ -699,8 +706,8 @@
                     return;
                 }
 
-                // CARA 2: Cari berdasarkan displayName
-                const q2 = query(usersRef, where('displayName', '==', sellerParam));
+                // CARA 2: Cari berdasarkan displayName (fallback)
+                const q2 = query(usersRef, where('displayName', '==', sellerIdentifier));
                 const snapshot2 = await getDocs(q2);
                 
                 if (!snapshot2.empty) {
@@ -709,8 +716,8 @@
                     return;
                 }
 
-                // CARA 3: Cari berdasarkan UID
-                const q3 = query(usersRef, where('uid', '==', sellerParam));
+                // CARA 3: Cari berdasarkan UID (fallback)
+                const q3 = query(usersRef, where('uid', '==', sellerIdentifier));
                 const snapshot3 = await getDocs(q3);
                 
                 if (!snapshot3.empty) {
@@ -728,7 +735,7 @@
                 document.getElementById('productsGrid').innerHTML = `
                     <div class="text-center" style="grid-column:1/-1;padding:40px 0;color:var(--danger);">
                         <i class="fas fa-exclamation-triangle" style="font-size:48px;display:block;margin-bottom:16px;"></i>
-                        Toko tidak ditemukan: "${sellerParam}"
+                        Toko tidak ditemukan: "${sellerIdentifier}"
                     </div>
                 `;
             }
