@@ -204,13 +204,13 @@
 
     <script type="module">
         // ============================================
-        // IMPORTS - TANPA onSnapshot
+        // IMPORTS - FIXED (doc ditambahkan)
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, updateDoc } from "firebase/firestore";
 
-        console.log('💰 [ADMIN_WITHDRAWALS] Page loaded (OPTIMIZED)');
+        console.log('💰 [ADMIN_WITHDRAWALS] Page loaded (FIXED)');
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
@@ -377,7 +377,6 @@
                 }
                 addDebug('Admin verified', 'success');
                 await loadWithdrawals(true);
-                // TIDAK ADA onSnapshot
 
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
@@ -386,7 +385,7 @@
         });
 
         // ============================================
-        // LOAD WITHDRAWALS
+        // LOAD WITHDRAWALS - FIXED
         // ============================================
         async function loadWithdrawals(reset = true) {
             addDebug(`Loading withdrawals (reset: ${reset})...`, 'info');
@@ -423,15 +422,24 @@
                 hasMore = snapshot.docs.length === limitPerPage;
                 
                 const newData = [];
-                for (const doc of snapshot.docs) {
-                    const data = doc.data();
+                for (const docSnapshot of snapshot.docs) {
+                    const data = docSnapshot.data();
                     let sellerName = 'Unknown';
                     if (data.sellerId) {
-                        const sellerRef = doc(db, 'users', data.sellerId);
-                        const sellerDoc = await getDoc(sellerRef);
-                        if (sellerDoc.exists()) sellerName = sellerDoc.data().storeName || sellerDoc.data().displayName || 'Seller';
+                        try {
+                            const sellerRef = doc(db, 'users', data.sellerId);
+                            const sellerDoc = await getDoc(sellerRef);
+                            if (sellerDoc.exists()) {
+                                sellerName = sellerDoc.data().storeName || 
+                                            sellerDoc.data().displayName || 
+                                            sellerDoc.data().name || 
+                                            'Seller';
+                            }
+                        } catch (sellerError) {
+                            addDebug(`Error getting seller ${data.sellerId}: ${sellerError.message}`, 'warning');
+                        }
                     }
-                    newData.push({ id: doc.id, ...data, sellerName });
+                    newData.push({ id: docSnapshot.id, ...data, sellerName });
                 }
                 withdrawals = reset ? newData : [...withdrawals, ...newData];
                 addDebug(`Loaded ${withdrawals.length} withdrawals total`, 'success');
@@ -569,15 +577,34 @@
             addDebug(`Confirming ${actionType} for ${actionId}`, 'info');
             try {
                 const note = document.getElementById('actionModal').dataset.note || (actionType === 'approve' ? 'Disetujui admin' : 'Ditolak admin');
-                const response = await fetch(`/api/admin/withdrawals/${actionId}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        status: actionType === 'approve' ? 'approved' : 'rejected',
-                        adminNote: note
-                    })
+                
+                // Update langsung di Firestore
+                const withdrawRef = doc(db, 'withdrawals', actionId);
+                await updateDoc(withdrawRef, {
+                    status: actionType === 'approve' ? 'approved' : 'rejected',
+                    adminNote: note,
+                    updatedAt: new Date().toISOString()
                 });
-                if (!response.ok) throw new Error('Gagal memproses withdraw');
+
+                // Jika approve, update wallet seller
+                if (actionType === 'approve') {
+                    // Cari data withdraw untuk mendapatkan sellerId dan amount
+                    const withdrawDoc = await getDoc(withdrawRef);
+                    if (withdrawDoc.exists()) {
+                        const data = withdrawDoc.data();
+                        const sellerRef = doc(db, 'users', data.sellerId);
+                        const sellerDoc = await getDoc(sellerRef);
+                        if (sellerDoc.exists()) {
+                            const currentWallet = sellerDoc.data().wallet || { available: 0, holding: 0 };
+                            // Kurangi saldo yang sudah di-withdraw
+                            await updateDoc(sellerRef, {
+                                'wallet.available': (currentWallet.available || 0) - data.amount
+                            });
+                            addDebug(`Updated wallet for seller ${data.sellerId}`, 'success');
+                        }
+                    }
+                }
+
                 addDebug(`Withdraw ${actionType}ed successfully`, 'success');
                 showToast('success', `Withdraw ${actionType === 'approve' ? 'disetujui' : 'ditolak'}`);
                 closeActionModal();
@@ -589,7 +616,7 @@
         };
 
         addDebug('Page ready', 'success');
-        console.log('✅ [ADMIN_WITHDRAWALS] Page ready (OPTIMIZED - no listeners)');
+        console.log('✅ [ADMIN_WITHDRAWALS] Page ready (FIXED)');
     </script>
 </body>
 </html>
