@@ -472,7 +472,7 @@
         }
 
         // ============================================
-        // UPDATE STORE LINK - FIXED
+        // UPDATE STORE LINK - FIXED (/product-seller/{slug})
         // ============================================
         function updateStoreLink() {
             const storeName = userData?.storeName || userData?.displayName || '';
@@ -482,8 +482,8 @@
                     .replace(/[^a-z0-9]+/g, '-')
                     .replace(/^-+|-+$/g, '');
                 
-                // ✅ Gunakan format: /{slug}/product-seller
-                const url = `${window.location.origin}/${slug}/product-seller`;
+                // ✅ Format: /product-seller/{slug}
+                const url = `${window.location.origin}/product-seller/${slug}`;
                 
                 const linkInput = document.getElementById('storeLink');
                 const linkBtn = document.getElementById('storeLinkBtn');
