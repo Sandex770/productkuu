@@ -920,7 +920,7 @@
             const tags = document.getElementById('productTags').value.split(',').map(t => t.trim()).filter(t => t);
             const imageUrl = document.getElementById('productImageUrl').value.trim();
 
-            if (!name || !category || !price || price < 1000) {
+            if (!name || !category || !price || price < 100) {
                 showToast('warning', 'Lengkapi data produk dengan benar');
                 addDebug('Validation failed', 'warning');
                 return;
@@ -980,7 +980,7 @@
                     showToast('success', 'Produk berhasil diperbarui!');
                 } else {
                     data.sellerId = currentUser.uid;
-                    data.status = 'draft';
+                    data.status = 'published';
                     data.sales = 0;
                     data.views = 0;
                     data.isTrending = false;
