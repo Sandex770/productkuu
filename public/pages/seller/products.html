@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="icon" href="/assets/images/favicon.ico">
     
-    <!-- Midtrans Snap Script -->
     <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="Mid-client-OkRCJi3x4-wno9XX"></script>
     
     <style>
@@ -568,7 +567,7 @@
                 const orderDoc = ordersSnapshot.docs[0];
                 const orderData = orderDoc.data();
                 
-                if (orderData.paymentStatus === 'settlement') {
+                if (orderData.paymentStatus === 'settlement' || orderData.status === 'paid') {
                     console.log('✅ [ACTIVATE BANNER] Order already settled');
                     showToast('success', '✅ Banner sudah aktif!');
                     loadProducts();
@@ -582,6 +581,14 @@
                         expiresAt.setHours(expiresAt.getHours() + 24);
                     }
 
+                    // Update order status
+                    await updateDoc(orderDoc.ref, {
+                        status: 'paid',
+                        paymentStatus: 'settlement',
+                        updatedAt: serverTimestamp()
+                    });
+
+                    // Create banner
                     await addDoc(collection(db, 'banners'), {
                         title: bannerData.title || 'Banner Promosi',
                         description: bannerData.description || '',
@@ -594,14 +601,9 @@
                         duration: bannerData.duration || 24,
                         price: orderData.amount || 0,
                         paymentMethod: orderData.paymentMethod || 'midtrans',
+                        orderId: orderId,
                         expiresAt: expiresAt,
                         createdAt: serverTimestamp(),
-                        updatedAt: serverTimestamp()
-                    });
-
-                    await updateDoc(orderDoc.ref, {
-                        status: 'paid',
-                        paymentStatus: 'settlement',
                         updatedAt: serverTimestamp()
                     });
 
@@ -1020,10 +1022,9 @@
         };
 
         // ============================================
-        // PROMOTE TO BANNER - FIXED (Wallet berkurang)
+        // PROMOTE TO BANNER - FIXED (PASTI BUAT ORDER)
         // ============================================
 
-        // === AMBIL HARGA BANNER ===
         async function getBannerPricing() {
             try {
                 const response = await fetch('/api/banner-pricing');
@@ -1125,7 +1126,7 @@
         });
 
         // ============================================
-        // PROMOTE FORM SUBMIT - FIXED (Wallet berkurang dengan Transaction)
+        // PROMOTE FORM SUBMIT - FIXED (PASTI BUAT ORDER + UPDATE WALLET)
         // ============================================
         document.getElementById('promoteForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1153,20 +1154,29 @@
             addDebug(`Purchasing banner for ${duration} hours with ${paymentMethod}`, 'info');
 
             try {
+                // Ambil data user & produk
+                const userRef = doc(db, 'users', currentUser.uid);
+                const userDoc = await getDoc(userRef);
+                const userData = userDoc.exists() ? userDoc.data() : {};
+                const sellerName = userData?.storeName || userData?.displayName || 'Seller';
+                const userEmail = userData?.email || 'seller@example.com';
+
+                const productRef = doc(db, 'products', promoteProductId);
+                const productDoc = await getDoc(productRef);
+                const productName = productDoc.exists() ? productDoc.data().name : 'Product';
+
                 // ============================================
-                // METODE WALLET - FIXED (Pakai Transaction)
+                // METODE WALLET - PAKAI TRANSACTION
                 // ============================================
                 if (paymentMethod === 'wallet') {
-                    // Gunakan transaction untuk keamanan
                     await runTransaction(db, async (transaction) => {
-                        const userRef = doc(db, 'users', currentUser.uid);
-                        const userDoc = await transaction.get(userRef);
-                        
-                        if (!userDoc.exists()) {
+                        // Get fresh user data
+                        const userDocFresh = await transaction.get(userRef);
+                        if (!userDocFresh.exists()) {
                             throw new Error('User tidak ditemukan');
                         }
                         
-                        const wallet = userDoc.data()?.wallet || { available: 0 };
+                        const wallet = userDocFresh.data()?.wallet || { available: 0, holding: 0, totalRevenue: 0, totalWithdraw: 0, pendingWithdraw: 0 };
                         
                         if (wallet.available < price) {
                             throw new Error(`Saldo tidak mencukupi! Saldo: Rp${formatPrice(wallet.available)}, Harga: Rp${formatPrice(price)}.`);
@@ -1175,16 +1185,42 @@
                         const expiresAt = new Date();
                         expiresAt.setHours(expiresAt.getHours() + duration);
 
-                        // Ambil data produk
-                        const productRef = doc(db, 'products', promoteProductId);
-                        const productDoc = await transaction.get(productRef);
-                        const productName = productDoc.exists() ? productDoc.data().name : 'Product';
+                        // ============================================
+                        // 1. CREATE ORDER
+                        // ============================================
+                        const orderId = `BANNER-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+                        const orderRef = doc(collection(db, 'orders'));
+                        transaction.set(orderRef, {
+                            orderId: orderId,
+                            type: 'banner_purchase',
+                            sellerId: currentUser.uid,
+                            productId: promoteProductId,
+                            productName: productName,
+                            buyerName: sellerName,
+                            buyerEmail: userEmail,
+                            sellerName: sellerName,
+                            amount: price,
+                            status: 'paid',
+                            paymentStatus: 'settlement',
+                            paymentMethod: 'wallet',
+                            bannerData: {
+                                title: productName || 'Banner Promosi',
+                                description: `Promosi produk oleh ${sellerName}`,
+                                imageUrl: imageUrl || '',
+                                duration: duration,
+                                expiresAt: expiresAt.toISOString()
+                            },
+                            createdAt: serverTimestamp(),
+                            updatedAt: serverTimestamp()
+                        });
 
-                        // Create banner
+                        // ============================================
+                        // 2. CREATE BANNER
+                        // ============================================
                         const bannerRef = doc(collection(db, 'banners'));
                         transaction.set(bannerRef, {
                             title: productName || 'Banner Promosi',
-                            description: `Promosi produk oleh ${userDoc.data().storeName || 'Seller'}`,
+                            description: `Promosi produk oleh ${sellerName}`,
                             imageUrl: imageUrl || '',
                             linkUrl: `/product/${promoteProductId}`,
                             isActive: true,
@@ -1194,18 +1230,24 @@
                             duration: duration,
                             price: price,
                             paymentMethod: 'wallet',
+                            orderId: orderId,
                             expiresAt: expiresAt,
                             createdAt: serverTimestamp(),
                             updatedAt: serverTimestamp()
                         });
 
-                        // UPDATE WALLET - Kurangi saldo
+                        // ============================================
+                        // 3. UPDATE WALLET - Kurangi saldo available
+                        // ============================================
+                        const newAvailable = wallet.available - price;
                         transaction.update(userRef, {
-                            'wallet.available': wallet.available - price,
+                            'wallet.available': newAvailable,
+                            'wallet.totalRevenue': (wallet.totalRevenue || 0) + price,
                             updatedAt: serverTimestamp()
                         });
 
-                        addDebug(`Wallet updated: Rp${formatPrice(wallet.available)} -> Rp${formatPrice(wallet.available - price)}`, 'success');
+                        addDebug(`Order created: ${orderId}`, 'success');
+                        addDebug(`Wallet updated: Rp${formatPrice(wallet.available)} -> Rp${formatPrice(newAvailable)}`, 'success');
                     });
 
                     showToast('success', '🎉 Banner berhasil dibeli dengan saldo wallet!');
@@ -1218,11 +1260,6 @@
                 } else if (paymentMethod === 'midtrans') {
                     const orderId = `BANNER-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
-                    // Ambil data produk
-                    const productRef = doc(db, 'products', promoteProductId);
-                    const productDoc = await getDoc(productRef);
-                    const productName = productDoc.exists() ? productDoc.data().name : 'Product';
-
                     // Simpan order ke Firestore
                     await addDoc(collection(db, 'orders'), {
                         orderId: orderId,
@@ -1230,7 +1267,9 @@
                         sellerId: currentUser.uid,
                         productId: promoteProductId,
                         productName: productName,
-                        sellerName: 'Seller',
+                        buyerName: sellerName,
+                        buyerEmail: userEmail,
+                        sellerName: sellerName,
                         amount: price,
                         status: 'pending',
                         paymentStatus: 'pending',
@@ -1253,8 +1292,8 @@
                         body: JSON.stringify({
                             orderId: orderId,
                             amount: price,
-                            buyerName: currentUser.displayName || 'Seller',
-                            buyerEmail: currentUser.email || 'seller@example.com',
+                            buyerName: sellerName,
+                            buyerEmail: userEmail,
                             buyerPhone: '08123456789',
                             productName: `Banner Promosi: ${productName}`
                         })
@@ -1310,7 +1349,7 @@
         });
 
         addDebug('Page ready', 'success');
-        console.log('✅ [SELLER_PRODUCTS] Page ready - Wallet sudah berkurang saat promo banner');
+        console.log('✅ [SELLER_PRODUCTS] Page ready - Banner selalu buat order');
     </script>
 </body>
 </html>
