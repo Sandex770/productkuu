@@ -477,22 +477,31 @@
         // ============================================
 // UPDATE STORE LINK - MENGGUNAKAN QUERY PARAMETER
 // ============================================
+// ============================================
+// UPDATE STORE LINK - TANPA .html DAN CLEAN URL
+// ============================================
 function updateStoreLink() {
     const storeName = userData?.storeName || userData?.displayName || '';
     if (storeName) {
-        // Buat slug dari storeName
+        // Buat slug dari storeName (lowercase, tanpa spasi)
         const slug = storeName.toLowerCase()
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/^-+|-+$/g, '');
         
-        // ✅ Format: /product-seller?seller={slug}
-        const url = `${window.location.origin}/public/product-seller?seller=${slug}`;
+        // ✅ Format URL CLEAN: /product-seller/{slug}
+        // Contoh: https://productkuu.vercel.app/product-seller/sanzzdex
+        const url = `${window.location.origin}/product-seller/${slug}`;
         
         const linkInput = document.getElementById('storeLink');
         const linkBtn = document.getElementById('storeLinkBtn');
-        if (linkInput) linkInput.value = url;
-        if (linkBtn) linkBtn.href = url;
-        addDebug(`Store link updated: ${url}`, 'success');
+        
+        if (linkInput) {
+            linkInput.value = url;
+            addDebug(`Store link updated: ${url}`, 'success');
+        }
+        if (linkBtn) {
+            linkBtn.href = url;
+        }
     } else {
         addDebug('Store name not found, cannot generate link', 'warning');
     }
