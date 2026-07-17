@@ -41,10 +41,6 @@
         
         .transaction-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
         .transaction-item:last-child { border-bottom: none; }
-        .transaction-item .status-badge { font-size: 11px; padding: 2px 10px; border-radius: 9999px; }
-        .transaction-item .status-pending { background: rgba(245,158,11,0.1); color: var(--warning); }
-        .transaction-item .status-success { background: rgba(16,185,129,0.1); color: var(--success); }
-        .transaction-item .status-holding { background: rgba(249,115,22,0.1); color: #F97316; }
         
         .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
         .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
@@ -228,9 +224,12 @@
     </script>
 
     <script type="module">
+        // ============================================
+        // IMPORTS - FIXED (updateDoc ditambahkan)
+        // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, updateDoc } from "firebase/firestore";
 
         console.log('💰 [SELLER_WALLET] Page loaded');
 
@@ -474,11 +473,11 @@
                     approvedAmount += doc.data().amount || 0;
                 });
 
-                // Saldo tersedia = revenue - pending - approved
+                // ============================================
+                // HITUNG FINAL
+                // ============================================
                 const finalAvailable = Math.max(0, availableAmount - pendingAmount - approvedAmount);
-                // Holding tetap sama
                 const finalHolding = Math.max(0, holdingAmount);
-                // Total withdraw = approved amount
                 const finalTotalWithdraw = approvedAmount;
                 
                 document.getElementById('availableBalance').textContent = `Rp${formatPrice(finalAvailable)}`;
@@ -491,7 +490,9 @@
                 addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
                 addDebug(`Total withdraw: Rp${formatPrice(finalTotalWithdraw)}`, 'success');
 
-                // Update wallet di Firestore agar sinkron
+                // ============================================
+                // UPDATE WALLET DI FIRESTORE (updateDoc sudah diimport)
+                // ============================================
                 try {
                     const userRef = doc(db, 'users', uid);
                     await updateDoc(userRef, {
@@ -572,15 +573,6 @@
                 showToast('error', 'Gagal memuat transaksi: ' + error.message);
             }
         }
-
-        // ============================================
-        // UPDATE DOC (Import di atas)
-        // ============================================
-        // Tambahkan updateDoc di import
-        // import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, updateDoc } from "firebase/firestore";
-
-        // Perbaiki import di atas menjadi:
-        // import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, updateDoc } from "firebase/firestore";
 
         addDebug('Page ready', 'success');
         console.log('✅ [SELLER_WALLET] Page ready');
