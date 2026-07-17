@@ -19,7 +19,6 @@
         .sidebar-nav a, .sidebar-nav button { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius); color: var(--text-secondary); transition: var(--transition); font-size: 14px; font-weight: 500; text-decoration: none; background: none; border: none; width: 100%; cursor: pointer; font-family: var(--font); text-align: left; }
         .sidebar-nav a:hover, .sidebar-nav button:hover { background: var(--bg-secondary); color: var(--text-primary); }
         .sidebar-nav a.active { background: rgba(79,70,229,0.1); color: var(--primary); }
-        .sidebar-nav a .badge-count { margin-left: auto; background: var(--bg-tertiary); padding: 2px 8px; border-radius: 9999px; font-size: 11px; color: var(--text-secondary); }
         .sidebar-nav .logout-btn { color: var(--danger); margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 16px; }
         .sidebar-nav .logout-btn:hover { background: rgba(239,68,68,0.1); color: var(--danger); }
         .sidebar-overlay { display: none; position: fixed; top: 64px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99; }
@@ -29,7 +28,6 @@
         @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); width: 280px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 16px; } .mobile-toggle { display: block !important; } }
         
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stats-grid-extra { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
         .stat-card { background: var(--bg-primary); border-radius: var(--radius); padding: 20px 24px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
         .stat-card .stat-info { display: flex; flex-direction: column; }
         .stat-card .stat-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
@@ -39,20 +37,18 @@
         .stat-card .stat-icon.green { background: rgba(16,185,129,0.1); color: var(--success); }
         .stat-card .stat-icon.yellow { background: rgba(245,158,11,0.1); color: var(--warning); }
         .stat-card .stat-icon.purple { background: rgba(124,58,237,0.1); color: var(--secondary); }
-        .stat-card .stat-icon.red { background: rgba(239,68,68,0.1); color: var(--danger); }
+        .stat-card .stat-icon.orange { background: rgba(249,115,22,0.1); color: #F97316; }
         .stat-card .stat-icon.blue { background: rgba(59,130,246,0.1); color: var(--info); }
         
         .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
         .chart-box { min-height: 200px; }
-        .activity-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        .activity-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
-        .activity-item:last-child { border-bottom: none; }
+        
         .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
         .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
         .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
         .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
-        .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
         .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
+        .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
         .badge-primary { background: rgba(79,70,229,0.1); color: var(--primary); }
         
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
@@ -101,22 +97,57 @@
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
         
-        @media (max-width: 1024px) {
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .stats-grid-extra { grid-template-columns: repeat(2, 1fr); }
+        .recent-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
+        .recent-item:last-child { border-bottom: none; }
+        .recent-item .seller-name { font-weight: 600; }
+        .recent-item .amount { font-weight: 600; color: var(--primary); }
+        .recent-item .status { font-size: 12px; padding: 2px 10px; border-radius: 9999px; }
+        
+        @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .charts-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr; } }
+        
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --bg-tertiary: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-light: #9ca3af;
+            --border-color: #e5e7eb;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+            --radius: 8px;
+            --radius-lg: 16px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --primary: #4F46E5;
+            --secondary: #7C3AED;
+            --transition: all 0.3s ease;
         }
-        @media (max-width: 768px) {
-            .charts-grid { grid-template-columns: 1fr; }
-            .activity-grid { grid-template-columns: 1fr; }
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #374151;
+            --bg-tertiary: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-light: #6b7280;
+            --border-color: #374151;
         }
-        @media (max-width: 640px) {
-            .stats-grid { grid-template-columns: 1fr; }
-            .stats-grid-extra { grid-template-columns: 1fr; }
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font); background: var(--bg-secondary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
+        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); height: 64px; }
+        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .navbar-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
+        .navbar-logo i { color: #4F46E5; }
+        .navbar-actions { display: flex; align-items: center; gap: 8px; }
+        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
+        .btn-icon:hover { background: var(--bg-secondary); }
     </style>
 </head>
 <body>
-    <!-- NAVBAR -->
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
@@ -128,26 +159,23 @@
         </div>
     </nav>
 
-    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header"><div class="title">Menu Admin</div></div>
         <nav class="sidebar-nav">
             <a href="/admin/dashboard" class="active"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a href="/admin/sellers"><i class="fas fa-users"></i> Seller <span class="badge-count" id="sellerCount">0</span></a>
-            <a href="/admin/products"><i class="fas fa-box"></i> Produk <span class="badge-count" id="productCount">0</span></a>
-            <a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Order <span class="badge-count" id="orderCount">0</span></a>
+            <a href="/admin/sellers"><i class="fas fa-users"></i> Seller</a>
+            <a href="/admin/products"><i class="fas fa-box"></i> Produk</a>
+            <a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Order</a>
             <a href="/admin/banners"><i class="fas fa-images"></i> Banner</a>
-            <a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Withdraw <span class="badge-count" id="pendingWithdrawCount" style="background:rgba(239,68,68,0.1);color:var(--danger);">0</span></a>
+            <a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Withdraw</a>
             <a href="/admin/settings"><i class="fas fa-cog"></i> Pengaturan</a>
             <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </nav>
     </aside>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- MAIN CONTENT -->
     <div class="app-wrapper">
         <main class="main-content">
-            <!-- Header -->
             <div class="flex-between" style="margin-bottom:24px;">
                 <div>
                     <h1 style="font-size:24px;">Dashboard Admin</h1>
@@ -158,118 +186,62 @@
                 </button>
             </div>
 
-            <!-- Debug Box -->
             <div class="debug-box" id="debugBox">
                 <div class="debug-line debug-info">🔍 Debug Mode Active</div>
                 <div class="debug-line" id="debugLog">Menunggu data...</div>
             </div>
-            <button class="debug-toggle" onclick="toggleDebug()">
-                <i class="fas fa-bug"></i> Toggle Debug
-            </button>
+            <button class="debug-toggle" onclick="toggleDebug()"><i class="fas fa-bug"></i> Toggle Debug</button>
 
-            <!-- Error Box -->
             <div class="error-box" id="errorBox">
                 <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
                 <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
             </div>
 
-            <!-- Stats Grid -->
+            <!-- Stats 4 Kolom -->
             <div class="stats-grid" style="margin-top:8px;">
                 <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Total Seller</span>
-                        <span class="stat-value" id="totalSellers">0</span>
-                    </div>
+                    <div class="stat-info"><span class="stat-label">Total Seller</span><span class="stat-value" id="totalSellers">0</span></div>
                     <div class="stat-icon indigo"><i class="fas fa-users"></i></div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Total Produk</span>
-                        <span class="stat-value" id="totalProducts">0</span>
-                    </div>
+                    <div class="stat-info"><span class="stat-label">Total Produk</span><span class="stat-value" id="totalProducts">0</span></div>
                     <div class="stat-icon green"><i class="fas fa-box"></i></div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Total Order</span>
-                        <span class="stat-value" id="totalOrders">0</span>
-                    </div>
-                    <div class="stat-icon yellow"><i class="fas fa-shopping-cart"></i></div>
+                    <div class="stat-info"><span class="stat-label">Total Pendapatan</span><span class="stat-value" id="totalRevenue" style="color:var(--primary);">Rp0</span></div>
+                    <div class="stat-icon yellow"><i class="fas fa-money-bill-wave"></i></div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Total Pendapatan</span>
-                        <span class="stat-value" style="color:var(--primary);" id="totalRevenue">Rp0</span>
-                    </div>
-                    <div class="stat-icon purple"><i class="fas fa-money-bill-wave"></i></div>
-                </div>
-            </div>
-
-            <!-- Extra Stats -->
-            <div class="stats-grid-extra">
-                <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Total Komisi (10%)</span>
-                        <span class="stat-value" style="color:var(--secondary);" id="totalCommission">Rp0</span>
-                    </div>
-                    <div class="stat-icon purple"><i class="fas fa-percentage"></i></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Withdraw Pending</span>
-                        <span class="stat-value" style="color:var(--danger);" id="pendingWithdrawals">0</span>
-                    </div>
-                    <div class="stat-icon red"><i class="fas fa-clock"></i></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Banner Aktif</span>
-                        <span class="stat-value" style="color:var(--info);" id="activeBanners">0</span>
-                    </div>
-                    <div class="stat-icon blue"><i class="fas fa-images"></i></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-info">
-                        <span class="stat-label">Total Review</span>
-                        <span class="stat-value" style="color:var(--success);" id="totalReviews">0</span>
-                    </div>
-                    <div class="stat-icon green"><i class="fas fa-star"></i></div>
+                    <div class="stat-info"><span class="stat-label">Total Withdraw</span><span class="stat-value" id="totalWithdraw" style="color:var(--secondary);">Rp0</span></div>
+                    <div class="stat-icon purple"><i class="fas fa-arrow-up"></i></div>
                 </div>
             </div>
 
             <!-- Charts -->
             <div class="charts-grid">
                 <div class="card chart-box">
-                    <h4 style="margin-bottom:12px;">Grafik Penjualan (7 Hari)</h4>
+                    <h4 style="margin-bottom:12px;">Grafik Penjualan</h4>
                     <canvas id="salesChart" height="180"></canvas>
                 </div>
                 <div class="card chart-box">
-                    <h4 style="margin-bottom:12px;">Grafik Pendapatan (7 Hari)</h4>
+                    <h4 style="margin-bottom:12px;">Grafik Pendapatan</h4>
                     <canvas id="revenueChart" height="180"></canvas>
                 </div>
             </div>
 
-            <!-- Activity -->
-            <div class="activity-grid">
-                <div class="card">
-                    <div class="flex-between" style="margin-bottom:16px;">
-                        <h4>Order Terbaru</h4>
-                        <a href="/admin/orders" style="font-size:14px;color:var(--primary);">Lihat Semua →</a>
-                    </div>
-                    <div id="recentOrders"><div class="text-center text-secondary" style="padding:12px 0;">Memuat order...</div></div>
+            <!-- Recent Withdraw -->
+            <div class="card">
+                <div class="flex-between" style="margin-bottom:16px;">
+                    <h4>Withdraw Terbaru</h4>
+                    <a href="/admin/withdrawals" style="font-size:14px;color:var(--primary);">Lihat Semua →</a>
                 </div>
-                <div class="card">
-                    <div class="flex-between" style="margin-bottom:16px;">
-                        <h4>Withdraw Pending</h4>
-                        <a href="/admin/withdrawals" style="font-size:14px;color:var(--primary);">Lihat Semua →</a>
-                    </div>
-                    <div id="pendingWithdrawalsList"><div class="text-center text-secondary" style="padding:12px 0;">Memuat withdraw...</div></div>
+                <div id="recentWithdrawals">
+                    <div class="text-center text-secondary" style="padding:20px 0;">Memuat data...</div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- TOAST -->
     <div class="toast-container" id="toastContainer"></div>
 
     <script type="importmap">
@@ -283,14 +255,11 @@
     </script>
 
     <script type="module">
-        // ============================================
-        // IMPORTS - TANPA onSnapshot
-        // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit } from "firebase/firestore";
 
-        console.log('📊 [ADMIN_DASHBOARD] Page loaded (OPTIMIZED)');
+        console.log('📊 [ADMIN_DASHBOARD] Page loaded');
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
@@ -307,11 +276,6 @@
         const db = getFirestore(app);
 
         let currentUser = null;
-        let userData = null;
-
-        // ============================================
-        // DEBUG LOG
-        // ============================================
         let debugVisible = false;
 
         function addDebug(message, type = 'info') {
@@ -320,7 +284,7 @@
             const log = document.getElementById('debugLog');
             const time = new Date().toLocaleTimeString();
             log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
-            console.log(`[ADMIN_DEBUG] ${message}`);
+            console.log(`[ADMIN_DASHBOARD_DEBUG] ${message}`);
             const box = document.getElementById('debugBox');
             box.scrollTop = box.scrollHeight;
         }
@@ -329,23 +293,15 @@
             const box = document.getElementById('debugBox');
             debugVisible = !debugVisible;
             box.classList.toggle('show');
-            if (debugVisible) {
-                addDebug('Debug mode activated', 'info');
-            }
+            if (debugVisible) addDebug('Debug mode activated', 'info');
         };
 
-        // ============================================
-        // REFRESH DATA
-        // ============================================
         window.refreshData = function() {
             addDebug('Manual refresh triggered', 'info');
             showToast('info', 'Memperbarui data...');
             loadDashboardData();
         };
 
-        // ============================================
-        // THEME & SIDEBAR
-        // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -382,12 +338,9 @@
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             try { await signOut(auth); window.location.href = '/'; } 
-            catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
+            catch (error) { showToast('error', 'Gagal logout'); }
         });
 
-        // ============================================
-        // TOAST & ERROR
-        // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
             const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
@@ -412,9 +365,6 @@
             setTimeout(() => { box.classList.remove('show'); }, 10000);
         }
 
-        // ============================================
-        // FORMAT FUNCTIONS
-        // ============================================
         function formatPrice(price) {
             if (!price && price !== 0) return '0';
             return new Intl.NumberFormat('id-ID').format(price);
@@ -425,11 +375,8 @@
             const d = date instanceof Date ? date : new Date(date);
             if (isNaN(d.getTime())) return '-';
             return d.toLocaleDateString('id-ID', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+                year: 'numeric', month: 'long', day: 'numeric',
+                hour: '2-digit', minute: '2-digit'
             });
         }
 
@@ -455,13 +402,10 @@
                     window.location.href = '/';
                     return;
                 }
-                userData = { id: userDoc.id, ...userDoc.data() };
-                addDebug(`Admin verified: ${userData.displayName || 'Admin'}`, 'success');
-                document.getElementById('welcomeMessage').textContent =
-                    `Selamat datang, ${userData.displayName || 'Admin'}!`;
-
+                addDebug('Admin verified', 'success');
+                document.getElementById('welcomeMessage').textContent = 
+                    `Selamat datang, ${userDoc.data().displayName || 'Admin'}!`;
                 await loadDashboardData();
-                // TIDAK ADA onSnapshot
 
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
@@ -473,217 +417,218 @@
         // LOAD DASHBOARD DATA
         // ============================================
         async function loadDashboardData() {
-            addDebug('Loading admin dashboard data...', 'info');
+            addDebug('Loading dashboard data...', 'info');
 
             try {
-                // 1. Total Sellers
-                const usersSnapshot = await getDocs(collection(db, 'users'));
-                const totalSellers = usersSnapshot.docs.filter(doc => doc.data().role === 'seller').length;
-                document.getElementById('totalSellers').textContent = totalSellers;
-                document.getElementById('sellerCount').textContent = totalSellers;
-                addDebug(`Total sellers: ${totalSellers}`, 'success');
+                // ============================================
+                // TOTAL SELLER
+                // ============================================
+                const sellersSnapshot = await getDocs(
+                    query(collection(db, 'users'), where('role', '==', 'seller'))
+                );
+                document.getElementById('totalSellers').textContent = sellersSnapshot.size;
+                addDebug(`Total sellers: ${sellersSnapshot.size}`, 'success');
 
-                // 2. Total Products
-                const productsSnapshot = await getDocs(collection(db, 'products'));
-                const totalProducts = productsSnapshot.docs.filter(doc => doc.data().status === 'published').length;
-                document.getElementById('totalProducts').textContent = totalProducts;
-                document.getElementById('productCount').textContent = totalProducts;
-                addDebug(`Total products: ${totalProducts}`, 'success');
+                // ============================================
+                // TOTAL PRODUK
+                // ============================================
+                const productsSnapshot = await getDocs(
+                    query(collection(db, 'products'), where('status', '==', 'published'))
+                );
+                document.getElementById('totalProducts').textContent = productsSnapshot.size;
+                addDebug(`Total products: ${productsSnapshot.size}`, 'success');
 
-                // 3. Total Orders & Revenue
-                const ordersSnapshot = await getDocs(collection(db, 'orders'));
-                let totalOrders = 0;
+                // ============================================
+                // TOTAL PENDAPATAN
+                // ============================================
+                const ordersSnapshot = await getDocs(
+                    query(
+                        collection(db, 'orders'),
+                        where('paymentStatus', 'in', ['settlement', 'paid'])
+                    )
+                );
+                
                 let totalRevenue = 0;
-                ordersSnapshot.docs.forEach(doc => {
-                    const data = doc.data();
-                    if (data.paymentStatus === 'settlement') {
-                        totalOrders++;
-                        totalRevenue += data.amount || 0;
-                    }
+                const chartData = [];
+                ordersSnapshot.forEach(doc => {
+                    const order = doc.data();
+                    const amount = order.amount || 0;
+                    totalRevenue += amount;
+                    const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
+                    chartData.push({
+                        date: createdAt,
+                        amount: amount
+                    });
                 });
-                document.getElementById('totalOrders').textContent = totalOrders;
-                document.getElementById('orderCount').textContent = totalOrders;
                 document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
-                addDebug(`Total orders: ${totalOrders}, revenue: Rp${formatPrice(totalRevenue)}`, 'success');
+                addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
 
-                // 4. Total Commission (10%)
-                const totalCommission = Math.round(totalRevenue * 0.1);
-                document.getElementById('totalCommission').textContent = `Rp${formatPrice(totalCommission)}`;
-                addDebug(`Total commission: Rp${formatPrice(totalCommission)}`, 'success');
-
-                // 5. Pending Withdrawals
-                const withdrawalsSnapshot = await getDocs(collection(db, 'withdrawals'));
-                const pendingWithdrawals = withdrawalsSnapshot.docs.filter(doc => doc.data().status === 'pending').length;
-                document.getElementById('pendingWithdrawals').textContent = pendingWithdrawals;
-                document.getElementById('pendingWithdrawCount').textContent = pendingWithdrawals;
-                addDebug(`Pending withdrawals: ${pendingWithdrawals}`, 'success');
-
-                // 6. Active Banners
-                const bannersSnapshot = await getDocs(collection(db, 'banners'));
-                const now = new Date();
-                let activeBanners = 0;
-                bannersSnapshot.docs.forEach(doc => {
-                    const data = doc.data();
-                    if (data.isActive === true) {
-                        const expiresAt = data.expiresAt?.toDate?.() || data.expiresAt;
-                        if (!expiresAt || new Date(expiresAt) > now) {
-                            activeBanners++;
-                        }
-                    }
+                // ============================================
+                // TOTAL WITHDRAW
+                // ============================================
+                const withdrawalsSnapshot = await getDocs(
+                    query(
+                        collection(db, 'withdrawals'),
+                        where('status', '==', 'approved')
+                    )
+                );
+                let totalWithdraw = 0;
+                const withdrawData = [];
+                withdrawalsSnapshot.forEach(doc => {
+                    const w = doc.data();
+                    totalWithdraw += w.amount || 0;
+                    const createdAt = w.createdAt?.toDate?.() || new Date(w.createdAt);
+                    withdrawData.push({
+                        date: createdAt,
+                        amount: w.amount || 0,
+                        sellerName: w.accountName || 'Unknown',
+                        method: w.method || 'Unknown',
+                        status: w.status || 'approved'
+                    });
                 });
-                document.getElementById('activeBanners').textContent = activeBanners;
-                addDebug(`Active banners: ${activeBanners}`, 'success');
+                document.getElementById('totalWithdraw').textContent = `Rp${formatPrice(totalWithdraw)}`;
+                addDebug(`Total withdraw: Rp${formatPrice(totalWithdraw)}`, 'success');
 
-                // 7. Total Reviews
-                const reviewsSnapshot = await getDocs(collection(db, 'reviews'));
-                document.getElementById('totalReviews').textContent = reviewsSnapshot.size;
-                addDebug(`Total reviews: ${reviewsSnapshot.size}`, 'success');
+                // ============================================
+                // RENDER CHARTS
+                // ============================================
+                renderCharts(chartData);
 
-                await loadRecentOrders();
-                await loadPendingWithdrawals();
+                // ============================================
+                // RENDER RECENT WITHDRAWALS
+                // ============================================
+                const recentWithdrawals = withdrawData
+                    .sort((a, b) => b.date - a.date)
+                    .slice(0, 10);
 
-                addDebug('All admin dashboard data loaded successfully', 'success');
+                const container = document.getElementById('recentWithdrawals');
+                if (recentWithdrawals.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center text-secondary" style="padding:20px 0;">
+                            <i class="fas fa-history" style="font-size:24px;display:block;margin-bottom:8px;"></i>
+                            Belum ada withdraw
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = recentWithdrawals.map(w => `
+                        <div class="recent-item">
+                            <div>
+                                <span class="seller-name">${w.sellerName}</span>
+                                <span style="font-size:13px;color:var(--text-secondary);">${w.method}</span>
+                                <div style="font-size:11px;color:var(--text-light);">${formatDate(w.date)}</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <span class="amount">Rp${formatPrice(w.amount)}</span>
+                                <br>
+                                <span class="status badge badge-success">Approved</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                addDebug('Dashboard data loaded successfully', 'success');
 
             } catch (error) {
-                addDebug(`Error: ${error.message}`, 'error');
+                addDebug(`Error loading dashboard data: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat data: ' + error.message);
             }
         }
 
         // ============================================
-        // LOAD RECENT ORDERS
+        // RENDER CHARTS
         // ============================================
-        async function loadRecentOrders() {
+        function renderCharts(chartData) {
+            addDebug('Rendering charts...', 'info');
+            
             try {
-                addDebug('Loading recent orders...', 'info');
-                const ordersSnapshot = await getDocs(collection(db, 'orders'));
-                const container = document.getElementById('recentOrders');
-
-                const orders = ordersSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                    createdAtDate: doc.data().createdAt?.toDate?.() || new Date(doc.data().createdAt)
-                }));
-
-                orders.sort((a, b) => b.createdAtDate - a.createdAtDate);
-                const recentOrders = orders.slice(0, 5);
-
-                if (recentOrders.length === 0) {
-                    container.innerHTML = `<div class="text-center text-secondary" style="padding:12px 0;">Belum ada order</div>`;
-                    addDebug('No recent orders found', 'info');
-                    return;
+                // Sales Chart
+                const salesCtx = document.getElementById('salesChart');
+                if (salesCtx) {
+                    const salesData = chartData.map(() => 1);
+                    const dates = chartData.map(d => d.date);
+                    renderChart(salesCtx, dates, salesData, 'Penjualan');
                 }
 
-                const statusColors = { 'pending': 'badge-warning', 'settlement': 'badge-success', 'failed': 'badge-danger', 'expire': 'badge-danger' };
-
-                container.innerHTML = recentOrders.map(o => `
-                    <div class="activity-item">
-                        <div>
-                            <strong>${o.productName || 'Product'}</strong>
-                            <br><span style="font-size:13px;color:var(--text-secondary);">${o.buyerName} • ${formatDate(o.createdAtDate)}</span>
-                        </div>
-                        <div style="text-align:right;">
-                            <span style="font-weight:600;color:var(--primary);">Rp${formatPrice(o.amount)}</span>
-                            <br><span class="badge ${statusColors[o.paymentStatus] || 'badge-info'}">${o.paymentStatus || o.status}</span>
-                        </div>
-                    </div>
-                `).join('');
-
-                addDebug(`Loaded ${recentOrders.length} recent orders`, 'success');
-
+                // Revenue Chart
+                const revenueCtx = document.getElementById('revenueChart');
+                if (revenueCtx) {
+                    const revData = chartData.map(d => d.amount);
+                    const dates = chartData.map(d => d.date);
+                    renderChart(revenueCtx, dates, revData, 'Pendapatan');
+                }
             } catch (error) {
-                addDebug(`Error loading recent orders: ${error.message}`, 'error');
-                document.getElementById('recentOrders').innerHTML = '<div class="text-center" style="color:var(--danger);">Gagal memuat order</div>';
+                addDebug(`Error rendering charts: ${error.message}`, 'error');
             }
         }
 
-        // ============================================
-        // LOAD PENDING WITHDRAWALS
-        // ============================================
-        async function loadPendingWithdrawals() {
-            try {
-                addDebug('Loading pending withdrawals...', 'info');
-                const withdrawalsSnapshot = await getDocs(collection(db, 'withdrawals'));
-                const container = document.getElementById('pendingWithdrawalsList');
+        function renderChart(canvas, dates, data, label) {
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = Math.max(rect.width - 40, 200);
+            canvas.height = 180;
+            
+            const width = canvas.width;
+            const height = canvas.height;
+            const padding = 30;
+            
+            ctx.clearRect(0, 0, width, height);
 
-                const pending = withdrawalsSnapshot.docs
-                    .map(doc => ({ id: doc.id, ...doc.data() }))
-                    .filter(w => w.status === 'pending')
-                    .slice(0, 5);
-
-                if (pending.length === 0) {
-                    container.innerHTML = `<div class="text-center text-secondary" style="padding:12px 0;">Tidak ada withdraw pending</div>`;
-                    addDebug('No pending withdrawals', 'info');
-                    return;
-                }
-
-                container.innerHTML = pending.map(w => `
-                    <div class="activity-item">
-                        <div>
-                            <strong>${w.accountName}</strong>
-                            <br><span style="font-size:13px;color:var(--text-secondary);">${w.method} • ${w.accountNumber}</span>
-                        </div>
-                        <div style="text-align:right;">
-                            <span style="font-weight:600;color:var(--danger);">Rp${formatPrice(w.amount)}</span>
-                            <br>
-                            <button onclick="approveWithdrawal('${w.id}')" class="btn btn-success btn-sm" style="padding:2px 8px;font-size:11px;"><i class="fas fa-check"></i></button>
-                            <button onclick="rejectWithdrawal('${w.id}')" class="btn btn-danger btn-sm" style="padding:2px 8px;font-size:11px;"><i class="fas fa-times"></i></button>
-                        </div>
-                    </div>
-                `).join('');
-
-                addDebug(`Loaded ${pending.length} pending withdrawals`, 'success');
-
-            } catch (error) {
-                addDebug(`Error loading pending withdrawals: ${error.message}`, 'error');
-                document.getElementById('pendingWithdrawalsList').innerHTML = '<div class="text-center" style="color:var(--danger);">Gagal memuat withdraw</div>';
+            if (!data || data.length === 0 || data.every(v => v === 0)) {
+                ctx.fillStyle = '#9CA3AF';
+                ctx.font = '14px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Belum ada data ${label}`, width / 2, height / 2);
+                return;
             }
+
+            const maxValue = Math.max(...data, 1) * 1.2;
+            
+            ctx.strokeStyle = '#E5E7EB';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 3]);
+            for (let i = 0; i <= 4; i++) {
+                const y = padding + (height - padding * 2) - (i / 4) * (height - padding * 2);
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+                
+                ctx.fillStyle = '#6B7280';
+                ctx.font = '9px Inter, sans-serif';
+                ctx.textAlign = 'right';
+                const value = Math.round(maxValue * i / 4);
+                ctx.fillText(label === 'Pendapatan' ? `Rp${formatPrice(value)}` : value, padding - 5, y + 3);
+            }
+            ctx.setLineDash([]);
+
+            const barWidth = Math.min((width - padding * 2) / data.length * 0.6, 40);
+            const spacing = (width - padding * 2) / data.length;
+            const colors = label === 'Pendapatan' ? ['#7C3AED', '#A78BFA'] : ['#4F46E5', '#818CF8'];
+
+            dates.forEach((date, i) => {
+                const x = padding + i * spacing + (spacing - barWidth) / 2;
+                const barHeight = (data[i] / maxValue) * (height - padding * 2);
+                const y = padding + (height - padding * 2) - barHeight;
+                
+                const gradient = ctx.createLinearGradient(x, y, x, padding + height - padding * 2);
+                gradient.addColorStop(0, colors[0]);
+                gradient.addColorStop(1, colors[1]);
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.roundRect(x, y, barWidth, barHeight, 4);
+                ctx.fill();
+
+                ctx.fillStyle = '#6B7280';
+                ctx.font = '9px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                const labelText = new Date(date).toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric' });
+                ctx.fillText(labelText, x + barWidth / 2, padding + height - padding * 2 + 15);
+            });
         }
-
-        // ============================================
-        // WITHDRAWAL ACTIONS
-        // ============================================
-        window.approveWithdrawal = async function(id) {
-            addDebug(`Approving withdrawal: ${id}`, 'info');
-            if (!confirm('Setujui permintaan withdraw ini?')) return;
-            try {
-                const response = await fetch(`/api/admin/withdrawals/${id}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'approved', adminNote: 'Disetujui admin' })
-                });
-                if (!response.ok) throw new Error('Gagal menyetujui withdraw');
-                addDebug(`Withdrawal ${id} approved`, 'success');
-                showToast('success', '✅ Withdraw berhasil disetujui!');
-                await loadDashboardData();
-            } catch (error) {
-                addDebug(`Error approving withdrawal: ${error.message}`, 'error');
-                showToast('error', '❌ Gagal: ' + error.message);
-            }
-        };
-
-        window.rejectWithdrawal = async function(id) {
-            addDebug(`Rejecting withdrawal: ${id}`, 'warning');
-            const note = prompt('Alasan penolakan:');
-            if (note === null) return;
-            try {
-                const response = await fetch(`/api/admin/withdrawals/${id}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'rejected', adminNote: note || 'Ditolak admin' })
-                });
-                if (!response.ok) throw new Error('Gagal menolak withdraw');
-                addDebug(`Withdrawal ${id} rejected`, 'warning');
-                showToast('warning', '⚠️ Withdraw berhasil ditolak');
-                await loadDashboardData();
-            } catch (error) {
-                addDebug(`Error rejecting withdrawal: ${error.message}`, 'error');
-                showToast('error', '❌ Gagal: ' + error.message);
-            }
-        };
 
         addDebug('Page ready', 'success');
-        console.log('✅ [ADMIN_DASHBOARD] Page ready (OPTIMIZED - no listeners)');
+        console.log('✅ [ADMIN_DASHBOARD] Page ready');
     </script>
 </body>
 </html>
