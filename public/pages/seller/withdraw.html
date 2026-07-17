@@ -257,7 +257,7 @@
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, runTransaction } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, addDoc, serverTimestamp, runTransaction } from "firebase/firestore";
 
         console.log('💰 [SELLER_WITHDRAW] Page loaded');
 
@@ -590,7 +590,7 @@
         }
 
         // ============================================
-        // SUBMIT WITHDRAW FORM - DENGAN TRANSACTION
+        // SUBMIT WITHDRAW FORM - FIXED (Tanpa Transaction)
         // ============================================
         document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -624,77 +624,74 @@
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
 
             try {
-                // Gunakan transaction untuk keamanan
-                await runTransaction(db, async (transaction) => {
-                    const userRef = doc(db, 'users', currentUser.uid);
-                    const userDoc = await transaction.get(userRef);
-                    
-                    if (!userDoc.exists()) {
-                        throw new Error('User tidak ditemukan');
+                // Ambil data user
+                const userRef = doc(db, 'users', currentUser.uid);
+                const userDoc = await getDoc(userRef);
+                
+                if (!userDoc.exists()) {
+                    throw new Error('User tidak ditemukan');
+                }
+                
+                // Hitung saldo tersedia
+                const now = new Date();
+                let holdingDays = 0, holdingHours = 0, holdingMinutes = 0;
+                try {
+                    const settingsRef = doc(db, 'settings', 'marketplace');
+                    const settingsDoc = await getDoc(settingsRef);
+                    if (settingsDoc.exists()) {
+                        const settings = settingsDoc.data();
+                        holdingDays = settings.holdingDays || 0;
+                        holdingHours = settings.holdingHours || 0;
+                        holdingMinutes = settings.holdingMinutes || 0;
                     }
-                    
-                    // Hitung saldo tersedia dari order (sama seperti di wallet)
-                    const now = new Date();
-                    let holdingDays = 7, holdingHours = 0, holdingMinutes = 0;
-                    try {
-                        const settingsRef = doc(db, 'settings', 'marketplace');
-                        const settingsDoc = await transaction.get(settingsRef);
-                        if (settingsDoc.exists()) {
-                            const settings = settingsDoc.data();
-                            holdingDays = settings.holdingDays || 7;
-                            holdingHours = settings.holdingHours || 0;
-                            holdingMinutes = settings.holdingMinutes || 0;
+                } catch (e) {}
+                
+                const holdingMilliseconds = (holdingDays * 24 * 60 * 60 * 1000) + 
+                                            (holdingHours * 60 * 60 * 1000) + 
+                                            (holdingMinutes * 60 * 1000);
+                
+                // Ambil semua order product
+                const ordersQuery = query(
+                    collection(db, 'orders'),
+                    where('sellerId', '==', currentUser.uid),
+                    where('type', '==', 'product_purchase')
+                );
+                const ordersSnapshot = await getDocs(ordersQuery);
+                
+                let availableAmount = 0;
+                ordersSnapshot.forEach(doc => {
+                    const order = doc.data();
+                    const status = order.paymentStatus || order.status || '';
+                    if (status === 'settlement' || status === 'paid') {
+                        const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
+                        const elapsed = now - createdAt;
+                        if (elapsed >= holdingMilliseconds) {
+                            availableAmount += order.amount || 0;
                         }
-                    } catch (e) {}
-                    
-                    const holdingMilliseconds = (holdingDays * 24 * 60 * 60 * 1000) + 
-                                                (holdingHours * 60 * 60 * 1000) + 
-                                                (holdingMinutes * 60 * 1000);
-                    
-                    // Ambil semua order product
-                    const ordersQuery = query(
-                        collection(db, 'orders'),
-                        where('sellerId', '==', currentUser.uid),
-                        where('type', '==', 'product_purchase')
-                    );
-                    const ordersSnapshot = await transaction.get(ordersQuery);
-                    
-                    let availableAmount = 0;
-                    ordersSnapshot.forEach(doc => {
-                        const order = doc.data();
-                        const status = order.paymentStatus || order.status || '';
-                        if (status === 'settlement' || status === 'paid') {
-                            const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
-                            const elapsed = now - createdAt;
-                            if (elapsed >= holdingMilliseconds) {
-                                availableAmount += order.amount || 0;
-                            }
-                        }
-                    });
-                    
-                    if (amount > availableAmount) {
-                        throw new Error(`Saldo tidak mencukupi. Saldo tersedia: Rp${formatPrice(availableAmount)}`);
                     }
-                    
-                    // Update wallet
-                    const currentWallet = userDoc.data().wallet || { available: 0 };
-                    transaction.update(userRef, {
-                        'wallet.available': currentWallet.available - amount
-                    });
-                    
-                    // Create withdraw request
-                    const withdrawRef = doc(collection(db, 'withdrawals'));
-                    transaction.set(withdrawRef, {
-                        sellerId: currentUser.uid,
-                        amount: amount,
-                        method: method,
-                        accountNumber: accountNumber,
-                        accountName: accountName,
-                        note: note,
-                        status: 'pending',
-                        createdAt: serverTimestamp(),
-                        updatedAt: serverTimestamp()
-                    });
+                });
+                
+                if (amount > availableAmount) {
+                    throw new Error(`Saldo tidak mencukupi. Saldo tersedia: Rp${formatPrice(availableAmount)}`);
+                }
+                
+                // UPDATE WALLET
+                const currentWallet = userDoc.data().wallet || { available: 0 };
+                await updateDoc(userRef, {
+                    'wallet.available': currentWallet.available - amount
+                });
+                
+                // CREATE WITHDRAW REQUEST
+                await addDoc(collection(db, 'withdrawals'), {
+                    sellerId: currentUser.uid,
+                    amount: amount,
+                    method: method,
+                    accountNumber: accountNumber,
+                    accountName: accountName,
+                    note: note,
+                    status: 'pending',
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
                 });
 
                 addDebug('Withdraw submitted successfully', 'success');
