@@ -253,11 +253,11 @@
 
     <script type="module">
         // ============================================
-        // IMPORTS
+        // IMPORTS - FIXED (updateDoc ditambahkan)
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, addDoc, serverTimestamp, runTransaction } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, addDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 
         console.log('💰 [SELLER_WITHDRAW] Page loaded');
 
@@ -590,7 +590,7 @@
         }
 
         // ============================================
-        // SUBMIT WITHDRAW FORM - FIXED (Tanpa Transaction)
+        // SUBMIT WITHDRAW FORM - FIXED (updateDoc sudah diimport)
         // ============================================
         document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -675,7 +675,7 @@
                     throw new Error(`Saldo tidak mencukupi. Saldo tersedia: Rp${formatPrice(availableAmount)}`);
                 }
                 
-                // UPDATE WALLET
+                // UPDATE WALLET - updateDoc sekarang sudah terdefinisi
                 const currentWallet = userDoc.data().wallet || { available: 0 };
                 await updateDoc(userRef, {
                     'wallet.available': currentWallet.available - amount
