@@ -225,11 +225,11 @@
 
     <script type="module">
         // ============================================
-        // IMPORTS - FIXED (updateDoc ditambahkan)
+        // IMPORTS - FIXED
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, updateDoc } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, setDoc } from "firebase/firestore";
 
         console.log('💰 [SELLER_WALLET] Page loaded');
 
@@ -388,139 +388,135 @@
         });
 
         // ============================================
-        // LOAD WALLET DATA - FIXED (HITUNG ULANG)
+        // LOAD WALLET DATA - FIXED (HANYA PRODUK)
         // ============================================
-        // ============================================
-// LOAD WALLET DATA - FIXED
-// ============================================
-async function loadWalletData(uid) {
-    addDebug('Loading wallet data...', 'info');
-    try {
-        // Ambil setting holding time
-        let holdingDays = 0, holdingHours = 0, holdingMinutes = 0;
-        try {
-            const settingsRef = doc(db, 'settings', 'marketplace');
-            const settingsDoc = await getDoc(settingsRef);
-            if (settingsDoc.exists()) {
-                const settings = settingsDoc.data();
-                holdingDays = settings.holdingDays || 0;
-                holdingHours = settings.holdingHours || 0;
-                holdingMinutes = settings.holdingMinutes || 0;
-            }
-        } catch (e) {}
-        
-        const holdingMilliseconds = (holdingDays * 24 * 60 * 60 * 1000) + 
-                                    (holdingHours * 60 * 60 * 1000) + 
-                                    (holdingMinutes * 60 * 1000);
-        const now = new Date();
+        async function loadWalletData(uid) {
+            addDebug('Loading wallet data...', 'info');
+            try {
+                // Ambil setting holding time
+                let holdingDays = 0, holdingHours = 0, holdingMinutes = 0;
+                try {
+                    const settingsRef = doc(db, 'settings', 'marketplace');
+                    const settingsDoc = await getDoc(settingsRef);
+                    if (settingsDoc.exists()) {
+                        const settings = settingsDoc.data();
+                        holdingDays = settings.holdingDays || 0;
+                        holdingHours = settings.holdingHours || 0;
+                        holdingMinutes = settings.holdingMinutes || 0;
+                    }
+                } catch (e) {}
+                
+                const holdingMilliseconds = (holdingDays * 24 * 60 * 60 * 1000) + 
+                                            (holdingHours * 60 * 60 * 1000) + 
+                                            (holdingMinutes * 60 * 1000);
+                const now = new Date();
 
-        // ============================================
-        // HITUNG DARI ORDER - HANYA PRODUCT
-        // ============================================
-        const ordersSnapshot = await getDocs(
-            query(
-                collection(db, 'orders'),
-                where('sellerId', '==', uid),
-                where('type', '==', 'product_purchase') // HANYA PRODUK
-            )
-        );
-        
-        let totalRevenue = 0;
-        let holdingAmount = 0;
-        let availableAmount = 0;
-        
-        ordersSnapshot.forEach(doc => {
-            const order = doc.data();
-            const amount = order.amount || 0;
-            const status = order.paymentStatus || order.status || '';
-            
-            if (status === 'settlement' || status === 'paid') {
-                totalRevenue += amount;
-                const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
-                const elapsed = now - createdAt;
-                if (elapsed >= holdingMilliseconds) {
-                    availableAmount += amount;
-                } else {
-                    holdingAmount += amount;
+                // ============================================
+                // HITUNG DARI ORDER - HANYA PRODUCT
+                // ============================================
+                const ordersSnapshot = await getDocs(
+                    query(
+                        collection(db, 'orders'),
+                        where('sellerId', '==', uid),
+                        where('type', '==', 'product_purchase')
+                    )
+                );
+                
+                let totalRevenue = 0;
+                let holdingAmount = 0;
+                let availableAmount = 0;
+                
+                ordersSnapshot.forEach(doc => {
+                    const order = doc.data();
+                    const amount = order.amount || 0;
+                    const status = order.paymentStatus || order.status || '';
+                    
+                    if (status === 'settlement' || status === 'paid') {
+                        totalRevenue += amount;
+                        const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
+                        const elapsed = now - createdAt;
+                        if (elapsed >= holdingMilliseconds) {
+                            availableAmount += amount;
+                        } else {
+                            holdingAmount += amount;
+                        }
+                    }
+                });
+
+                // ============================================
+                // KURANGI DENGAN PENDING WITHDRAW
+                // ============================================
+                const pendingWithdrawSnapshot = await getDocs(
+                    query(
+                        collection(db, 'withdrawals'),
+                        where('sellerId', '==', uid),
+                        where('status', '==', 'pending')
+                    )
+                );
+                let pendingAmount = 0;
+                pendingWithdrawSnapshot.forEach(doc => {
+                    pendingAmount += doc.data().amount || 0;
+                });
+
+                // ============================================
+                // KURANGI DENGAN WITHDRAW YANG SUDAH APPROVED
+                // ============================================
+                const approvedWithdrawSnapshot = await getDocs(
+                    query(
+                        collection(db, 'withdrawals'),
+                        where('sellerId', '==', uid),
+                        where('status', '==', 'approved')
+                    )
+                );
+                let approvedAmount = 0;
+                approvedWithdrawSnapshot.forEach(doc => {
+                    approvedAmount += doc.data().amount || 0;
+                });
+
+                // ============================================
+                // HITUNG FINAL
+                // ============================================
+                const finalAvailable = Math.max(0, availableAmount - pendingAmount - approvedAmount);
+                const finalHolding = Math.max(0, holdingAmount);
+                const finalTotalWithdraw = approvedAmount;
+                
+                document.getElementById('availableBalance').textContent = `Rp${formatPrice(finalAvailable)}`;
+                document.getElementById('holdingBalance').textContent = `Rp${formatPrice(finalHolding)}`;
+                document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
+                document.getElementById('totalWithdraw').textContent = `Rp${formatPrice(finalTotalWithdraw)}`;
+                
+                addDebug(`Available: Rp${formatPrice(finalAvailable)}`, 'success');
+                addDebug(`Holding: Rp${formatPrice(finalHolding)}`, 'success');
+                addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
+                addDebug(`Total withdraw: Rp${formatPrice(finalTotalWithdraw)}', 'success');
+
+                // ============================================
+                // UPDATE WALLET DI FIRESTORE - PAKAI SETDOC
+                // ============================================
+                try {
+                    const userRef = doc(db, 'users', uid);
+                    await setDoc(userRef, {
+                        wallet: {
+                            available: finalAvailable,
+                            holding: finalHolding,
+                            totalRevenue: totalRevenue,
+                            totalWithdraw: finalTotalWithdraw,
+                            pendingWithdraw: pendingAmount,
+                            lastHolding: null,
+                            lastReleased: null
+                        },
+                        updatedAt: new Date().toISOString()
+                    }, { merge: true });
+                    addDebug('Wallet updated in Firestore', 'success');
+                } catch (updateError) {
+                    addDebug(`Error updating wallet: ${updateError.message}`, 'warning');
                 }
+
+            } catch (error) {
+                addDebug(`Error loading wallet: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat wallet: ' + error.message);
             }
-        });
-
-        // ============================================
-        // KURANGI DENGAN PENDING WITHDRAW
-        // ============================================
-        const pendingWithdrawSnapshot = await getDocs(
-            query(
-                collection(db, 'withdrawals'),
-                where('sellerId', '==', uid),
-                where('status', '==', 'pending')
-            )
-        );
-        let pendingAmount = 0;
-        pendingWithdrawSnapshot.forEach(doc => {
-            pendingAmount += doc.data().amount || 0;
-        });
-
-        // ============================================
-        // KURANGI DENGAN WITHDRAW YANG SUDAH APPROVED
-        // ============================================
-        const approvedWithdrawSnapshot = await getDocs(
-            query(
-                collection(db, 'withdrawals'),
-                where('sellerId', '==', uid),
-                where('status', '==', 'approved')
-            )
-        );
-        let approvedAmount = 0;
-        approvedWithdrawSnapshot.forEach(doc => {
-            approvedAmount += doc.data().amount || 0;
-        });
-
-        // ============================================
-        // HITUNG FINAL
-        // ============================================
-        const finalAvailable = Math.max(0, availableAmount - pendingAmount - approvedAmount);
-        const finalHolding = Math.max(0, holdingAmount);
-        const finalTotalWithdraw = approvedAmount;
-        
-        document.getElementById('availableBalance').textContent = `Rp${formatPrice(finalAvailable)}`;
-        document.getElementById('holdingBalance').textContent = `Rp${formatPrice(finalHolding)}`;
-        document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
-        document.getElementById('totalWithdraw').textContent = `Rp${formatPrice(finalTotalWithdraw)}`;
-        
-        addDebug(`Available: Rp${formatPrice(finalAvailable)}`, 'success');
-        addDebug(`Holding: Rp${formatPrice(finalHolding)}`, 'success');
-        addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
-        addDebug(`Total withdraw: Rp${formatPrice(finalTotalWithdraw)}', 'success');
-
-        // ============================================
-        // UPDATE WALLET DI FIRESTORE - PAKAI SETDOC
-        // ============================================
-        try {
-            const userRef = doc(db, 'users', uid);
-            await setDoc(userRef, {
-                wallet: {
-                    available: finalAvailable,
-                    holding: finalHolding,
-                    totalRevenue: totalRevenue,
-                    totalWithdraw: finalTotalWithdraw,
-                    pendingWithdraw: pendingAmount,
-                    lastHolding: null,
-                    lastReleased: null
-                },
-                updatedAt: new Date().toISOString()
-            }, { merge: true });
-            addDebug('Wallet updated in Firestore', 'success');
-        } catch (updateError) {
-            addDebug(`Error updating wallet: ${updateError.message}`, 'warning');
         }
-
-    } catch (error) {
-        addDebug(`Error loading wallet: ${error.message}`, 'error');
-        showToast('error', 'Gagal memuat wallet: ' + error.message);
-    }
-}
-
 
         // ============================================
         // LOAD TRANSACTIONS - HANYA PRODUK

@@ -326,7 +326,7 @@
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, updateDoc } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, setDoc } from "firebase/firestore";
 
         console.log('📊 [SELLER_DASHBOARD] Page loaded');
 
@@ -534,7 +534,7 @@
                         totalRevenue += doc.data().amount || 0;
                     });
                     
-                    await updateDoc(userRef, {
+                    await setDoc(userRef, {
                         wallet: {
                             available: 0,
                             holding: 0,
@@ -545,45 +545,13 @@
                             lastReleased: null
                         },
                         updatedAt: new Date().toISOString()
-                    });
+                    }, { merge: true });
                     
                     addDebug('✅ Wallet berhasil dibuat dengan total revenue: Rp' + formatPrice(totalRevenue), 'success');
                     showToast('success', '💰 Wallet berhasil diaktifkan!');
                     return true;
                 }
                 
-                const requiredFields = ['available', 'holding', 'totalRevenue', 'totalWithdraw', 'pendingWithdraw'];
-                const wallet = data.wallet;
-                let needUpdate = false;
-                const updateData = {};
-                
-                requiredFields.forEach(field => {
-                    if (wallet[field] === undefined) {
-                        updateData[`wallet.${field}`] = 0;
-                        needUpdate = true;
-                    }
-                });
-                
-                if (!wallet.lastHolding) {
-                    updateData['wallet.lastHolding'] = null;
-                    needUpdate = true;
-                }
-                if (!wallet.lastReleased) {
-                    updateData['wallet.lastReleased'] = null;
-                    needUpdate = true;
-                }
-                
-                if (needUpdate) {
-                    addDebug('⚠️ Wallet memiliki field yang hilang, memperbaiki...', 'warning');
-                    await updateDoc(userRef, {
-                        ...updateData,
-                        updatedAt: new Date().toISOString()
-                    });
-                    addDebug('✅ Wallet berhasil diperbaiki!', 'success');
-                    return true;
-                }
-                
-                addDebug('✅ Wallet sudah lengkap', 'success');
                 return true;
                 
             } catch (error) {
@@ -635,186 +603,179 @@
         });
 
         // ============================================
-        // LOAD DASHBOARD DATA - FIXED (KURANGI WITHDRAW)
+        // LOAD DASHBOARD DATA - FIXED
         // ============================================
-        // ============================================
-// LOAD DASHBOARD DATA - FIXED
-// ============================================
-async function loadDashboardData() {
-    addDebug('Loading dashboard data...', 'info');
-    if (!currentUser) {
-        addDebug('No current user, skipping', 'warning');
-        return;
-    }
-
-    try {
-        const sellerId = currentUser.uid;
-        addDebug(`Seller ID: ${sellerId}`, 'info');
-
-        // Products
-        const productsSnapshot = await getDocs(
-            query(collection(db, 'products'), where('sellerId', '==', sellerId))
-        );
-        document.getElementById('totalProducts').textContent = productsSnapshot.size;
-        addDebug(`Total products: ${productsSnapshot.size}`, 'success');
-
-        // Ambil setting holding time
-        let holdingDays = 0, holdingHours = 0, holdingMinutes = 0;
-        try {
-            const settingsRef = doc(db, 'settings', 'marketplace');
-            const settingsDoc = await getDoc(settingsRef);
-            if (settingsDoc.exists()) {
-                const settings = settingsDoc.data();
-                holdingDays = settings.holdingDays || 0;
-                holdingHours = settings.holdingHours || 0;
-                holdingMinutes = settings.holdingMinutes || 0;
-                addDebug(`Holding settings: ${holdingDays}d ${holdingHours}h ${holdingMinutes}m`, 'info');
+        async function loadDashboardData() {
+            addDebug('Loading dashboard data...', 'info');
+            if (!currentUser) {
+                addDebug('No current user, skipping', 'warning');
+                return;
             }
-        } catch (e) {
-            addDebug('Using default holding settings', 'warning');
-        }
-        
-        const holdingMilliseconds = (holdingDays * 24 * 60 * 60 * 1000) + 
-                                    (holdingHours * 60 * 60 * 1000) + 
-                                    (holdingMinutes * 60 * 1000);
-        const now = new Date();
 
-        // ============================================
-        // ORDERS - HANYA PRODUCT (BUKAN BANNER)
-        // ============================================
-        const allOrdersSnapshot = await getDocs(
-            query(
-                collection(db, 'orders'), 
-                where('sellerId', '==', sellerId),
-                where('type', '==', 'product_purchase') // HANYA PRODUK
-            )
-        );
-        
-        let totalSales = 0;
-        let totalRevenue = 0;
-        let holdingAmount = 0;
-        let availableFromOrders = 0;
-        const chartData = [];
-        
-        allOrdersSnapshot.forEach(doc => {
-            const order = doc.data();
-            const amount = order.amount || 0;
-            const status = order.paymentStatus || order.status || '';
-            
-            if (status === 'settlement' || status === 'paid') {
-                totalRevenue += amount;
-                totalSales++;
-                
-                const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
-                const elapsed = now - createdAt;
-                
-                if (elapsed >= holdingMilliseconds) {
-                    availableFromOrders += amount;
-                } else {
-                    holdingAmount += amount;
+            try {
+                const sellerId = currentUser.uid;
+                addDebug(`Seller ID: ${sellerId}`, 'info');
+
+                // Products
+                const productsSnapshot = await getDocs(
+                    query(collection(db, 'products'), where('sellerId', '==', sellerId))
+                );
+                document.getElementById('totalProducts').textContent = productsSnapshot.size;
+                addDebug(`Total products: ${productsSnapshot.size}`, 'success');
+
+                // Ambil setting holding time
+                let holdingDays = 0, holdingHours = 0, holdingMinutes = 0;
+                try {
+                    const settingsRef = doc(db, 'settings', 'marketplace');
+                    const settingsDoc = await getDoc(settingsRef);
+                    if (settingsDoc.exists()) {
+                        const settings = settingsDoc.data();
+                        holdingDays = settings.holdingDays || 0;
+                        holdingHours = settings.holdingHours || 0;
+                        holdingMinutes = settings.holdingMinutes || 0;
+                        addDebug(`Holding settings: ${holdingDays}d ${holdingHours}h ${holdingMinutes}m`, 'info');
+                    }
+                } catch (e) {
+                    addDebug('Using default holding settings', 'warning');
                 }
                 
-                chartData.push({
-                    date: createdAt,
-                    amount: amount
+                const holdingMilliseconds = (holdingDays * 24 * 60 * 60 * 1000) + 
+                                            (holdingHours * 60 * 60 * 1000) + 
+                                            (holdingMinutes * 60 * 1000);
+                const now = new Date();
+
+                // ============================================
+                // ORDERS - HANYA PRODUCT (BUKAN BANNER)
+                // ============================================
+                const allOrdersSnapshot = await getDocs(
+                    query(
+                        collection(db, 'orders'), 
+                        where('sellerId', '==', sellerId),
+                        where('type', '==', 'product_purchase')
+                    )
+                );
+                
+                let totalSales = 0;
+                let totalRevenue = 0;
+                let holdingAmount = 0;
+                let availableFromOrders = 0;
+                const chartData = [];
+                
+                allOrdersSnapshot.forEach(doc => {
+                    const order = doc.data();
+                    const amount = order.amount || 0;
+                    const status = order.paymentStatus || order.status || '';
+                    
+                    if (status === 'settlement' || status === 'paid') {
+                        totalRevenue += amount;
+                        totalSales++;
+                        
+                        const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
+                        const elapsed = now - createdAt;
+                        
+                        if (elapsed >= holdingMilliseconds) {
+                            availableFromOrders += amount;
+                        } else {
+                            holdingAmount += amount;
+                        }
+                        
+                        chartData.push({
+                            date: createdAt,
+                            amount: amount
+                        });
+                    }
                 });
+
+                // ============================================
+                // WITHDRAW - PENDING & APPROVED
+                // ============================================
+                const withdrawPendingSnapshot = await getDocs(
+                    query(
+                        collection(db, 'withdrawals'),
+                        where('sellerId', '==', sellerId),
+                        where('status', '==', 'pending')
+                    )
+                );
+                let pendingWithdrawAmount = 0;
+                withdrawPendingSnapshot.forEach(doc => {
+                    pendingWithdrawAmount += doc.data().amount || 0;
+                });
+
+                const withdrawApprovedSnapshot = await getDocs(
+                    query(
+                        collection(db, 'withdrawals'),
+                        where('sellerId', '==', sellerId),
+                        where('status', '==', 'approved')
+                    )
+                );
+                let approvedWithdrawAmount = 0;
+                withdrawApprovedSnapshot.forEach(doc => {
+                    approvedWithdrawAmount += doc.data().amount || 0;
+                });
+
+                // ============================================
+                // HITUNG SALDO TERSEDIA
+                // ============================================
+                const finalAvailable = Math.max(0, availableFromOrders - pendingWithdrawAmount - approvedWithdrawAmount);
+                const finalHolding = Math.max(0, holdingAmount);
+
+                // Update UI
+                document.getElementById('totalSales').textContent = totalSales;
+                document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
+                document.getElementById('holdingBalance').textContent = `Rp${formatPrice(finalHolding)}`;
+                document.getElementById('availableBalance').textContent = `Rp${formatPrice(finalAvailable)}`;
+                document.getElementById('pendingWithdraw').textContent = `Rp${formatPrice(pendingWithdrawAmount)}`;
+                
+                addDebug(`Total sales: ${totalSales}`, 'success');
+                addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
+                addDebug(`Holding: Rp${formatPrice(finalHolding)}`, 'success');
+                addDebug(`Available: Rp${formatPrice(finalAvailable)}`, 'success');
+                addDebug(`Pending withdraw: Rp${formatPrice(pendingWithdrawAmount)}`, 'success');
+
+                // ============================================
+                // UPDATE WALLET DI FIRESTORE
+                // ============================================
+                try {
+                    const userRef = doc(db, 'users', sellerId);
+                    await setDoc(userRef, {
+                        wallet: {
+                            available: finalAvailable,
+                            holding: finalHolding,
+                            totalRevenue: totalRevenue,
+                            totalWithdraw: approvedWithdrawAmount,
+                            pendingWithdraw: pendingWithdrawAmount,
+                            lastHolding: null,
+                            lastReleased: null
+                        },
+                        updatedAt: new Date().toISOString()
+                    }, { merge: true });
+                    addDebug('Wallet updated in Firestore', 'success');
+                } catch (updateError) {
+                    addDebug(`Error updating wallet: ${updateError.message}`, 'warning');
+                }
+
+                updateStoreLink();
+                await loadRecentProducts(sellerId);
+                renderCharts(chartData);
+                
+                addDebug('Dashboard data loaded successfully', 'success');
+
+            } catch (error) {
+                addDebug(`Error loading dashboard data: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat data: ' + error.message);
             }
-        });
-
-        // ============================================
-        // WITHDRAW - PENDING & APPROVED
-        // ============================================
-        const withdrawPendingSnapshot = await getDocs(
-            query(
-                collection(db, 'withdrawals'),
-                where('sellerId', '==', sellerId),
-                where('status', '==', 'pending')
-            )
-        );
-        let pendingWithdrawAmount = 0;
-        withdrawPendingSnapshot.forEach(doc => {
-            pendingWithdrawAmount += doc.data().amount || 0;
-        });
-
-        const withdrawApprovedSnapshot = await getDocs(
-            query(
-                collection(db, 'withdrawals'),
-                where('sellerId', '==', sellerId),
-                where('status', '==', 'approved')
-            )
-        );
-        let approvedWithdrawAmount = 0;
-        withdrawApprovedSnapshot.forEach(doc => {
-            approvedWithdrawAmount += doc.data().amount || 0;
-        });
-
-        // ============================================
-        // HITUNG SALDO TERSEDIA
-        // ============================================
-        const finalAvailable = Math.max(0, availableFromOrders - pendingWithdrawAmount - approvedWithdrawAmount);
-        const finalHolding = Math.max(0, holdingAmount);
-
-        // Update UI
-        document.getElementById('totalSales').textContent = totalSales;
-        document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
-        document.getElementById('holdingBalance').textContent = `Rp${formatPrice(finalHolding)}`;
-        document.getElementById('availableBalance').textContent = `Rp${formatPrice(finalAvailable)}`;
-        document.getElementById('pendingWithdraw').textContent = `Rp${formatPrice(pendingWithdrawAmount)}`;
-        
-        addDebug(`Total sales: ${totalSales}`, 'success');
-        addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
-        addDebug(`Holding: Rp${formatPrice(finalHolding)}`, 'success');
-        addDebug(`Available from orders: Rp${formatPrice(availableFromOrders)}`, 'info');
-        addDebug(`Pending withdraw: Rp${formatPrice(pendingWithdrawAmount)}`, 'info');
-        addDebug(`Approved withdraw: Rp${formatPrice(approvedWithdrawAmount)}`, 'info');
-        addDebug(`Final Available: Rp${formatPrice(finalAvailable)}', 'success');
-
-        // ============================================
-        // UPDATE WALLET DI FIRESTORE - PAKAI SETDOC
-        // ============================================
-        try {
-            const userRef = doc(db, 'users', sellerId);
-            await setDoc(userRef, {
-                wallet: {
-                    available: finalAvailable,
-                    holding: finalHolding,
-                    totalRevenue: totalRevenue,
-                    totalWithdraw: approvedWithdrawAmount,
-                    pendingWithdraw: pendingWithdrawAmount,
-                    lastHolding: null,
-                    lastReleased: null
-                },
-                updatedAt: new Date().toISOString()
-            }, { merge: true });
-            addDebug('Wallet updated in Firestore', 'success');
-        } catch (updateError) {
-            addDebug(`Error updating wallet: ${updateError.message}`, 'warning');
         }
 
-        updateStoreLink();
-        await loadRecentProducts(sellerId);
-        renderCharts(chartData);
-        
-        addDebug('Dashboard data loaded successfully', 'success');
-
-    } catch (error) {
-        addDebug(`Error loading dashboard data: ${error.message}`, 'error');
-        showToast('error', 'Gagal memuat data: ' + error.message);
-    }
-}
-
-
         // ============================================
-        // LOAD RECENT PRODUCTS
+        // LOAD RECENT PRODUCTS - TANPA INDEX (Sortir JavaScript)
         // ============================================
         async function loadRecentProducts(sellerId) {
             addDebug('Loading recent products...', 'info');
             try {
+                // QUERY TANPA orderBy (agar tidak perlu index composite)
                 const q = query(
                     collection(db, 'products'),
-                    where('sellerId', '==', sellerId),
-                    orderBy('createdAt', 'desc'),
-                    limit(5)
+                    where('sellerId', '==', sellerId)
                 );
                 const snapshot = await getDocs(q);
                 const container = document.getElementById('recentProducts');
@@ -826,12 +787,25 @@ async function loadDashboardData() {
                             Belum ada produk
                         </div>
                     `;
+                    addDebug('No recent products', 'info');
                     return;
                 }
 
-                container.innerHTML = snapshot.docs.map(doc => {
-                    const p = doc.data();
-                    const createdAt = p.createdAt?.toDate?.() || p.createdAt;
+                // SORTIR DI JAVASCRIPT
+                const products = snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        ...data,
+                        createdAtDate: data.createdAt?.toDate?.() || new Date(data.createdAt)
+                    };
+                });
+                
+                products.sort((a, b) => b.createdAtDate - a.createdAtDate);
+                const recentProducts = products.slice(0, 5);
+
+                container.innerHTML = recentProducts.map(p => {
+                    const createdAt = p.createdAtDate;
                     return `
                         <div class="recent-item">
                             <div>
@@ -852,7 +826,7 @@ async function loadDashboardData() {
                     `;
                 }).join('');
 
-                addDebug(`Loaded ${snapshot.size} recent products`, 'success');
+                addDebug(`Loaded ${recentProducts.length} recent products`, 'success');
 
             } catch (error) {
                 addDebug(`Error loading recent products: ${error.message}`, 'error');
