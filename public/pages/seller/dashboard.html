@@ -472,38 +472,32 @@
         }
 
         // ============================================
-        // UPDATE STORE LINK - FIXED (/product-seller/{slug})
-        // ============================================
         // ============================================
 // UPDATE STORE LINK - MENGGUNAKAN QUERY PARAMETER
-// ============================================
-// ============================================
-// UPDATE STORE LINK - TANPA .html DAN CLEAN URL
 // ============================================
 function updateStoreLink() {
     const storeName = userData?.storeName || userData?.displayName || '';
     if (storeName) {
-        // Buat slug dari storeName (lowercase, tanpa spasi)
+        // Buat slug dari storeName
         const slug = storeName.toLowerCase()
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/^-+|-+$/g, '');
         
-        // ✅ Format URL CLEAN: /product-seller/{slug}
-        // Contoh: https://productkuu.vercel.app/product-seller/sanzzdex
-        const url = `${window.location.origin}/product-seller/${slug}`;
+        // ✅ Format: /product-seller.html?seller={slug}
+        const url = `${window.location.origin}/product-seller.html?seller=${slug}`;
         
         const linkInput = document.getElementById('storeLink');
         const linkBtn = document.getElementById('storeLinkBtn');
         
         if (linkInput) {
             linkInput.value = url;
-            addDebug(`Store link updated: ${url}`, 'success');
+            console.log(`Store link updated: ${url}`);
         }
         if (linkBtn) {
             linkBtn.href = url;
         }
     } else {
-        addDebug('Store name not found, cannot generate link', 'warning');
+        console.warn('Store name not found, cannot generate link');
     }
 }
 
