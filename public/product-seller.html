@@ -117,7 +117,6 @@
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
 
-        /* Cart Styles */
         .cart-bar {
             background: var(--bg-primary);
             border-radius: var(--radius-lg);
@@ -169,12 +168,8 @@
             font-weight: 700;
         }
         .cart-total .total-price { color: var(--primary); font-size: 24px; }
-        .checkout-modal .modal {
-            max-width: 500px;
-        }
-        .checkout-modal .modal .form-group {
-            margin-bottom: 16px;
-        }
+        .checkout-modal .modal { max-width: 500px; }
+        .checkout-modal .modal .form-group { margin-bottom: 16px; }
         .checkout-modal .modal .form-group label {
             display: block;
             font-weight: 600;
@@ -237,11 +232,7 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-        .empty-cart {
-            text-align: center;
-            padding: 30px 0;
-            color: var(--text-secondary);
-        }
+        .empty-cart { text-align: center; padding: 30px 0; color: var(--text-secondary); }
         .empty-cart i { font-size: 48px; display: block; margin-bottom: 12px; }
 
         @media (max-width: 1024px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
@@ -300,7 +291,6 @@
     </nav>
 
     <main>
-        <!-- Seller Header -->
         <div class="seller-header">
             <div class="container text-center">
                 <div class="seller-avatar" id="sellerAvatar">S</div>
@@ -315,13 +305,11 @@
         </div>
 
         <div class="container" style="padding-bottom:60px;">
-            <!-- Error Box -->
             <div class="error-box" id="errorBox">
                 <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
                 <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
             </div>
 
-            <!-- Cart Bar -->
             <div class="cart-bar" id="cartBar">
                 <div class="cart-info">
                     <span class="cart-icon"><i class="fas fa-shopping-cart"></i></span>
@@ -338,7 +326,6 @@
                 </div>
             </div>
 
-            <!-- Products Grid -->
             <div class="flex-between" style="margin-bottom:24px;">
                 <h2 style="font-size:24px;">Produk</h2>
                 <span id="productCountLabel" style="color:var(--text-secondary);">0 produk</span>
@@ -431,13 +418,18 @@
         let cart = JSON.parse(localStorage.getItem('sellerCart') || '[]');
 
         // ============================================
-        // GET SELLER SLUG - FIXED
+        // GET SELLER SLUG - DARI URL PATH
         // ============================================
         const pathParts = window.location.pathname.split('/');
-        // Jika URL: /sanzzdex/product-seller
-        // pathParts = ['', 'sanzzdex', 'product-seller']
-        const sellerSlug = pathParts[1] || '';
+        // Contoh URL: /product-seller/tokoseller
+        // pathParts = ['', 'product-seller', 'tokoseller']
+        const sellerSlug = pathParts[2] || '';
         console.log('🔍 [SELLER_PAGE] Seller slug:', sellerSlug);
+
+        // Jika tidak ada slug, cek query parameter sebagai fallback
+        const urlParams = new URLSearchParams(window.location.search);
+        const sellerParam = urlParams.get('seller') || '';
+        const sellerIdentifier = sellerSlug || sellerParam;
 
         // ============================================
         // THEME
@@ -592,10 +584,8 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
 
             try {
-                // Buat order di Firestore
                 const orderId = `PK-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
                 
-                // Simpan order
                 const orderData = {
                     orderId: orderId,
                     type: 'product_purchase',
@@ -615,11 +605,9 @@
                     updatedAt: new Date().toISOString()
                 };
 
-                // Simpan ke Firestore
                 const ordersRef = collection(db, 'orders');
                 const orderDoc = await addDoc(ordersRef, orderData);
 
-                // Create Midtrans payment
                 const response = await fetch('/api/payment/create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -636,7 +624,6 @@
                 const data = await response.json();
 
                 if (data.token) {
-                    // Open Midtrans Snap
                     window.snap.pay(data.token, {
                         onSuccess: async (result) => {
                             await updateOrderStatus(orderDoc.id, 'settlement', result);
@@ -691,22 +678,26 @@
         }
 
         // ============================================
-        // LOAD SELLER - FIXED
+        // LOAD SELLER - MENGGUNAKAN SLUG DARI URL
         // ============================================
         async function loadSeller() {
-            if (!sellerSlug) {
-                // Jika slug kosong, redirect ke halaman utama
-                window.location.href = '/';
+            if (!sellerIdentifier) {
+                document.getElementById('productsGrid').innerHTML = `
+                    <div class="text-center" style="grid-column:1/-1;padding:40px 0;color:var(--danger);">
+                        <i class="fas fa-exclamation-triangle" style="font-size:48px;display:block;margin-bottom:16px;"></i>
+                        Seller tidak ditemukan
+                    </div>
+                `;
                 return;
             }
 
             try {
-                console.log('🔍 [SELLER_PAGE] Mencari seller dengan slug:', sellerSlug);
+                console.log('🔍 [SELLER_PAGE] Mencari seller dengan slug:', sellerIdentifier);
 
                 const usersRef = collection(db, 'users');
                 
                 // CARA 1: Cari berdasarkan storeName (slug)
-                const q1 = query(usersRef, where('storeName', '==', sellerSlug));
+                const q1 = query(usersRef, where('storeName', '==', sellerIdentifier));
                 const snapshot1 = await getDocs(q1);
                 
                 if (!snapshot1.empty) {
@@ -716,7 +707,7 @@
                 }
 
                 // CARA 2: Cari berdasarkan displayName (fallback)
-                const q2 = query(usersRef, where('displayName', '==', sellerSlug));
+                const q2 = query(usersRef, where('displayName', '==', sellerIdentifier));
                 const snapshot2 = await getDocs(q2);
                 
                 if (!snapshot2.empty) {
@@ -725,8 +716,8 @@
                     return;
                 }
 
-                // CARA 3: Cari berdasarkan UID (jika slug adalah UID)
-                const q3 = query(usersRef, where('uid', '==', sellerSlug));
+                // CARA 3: Cari berdasarkan UID (fallback)
+                const q3 = query(usersRef, where('uid', '==', sellerIdentifier));
                 const snapshot3 = await getDocs(q3);
                 
                 if (!snapshot3.empty) {
@@ -744,7 +735,7 @@
                 document.getElementById('productsGrid').innerHTML = `
                     <div class="text-center" style="grid-column:1/-1;padding:40px 0;color:var(--danger);">
                         <i class="fas fa-exclamation-triangle" style="font-size:48px;display:block;margin-bottom:16px;"></i>
-                        Toko tidak ditemukan
+                        Toko tidak ditemukan: "${sellerIdentifier}"
                     </div>
                 `;
             }
@@ -764,7 +755,6 @@
                 document.getElementById('verifiedBadge').style.display = 'inline';
             }
 
-            // Load produk yang sudah dipublish
             const productsSnapshot = await getDocs(
                 query(
                     collection(db, 'products'), 
