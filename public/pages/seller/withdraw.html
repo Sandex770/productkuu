@@ -455,7 +455,7 @@
             addDebug('Loading balance...', 'info');
             try {
                 // Ambil setting holding time
-                let holdingDays = 7;
+                let holdingDays = 0;
                 let holdingHours = 0;
                 let holdingMinutes = 0;
                 try {
@@ -463,7 +463,7 @@
                     const settingsDoc = await getDoc(settingsRef);
                     if (settingsDoc.exists()) {
                         const settings = settingsDoc.data();
-                        holdingDays = settings.holdingDays || 7;
+                        holdingDays = settings.holdingDays || 0;
                         holdingHours = settings.holdingHours || 0;
                         holdingMinutes = settings.holdingMinutes || 0;
                         addDebug(`Holding settings: ${holdingDays}d ${holdingHours}h ${holdingMinutes}m`, 'info');
