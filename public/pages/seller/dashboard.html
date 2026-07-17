@@ -474,26 +474,29 @@
         // ============================================
         // UPDATE STORE LINK - FIXED (/product-seller/{slug})
         // ============================================
-        function updateStoreLink() {
-            const storeName = userData?.storeName || userData?.displayName || '';
-            if (storeName) {
-                // Buat slug dari storeName
-                const slug = storeName.toLowerCase()
-                    .replace(/[^a-z0-9]+/g, '-')
-                    .replace(/^-+|-+$/g, '');
-                
-                // ✅ Format: /product-seller/{slug}
-                const url = `${window.location.origin}/product-seller/${slug}`;
-                
-                const linkInput = document.getElementById('storeLink');
-                const linkBtn = document.getElementById('storeLinkBtn');
-                if (linkInput) linkInput.value = url;
-                if (linkBtn) linkBtn.href = url;
-                addDebug(`Store link updated: ${url}`, 'success');
-            } else {
-                addDebug('Store name not found, cannot generate link', 'warning');
-            }
-        }
+        // ============================================
+// UPDATE STORE LINK - MENGGUNAKAN QUERY PARAMETER
+// ============================================
+function updateStoreLink() {
+    const storeName = userData?.storeName || userData?.displayName || '';
+    if (storeName) {
+        // Buat slug dari storeName
+        const slug = storeName.toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+        
+        // ✅ Format: /product-seller?seller={slug}
+        const url = `${window.location.origin}/public/product-seller?seller=${slug}`;
+        
+        const linkInput = document.getElementById('storeLink');
+        const linkBtn = document.getElementById('storeLinkBtn');
+        if (linkInput) linkInput.value = url;
+        if (linkBtn) linkBtn.href = url;
+        addDebug(`Store link updated: ${url}`, 'success');
+    } else {
+        addDebug('Store name not found, cannot generate link', 'warning');
+    }
+}
 
         window.copyStoreLink = function() {
             const input = document.getElementById('storeLink');
