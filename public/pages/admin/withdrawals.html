@@ -145,9 +145,7 @@
                 <div class="debug-line debug-info">🔍 Debug Mode Active</div>
                 <div class="debug-line" id="debugLog">Menunggu data...</div>
             </div>
-            <button class="debug-toggle" onclick="toggleDebug()">
-                <i class="fas fa-bug"></i> Toggle Debug
-            </button>
+            <button class="debug-toggle" onclick="toggleDebug()"><i class="fas fa-bug"></i> Toggle Debug</button>
 
             <div class="error-box" id="errorBox">
                 <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
@@ -156,7 +154,13 @@
 
             <div class="filter-bar" style="margin-top:8px;">
                 <div class="filter-group">
-                    <select id="filterStatus"><option value="all">Semua Status</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="processing">Processing</option></select>
+                    <select id="filterStatus">
+                        <option value="all">Semua Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="processing">Processing</option>
+                    </select>
                     <input type="date" id="filterDateFrom">
                     <input type="date" id="filterDateTo">
                 </div>
@@ -203,14 +207,11 @@
     </script>
 
     <script type="module">
-        // ============================================
-        // IMPORTS - FIXED (doc ditambahkan)
-        // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, updateDoc } from "firebase/firestore";
 
-        console.log('💰 [ADMIN_WITHDRAWALS] Page loaded (FIXED)');
+        console.log('💰 [ADMIN_WITHDRAWALS] Page loaded');
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
@@ -228,10 +229,6 @@
 
         let currentUser = null;
         let withdrawals = [], lastDoc = null, hasMore = true, currentPage = 1, actionId = null, actionType = null, limitPerPage = 20;
-
-        // ============================================
-        // DEBUG LOG
-        // ============================================
         let debugVisible = false;
 
         function addDebug(message, type = 'info') {
@@ -249,23 +246,15 @@
             const box = document.getElementById('debugBox');
             debugVisible = !debugVisible;
             box.classList.toggle('show');
-            if (debugVisible) {
-                addDebug('Debug mode activated', 'info');
-            }
+            if (debugVisible) addDebug('Debug mode activated', 'info');
         };
 
-        // ============================================
-        // REFRESH DATA
-        // ============================================
         window.refreshData = function() {
             addDebug('Manual refresh triggered', 'info');
             showToast('info', 'Memperbarui data withdraw...');
             loadWithdrawals(true);
         };
 
-        // ============================================
-        // THEME & SIDEBAR
-        // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -305,9 +294,6 @@
             catch (error) { showToast('error', 'Gagal logout'); }
         });
 
-        // ============================================
-        // TOAST & ERROR
-        // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
             const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
@@ -332,9 +318,6 @@
             setTimeout(() => { box.classList.remove('show'); }, 10000);
         }
 
-        // ============================================
-        // FORMAT FUNCTIONS
-        // ============================================
         function formatPrice(price) {
             if (!price && price !== 0) return '0';
             return new Intl.NumberFormat('id-ID').format(price);
@@ -345,11 +328,8 @@
             const d = date instanceof Date ? date : new Date(date);
             if (isNaN(d.getTime())) return '-';
             return d.toLocaleDateString('id-ID', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+                year: 'numeric', month: 'long', day: 'numeric',
+                hour: '2-digit', minute: '2-digit'
             });
         }
 
@@ -385,7 +365,7 @@
         });
 
         // ============================================
-        // LOAD WITHDRAWALS - FIXED
+        // LOAD WITHDRAWALS
         // ============================================
         async function loadWithdrawals(reset = true) {
             addDebug(`Loading withdrawals (reset: ${reset})...`, 'info');
@@ -490,9 +470,6 @@
             renderPagination();
         }
 
-        // ============================================
-        // PAGINATION
-        // ============================================
         function renderPagination() {
             const container = document.getElementById('pagination');
             if (!hasMore && withdrawals.length <= limitPerPage) { 
@@ -573,50 +550,68 @@
         };
 
         window.confirmWithdrawAction = async function() {
-            if (!actionId || !actionType) return;
-            addDebug(`Confirming ${actionType} for ${actionId}`, 'info');
-            try {
-                const note = document.getElementById('actionModal').dataset.note || (actionType === 'approve' ? 'Disetujui admin' : 'Ditolak admin');
-                
-                // Update langsung di Firestore
-                const withdrawRef = doc(db, 'withdrawals', actionId);
-                await updateDoc(withdrawRef, {
-                    status: actionType === 'approve' ? 'approved' : 'rejected',
-                    adminNote: note,
+    if (!actionId || !actionType) return;
+    addDebug(`Confirming ${actionType} for ${actionId}`, 'info');
+    try {
+        const note = document.getElementById('actionModal').dataset.note || (actionType === 'approve' ? 'Disetujui admin' : 'Ditolak admin');
+        
+        const withdrawRef = doc(db, 'withdrawals', actionId);
+        const withdrawDoc = await getDoc(withdrawRef);
+        
+        if (!withdrawDoc.exists()) {
+            throw new Error('Withdraw not found');
+        }
+        
+        const withdrawData = withdrawDoc.data();
+        const sellerId = withdrawData.sellerId;
+        const amount = withdrawData.amount;
+        
+        // UPDATE STATUS WITHDRAW
+        await updateDoc(withdrawRef, {
+            status: actionType === 'approve' ? 'approved' : 'rejected',
+            adminNote: note,
+            updatedAt: new Date().toISOString()
+        });
+
+        // UPDATE WALLET SELLER
+        const userRef = doc(db, 'users', sellerId);
+        const userDoc = await getDoc(userRef);
+        
+        if (userDoc.exists()) {
+            const wallet = userDoc.data().wallet || {};
+            
+            if (actionType === 'approve') {
+                // APPROVE: Kurangi pendingWithdraw, tambah totalWithdraw
+                await updateDoc(userRef, {
+                    'wallet.pendingWithdraw': Math.max(0, (wallet.pendingWithdraw || 0) - amount),
+                    'wallet.totalWithdraw': (wallet.totalWithdraw || 0) + amount,
+                    // available TIDAK DIKURANGI lagi karena sudah dikurangi saat submit
                     updatedAt: new Date().toISOString()
                 });
-
-                // Jika approve, update wallet seller
-                if (actionType === 'approve') {
-                    // Cari data withdraw untuk mendapatkan sellerId dan amount
-                    const withdrawDoc = await getDoc(withdrawRef);
-                    if (withdrawDoc.exists()) {
-                        const data = withdrawDoc.data();
-                        const sellerRef = doc(db, 'users', data.sellerId);
-                        const sellerDoc = await getDoc(sellerRef);
-                        if (sellerDoc.exists()) {
-                            const currentWallet = sellerDoc.data().wallet || { available: 0, holding: 0 };
-                            // Kurangi saldo yang sudah di-withdraw
-                            await updateDoc(sellerRef, {
-                                'wallet.available': (currentWallet.available || 0) - data.amount
-                            });
-                            addDebug(`Updated wallet for seller ${data.sellerId}`, 'success');
-                        }
-                    }
-                }
-
-                addDebug(`Withdraw ${actionType}ed successfully`, 'success');
-                showToast('success', `Withdraw ${actionType === 'approve' ? 'disetujui' : 'ditolak'}`);
-                closeActionModal();
-                loadWithdrawals(true);
-            } catch (error) {
-                addDebug(`Error processing withdrawal: ${error.message}`, 'error');
-                showToast('error', error.message);
+                addDebug(`✅ Approved withdraw for seller ${sellerId}`, 'success');
+            } else {
+                // REJECT: Kurangi pendingWithdraw, KEMBALIKAN ke available
+                await updateDoc(userRef, {
+                    'wallet.pendingWithdraw': Math.max(0, (wallet.pendingWithdraw || 0) - amount),
+                    'wallet.available': (wallet.available || 0) + amount,
+                    updatedAt: new Date().toISOString()
+                });
+                addDebug(`❌ Rejected withdraw for seller ${sellerId}, saldo dikembalikan`, 'success');
             }
-        };
+        }
+
+        showToast('success', `Withdraw ${actionType === 'approve' ? 'disetujui' : 'ditolak'}`);
+        closeActionModal();
+        loadWithdrawals(true);
+        
+    } catch (error) {
+        addDebug(`Error processing withdrawal: ${error.message}`, 'error');
+        showToast('error', error.message);
+    }
+};
 
         addDebug('Page ready', 'success');
-        console.log('✅ [ADMIN_WITHDRAWALS] Page ready (FIXED)');
+        console.log('✅ [ADMIN_WITHDRAWALS] Page ready');
     </script>
 </body>
 </html>
