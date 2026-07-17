@@ -30,13 +30,13 @@
         .table-wrapper { overflow-x: auto; }
         .table { width: 100%; border-collapse: collapse; }
         .table th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); border-bottom: 2px solid var(--border-color); background: var(--bg-secondary); }
-        .table td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
+        .table td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); font-size: 14px; vertical-align: middle; }
         .table tr:hover td { background: var(--bg-secondary); }
         
         .filter-bar { background: var(--bg-primary); border-radius: var(--radius); padding: 16px 20px; border: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 24px; }
         .filter-bar .filter-group { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
         .filter-bar .filter-group select, .filter-bar .filter-group input { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 13px; min-width: 120px; }
-        .filter-bar .filter-actions { display: flex; gap: 8px; }
+        .filter-bar .filter-actions { display: flex; gap: 8px; flex-wrap: wrap; }
         
         .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
         .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
@@ -57,6 +57,13 @@
         .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
         .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
         .btn-sm { padding: 8px 16px; font-size: 12px; }
+        .btn-xs { padding: 4px 10px; font-size: 11px; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { transform: translateY(-2px); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { transform: translateY(-2px); }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-warning:hover { transform: translateY(-2px); }
         
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
         .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
@@ -95,10 +102,36 @@
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
         
-        .pending-expired {
-            background: rgba(239,68,68,0.05);
-            opacity: 0.6;
-        }
+        .action-dropdown { position: relative; display: inline-block; }
+        .action-dropdown > button { background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: all 0.3s; font-size: 16px; color: var(--text-secondary); }
+        .action-dropdown > button:hover { background: var(--bg-secondary); color: var(--text-primary); }
+        .action-dropdown-content { display: none; position: absolute; right: 0; top: 100%; min-width: 170px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius); box-shadow: var(--shadow-lg); z-index: 100; padding: 4px 0; }
+        .action-dropdown-content.show { display: block; animation: fadeIn 0.2s ease; }
+        .action-dropdown-content a { display: flex; align-items: center; gap: 10px; padding: 8px 14px; color: var(--text-primary); font-size: 13px; text-decoration: none; cursor: pointer; transition: all 0.2s; }
+        .action-dropdown-content a:hover { background: var(--bg-secondary); }
+        .action-dropdown-content a.danger { color: var(--danger); }
+        .action-dropdown-content a.danger:hover { background: rgba(239,68,68,0.1); }
+        .action-dropdown-content a i { width: 16px; text-align: center; font-size: 14px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
+        .modal { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 32px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; animation: slideUp 0.3s ease; }
+        .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; color: var(--text-secondary); cursor: pointer; transition: all 0.3s; padding: 4px; }
+        .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+        .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+        .input-group label { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+        .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
+        .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
+        select.input { appearance: auto; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        
+        .order-detail-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); }
+        .order-detail-item:last-child { border-bottom: none; }
+        .order-detail-item .label { font-weight: 500; color: var(--text-secondary); }
+        .order-detail-item .value { font-weight: 600; }
+        
+        .status-update-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
         
         :root {
             --bg-primary: #ffffff;
@@ -199,6 +232,7 @@
                         <option value="all">Semua Status</option>
                         <option value="pending">Pending</option>
                         <option value="settlement">Settlement</option>
+                        <option value="paid">Paid</option>
                         <option value="failed">Failed</option>
                         <option value="expire">Expired</option>
                     </select>
@@ -228,15 +262,40 @@
                             <th>Harga</th>
                             <th>Status</th>
                             <th>Tanggal</th>
+                            <th style="text-align:center;min-width:80px;">Aksi</th>
                         </tr></thead>
                         <tbody id="ordersTableBody">
-                            <tr><td colspan="8" class="text-center text-secondary" style="padding:40px 0;">Memuat order...</td></tr>
+                            <tr><td colspan="9" class="text-center text-secondary" style="padding:40px 0;">Memuat order...</td></tr>
                         </tbody>
                     </table>
                 </div>
-                <div id="pagination" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"></div>
+                <div id="pagination" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;"></div>
             </div>
         </main>
+    </div>
+
+    <!-- DETAIL ORDER MODAL -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeDetailModal()"><i class="fas fa-times"></i></button>
+            <h3 class="modal-title">Detail Order</h3>
+            <div id="detailContent">
+                <div class="text-center text-secondary" style="padding:20px 0;">Memuat...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal" style="max-width:400px;text-align:center;">
+            <i class="fas fa-exclamation-triangle" style="font-size:48px;color:var(--danger);margin-bottom:16px;"></i>
+            <h3 class="modal-title">Hapus Order?</h3>
+            <p style="color:var(--text-secondary);margin-bottom:24px;">Apakah Anda yakin ingin menghapus order ini? Tindakan ini tidak dapat dibatalkan.</p>
+            <div style="display:flex;gap:12px;">
+                <button onclick="confirmDeleteOrder()" class="btn btn-danger" style="flex:1;"><i class="fas fa-trash"></i> Hapus</button>
+                <button onclick="closeDeleteModal()" class="btn btn-secondary" style="flex:1;">Batal</button>
+            </div>
+        </div>
     </div>
 
     <div class="toast-container" id="toastContainer"></div>
@@ -267,7 +326,11 @@
             where, 
             orderBy, 
             limit, 
-            startAfter 
+            startAfter,
+            updateDoc,
+            deleteDoc,
+            serverTimestamp,
+            runTransaction
         } from "firebase/firestore";
 
         console.log('📦 [ADMIN_ORDERS] Page loaded');
@@ -287,7 +350,8 @@
         const db = getFirestore(app);
 
         let currentUser = null;
-        let orders = [], lastDoc = null, hasMore = true, currentPage = 1, limitPerPage = 20;
+        let orders = [], lastDoc = null, hasMore = true, currentPage = 1, limitPerPage = 15;
+        let deleteOrderId = null;
 
         // ============================================
         // DEBUG LOG
@@ -382,7 +446,7 @@
                 <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
             `;
             container.appendChild(toast);
-            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
+            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 5000);
         }
         window.showToast = showToast;
 
@@ -511,6 +575,8 @@
                 const status = document.getElementById('filterStatus').value;
                 const type = document.getElementById('filterType').value;
                 const search = document.getElementById('searchOrder').value.trim();
+                const dateFrom = document.getElementById('filterDateFrom').value;
+                const dateTo = document.getElementById('filterDateTo').value;
                 
                 if (status !== 'all') {
                     constraints.push(where('paymentStatus', '==', status));
@@ -521,6 +587,9 @@
                     constraints.push(where('type', '==', type));
                     addDebug(`Filter by type: ${type}`, 'info');
                 }
+                
+                // Note: date filter would require additional query constraints
+                // For simplicity, we'll filter in JavaScript
                 
                 let q = query(collection(db, 'orders'), ...constraints, limit(limitPerPage));
                 if (lastDoc) {
@@ -534,7 +603,7 @@
                     hasMore = false; 
                     if (reset) {
                         document.getElementById('ordersTableBody').innerHTML = 
-                            '<tr><td colspan="8" class="text-center text-secondary">Belum ada order</td></tr>';
+                            '<tr><td colspan="9" class="text-center text-secondary">Belum ada order</td></tr>';
                     }
                     return; 
                 }
@@ -593,14 +662,14 @@
                     const isExpired = isPendingExpired(o.createdAtTimestamp);
                     if (isExpired) {
                         addDebug(`🚫 Hiding expired pending order: ${o.orderId}`, 'warning');
-                        return false; // Sembunyikan
+                        return false;
                     }
                 }
                 return true;
             });
             
             if (filteredOrders.length === 0) { 
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-secondary">Tidak ada order</td></tr>'; 
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-secondary">Tidak ada order</td></tr>'; 
                 document.getElementById('pagination').innerHTML = ''; 
                 return; 
             }
@@ -608,9 +677,9 @@
             const statusColors = { 
                 'pending': 'badge-warning', 
                 'settlement': 'badge-success', 
+                'paid': 'badge-success',
                 'failed': 'badge-danger', 
-                'expire': 'badge-danger',
-                'paid': 'badge-success'
+                'expire': 'badge-danger'
             };
 
             const typeColors = {
@@ -624,8 +693,8 @@
             };
 
             tbody.innerHTML = filteredOrders.map(o => `
-                <tr onclick="viewOrder('${o.id}')" style="cursor:pointer;">
-                    <td style="font-family:monospace;font-size:13px;">${o.orderId || '-'}</td>
+                <tr>
+                    <td style="font-family:monospace;font-size:13px;">${o.orderId || o.id || '-'}</td>
                     <td><span class="badge ${typeColors[o.type] || 'badge-muted'}">${typeLabels[o.type] || o.type || '-'}</span></td>
                     <td>${o.productName || '-'}</td>
                     <td>${o.buyerName || '-'}</td>
@@ -633,24 +702,38 @@
                     <td style="font-weight:600;color:var(--primary);">Rp${formatPrice(o.amount)}</td>
                     <td><span class="badge ${statusColors[o.paymentStatus] || 'badge-info'}">${o.paymentStatus || o.status || '-'}</span></td>
                     <td style="font-size:13px;color:var(--text-secondary);">${formatDate(o.createdAtTimestamp)}</td>
+                    <td style="text-align:center;">
+                        <div class="action-dropdown">
+                            <button onclick="event.stopPropagation();toggleDropdown('${o.id}')">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="action-dropdown-content" id="dropdown-${o.id}">
+                                <a onclick="viewOrderDetail('${o.id}')"><i class="fas fa-eye"></i> Detail</a>
+                                <a onclick="updateOrderStatus('${o.id}','settlement')"><i class="fas fa-check-circle" style="color:var(--success);"></i> Set Settlement</a>
+                                <a onclick="updateOrderStatus('${o.id}','failed')"><i class="fas fa-times-circle" style="color:var(--danger);"></i> Set Failed</a>
+                                <a onclick="updateOrderStatus('${o.id}','expire')"><i class="fas fa-clock" style="color:var(--warning);"></i> Set Expired</a>
+                                <a onclick="deleteOrder('${o.id}')" class="danger"><i class="fas fa-trash"></i> Hapus</a>
+                            </div>
+                        </div>
+                    </td>
                 </tr>
             `).join('');
             
-            renderPagination();
+            renderPagination(filteredOrders.length);
         }
 
         // ============================================
         // PAGINATION
         // ============================================
-        function renderPagination() {
+        function renderPagination(total) {
             const container = document.getElementById('pagination');
-            if (!hasMore && orders.length <= limitPerPage) { 
-                container.innerHTML = `<span style="font-size:14px;color:var(--text-secondary);">${orders.length} order</span>`;
+            if (!hasMore && total <= limitPerPage) { 
+                container.innerHTML = `<span style="font-size:14px;color:var(--text-secondary);">${total} order</span>`;
                 return; 
             }
             container.innerHTML = `
-                <span style="font-size:14px;color:var(--text-secondary);">${orders.length} order</span>
-                <div style="display:flex;gap:8px;">
+                <span style="font-size:14px;color:var(--text-secondary);">${total} order</span>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     ${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}
                     ${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}
                 </div>
@@ -672,6 +755,9 @@
             loadOrders(true); 
         };
 
+        // ============================================
+        // FILTERS
+        // ============================================
         window.applyFilters = function() { 
             addDebug('Applying filters', 'info');
             lastDoc = null; 
@@ -689,10 +775,20 @@
             applyFilters(); 
         };
 
-        window.viewOrder = function(orderId) { 
-            addDebug(`View order: ${orderId}`, 'info');
-            window.location.href = `/order/${orderId}`; 
+        // ============================================
+        // DROPDOWN
+        // ============================================
+        window.toggleDropdown = function(id) {
+            document.querySelectorAll('.action-dropdown-content').forEach(el => el.classList.remove('show'));
+            const dropdown = document.getElementById(`dropdown-${id}`);
+            if (dropdown) dropdown.classList.toggle('show');
         };
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.action-dropdown')) {
+                document.querySelectorAll('.action-dropdown-content').forEach(el => el.classList.remove('show'));
+            }
+        });
 
         // ============================================
         // SEARCH DEBOUNCE
@@ -703,8 +799,206 @@
             searchTimeout = setTimeout(applyFilters, 500);
         });
 
+        // ============================================
+        // VIEW ORDER DETAIL (READ)
+        // ============================================
+        window.viewOrderDetail = async function(orderId) {
+            addDebug(`Viewing order detail: ${orderId}`, 'info');
+            try {
+                const orderRef = doc(db, 'orders', orderId);
+                const orderDoc = await getDoc(orderRef);
+                
+                if (!orderDoc.exists()) {
+                    showToast('error', 'Order tidak ditemukan');
+                    return;
+                }
+                
+                const data = orderDoc.data();
+                const content = document.getElementById('detailContent');
+                
+                let sellerName = 'Unknown';
+                if (data.sellerId) {
+                    try {
+                        const sellerRef = doc(db, 'users', data.sellerId);
+                        const sellerDoc = await getDoc(sellerRef);
+                        if (sellerDoc.exists()) {
+                            sellerName = sellerDoc.data().storeName || sellerDoc.data().displayName || 'Seller';
+                        }
+                    } catch (e) {}
+                }
+                
+                const statusColors = {
+                    'pending': 'badge-warning',
+                    'settlement': 'badge-success',
+                    'paid': 'badge-success',
+                    'failed': 'badge-danger',
+                    'expire': 'badge-danger'
+                };
+                
+                content.innerHTML = `
+                    <div style="margin-bottom:16px;">
+                        <div class="order-detail-item">
+                            <span class="label">Order ID</span>
+                            <span class="value" style="font-family:monospace;">${data.orderId || orderId}</span>
+                        </div>
+                        <div class="order-detail-item">
+                            <span class="label">Type</span>
+                            <span class="value">${data.type || '-'}</span>
+                        </div>
+                        <div class="order-detail-item">
+                            <span class="label">Produk</span>
+                            <span class="value">${data.productName || '-'}</span>
+                        </div>
+                        <div class="order-detail-item">
+                            <span class="label">Buyer</span>
+                            <span class="value">${data.buyerName || data.buyerEmail || '-'}</span>
+                        </div>
+                        <div class="order-detail-item">
+                            <span class="label">Seller</span>
+                            <span class="value">${sellerName}</span>
+                        </div>
+                        <div class="order-detail-item">
+                            <span class="label">Harga</span>
+                            <span class="value" style="color:var(--primary);">Rp${formatPrice(data.amount)}</span>
+                        </div>
+                        <div class="order-detail-item">
+                            <span class="label">Status</span>
+                            <span class="value"><span class="badge ${statusColors[data.paymentStatus] || 'badge-info'}">${data.paymentStatus || data.status || '-'}</span></span>
+                        </div>
+                        <div class="order-detail-item">
+                            <span class="label">Metode Pembayaran</span>
+                            <span class="value">${data.paymentMethod || '-'}</span>
+                        </div>
+                        <div class="order-detail-item">
+                            <span class="label">Tanggal</span>
+                            <span class="value">${formatDate(data.createdAt)}</span>
+                        </div>
+                        ${data.bannerData ? `
+                            <div style="margin-top:12px;padding:12px;background:var(--bg-secondary);border-radius:var(--radius);">
+                                <strong>Banner Data:</strong>
+                                <div style="font-size:13px;color:var(--text-secondary);margin-top:4px;">
+                                    <div>Durasi: ${data.bannerData.duration || '-'} jam</div>
+                                    <div>Expires: ${formatDate(data.bannerData.expiresAt)}</div>
+                                    ${data.bannerData.imageUrl ? `<div>Gambar: <a href="${data.bannerData.imageUrl}" target="_blank" style="color:var(--primary);">Lihat</a></div>` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="status-update-group">
+                        <button onclick="updateOrderStatus('${orderId}','settlement')" class="btn btn-success btn-sm">
+                            <i class="fas fa-check-circle"></i> Settlement
+                        </button>
+                        <button onclick="updateOrderStatus('${orderId}','failed')" class="btn btn-danger btn-sm">
+                            <i class="fas fa-times-circle"></i> Failed
+                        </button>
+                        <button onclick="updateOrderStatus('${orderId}','expire')" class="btn btn-warning btn-sm">
+                            <i class="fas fa-clock"></i> Expired
+                        </button>
+                        <button onclick="closeDetailModal()" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-times"></i> Tutup
+                        </button>
+                    </div>
+                `;
+                
+                document.getElementById('detailModal').classList.add('open');
+                addDebug('Order detail loaded', 'success');
+                
+            } catch (error) {
+                addDebug(`Error viewing order: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat detail order');
+            }
+        };
+
+        window.closeDetailModal = function() {
+            document.getElementById('detailModal').classList.remove('open');
+        };
+
+        // ============================================
+        // UPDATE ORDER STATUS (UPDATE)
+        // ============================================
+        window.updateOrderStatus = async function(orderId, newStatus) {
+            addDebug(`Updating order ${orderId} status to ${newStatus}`, 'info');
+            
+            if (!confirm(`Anda yakin ingin mengubah status order ini menjadi "${newStatus}"?`)) {
+                return;
+            }
+            
+            try {
+                const orderRef = doc(db, 'orders', orderId);
+                await updateDoc(orderRef, {
+                    paymentStatus: newStatus,
+                    status: newStatus,
+                    updatedAt: serverTimestamp()
+                });
+                
+                addDebug(`Order ${orderId} status updated to ${newStatus}`, 'success');
+                showToast('success', `Status order berhasil diubah menjadi ${newStatus}`);
+                
+                // Tutup modal jika terbuka
+                closeDetailModal();
+                // Tutup dropdown
+                document.querySelectorAll('.action-dropdown-content').forEach(el => el.classList.remove('show'));
+                // Refresh data
+                loadOrders(true);
+                
+            } catch (error) {
+                addDebug(`Error updating order: ${error.message}`, 'error');
+                showToast('error', 'Gagal mengupdate status order: ' + error.message);
+            }
+        };
+
+        // ============================================
+        // DELETE ORDER (DELETE)
+        // ============================================
+        window.deleteOrder = function(orderId) {
+            addDebug(`Delete order: ${orderId}`, 'warning');
+            deleteOrderId = orderId;
+            document.getElementById('deleteModal').classList.add('open');
+            // Tutup dropdown
+            document.querySelectorAll('.action-dropdown-content').forEach(el => el.classList.remove('show'));
+        };
+
+        window.closeDeleteModal = function() {
+            document.getElementById('deleteModal').classList.remove('open');
+            deleteOrderId = null;
+        };
+
+        window.confirmDeleteOrder = async function() {
+            if (!deleteOrderId) return;
+            
+            addDebug(`Confirming delete: ${deleteOrderId}`, 'warning');
+            try {
+                const orderRef = doc(db, 'orders', deleteOrderId);
+                await deleteDoc(orderRef);
+                
+                addDebug(`Order ${deleteOrderId} deleted`, 'success');
+                showToast('success', 'Order berhasil dihapus!');
+                deleteOrderId = null;
+                closeDeleteModal();
+                loadOrders(true);
+                
+            } catch (error) {
+                addDebug(`Error deleting order: ${error.message}`, 'error');
+                showToast('error', 'Gagal menghapus order: ' + error.message);
+            }
+        };
+
+        // ============================================
+        // CLOSE MODALS ON OVERLAY CLICK
+        // ============================================
+        document.getElementById('detailModal').addEventListener('click', function(e) {
+            if (e.target === this) closeDetailModal();
+        });
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) closeDeleteModal();
+        });
+
         addDebug('Page ready', 'success');
-        console.log('✅ [ADMIN_ORDERS] Page ready - SEMUA transaksi (produk + banner), pending > 24 jam otomatis hilang');
+        console.log('✅ [ADMIN_ORDERS] Page ready - CRUD Complete');
+        console.log('   - Read: Tampilkan semua order');
+        console.log('   - Update: Update status order (settlement/failed/expire)');
+        console.log('   - Delete: Hapus order dengan konfirmasi');
+        console.log('   - Pending > 24 jam otomatis hilang');
     </script>
 </body>
 </html>
