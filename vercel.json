@@ -108,19 +108,15 @@
       "dest": "/public/pages/$1"
     },
     {
-      "src": "/[^/]+/product-seller",
-      "dest": "/public/pages/seller/product-seller.html"
-    },
-    {
-      "src": "/([^/]+)",
-      "dest": "/public/pages/seller/product-seller.html"
-    },
-    {
-      "source": "/:slug/product-seller",
+      "source": "/product-seller/:slug",
       "destination": "/public/product-seller.html"
     },
     {
-      "source": "/:slug/product-seller/:path*",
+      "source": "/product-seller/:slug/:path*",
+      "destination": "/public/product-seller.html"
+    },
+    {
+      "source": "/product-seller",
       "destination": "/public/product-seller.html"
     }, 
     {
