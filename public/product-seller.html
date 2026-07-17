@@ -155,7 +155,7 @@
             border-bottom: 1px solid var(--border-color);
         }
         .cart-item:last-child { border-bottom: none; }
-        .cart-item .cart-item-info { display: flex; align-items: center; gap: 12px; }
+        .cart-item .cart-item-info { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
         .cart-item .cart-item-info .item-name { font-weight: 500; }
         .cart-item .cart-item-info .item-price { color: var(--primary); font-weight: 600; }
         .cart-total {
@@ -247,6 +247,45 @@
         @media (max-width: 1024px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 768px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 480px) { .product-grid { grid-template-columns: 1fr; } }
+        
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --bg-tertiary: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-light: #9ca3af;
+            --border-color: #e5e7eb;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+            --radius: 8px;
+            --radius-lg: 16px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --primary: #4F46E5;
+            --transition: all 0.3s ease;
+        }
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #374151;
+            --bg-tertiary: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-light: #6b7280;
+            --border-color: #374151;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font); background: var(--bg-secondary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
+        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); height: 64px; }
+        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .navbar-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
+        .navbar-logo i { color: #4F46E5; }
+        .navbar-actions { display: flex; align-items: center; gap: 8px; }
+        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
+        .btn-icon:hover { background: var(--bg-secondary); }
     </style>
 </head>
 <body>
@@ -337,7 +376,7 @@
                     <label for="buyerPhone">Nomor HP</label>
                     <input type="tel" id="buyerPhone" placeholder="Masukkan nomor HP">
                 </div>
-                <button type="submit" class="btn btn-primary btn-block" id="payNowBtn">
+                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;" id="payNowBtn">
                     <i class="fas fa-credit-card"></i> Bayar Sekarang
                 </button>
             </form>
@@ -364,9 +403,9 @@
         // IMPORTS
         // ============================================
         import { initializeApp } from "firebase/app";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, addDoc, updateDoc } from "firebase/firestore";
 
-        console.log(' [SELLER_PAGE] Page loaded');
+        console.log('🛒 [SELLER_PAGE] Page loaded');
 
         // ============================================
         // FIREBASE CONFIG
@@ -392,11 +431,13 @@
         let cart = JSON.parse(localStorage.getItem('sellerCart') || '[]');
 
         // ============================================
-        // GET SELLER SLUG
+        // GET SELLER SLUG - FIXED
         // ============================================
         const pathParts = window.location.pathname.split('/');
+        // Jika URL: /sanzzdex/product-seller
+        // pathParts = ['', 'sanzzdex', 'product-seller']
         const sellerSlug = pathParts[1] || '';
-        console.log(' [SELLER_PAGE] Seller slug:', sellerSlug);
+        console.log('🔍 [SELLER_PAGE] Seller slug:', sellerSlug);
 
         // ============================================
         // THEME
@@ -456,7 +497,7 @@
             localStorage.setItem('sellerCart', JSON.stringify(cart));
         }
 
-        function addToCart(productId) {
+        window.addToCart = function(productId) {
             const product = products.find(p => p.id === productId);
             if (!product) return;
 
@@ -475,25 +516,21 @@
             }
             updateCartUI();
             showToast('success', `${product.name} ditambahkan ke keranjang!`);
-        }
+        };
 
-        window.addToCart = addToCart;
-
-        function removeFromCart(productId) {
+        window.removeFromCart = function(productId) {
             cart = cart.filter(item => item.id !== productId);
             updateCartUI();
             showToast('info', 'Produk dihapus dari keranjang');
-        }
-        window.removeFromCart = removeFromCart;
+        };
 
-        function clearCart() {
+        window.clearCart = function() {
             if (cart.length === 0) return;
             if (!confirm('Kosongkan keranjang?')) return;
             cart = [];
             updateCartUI();
             showToast('info', 'Keranjang dikosongkan');
-        }
-        window.clearCart = clearCart;
+        };
 
         // ============================================
         // CHECKOUT
@@ -561,12 +598,14 @@
                 // Simpan order
                 const orderData = {
                     orderId: orderId,
+                    type: 'product_purchase',
                     productId: cart[0].id,
                     productName: cart.length === 1 ? cart[0].name : `${cart.length} produk`,
                     buyerName: buyerName,
                     buyerEmail: buyerEmail,
                     buyerPhone: buyerPhone || '',
                     sellerId: sellerData?.id || '',
+                    sellerName: sellerData?.storeName || sellerData?.displayName || 'Seller',
                     amount: totalAmount,
                     items: cart,
                     status: 'pending',
@@ -601,7 +640,7 @@
                     window.snap.pay(data.token, {
                         onSuccess: async (result) => {
                             await updateOrderStatus(orderDoc.id, 'settlement', result);
-                            showToast('success', ' Pembayaran berhasil!');
+                            showToast('success', '✅ Pembayaran berhasil!');
                             closeCheckoutModal();
                             cart = [];
                             updateCartUI();
@@ -609,13 +648,13 @@
                         },
                         onPending: async (result) => {
                             await updateOrderStatus(orderDoc.id, 'pending', result);
-                            showToast('info', ' Menunggu pembayaran...');
+                            showToast('info', '⏳ Menunggu pembayaran...');
                             closeCheckoutModal();
                             window.location.href = `/order/${orderDoc.id}`;
                         },
                         onError: async (result) => {
                             await updateOrderStatus(orderDoc.id, 'failed', result);
-                            showToast('error', ' Pembayaran gagal');
+                            showToast('error', '❌ Pembayaran gagal');
                             btn.disabled = false;
                             btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
                         },
@@ -625,10 +664,12 @@
                             btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
                         }
                     });
+                } else {
+                    throw new Error('Tidak ada token pembayaran');
                 }
 
             } catch (error) {
-                console.error(' Payment error:', error);
+                console.error('❌ Payment error:', error);
                 showToast('error', 'Gagal memproses pembayaran: ' + error.message);
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
@@ -650,50 +691,60 @@
         }
 
         // ============================================
-        // LOAD SELLER
+        // LOAD SELLER - FIXED
         // ============================================
         async function loadSeller() {
             if (!sellerSlug) {
-                document.getElementById('productsGrid').innerHTML = `
-                    <div class="text-center" style="grid-column:1/-1;padding:40px 0;color:var(--danger);">
-                        <i class="fas fa-exclamation-triangle" style="font-size:48px;display:block;margin-bottom:16px;"></i>
-                        Seller tidak ditemukan
-                    </div>
-                `;
+                // Jika slug kosong, redirect ke halaman utama
+                window.location.href = '/';
                 return;
             }
 
             try {
-                console.log(' [SELLER_PAGE] Mencari seller dengan slug:', sellerSlug);
+                console.log('🔍 [SELLER_PAGE] Mencari seller dengan slug:', sellerSlug);
 
                 const usersRef = collection(db, 'users');
-                const q = query(usersRef, where('storeName', '==', sellerSlug));
-                const snapshot = await getDocs(q);
+                
+                // CARA 1: Cari berdasarkan storeName (slug)
+                const q1 = query(usersRef, where('storeName', '==', sellerSlug));
+                const snapshot1 = await getDocs(q1);
+                
+                if (!snapshot1.empty) {
+                    const doc = snapshot1.docs[0];
+                    await renderSellerData(doc.id, doc.data());
+                    return;
+                }
 
-                if (snapshot.empty) {
-                    const q2 = query(usersRef, where('displayName', '==', sellerSlug));
-                    const snapshot2 = await getDocs(q2);
-                    
-                    if (snapshot2.empty) {
-                        throw new Error('Seller tidak ditemukan');
-                    }
-                    
+                // CARA 2: Cari berdasarkan displayName (fallback)
+                const q2 = query(usersRef, where('displayName', '==', sellerSlug));
+                const snapshot2 = await getDocs(q2);
+                
+                if (!snapshot2.empty) {
                     const doc = snapshot2.docs[0];
                     await renderSellerData(doc.id, doc.data());
                     return;
                 }
 
-                const doc = snapshot.docs[0];
-                await renderSellerData(doc.id, doc.data());
+                // CARA 3: Cari berdasarkan UID (jika slug adalah UID)
+                const q3 = query(usersRef, where('uid', '==', sellerSlug));
+                const snapshot3 = await getDocs(q3);
+                
+                if (!snapshot3.empty) {
+                    const doc = snapshot3.docs[0];
+                    await renderSellerData(doc.id, doc.data());
+                    return;
+                }
+
+                throw new Error('Seller tidak ditemukan');
 
             } catch (error) {
-                console.error(' [SELLER_PAGE] Error:', error);
+                console.error('❌ [SELLER_PAGE] Error:', error);
                 showError('Gagal Memuat Toko', error.message);
                 showToast('error', 'Gagal memuat toko: ' + error.message);
                 document.getElementById('productsGrid').innerHTML = `
                     <div class="text-center" style="grid-column:1/-1;padding:40px 0;color:var(--danger);">
                         <i class="fas fa-exclamation-triangle" style="font-size:48px;display:block;margin-bottom:16px;"></i>
-                        Gagal memuat toko: ${error.message}
+                        Toko tidak ditemukan
                     </div>
                 `;
             }
@@ -701,7 +752,7 @@
 
         async function renderSellerData(sellerId, seller) {
             sellerData = { id: sellerId, ...seller };
-            console.log(' [SELLER_PAGE] Seller ditemukan:', seller);
+            console.log('✅ [SELLER_PAGE] Seller ditemukan:', seller);
 
             document.getElementById('sellerName').textContent = seller.storeName || seller.displayName || 'Seller';
             document.getElementById('sellerDescription').textContent = seller.storeDescription || `Toko ${seller.storeName || 'Seller'}`;
@@ -713,8 +764,13 @@
                 document.getElementById('verifiedBadge').style.display = 'inline';
             }
 
+            // Load produk yang sudah dipublish
             const productsSnapshot = await getDocs(
-                query(collection(db, 'products'), where('sellerId', '==', sellerId), where('status', '==', 'published'))
+                query(
+                    collection(db, 'products'), 
+                    where('sellerId', '==', sellerId), 
+                    where('status', '==', 'published')
+                )
             );
 
             products = productsSnapshot.docs.map(doc => ({
@@ -722,7 +778,7 @@
                 ...doc.data()
             }));
 
-            console.log(` [SELLER_PAGE] ${products.length} produk ditemukan`);
+            console.log(`📦 [SELLER_PAGE] ${products.length} produk ditemukan`);
 
             document.getElementById('productCount').textContent = products.length;
             document.getElementById('productCountLabel').textContent = `${products.length} produk`;
@@ -755,9 +811,9 @@
             grid.innerHTML = products.map(p => `
                 <div class="product-card">
                     <div class="product-image" onclick="window.location.href='/product/${p.id}'">
-                        <i class="fas fa-box" style="font-size:48px;color:var(--text-light);"></i>
+                        ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-box\\' style=\\'font-size:48px;color:var(--text-light);\\'></i>'">` : `<i class="fas fa-box" style="font-size:48px;color:var(--text-light);"></i>`}
                         ${p.isPremium ? `<span class="badge badge-info" style="position:absolute;top:12px;right:12px;">Premium</span>` : ''}
-                        ${p.isTrending ? `<span class="badge badge-warning" style="position:absolute;top:12px;right:12px;margin-top:32px;"> Trending</span>` : ''}
+                        ${p.isTrending ? `<span class="badge badge-warning" style="position:absolute;top:12px;right:12px;margin-top:32px;">🔥 Trending</span>` : ''}
                         ${p.type === 'premium-account' ? `<span class="badge badge-warning" style="position:absolute;bottom:12px;left:12px;">Account</span>` : ''}
                     </div>
                     <div class="product-body">
@@ -781,10 +837,17 @@
         }
 
         // ============================================
+        // CLOSE MODALS ON OVERLAY CLICK
+        // ============================================
+        document.getElementById('checkoutModal').addEventListener('click', function(e) {
+            if (e.target === this) closeCheckoutModal();
+        });
+
+        // ============================================
         // INIT
         // ============================================
         loadSeller();
-        console.log(' [SELLER_PAGE] Page ready');
+        console.log('✅ [SELLER_PAGE] Page ready');
     </script>
 </body>
 </html>
