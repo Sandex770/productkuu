@@ -1139,7 +1139,7 @@
         // ============================================
         // PROMOTE FORM SUBMIT - FIXED (PAKAI TRANSACTION)
         // // ============================================
-// PROMOTE FORM SUBMIT - FIXED (PAKAI UPDATE LANGSUNG)
+// PROMOTE FORM SUBMIT - FIXED (PAKAI SETDOC)
 // ============================================
 document.getElementById('promoteForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1170,10 +1170,23 @@ document.getElementById('promoteForm').addEventListener('submit', async (e) => {
         // Ambil data user & produk
         const userRef = doc(db, 'users', currentUser.uid);
         const userDoc = await getDoc(userRef);
-        const userData = userDoc.exists() ? userDoc.data() : {};
+        
+        if (!userDoc.exists()) {
+            throw new Error('User tidak ditemukan!');
+        }
+        
+        const userData = userDoc.data();
         const sellerName = userData?.storeName || userData?.displayName || 'Seller';
         const userEmail = userData?.email || 'seller@example.com';
-        const wallet = userData?.wallet || { available: 0, holding: 0, totalRevenue: 0, totalWithdraw: 0, pendingWithdraw: 0 };
+        
+        // AMBIL WALLET DARI FIRESTORE
+        const wallet = userData?.wallet || { 
+            available: 0, 
+            holding: 0, 
+            totalRevenue: 0, 
+            totalWithdraw: 0, 
+            pendingWithdraw: 0 
+        };
 
         const productRef = doc(db, 'products', promoteProductId);
         const productDoc = await getDoc(productRef);
@@ -1184,7 +1197,7 @@ document.getElementById('promoteForm').addEventListener('submit', async (e) => {
         // ============================================
         if (paymentMethod === 'wallet') {
             
-            addDebug(`Current wallet: available=${wallet.available}, price=${price}`, 'info');
+            addDebug(`💰 Current wallet: available=${wallet.available}, price=${price}`, 'info');
             
             if (wallet.available < price) {
                 throw new Error(`Saldo tidak mencukupi! Saldo: Rp${formatPrice(wallet.available)}, Harga: Rp${formatPrice(price)}.`);
@@ -1195,25 +1208,34 @@ document.getElementById('promoteForm').addEventListener('submit', async (e) => {
             const orderId = `BANNER-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
             // ============================================
-            // 1. UPDATE WALLET SELLER - PASTI BERHASIL
+            // 1. UPDATE WALLET - PAKAI SETDOC
             // ============================================
             const newAvailable = wallet.available - price;
+            const newTotalRevenue = wallet.totalRevenue || 0; // TETAP!
             
             addDebug(`🔄 Updating wallet: ${wallet.available} -> ${newAvailable}`, 'info');
             
-            // PAKAI UPDATE DOC LANGSUNG
-            await updateDoc(userRef, {
-                'wallet.available': newAvailable,
+            // PAKAI SETDOC DENGAN MERGE
+            await setDoc(userRef, {
+                wallet: {
+                    available: newAvailable,
+                    holding: wallet.holding || 0,
+                    totalRevenue: newTotalRevenue,
+                    totalWithdraw: wallet.totalWithdraw || 0,
+                    pendingWithdraw: wallet.pendingWithdraw || 0,
+                    lastHolding: wallet.lastHolding || null,
+                    lastReleased: wallet.lastReleased || null
+                },
                 updatedAt: new Date().toISOString()
-            });
+            }, { merge: true });
             
             // VERIFIKASI UPDATE
             const verifyDoc = await getDoc(userRef);
             const verifyWallet = verifyDoc.data()?.wallet || {};
-            addDebug(`✅ Wallet updated! New available: ${verifyWallet.available}`, 'success');
+            addDebug(`✅ Verified wallet! Available: ${verifyWallet.available}`, 'success');
             
             if (verifyWallet.available !== newAvailable) {
-                throw new Error(`Gagal update wallet! Expected: ${newAvailable}, Actual: ${verifyWallet.available}`);
+                throw new Error(`❌ Gagal update wallet! Expected: ${newAvailable}, Actual: ${verifyWallet.available}`);
             }
 
             // ============================================
@@ -1283,23 +1305,106 @@ document.getElementById('promoteForm').addEventListener('submit', async (e) => {
 
             showToast('success', '🎉 Banner berhasil dibeli dengan saldo wallet!');
             closePromoteModal();
+            loadProducts();
             
-            // ============================================
-            // 5. REFRESH SEMUA DATA
-            // ============================================
-            await loadProducts();
-            
-            // Refresh wallet di localStorage
-            localStorage.removeItem('walletCache');
-            
-            // Tampilkan notifikasi ke user untuk refresh
-            addDebug('💡 Silahkan refresh halaman wallet untuk melihat perubahan', 'info');
+            // TAMBAHKAN: Redirect ke wallet agar user melihat perubahan
+            setTimeout(() => {
+                if (confirm('✅ Banner berhasil! Lihat saldo wallet sekarang?')) {
+                    window.location.href = '/seller/wallet';
+                }
+            }, 1000);
             
         // ============================================
         // METODE MIDTRANS
         // ============================================
         } else if (paymentMethod === 'midtrans') {
-            // ... kode midtrans sama seperti sebelumnya ...
+            const orderId = `BANNER-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+            await addDoc(collection(db, 'orders'), {
+                orderId: orderId,
+                type: 'banner_purchase',
+                sellerId: currentUser.uid,
+                productId: promoteProductId,
+                productName: productName,
+                buyerName: sellerName,
+                buyerEmail: userEmail,
+                sellerName: sellerName,
+                amount: price,
+                status: 'pending',
+                paymentStatus: 'pending',
+                paymentMethod: 'midtrans',
+                adminRevenue: price,
+                bannerData: {
+                    title: productName || 'Banner Promosi',
+                    description: '',
+                    imageUrl: imageUrl || '',
+                    duration: duration,
+                    expiresAt: new Date(Date.now() + duration * 60 * 60 * 1000).toISOString()
+                },
+                createdAt: serverTimestamp()
+            });
+
+            const response = await fetch('/api/payment/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    orderId: orderId,
+                    amount: price,
+                    buyerName: sellerName,
+                    buyerEmail: userEmail,
+                    buyerPhone: '08123456789',
+                    productName: `Banner Promosi: ${productName}`
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Gagal membuat pembayaran');
+            }
+
+            if (data.token && typeof snap !== 'undefined') {
+                window.snap.pay(data.token, {
+                    onSuccess: async function(result) {
+                        console.log('✅ Payment Success:', result);
+                        showToast('success', '🎉 Pembayaran berhasil! Banner akan aktif.');
+                        closePromoteModal();
+                        
+                        await addDoc(collection(db, 'admin_revenue'), {
+                            type: 'banner_purchase',
+                            sellerId: currentUser.uid,
+                            sellerName: sellerName,
+                            productId: promoteProductId,
+                            productName: productName,
+                            amount: price,
+                            duration: duration,
+                            orderId: orderId,
+                            status: 'paid',
+                            paymentMethod: 'midtrans',
+                            createdAt: serverTimestamp()
+                        });
+                        
+                        await activateBannerFromOrder(orderId);
+                    },
+                    onPending: function(result) {
+                        console.log('⏳ Payment Pending:', result);
+                        showToast('info', '⏳ Menunggu pembayaran...');
+                        closePromoteModal();
+                    },
+                    onError: function(result) {
+                        console.log('❌ Payment Error:', result);
+                        showToast('error', '❌ Pembayaran gagal: ' + (result.status_message || 'Silakan coba lagi'));
+                    },
+                    onClose: function() {
+                        console.log('🔒 Payment window closed');
+                        showToast('info', 'Pembayaran dibatalkan');
+                    }
+                });
+            } else if (data.redirect_url) {
+                window.location.href = data.redirect_url;
+            } else {
+                throw new Error('No payment method available');
+            }
         }
 
     } catch (error) {
