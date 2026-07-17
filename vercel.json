@@ -112,11 +112,11 @@
       "destination": "/public/product-seller.html"
     },
     {
-      "source": "/product-seller/:slug/:path*",
+      "source": "/product-seller",
       "destination": "/public/product-seller.html"
     },
     {
-      "source": "/product-seller",
+      "source": "/public/product-seller",
       "destination": "/public/product-seller.html"
     }, 
     {
