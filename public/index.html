@@ -121,6 +121,28 @@
         }
 
         /* ============================================
+           SCROLLBAR
+           ============================================ */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-light);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* ============================================
            NAVBAR
            ============================================ */
         .navbar {
@@ -133,8 +155,8 @@
             border-bottom: 1px solid var(--border-color);
             height: var(--navbar-height);
             transition: var(--transition);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
         .navbar-inner {
@@ -180,7 +202,7 @@
 
         .navbar-search .search-icon {
             position: absolute;
-            left: 14px;
+            left: 16px;
             color: var(--text-light);
             font-size: 14px;
         }
@@ -200,7 +222,8 @@
         .navbar-search input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+            background: var(--bg-primary);
         }
 
         .navbar-search input::placeholder {
@@ -210,7 +233,7 @@
         .navbar-actions {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             flex-shrink: 0;
         }
 
@@ -226,6 +249,7 @@
             justify-content: center;
             font-size: 18px;
             transition: var(--transition);
+            position: relative;
         }
 
         .navbar-actions .btn-icon:hover {
@@ -235,8 +259,8 @@
 
         .navbar-actions .btn-icon .badge {
             position: absolute;
-            top: -4px;
-            right: -4px;
+            top: -2px;
+            right: -2px;
             background: var(--danger);
             color: white;
             font-size: 10px;
@@ -362,7 +386,7 @@
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4);
         }
 
         .btn-primary:disabled {
@@ -432,7 +456,7 @@
            HERO SECTION
            ============================================ */
         .hero {
-            padding: 80px 0 60px;
+            padding: 100px 0 60px;
             background: linear-gradient(135deg, #4F46E5, #7C3AED);
             color: white;
             text-align: center;
@@ -482,6 +506,7 @@
             font-size: 13px;
             font-weight: 500;
             margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .hero h1 {
@@ -508,6 +533,16 @@
             gap: 16px;
             justify-content: center;
             flex-wrap: wrap;
+        }
+
+        .hero .btn-outline {
+            border-color: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .hero .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: white;
         }
 
         .hero-stats {
@@ -584,11 +619,12 @@
             color: white;
             text-align: center;
             padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(2px);
         }
 
         .banner-carousel .slide .slide-content h3 {
-            font-size: clamp(20px, 2vw, 28px);
+            font-size: clamp(20px, 2.5vw, 28px);
             font-weight: 700;
             margin-bottom: 8px;
         }
@@ -596,6 +632,18 @@
         .banner-carousel .slide .slide-content p {
             opacity: 0.9;
             font-size: clamp(13px, 1vw, 16px);
+        }
+
+        .banner-carousel .slide .slide-content a {
+            margin-top: 12px;
+            font-weight: 600;
+            transition: var(--transition);
+            opacity: 0.8;
+        }
+
+        .banner-carousel .slide .slide-content a:hover {
+            opacity: 1;
+            transform: translateX(4px);
         }
 
         .banner-carousel .btn-control {
@@ -696,6 +744,10 @@
             gap: 8px;
         }
 
+        .text-center {
+            text-align: center;
+        }
+
         /* ============================================
            FEATURES
            ============================================ */
@@ -716,7 +768,7 @@
         }
 
         .feature-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-6px);
             box-shadow: var(--shadow-xl);
             border-color: var(--primary);
         }
@@ -732,6 +784,11 @@
             justify-content: center;
             font-size: 28px;
             color: white;
+            transition: var(--transition);
+        }
+
+        .feature-card:hover .icon {
+            transform: scale(1.05) rotate(-4deg);
         }
 
         .feature-card h4 {
@@ -765,7 +822,7 @@
         }
 
         .product-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-6px);
             box-shadow: var(--shadow-xl);
             border-color: var(--primary);
         }
@@ -784,6 +841,11 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.03);
         }
 
         .product-card .product-image .badge {
@@ -796,6 +858,19 @@
             border-radius: var(--radius-full);
             background: rgba(79, 70, 229, 0.9);
             color: white;
+        }
+
+        .product-card .product-image .badge-sold {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 2px 10px;
+            border-radius: var(--radius-full);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            backdrop-filter: blur(4px);
         }
 
         .product-card .product-body {
@@ -915,132 +990,24 @@
             flex-wrap: wrap;
         }
 
-        /* ============================================
-           CART SECTION
-           ============================================ */
-        .cart-section {
-            background: var(--bg-card);
-            border-radius: var(--radius-lg);
-            padding: 16px 20px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow);
-            margin: 24px 0;
-        }
-
-        .cart-section .cart-header {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-        }
-
-        .cart-section .cart-header .cart-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .cart-section .cart-header .cart-info i {
-            font-size: 24px;
+        .cta-section .btn-primary {
+            background: white;
             color: var(--primary);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
         }
 
-        .cart-section .cart-header .cart-actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
+        .cta-section .btn-primary:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
         }
 
-        .cart-section .cart-items {
-            margin-top: 12px;
-            max-height: 200px;
-            overflow-y: auto;
-            border-top: 1px solid var(--border-color);
-            padding-top: 12px;
-            display: none;
-        }
-
-        .cart-section .cart-items.show {
-            display: block;
-        }
-
-        .cart-section .cart-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .cart-section .cart-item:last-child {
-            border-bottom: none;
-        }
-
-        .cart-section .cart-item .item-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .cart-section .cart-item .item-info img {
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius);
-            object-fit: cover;
-        }
-
-        .cart-section .cart-item .item-info .item-name {
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .cart-section .cart-item .item-info .item-price {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .cart-section .cart-item .item-qty {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .cart-section .cart-item .item-qty button {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            transition: var(--transition);
-        }
-
-        .cart-section .cart-item .item-qty .qty-btn-minus {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-        }
-
-        .cart-section .cart-item .item-qty .qty-btn-minus:hover {
-            background: var(--border-color);
-        }
-
-        .cart-section .cart-item .item-qty .qty-btn-plus {
-            background: var(--primary);
+        .cta-section .btn-outline {
+            border-color: rgba(255, 255, 255, 0.3);
             color: white;
         }
 
-        .cart-section .cart-item .item-qty .qty-btn-plus:hover {
-            background: var(--primary-dark);
-        }
-
-        .cart-section .cart-item .item-qty .qty-num {
-            font-weight: 600;
-            min-width: 20px;
-            text-align: center;
+        .cta-section .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: white;
         }
 
         /* ============================================
@@ -1098,6 +1065,7 @@
 
         .modal-close:hover {
             background: var(--bg-tertiary);
+            color: var(--text-primary);
         }
 
         .modal-title {
@@ -1145,6 +1113,7 @@
             padding: 16px;
             background: var(--bg-secondary);
             border-radius: var(--radius);
+            border: 1px solid var(--border-color);
         }
 
         .modal .checkout-summary .product-name {
@@ -1166,6 +1135,7 @@
             border-radius: var(--radius);
             color: var(--danger);
             font-size: 13px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
         .modal .error-message.show {
@@ -1248,6 +1218,7 @@
         .footer h4 {
             font-size: 16px;
             margin-bottom: 16px;
+            font-weight: 700;
         }
 
         .footer p {
@@ -1266,7 +1237,7 @@
             width: 40px;
             height: 40px;
             border-radius: var(--radius);
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1298,7 +1269,7 @@
         }
 
         .footer .footer-bottom {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
             padding-top: 24px;
             text-align: center;
             color: #9CA3AF;
@@ -1309,12 +1280,8 @@
            ANIMATIONS
            ============================================ */
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         @keyframes slideUp {
@@ -1340,9 +1307,7 @@
         }
 
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            to { transform: rotate(360deg); }
         }
 
         .spinner {
@@ -1407,15 +1372,6 @@
             .cta-section {
                 padding: 40px 20px;
                 margin: 24px 0;
-            }
-
-            .cart-section .cart-header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .cart-section .cart-header .cart-actions {
-                justify-content: flex-start;
             }
 
             .modal {
@@ -1484,20 +1440,6 @@
                 font-size: 13px;
             }
 
-            .cart-section {
-                padding: 12px 16px;
-            }
-
-            .cart-section .cart-item {
-                flex-wrap: wrap;
-                gap: 8px;
-            }
-
-            .cart-section .cart-item .item-info {
-                flex: 1;
-                min-width: 120px;
-            }
-
             .modal {
                 padding: 20px;
             }
@@ -1547,6 +1489,10 @@
             }
 
             .btn-secondary:hover {
+                transform: none;
+            }
+
+            .feature-card:hover {
                 transform: none;
             }
         }
@@ -1628,7 +1574,7 @@
                         <a href="#products" class="btn btn-primary btn-lg">
                             <i class="fas fa-shopping-bag"></i> Jelajahi Produk
                         </a>
-                        <a href="/seller/register" class="btn btn-outline btn-lg" style="border-color: rgba(255,255,255,0.3); color: white;">
+                        <a href="/seller/register" class="btn btn-outline btn-lg">
                             <i class="fas fa-store"></i> Jadi Seller
                         </a>
                     </div>
@@ -1677,10 +1623,10 @@
         FEATURES
         ============================================ -->
         <section class="container" style="padding: 40px 0;">
-            <h2 class="section-title text-center" style="text-align: center;">
+            <h2 class="section-title text-center">
                 Kenapa <span style="color: var(--primary);">ProductKuu</span>?
             </h2>
-            <p class="section-subtitle text-center" style="text-align: center; max-width: 600px; margin-left: auto; margin-right: auto;">
+            <p class="section-subtitle text-center" style="max-width: 600px; margin-left: auto; margin-right: auto;">
                 Platform terbaik untuk jual beli produk digital dengan keamanan terjamin
             </p>
             <div class="features-grid">
@@ -1742,10 +1688,10 @@
                 <h2>Siap Menjadi Seller?</h2>
                 <p>Mulai jualan produk digital Anda dan dapatkan penghasilan tambahan</p>
                 <div class="btn-group">
-                    <a href="/seller/register" class="btn btn-primary btn-lg" style="background: white; color: var(--primary);">
+                    <a href="/seller/register" class="btn btn-primary btn-lg">
                         <i class="fas fa-store"></i> Daftar Seller Sekarang
                     </a>
-                    <a href="#products" class="btn btn-outline btn-lg" style="border-color: rgba(255,255,255,0.3); color: white;">
+                    <a href="#products" class="btn btn-outline btn-lg">
                         <i class="fas fa-shopping-bag"></i> Belanja Produk
                     </a>
                 </div>
@@ -2011,7 +1957,7 @@
                         <div class="slide-content" style="${banner.imageUrl ? 'background:rgba(0,0,0,0.4);' : ''}">
                             <h3>${banner.title || 'Promo Spesial'}</h3>
                             ${banner.description ? `<p>${banner.description}</p>` : ''}
-                            ${banner.linkUrl ? `<a href="${banner.linkUrl}" style="color:white;text-decoration:underline;margin-top:8px;">Lihat Detail →</a>` : ''}
+                            ${banner.linkUrl ? `<a href="${banner.linkUrl}">Lihat Detail →</a>` : ''}
                         </div>
                     </div>
                 `).join('');
@@ -2172,6 +2118,7 @@
                             `<img src="/image/sanzz.jpg" alt="${product.name}">`
                         }
                         ${product.isPremium ? '<span class="badge">Premium</span>' : ''}
+                        ${product.sales > 0 ? `<span class="badge-sold">${product.sales} terjual</span>` : ''}
                     </div>
                     <div class="product-body">
                         <div class="product-name">${product.name}</div>
