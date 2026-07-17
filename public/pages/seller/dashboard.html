@@ -326,7 +326,7 @@
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, setDoc } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, updateDoc } from "firebase/firestore";
 
         console.log('📊 [SELLER_DASHBOARD] Page loaded');
 
@@ -534,7 +534,7 @@
                         totalRevenue += doc.data().amount || 0;
                     });
                     
-                    await setDoc(userRef, {
+                    await updateDoc(userRef, {
                         wallet: {
                             available: 0,
                             holding: 0,
@@ -545,7 +545,7 @@
                             lastReleased: null
                         },
                         updatedAt: new Date().toISOString()
-                    }, { merge: true });
+                    });
                     
                     addDebug('✅ Wallet berhasil dibuat dengan total revenue: Rp' + formatPrice(totalRevenue), 'success');
                     showToast('success', '💰 Wallet berhasil diaktifkan!');
@@ -603,168 +603,108 @@
         });
 
         // ============================================
-        // LOAD DASHBOARD DATA - FIXED
+        // LOAD DASHBOARD DATA - MEMBACA DARI FIRESTORE
         // ============================================
-        // ============================================
-// LOAD DASHBOARD DATA - FIXED (TANPA UPDATE WALLET)
-// ============================================
-async function loadDashboardData() {
-    addDebug('Loading dashboard data...', 'info');
-    if (!currentUser) {
-        addDebug('No current user, skipping', 'warning');
-        return;
-    }
-
-    try {
-        const sellerId = currentUser.uid;
-        addDebug(`Seller ID: ${sellerId}`, 'info');
-
-        // Products
-        const productsSnapshot = await getDocs(
-            query(collection(db, 'products'), where('sellerId', '==', sellerId))
-        );
-        document.getElementById('totalProducts').textContent = productsSnapshot.size;
-        addDebug(`Total products: ${productsSnapshot.size}`, 'success');
-
-        // Ambil setting holding time
-        let holdingDays = 0, holdingHours = 0, holdingMinutes = 0;
-        try {
-            const settingsRef = doc(db, 'settings', 'marketplace');
-            const settingsDoc = await getDoc(settingsRef);
-            if (settingsDoc.exists()) {
-                const settings = settingsDoc.data();
-                holdingDays = settings.holdingDays || 0;
-                holdingHours = settings.holdingHours || 0;
-                holdingMinutes = settings.holdingMinutes || 0;
-                addDebug(`Holding settings: ${holdingDays}d ${holdingHours}h ${holdingMinutes}m`, 'info');
+        async function loadDashboardData() {
+            addDebug('Loading dashboard data...', 'info');
+            if (!currentUser) {
+                addDebug('No current user, skipping', 'warning');
+                return;
             }
-        } catch (e) {
-            addDebug('Using default holding settings', 'warning');
-        }
-        
-        const holdingMilliseconds = (holdingDays * 24 * 60 * 60 * 1000) + 
-                                    (holdingHours * 60 * 60 * 1000) + 
-                                    (holdingMinutes * 60 * 1000);
-        const now = new Date();
 
-        // ============================================
-        // ORDERS - HANYA PRODUCT (BUKAN BANNER)
-        // ============================================
-        const allOrdersSnapshot = await getDocs(
-            query(
-                collection(db, 'orders'), 
-                where('sellerId', '==', sellerId),
-                where('type', '==', 'product_purchase')
-            )
-        );
-        
-        let totalSales = 0;
-        let totalRevenue = 0;
-        let holdingAmount = 0;
-        let availableFromOrders = 0;
-        const chartData = [];
-        
-        allOrdersSnapshot.forEach(doc => {
-            const order = doc.data();
-            const amount = order.amount || 0;
-            const status = order.paymentStatus || order.status || '';
-            
-            if (status === 'settlement' || status === 'paid') {
-                totalRevenue += amount;
-                totalSales++;
+            try {
+                const sellerId = currentUser.uid;
+                addDebug(`Seller ID: ${sellerId}`, 'info');
+
+                // Products
+                const productsSnapshot = await getDocs(
+                    query(collection(db, 'products'), where('sellerId', '==', sellerId))
+                );
+                document.getElementById('totalProducts').textContent = productsSnapshot.size;
+                addDebug(`Total products: ${productsSnapshot.size}`, 'success');
+
+                // ============================================
+                // BACA WALLET LANGSUNG DARI FIRESTORE
+                // ============================================
+                const userRef = doc(db, 'users', sellerId);
+                const userDoc = await getDoc(userRef);
                 
-                const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
-                const elapsed = now - createdAt;
-                
-                if (elapsed >= holdingMilliseconds) {
-                    availableFromOrders += amount;
-                } else {
-                    holdingAmount += amount;
+                if (!userDoc.exists()) {
+                    addDebug('User not found', 'error');
+                    return;
                 }
                 
-                chartData.push({
-                    date: createdAt,
-                    amount: amount
+                const userData = userDoc.data();
+                const wallet = userData.wallet || { 
+                    available: 0, 
+                    holding: 0, 
+                    totalRevenue: 0,
+                    pendingWithdraw: 0
+                };
+                
+                // ✅ UPDATE UI DARI DATA WALLET (TIDAK DIHITUNG ULANG!)
+                document.getElementById('availableBalance').textContent = `Rp${formatPrice(wallet.available || 0)}`;
+                document.getElementById('holdingBalance').textContent = `Rp${formatPrice(wallet.holding || 0)}`;
+                document.getElementById('totalRevenue').textContent = `Rp${formatPrice(wallet.totalRevenue || 0)}`;
+                document.getElementById('pendingWithdraw').textContent = `Rp${formatPrice(wallet.pendingWithdraw || 0)}`;
+                
+                addDebug(`Wallet data from Firestore:`, 'info');
+                addDebug(`  Available: Rp${formatPrice(wallet.available)}`, 'success');
+                addDebug(`  Holding: Rp${formatPrice(wallet.holding)}`, 'info');
+                addDebug(`  Total Revenue: Rp${formatPrice(wallet.totalRevenue)}`, 'info');
+                addDebug(`  Pending Withdraw: Rp${formatPrice(wallet.pendingWithdraw)}`, 'info');
+
+                // ============================================
+                // TOTAL PENJUALAN (HANYA UNTUK COUNTER)
+                // ============================================
+                const orderSnapshot = await getDocs(
+                    query(
+                        collection(db, 'orders'),
+                        where('sellerId', '==', sellerId),
+                        where('type', '==', 'product_purchase'),
+                        where('paymentStatus', 'in', ['settlement', 'paid'])
+                    )
+                );
+                document.getElementById('totalSales').textContent = orderSnapshot.size;
+                addDebug(`Total sales: ${orderSnapshot.size}`, 'success');
+
+                // ============================================
+                // CHART DATA (DARI ORDER)
+                // ============================================
+                const chartData = [];
+                orderSnapshot.forEach(doc => {
+                    const order = doc.data();
+                    const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
+                    chartData.push({
+                        date: createdAt,
+                        amount: order.amount || 0
+                    });
                 });
+                chartData.sort((a, b) => a.date - b.date);
+
+                updateStoreLink();
+                await loadRecentProducts(sellerId);
+                renderCharts(chartData);
+                
+                addDebug('Dashboard data loaded successfully', 'success');
+
+            } catch (error) {
+                addDebug(`Error loading dashboard data: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat data: ' + error.message);
             }
-        });
+        }
 
         // ============================================
-        // WITHDRAW - PENDING & APPROVED
-        // ============================================
-        const withdrawPendingSnapshot = await getDocs(
-            query(
-                collection(db, 'withdrawals'),
-                where('sellerId', '==', sellerId),
-                where('status', '==', 'pending')
-            )
-        );
-        let pendingWithdrawAmount = 0;
-        withdrawPendingSnapshot.forEach(doc => {
-            pendingWithdrawAmount += doc.data().amount || 0;
-        });
-
-        const withdrawApprovedSnapshot = await getDocs(
-            query(
-                collection(db, 'withdrawals'),
-                where('sellerId', '==', sellerId),
-                where('status', '==', 'approved')
-            )
-        );
-        let approvedWithdrawAmount = 0;
-        withdrawApprovedSnapshot.forEach(doc => {
-            approvedWithdrawAmount += doc.data().amount || 0;
-        });
-
-        // ============================================
-        // HITUNG SALDO TERSEDIA
-        // ============================================
-        const finalAvailable = Math.max(0, availableFromOrders - pendingWithdrawAmount - approvedWithdrawAmount);
-        const finalHolding = Math.max(0, holdingAmount);
-
-        // Update UI
-        document.getElementById('totalSales').textContent = totalSales;
-        document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
-        document.getElementById('holdingBalance').textContent = `Rp${formatPrice(finalHolding)}`;
-        document.getElementById('availableBalance').textContent = `Rp${formatPrice(finalAvailable)}`;
-        document.getElementById('pendingWithdraw').textContent = `Rp${formatPrice(pendingWithdrawAmount)}`;
-        
-        addDebug(`Total sales: ${totalSales}`, 'success');
-        addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
-        addDebug(`Holding: Rp${formatPrice(finalHolding)}`, 'success');
-        addDebug(`Available from orders: Rp${formatPrice(availableFromOrders)}`, 'info');
-        addDebug(`Pending withdraw: Rp${formatPrice(pendingWithdrawAmount)}`, 'info');
-        addDebug(`Approved withdraw: Rp${formatPrice(approvedWithdrawAmount)}`, 'info');
-        addDebug(`Final Available: Rp${formatPrice(finalAvailable)}', 'success');
-
-        // ============================================
-        // HAPUS UPDATE WALLET DI FIRESTORE
-        // (Biar data wallet tidak di-overwrite terus)
-        // ============================================
-        // Kode update wallet di HAPUS atau di-COMMENT
-
-        updateStoreLink();
-        await loadRecentProducts(sellerId);
-        renderCharts(chartData);
-        
-        addDebug('Dashboard data loaded successfully', 'success');
-
-    } catch (error) {
-        addDebug(`Error loading dashboard data: ${error.message}`, 'error');
-        showToast('error', 'Gagal memuat data: ' + error.message);
-    }
-}
-
-        // ============================================
-        // LOAD RECENT PRODUCTS - TANPA INDEX (Sortir JavaScript)
+        // LOAD RECENT PRODUCTS
         // ============================================
         async function loadRecentProducts(sellerId) {
             addDebug('Loading recent products...', 'info');
             try {
-                // QUERY TANPA orderBy (agar tidak perlu index composite)
                 const q = query(
                     collection(db, 'products'),
-                    where('sellerId', '==', sellerId)
+                    where('sellerId', '==', sellerId),
+                    orderBy('createdAt', 'desc'),
+                    limit(5)
                 );
                 const snapshot = await getDocs(q);
                 const container = document.getElementById('recentProducts');
@@ -776,25 +716,12 @@ async function loadDashboardData() {
                             Belum ada produk
                         </div>
                     `;
-                    addDebug('No recent products', 'info');
                     return;
                 }
 
-                // SORTIR DI JAVASCRIPT
-                const products = snapshot.docs.map(doc => {
-                    const data = doc.data();
-                    return {
-                        id: doc.id,
-                        ...data,
-                        createdAtDate: data.createdAt?.toDate?.() || new Date(data.createdAt)
-                    };
-                });
-                
-                products.sort((a, b) => b.createdAtDate - a.createdAtDate);
-                const recentProducts = products.slice(0, 5);
-
-                container.innerHTML = recentProducts.map(p => {
-                    const createdAt = p.createdAtDate;
+                container.innerHTML = snapshot.docs.map(doc => {
+                    const p = doc.data();
+                    const createdAt = p.createdAt?.toDate?.() || p.createdAt;
                     return `
                         <div class="recent-item">
                             <div>
@@ -815,7 +742,7 @@ async function loadDashboardData() {
                     `;
                 }).join('');
 
-                addDebug(`Loaded ${recentProducts.length} recent products`, 'success');
+                addDebug(`Loaded ${snapshot.size} recent products`, 'success');
 
             } catch (error) {
                 addDebug(`Error loading recent products: ${error.message}`, 'error');
