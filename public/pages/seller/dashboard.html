@@ -28,7 +28,7 @@
         .mobile-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-primary); cursor: pointer; padding: 8px; }
         @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); width: 280px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 16px; } .mobile-toggle { display: block !important; } }
         
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 24px; }
         .stat-card { background: var(--bg-primary); border-radius: var(--radius); padding: 20px 24px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
         .stat-card .stat-info { display: flex; flex-direction: column; }
         .stat-card .stat-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
@@ -38,6 +38,8 @@
         .stat-card .stat-icon.green { background: rgba(16,185,129,0.1); color: var(--success); }
         .stat-card .stat-icon.yellow { background: rgba(245,158,11,0.1); color: var(--warning); }
         .stat-card .stat-icon.purple { background: rgba(124,58,237,0.1); color: var(--secondary); }
+        .stat-card .stat-icon.orange { background: rgba(249,115,22,0.1); color: #F97316; }
+        .stat-card .stat-icon.blue { background: rgba(59,130,246,0.1); color: var(--info); }
         
         .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
         .chart-box { min-height: 200px; }
@@ -49,6 +51,7 @@
         .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
         .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
         .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
+        .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
         
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         .text-center { text-align: center; }
@@ -98,7 +101,6 @@
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
         
-        /* Store Link */
         .store-link-card {
             background: var(--bg-primary);
             border-radius: var(--radius-lg);
@@ -137,14 +139,10 @@
             min-width: 280px;
             cursor: default;
         }
-        .store-link-card .store-link-input input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
         
-        @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .charts-grid { grid-template-columns: 1fr; } }
-        @media (max-width: 768px) { .store-link-card .store-link-input input { min-width: 200px; } }
-        @media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr; } .store-link-card { flex-direction: column; align-items: stretch; } .store-link-card .store-link-input input { min-width: 100%; } }
+        @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } .charts-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr; } }
         
         :root {
             --bg-primary: #ffffff;
@@ -188,9 +186,7 @@
     </style>
 </head>
 <body>
-    <!-- ============================================
-    NAVBAR
-    ============================================ -->
+    <!-- NAVBAR -->
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
@@ -201,9 +197,7 @@
         </div>
     </nav>
 
-    <!-- ============================================
-    SIDEBAR
-    ============================================ -->
+    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header"><div class="title">Menu Seller</div></div>
         <nav class="sidebar-nav">
@@ -218,12 +212,9 @@
     </aside>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- ============================================
-    MAIN CONTENT
-    ============================================ -->
+    <!-- MAIN CONTENT -->
     <div class="app-wrapper">
         <main class="main-content">
-            <!-- Header -->
             <div class="flex-between" style="margin-bottom:24px;">
                 <div>
                     <h1 style="font-size:24px;">Dashboard</h1>
@@ -234,9 +225,7 @@
                 </button>
             </div>
 
-            <!-- ============================================
-            STORE LINK CARD
-            ============================================ -->
+            <!-- Store Link -->
             <div class="store-link-card" id="storeLinkCard">
                 <div class="store-link-info">
                     <i class="fas fa-link"></i>
@@ -247,12 +236,8 @@
                 </div>
                 <div class="store-link-input">
                     <input type="text" id="storeLink" readonly>
-                    <button onclick="copyStoreLink()" class="btn btn-secondary btn-sm" title="Salin link">
-                        <i class="fas fa-copy"></i>
-                    </button>
-                    <a id="storeLinkBtn" target="_blank" class="btn btn-primary btn-sm" title="Buka toko">
-                        <i class="fas fa-external-link-alt"></i>
-                    </a>
+                    <button onclick="copyStoreLink()" class="btn btn-secondary btn-sm" title="Salin link"><i class="fas fa-copy"></i></button>
+                    <a id="storeLinkBtn" target="_blank" class="btn btn-primary btn-sm" title="Buka toko"><i class="fas fa-external-link-alt"></i></a>
                 </div>
             </div>
 
@@ -261,9 +246,7 @@
                 <div class="debug-line debug-info">🔍 Debug Mode Active</div>
                 <div class="debug-line" id="debugLog">Menunggu data...</div>
             </div>
-            <button class="debug-toggle" onclick="toggleDebug()">
-                <i class="fas fa-bug"></i> Toggle Debug
-            </button>
+            <button class="debug-toggle" onclick="toggleDebug()"><i class="fas fa-bug"></i> Toggle Debug</button>
 
             <!-- Error Box -->
             <div class="error-box" id="errorBox">
@@ -271,7 +254,7 @@
                 <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
             </div>
 
-            <!-- Stats -->
+            <!-- Stats 6 Kolom -->
             <div class="stats-grid" style="margin-top:8px;">
                 <div class="stat-card">
                     <div class="stat-info"><span class="stat-label">Total Produk</span><span class="stat-value" id="totalProducts">0</span></div>
@@ -286,8 +269,16 @@
                     <div class="stat-icon yellow"><i class="fas fa-money-bill-wave"></i></div>
                 </div>
                 <div class="stat-card">
+                    <div class="stat-info"><span class="stat-label">Saldo Ditahan (Holding)</span><span class="stat-value" id="holdingBalance" style="color:#F97316;">Rp0</span></div>
+                    <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
+                </div>
+                <div class="stat-card">
                     <div class="stat-info"><span class="stat-label">Saldo Tersedia</span><span class="stat-value" id="availableBalance" style="color:var(--success);">Rp0</span></div>
                     <div class="stat-icon purple"><i class="fas fa-wallet"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info"><span class="stat-label">Pending Withdraw</span><span class="stat-value" id="pendingWithdraw" style="color:var(--info);">Rp0</span></div>
+                    <div class="stat-icon blue"><i class="fas fa-clock"></i></div>
                 </div>
             </div>
 
@@ -316,14 +307,9 @@
         </main>
     </div>
 
-    <!-- ============================================
-    TOAST CONTAINER
-    ============================================ -->
+    <!-- TOAST -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- ============================================
-    SCRIPTS
-    ============================================ -->
     <script type="importmap">
         {
             "imports": {
@@ -340,7 +326,7 @@
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, updateDoc } from "firebase/firestore";
 
         console.log('📊 [SELLER_DASHBOARD] Page loaded');
 
@@ -363,12 +349,11 @@
 
         let currentUser = null;
         let userData = null;
+        let debugVisible = false;
 
         // ============================================
         // DEBUG LOG
         // ============================================
-        let debugVisible = false;
-
         function addDebug(message, type = 'info') {
             const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
             const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
@@ -384,9 +369,7 @@
             const box = document.getElementById('debugBox');
             debugVisible = !debugVisible;
             box.classList.toggle('show');
-            if (debugVisible) {
-                addDebug('Debug mode activated', 'info');
-            }
+            if (debugVisible) addDebug('Debug mode activated', 'info');
         };
 
         // ============================================
@@ -396,42 +379,6 @@
             addDebug('Manual refresh triggered', 'info');
             showToast('info', 'Memperbarui data...');
             loadDashboardData();
-        };
-
-        // ============================================
-        // STORE LINK FUNCTIONS
-        // ============================================
-        function updateStoreLink() {
-            const storeName = userData?.storeName || userData?.displayName || '';
-            if (storeName) {
-                const slug = storeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-                const url = `${window.location.origin}/${slug}/product-seller`;
-                const linkInput = document.getElementById('storeLink');
-                const linkBtn = document.getElementById('storeLinkBtn');
-                if (linkInput) linkInput.value = url;
-                if (linkBtn) linkBtn.href = url;
-                addDebug(`Store link updated: ${url}`, 'success');
-            }
-        }
-
-        window.copyStoreLink = function() {
-            const input = document.getElementById('storeLink');
-            if (!input || !input.value) {
-                showToast('warning', 'Link toko belum tersedia');
-                return;
-            }
-            input.select();
-            try {
-                document.execCommand('copy');
-                showToast('success', '✅ Link toko berhasil disalin!');
-                addDebug('Store link copied', 'success');
-            } catch (err) {
-                navigator.clipboard.writeText(input.value).then(() => {
-                    showToast('success', '✅ Link toko berhasil disalin!');
-                }).catch(() => {
-                    showToast('error', 'Gagal menyalin link');
-                });
-            }
         };
 
         // ============================================
@@ -524,6 +471,131 @@
             });
         }
 
+        function updateStoreLink() {
+            const storeName = userData?.storeName || userData?.displayName || '';
+            if (storeName) {
+                const slug = storeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+                const url = `${window.location.origin}/${slug}/product-seller`;
+                const linkInput = document.getElementById('storeLink');
+                const linkBtn = document.getElementById('storeLinkBtn');
+                if (linkInput) linkInput.value = url;
+                if (linkBtn) linkBtn.href = url;
+                addDebug(`Store link updated: ${url}`, 'success');
+            }
+        }
+
+        window.copyStoreLink = function() {
+            const input = document.getElementById('storeLink');
+            if (!input || !input.value) {
+                showToast('warning', 'Link toko belum tersedia');
+                return;
+            }
+            input.select();
+            try {
+                document.execCommand('copy');
+                showToast('success', '✅ Link toko berhasil disalin!');
+            } catch (err) {
+                navigator.clipboard.writeText(input.value).then(() => {
+                    showToast('success', '✅ Link toko berhasil disalin!');
+                }).catch(() => {
+                    showToast('error', 'Gagal menyalin link');
+                });
+            }
+        };
+
+        // ============================================
+        // CEK & BUAT WALLET JIKA BELUM ADA
+        // ============================================
+        async function ensureWalletExists(uid) {
+            try {
+                const userRef = doc(db, 'users', uid);
+                const userDoc = await getDoc(userRef);
+                
+                if (!userDoc.exists()) {
+                    addDebug('❌ User tidak ditemukan', 'error');
+                    return false;
+                }
+                
+                const data = userDoc.data();
+                
+                // Cek apakah field wallet ada
+                if (!data.wallet) {
+                    addDebug('💰 Wallet tidak ditemukan, membuat baru...', 'warning');
+                    
+                    // Hitung saldo dari order yang ada
+                    const ordersSnapshot = await getDocs(
+                        query(
+                            collection(db, 'orders'),
+                            where('sellerId', '==', uid),
+                            where('paymentStatus', 'in', ['settlement', 'paid'])
+                        )
+                    );
+                    
+                    let totalRevenue = 0;
+                    ordersSnapshot.forEach(doc => {
+                        totalRevenue += doc.data().amount || 0;
+                    });
+                    
+                    // Buat wallet dengan default values
+                    await updateDoc(userRef, {
+                        wallet: {
+                            available: 0,
+                            holding: 0,
+                            totalRevenue: totalRevenue,
+                            totalWithdraw: 0,
+                            pendingWithdraw: 0,
+                            lastHolding: null,
+                            lastReleased: null
+                        },
+                        updatedAt: new Date().toISOString()
+                    });
+                    
+                    addDebug('✅ Wallet berhasil dibuat dengan total revenue: Rp' + formatPrice(totalRevenue), 'success');
+                    showToast('success', '💰 Wallet berhasil diaktifkan!');
+                    return true;
+                }
+                
+                // Cek apakah ada field yang hilang di wallet
+                const requiredFields = ['available', 'holding', 'totalRevenue', 'totalWithdraw', 'pendingWithdraw'];
+                const wallet = data.wallet;
+                let needUpdate = false;
+                const updateData = {};
+                
+                requiredFields.forEach(field => {
+                    if (wallet[field] === undefined) {
+                        updateData[`wallet.${field}`] = 0;
+                        needUpdate = true;
+                    }
+                });
+                
+                if (!wallet.lastHolding) {
+                    updateData['wallet.lastHolding'] = null;
+                    needUpdate = true;
+                }
+                if (!wallet.lastReleased) {
+                    updateData['wallet.lastReleased'] = null;
+                    needUpdate = true;
+                }
+                
+                if (needUpdate) {
+                    addDebug('⚠️ Wallet memiliki field yang hilang, memperbaiki...', 'warning');
+                    await updateDoc(userRef, {
+                        ...updateData,
+                        updatedAt: new Date().toISOString()
+                    });
+                    addDebug('✅ Wallet berhasil diperbaiki!', 'success');
+                    return true;
+                }
+                
+                addDebug('✅ Wallet sudah lengkap', 'success');
+                return true;
+                
+            } catch (error) {
+                addDebug(`❌ Error checking wallet: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
         // ============================================
         // AUTH STATE
         // ============================================
@@ -541,13 +613,21 @@
             try {
                 const userRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userRef);
+                
                 if (!userDoc.exists() || userDoc.data().role !== 'seller') {
                     addDebug('User is not seller, redirecting...', 'error');
                     window.location.href = '/';
                     return;
                 }
+                
                 userData = { id: userDoc.id, ...userDoc.data() };
                 addDebug(`User data loaded: ${userData.displayName || 'Seller'}`, 'success');
+                
+                // ============================================
+                // CEK & BUAT WALLET JIKA BELUM ADA
+                // ============================================
+                await ensureWalletExists(user.uid);
+                
                 document.getElementById('welcomeMessage').textContent =
                     `Selamat datang, ${userData.storeName || userData.displayName || 'Seller'}!`;
                 document.getElementById('productCount').textContent = userData.productCount || 0;
@@ -562,7 +642,7 @@
         });
 
         // ============================================
-        // LOAD DASHBOARD DATA - HANYA PRODUK (BUKAN BANNER)
+        // LOAD DASHBOARD DATA
         // ============================================
         async function loadDashboardData() {
             addDebug('Loading dashboard data...', 'info');
@@ -582,23 +662,8 @@
                 document.getElementById('totalProducts').textContent = productsSnapshot.size;
                 addDebug(`Total products: ${productsSnapshot.size}`, 'success');
 
-                // Orders - HANYA PRODUCT (bukan banner)
-                const allOrdersSnapshot = await getDocs(
-                    query(
-                        collection(db, 'orders'), 
-                        where('sellerId', '==', sellerId),
-                        where('type', '==', 'product_purchase')
-                    )
-                );
-                
-                let totalSales = 0;
-                let totalRevenue = 0;
-                let availableAmount = 0;
-                
-                // Ambil setting holding time dari Firestore
-                let holdingDays = 0;
-                let holdingHours = 0;
-                let holdingMinutes = 0;
+                // Ambil setting holding time
+                let holdingDays = 0, holdingHours = 0, holdingMinutes = 0;
                 try {
                     const settingsRef = doc(db, 'settings', 'marketplace');
                     const settingsDoc = await getDoc(settingsRef);
@@ -616,10 +681,21 @@
                 const holdingMilliseconds = (holdingDays * 24 * 60 * 60 * 1000) + 
                                             (holdingHours * 60 * 60 * 1000) + 
                                             (holdingMinutes * 60 * 1000);
-                
                 const now = new Date();
+
+                // Orders - HANYA PRODUCT
+                const allOrdersSnapshot = await getDocs(
+                    query(
+                        collection(db, 'orders'), 
+                        where('sellerId', '==', sellerId),
+                        where('type', '==', 'product_purchase')
+                    )
+                );
                 
-                // Data untuk chart
+                let totalSales = 0;
+                let totalRevenue = 0;
+                let holdingAmount = 0;
+                let availableAmount = 0;
                 const chartData = [];
                 
                 allOrdersSnapshot.forEach(doc => {
@@ -627,17 +703,17 @@
                     const amount = order.amount || 0;
                     const status = order.paymentStatus || order.status || '';
                     
-                    // Hanya hitung yang settlement/paid untuk pendapatan
                     if (status === 'settlement' || status === 'paid') {
                         totalRevenue += amount;
                         totalSales++;
                         
-                        // Cek apakah sudah melewati holding period
                         const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
                         const elapsed = now - createdAt;
                         
                         if (elapsed >= holdingMilliseconds) {
                             availableAmount += amount;
+                        } else {
+                            holdingAmount += amount;
                         }
                         
                         chartData.push({
@@ -646,14 +722,32 @@
                         });
                     }
                 });
+
+                // Withdraw Pending (sedang diproses admin)
+                const withdrawPendingSnapshot = await getDocs(
+                    query(
+                        collection(db, 'withdrawals'),
+                        where('sellerId', '==', sellerId),
+                        where('status', '==', 'pending')
+                    )
+                );
+                let pendingWithdrawAmount = 0;
+                withdrawPendingSnapshot.forEach(doc => {
+                    pendingWithdrawAmount += doc.data().amount || 0;
+                });
                 
+                // Update UI
                 document.getElementById('totalSales').textContent = totalSales;
                 document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
+                document.getElementById('holdingBalance').textContent = `Rp${formatPrice(holdingAmount)}`;
                 document.getElementById('availableBalance').textContent = `Rp${formatPrice(availableAmount)}`;
+                document.getElementById('pendingWithdraw').textContent = `Rp${formatPrice(pendingWithdrawAmount)}`;
                 
                 addDebug(`Total sales: ${totalSales}`, 'success');
                 addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
+                addDebug(`Holding: Rp${formatPrice(holdingAmount)}`, 'success');
                 addDebug(`Available: Rp${formatPrice(availableAmount)}`, 'success');
+                addDebug(`Pending withdraw: Rp${formatPrice(pendingWithdrawAmount)}`, 'success');
 
                 updateStoreLink();
                 await loadRecentProducts(sellerId);
@@ -689,7 +783,6 @@
                             Belum ada produk
                         </div>
                     `;
-                    addDebug('No recent products', 'info');
                     return;
                 }
 
@@ -706,7 +799,7 @@
                             <div style="text-align:right;">
                                 <span style="color:var(--primary);font-weight:600;">Rp${formatPrice(p.price)}</span>
                                 <br>
-                                <span class="badge ${p.status === 'published' ? 'badge-success' : p.status === 'pending' ? 'badge-warning' : 'badge-info'}" style="font-size:10px;">
+                                <span class="badge ${p.status === 'published' ? 'badge-success' : 'badge-warning'}" style="font-size:10px;">
                                     ${p.status || 'draft'}
                                 </span>
                                 <br>
@@ -732,22 +825,18 @@
             addDebug('Rendering charts...', 'info');
             
             try {
-                // Sales Chart
                 const salesCtx = document.getElementById('salesChart');
                 if (salesCtx) {
                     const salesData = chartData.map(() => 1);
                     const dates = chartData.map(d => d.date);
                     renderChart(salesCtx, dates, salesData, 'Penjualan');
-                    addDebug('Sales chart rendered', 'success');
                 }
 
-                // Revenue Chart
                 const revenueCtx = document.getElementById('revenueChart');
                 if (revenueCtx) {
                     const revData = chartData.map(d => d.amount);
                     const dates = chartData.map(d => d.date);
                     renderChart(revenueCtx, dates, revData, 'Pendapatan');
-                    addDebug('Revenue chart rendered', 'success');
                 }
             } catch (error) {
                 addDebug(`Error rendering charts: ${error.message}`, 'error');
@@ -776,7 +865,6 @@
 
             const maxValue = Math.max(...data, 1) * 1.2;
             
-            // Grid
             ctx.strokeStyle = '#E5E7EB';
             ctx.lineWidth = 1;
             ctx.setLineDash([3, 3]);
@@ -795,7 +883,6 @@
             }
             ctx.setLineDash([]);
 
-            // Bars
             const barWidth = (width - padding * 2) / data.length * 0.6;
             const spacing = (width - padding * 2) / data.length;
             const colors = label === 'Pendapatan' ? ['#7C3AED', '#A78BFA'] : ['#4F46E5', '#818CF8'];
@@ -814,7 +901,6 @@
                 ctx.roundRect(x, y, barWidth, barHeight, 4);
                 ctx.fill();
 
-                // Label
                 ctx.fillStyle = '#6B7280';
                 ctx.font = '9px Inter, sans-serif';
                 ctx.textAlign = 'center';
@@ -823,11 +909,8 @@
             });
         }
 
-        // ============================================
-        // INIT
-        // ============================================
         addDebug('Page ready', 'success');
-        console.log('✅ [SELLER_DASHBOARD] Page ready - Hanya transaksi PRODUK');
+        console.log('✅ [SELLER_DASHBOARD] Page ready');
     </script>
 </body>
 </html>

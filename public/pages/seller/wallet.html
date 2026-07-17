@@ -37,6 +37,7 @@
         .stat-card .stat-icon.yellow { background: rgba(245,158,11,0.1); color: var(--warning); }
         .stat-card .stat-icon.indigo { background: rgba(79,70,229,0.1); color: var(--primary); }
         .stat-card .stat-icon.purple { background: rgba(124,58,237,0.1); color: var(--secondary); }
+        .stat-card .stat-icon.orange { background: rgba(249,115,22,0.1); color: #F97316; }
         
         .transaction-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
         .transaction-item:last-child { border-bottom: none; }
@@ -176,9 +177,7 @@
                 <div class="debug-line debug-info">🔍 Debug Mode Active</div>
                 <div class="debug-line" id="debugLog">Menunggu data...</div>
             </div>
-            <button class="debug-toggle" onclick="toggleDebug()">
-                <i class="fas fa-bug"></i> Toggle Debug
-            </button>
+            <button class="debug-toggle" onclick="toggleDebug()"><i class="fas fa-bug"></i> Toggle Debug</button>
 
             <div class="error-box" id="errorBox">
                 <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
@@ -191,8 +190,8 @@
                     <div class="stat-icon green"><i class="fas fa-wallet"></i></div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-info"><span class="stat-label">Saldo Ditahan</span><span class="stat-value" style="color:var(--warning);" id="holdingBalance">Rp0</span></div>
-                    <div class="stat-icon yellow"><i class="fas fa-clock"></i></div>
+                    <div class="stat-info"><span class="stat-label">Saldo Ditahan (Holding)</span><span class="stat-value" style="color:#F97316;" id="holdingBalance">Rp0</span></div>
+                    <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-info"><span class="stat-label">Total Pendapatan</span><span class="stat-value" style="color:var(--primary);" id="totalRevenue">Rp0</span></div>
@@ -224,9 +223,6 @@
     </script>
 
     <script type="module">
-        // ============================================
-        // IMPORTS
-        // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit } from "firebase/firestore";
@@ -248,10 +244,6 @@
         const db = getFirestore(app);
 
         let currentUser = null;
-
-        // ============================================
-        // DEBUG LOG
-        // ============================================
         let debugVisible = false;
 
         function addDebug(message, type = 'info') {
@@ -269,25 +261,18 @@
             const box = document.getElementById('debugBox');
             debugVisible = !debugVisible;
             box.classList.toggle('show');
-            if (debugVisible) {
-                addDebug('Debug mode activated', 'info');
-            }
+            if (debugVisible) addDebug('Debug mode activated', 'info');
         };
 
-        // ============================================
-        // REFRESH DATA
-        // ============================================
         window.refreshData = function() {
             addDebug('Manual refresh triggered', 'info');
             showToast('info', 'Memperbarui data wallet...');
             if (currentUser) {
                 loadWalletData(currentUser.uid);
+                loadTransactions(currentUser.uid);
             }
         };
 
-        // ============================================
-        // THEME & SIDEBAR
-        // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -327,9 +312,6 @@
             catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
         });
 
-        // ============================================
-        // TOAST & ERROR
-        // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
             const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
@@ -354,9 +336,6 @@
             setTimeout(() => { box.classList.remove('show'); }, 10000);
         }
 
-        // ============================================
-        // FORMAT FUNCTIONS
-        // ============================================
         function formatPrice(price) {
             if (!price && price !== 0) return '0';
             return new Intl.NumberFormat('id-ID').format(price);
@@ -399,6 +378,7 @@
                 }
                 addDebug('User is seller', 'success');
                 await loadWalletData(user.uid);
+                await loadTransactions(user.uid);
 
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
@@ -407,89 +387,21 @@
         });
 
         // ============================================
-        // LOAD WALLET DATA - HANYA PRODUK (BUKAN BANNER)
+        // LOAD WALLET DATA
         // ============================================
         async function loadWalletData(uid) {
             addDebug('Loading wallet data...', 'info');
             try {
-                // Ambil setting holding time dari Firestore
-                let holdingDays = 0;
-                let holdingHours = 0;
-                let holdingMinutes = 0;
-                try {
-                    const settingsRef = doc(db, 'settings', 'marketplace');
-                    const settingsDoc = await getDoc(settingsRef);
-                    if (settingsDoc.exists()) {
-                        const settings = settingsDoc.data();
-                        holdingDays = settings.holdingDays || 0;
-                        holdingHours = settings.holdingHours || 0;
-                        holdingMinutes = settings.holdingMinutes || 0;
-                        addDebug(`Holding settings: ${holdingDays}d ${holdingHours}h ${holdingMinutes}m`, 'info');
-                    }
-                } catch (e) {
-                    addDebug('Using default holding settings', 'warning');
+                const userRef = doc(db, 'users', uid);
+                const userDoc = await getDoc(userRef);
+                if (userDoc.exists()) {
+                    const wallet = userDoc.data().wallet || { available: 0, holding: 0, totalRevenue: 0, totalWithdraw: 0 };
+                    document.getElementById('availableBalance').textContent = `Rp${formatPrice(wallet.available || 0)}`;
+                    document.getElementById('holdingBalance').textContent = `Rp${formatPrice(wallet.holding || 0)}`;
+                    document.getElementById('totalRevenue').textContent = `Rp${formatPrice(wallet.totalRevenue || 0)}`;
+                    document.getElementById('totalWithdraw').textContent = `Rp${formatPrice(wallet.totalWithdraw || 0)}`;
+                    addDebug('Wallet data loaded', 'success');
                 }
-                
-                const holdingMilliseconds = (holdingDays * 24 * 60 * 60 * 1000) + 
-                                            (holdingHours * 60 * 60 * 1000) + 
-                                            (holdingMinutes * 60 * 1000);
-                
-                const now = new Date();
-                
-                // Ambil semua order seller - HANYA PRODUCT
-                const ordersSnapshot = await getDocs(
-                    query(
-                        collection(db, 'orders'), 
-                        where('sellerId', '==', uid),
-                        where('type', '==', 'product_purchase')
-                    )
-                );
-                
-                let totalRevenue = 0;
-                let holdingAmount = 0;
-                let availableAmount = 0;
-                let totalWithdraw = 0;
-                let transactions = [];
-                
-                ordersSnapshot.forEach(doc => {
-                    const order = doc.data();
-                    const amount = order.amount || 0;
-                    const status = order.paymentStatus || order.status || '';
-                    
-                    // Hanya hitung yang settlement/paid
-                    if (status === 'settlement' || status === 'paid') {
-                        totalRevenue += amount;
-                        
-                        const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
-                        const elapsed = now - createdAt;
-                        
-                        if (elapsed >= holdingMilliseconds) {
-                            availableAmount += amount;
-                        } else {
-                            holdingAmount += amount;
-                        }
-                        
-                        transactions.push({
-                            ...order,
-                            createdAtDate: createdAt,
-                            isAvailable: elapsed >= holdingMilliseconds,
-                            orderId: order.orderId || doc.id
-                        });
-                    }
-                });
-                
-                document.getElementById('availableBalance').textContent = `Rp${formatPrice(availableAmount)}`;
-                document.getElementById('holdingBalance').textContent = `Rp${formatPrice(holdingAmount)}`;
-                document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
-                document.getElementById('totalWithdraw').textContent = `Rp${formatPrice(totalWithdraw)}`;
-                
-                addDebug(`Available: Rp${formatPrice(availableAmount)}`, 'success');
-                addDebug(`Holding: Rp${formatPrice(holdingAmount)}`, 'success');
-                addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
-                
-                // Render transactions
-                renderTransactions(transactions);
-                
             } catch (error) {
                 addDebug(`Error loading wallet: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat wallet: ' + error.message);
@@ -497,61 +409,67 @@
         }
 
         // ============================================
-        // RENDER TRANSACTIONS
+        // LOAD TRANSACTIONS - HANYA PRODUK
         // ============================================
-        function renderTransactions(transactions) {
-            const container = document.getElementById('transactionHistory');
-            
-            if (!transactions || transactions.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center text-secondary" style="padding:20px 0;">
-                        <i class="fas fa-receipt" style="font-size:24px;display:block;margin-bottom:8px;"></i>
-                        Belum ada transaksi produk
-                    </div>
-                `;
-                return;
+        async function loadTransactions(uid) {
+            addDebug('Loading transactions...', 'info');
+            try {
+                const q = query(
+                    collection(db, 'orders'),
+                    where('sellerId', '==', uid),
+                    where('type', '==', 'product_purchase'),
+                    orderBy('createdAt', 'desc'),
+                    limit(20)
+                );
+                const snapshot = await getDocs(q);
+                const container = document.getElementById('transactionHistory');
+
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div class="text-center text-secondary" style="padding:20px 0;">
+                            <i class="fas fa-receipt" style="font-size:24px;display:block;margin-bottom:8px;"></i>
+                            Belum ada transaksi
+                        </div>
+                    `;
+                    addDebug('No transactions found', 'info');
+                    return;
+                }
+
+                const statusColors = {
+                    'pending': 'badge-warning',
+                    'settlement': 'badge-success',
+                    'failed': 'badge-danger',
+                    'expire': 'badge-danger'
+                };
+
+                container.innerHTML = snapshot.docs.map(doc => {
+                    const t = doc.data();
+                    return `
+                        <div class="transaction-item">
+                            <div>
+                                <strong>${t.productName || 'Product'}</strong>
+                                <br><span style="font-size:13px;color:var(--text-secondary);">${t.buyerName || 'Anonymous'} • ${formatDate(t.createdAt)}</span>
+                            </div>
+                            <div style="text-align:right;">
+                                <span style="font-weight:600;color:${t.paymentStatus === 'settlement' ? 'var(--success)' : 'var(--text-secondary)'};">
+                                    ${t.paymentStatus === 'settlement' ? '+' : ''}Rp${formatPrice(t.amount)}
+                                </span>
+                                <br><span class="badge ${statusColors[t.paymentStatus] || 'badge-info'}">${t.paymentStatus || t.status}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                addDebug(`Loaded ${snapshot.size} transactions`, 'success');
+
+            } catch (error) {
+                addDebug(`Error loading transactions: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat transaksi: ' + error.message);
             }
-            
-            const statusColors = {
-                'pending': 'badge-warning',
-                'settlement': 'badge-success',
-                'failed': 'badge-danger',
-                'expire': 'badge-danger'
-            };
-            
-            container.innerHTML = transactions.map(t => {
-                const statusText = t.paymentStatus || t.status || 'pending';
-                const isAvailable = t.isAvailable;
-                
-                return `
-                    <div class="transaction-item">
-                        <div>
-                            <strong>${t.productName || 'Product'}</strong>
-                            <br>
-                            <span style="font-size:13px;color:var(--text-secondary);">
-                                ${t.buyerName || 'Anonymous'} • ${formatDate(t.createdAtDate)}
-                            </span>
-                            <br>
-                            <span style="font-size:11px;color:${isAvailable ? 'var(--success)' : 'var(--warning)'};">
-                                ${isAvailable ? '✅ Saldo tersedia' : '⏳ Dalam holding'}
-                            </span>
-                            <br>
-                            <span style="font-size:10px;color:var(--text-light);">${t.orderId || ''}</span>
-                        </div>
-                        <div style="text-align:right;">
-                            <span style="font-weight:600;color:${statusText === 'settlement' || statusText === 'paid' ? 'var(--success)' : 'var(--text-secondary)'};">
-                                ${statusText === 'settlement' || statusText === 'paid' ? '+' : ''}Rp${formatPrice(t.amount)}
-                            </span>
-                            <br>
-                            <span class="badge ${statusColors[statusText] || 'badge-info'}">${statusText}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
         }
 
         addDebug('Page ready', 'success');
-        console.log('✅ [SELLER_WALLET] Page ready - Hanya transaksi PRODUK');
+        console.log('✅ [SELLER_WALLET] Page ready');
     </script>
 </body>
 </html>

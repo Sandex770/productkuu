@@ -98,9 +98,7 @@
             opacity: 0.6;
             text-decoration: line-through;
         }
-        .pending-expired .badge {
-            opacity: 0.5;
-        }
+        .pending-expired .badge { opacity: 0.5; }
         
         :root {
             --bg-primary: #ffffff;
@@ -120,6 +118,7 @@
             --danger: #ef4444;
             --info: #3b82f6;
             --primary: #4F46E5;
+            --secondary: #7C3AED;
             --transition: all 0.3s ease;
         }
         [data-theme="dark"] {
@@ -183,9 +182,7 @@
                 <div class="debug-line debug-info">🔍 Debug Mode Active</div>
                 <div class="debug-line" id="debugLog">Menunggu data...</div>
             </div>
-            <button class="debug-toggle" onclick="toggleDebug()">
-                <i class="fas fa-bug"></i> Toggle Debug
-            </button>
+            <button class="debug-toggle" onclick="toggleDebug()"><i class="fas fa-bug"></i> Toggle Debug</button>
 
             <div class="error-box" id="errorBox">
                 <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
@@ -245,9 +242,6 @@
     </script>
 
     <script type="module">
-        // ============================================
-        // IMPORTS
-        // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter } from "firebase/firestore";
@@ -270,10 +264,6 @@
 
         let currentUser = null;
         let transactions = [], lastDoc = null, hasMore = true, currentPage = 1, limitPerPage = 20;
-
-        // ============================================
-        // DEBUG LOG
-        // ============================================
         let debugVisible = false;
 
         function addDebug(message, type = 'info') {
@@ -291,23 +281,15 @@
             const box = document.getElementById('debugBox');
             debugVisible = !debugVisible;
             box.classList.toggle('show');
-            if (debugVisible) {
-                addDebug('Debug mode activated', 'info');
-            }
+            if (debugVisible) addDebug('Debug mode activated', 'info');
         };
 
-        // ============================================
-        // REFRESH DATA
-        // ============================================
         window.refreshData = function() {
             addDebug('Manual refresh triggered', 'info');
             showToast('info', 'Memperbarui data transaksi...');
             loadTransactions(true);
         };
 
-        // ============================================
-        // THEME & SIDEBAR
-        // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -347,19 +329,14 @@
             catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
         });
 
-        // ============================================
-        // TOAST & ERROR
-        // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
-            container.innerHTML = '';
             const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
-            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.style.borderLeftColor = colors[type] || colors.info;
             toast.innerHTML = `
-                <span class="toast-icon"><i class="fas ${icons[type] || 'fa-info-circle'}"></i></span>
+                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
                 <div class="toast-content"><div class="toast-message">${message}</div></div>
                 <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
             `;
@@ -376,9 +353,6 @@
             setTimeout(() => { box.classList.remove('show'); }, 10000);
         }
 
-        // ============================================
-        // FORMAT FUNCTIONS
-        // ============================================
         function formatPrice(price) {
             if (!price && price !== 0) return '0';
             return new Intl.NumberFormat('id-ID').format(price);
@@ -386,50 +360,33 @@
 
         function formatDate(timestamp) {
             if (!timestamp) return '-';
-            
             if (timestamp.toDate && typeof timestamp.toDate === 'function') {
                 const date = timestamp.toDate();
                 return date.toLocaleDateString('id-ID', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
+                    year: 'numeric', month: 'long', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
                 });
             }
-            
             if (timestamp instanceof Date) {
                 return timestamp.toLocaleDateString('id-ID', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
+                    year: 'numeric', month: 'long', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
                 });
             }
-            
             try {
                 const date = new Date(timestamp);
                 if (!isNaN(date.getTime())) {
                     return date.toLocaleDateString('id-ID', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
+                        year: 'numeric', month: 'long', day: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
                     });
                 }
             } catch (e) {}
-            
             return '-';
         }
 
-        // ============================================
-        // CEK APAKAH PENDING SUDAH EXPIRED (> 24 JAM)
-        // ============================================
         function isPendingExpired(timestamp) {
             if (!timestamp) return false;
-            
             let date;
             if (timestamp.toDate && typeof timestamp.toDate === 'function') {
                 date = timestamp.toDate();
@@ -438,9 +395,7 @@
             } else {
                 date = new Date(timestamp);
             }
-            
             if (isNaN(date.getTime())) return false;
-            
             const now = new Date();
             const diffHours = (now - date) / (1000 * 60 * 60);
             return diffHours > 24;
@@ -478,7 +433,7 @@
         });
 
         // ============================================
-        // LOAD TRANSACTIONS - HANYA PRODUK (BUKAN BANNER)
+        // LOAD TRANSACTIONS - HANYA PRODUK
         // ============================================
         async function loadTransactions(reset = true) {
             if (!currentUser) {
@@ -493,10 +448,9 @@
                     return;
                 }
                 
-                // FILTER: Hanya transaksi PRODUK (bukan banner)
                 let constraints = [
                     where('sellerId', '==', currentUser.uid),
-                    where('type', '==', 'product_purchase'), // <-- HANYA PRODUK
+                    where('type', '==', 'product_purchase'),
                     orderBy('createdAt', 'desc')
                 ];
                 
@@ -546,18 +500,17 @@
         }
 
         // ============================================
-        // RENDER TRANSACTIONS - PENDING > 24 JAM OTOMATIS HILANG
+        // RENDER TRANSACTIONS
         // ============================================
         function renderTransactions() {
             const tbody = document.getElementById('transactionsBody');
             
-            // FILTER: Hapus transaksi pending yang sudah > 24 jam
             const filteredTransactions = transactions.filter(t => {
                 if (t.paymentStatus === 'pending') {
                     const isExpired = isPendingExpired(t.createdAtTimestamp);
                     if (isExpired) {
                         addDebug(`🚫 Hiding expired pending order: ${t.orderId}`, 'warning');
-                        return false; // Sembunyikan
+                        return false;
                     }
                 }
                 return true;
@@ -596,9 +549,6 @@
             renderPagination();
         }
 
-        // ============================================
-        // PAGINATION
-        // ============================================
         function renderPagination() {
             const container = document.getElementById('pagination');
             if (!hasMore && transactions.length <= limitPerPage) { 
@@ -645,7 +595,7 @@
         };
 
         addDebug('Page ready', 'success');
-        console.log('✅ [SELLER_TRANSACTIONS] Page ready - Hanya transaksi PRODUK, pending > 24 jam otomatis hilang');
+        console.log('✅ [SELLER_TRANSACTIONS] Page ready - Hanya transaksi PRODUK');
     </script>
 </body>
 </html>
