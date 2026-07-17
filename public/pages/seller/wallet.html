@@ -41,6 +41,10 @@
         
         .transaction-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
         .transaction-item:last-child { border-bottom: none; }
+        .transaction-item .status-badge { font-size: 11px; padding: 2px 10px; border-radius: 9999px; }
+        .transaction-item .status-pending { background: rgba(245,158,11,0.1); color: var(--warning); }
+        .transaction-item .status-success { background: rgba(16,185,129,0.1); color: var(--success); }
+        .transaction-item .status-holding { background: rgba(249,115,22,0.1); color: #F97316; }
         
         .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
         .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
@@ -48,6 +52,7 @@
         .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
         .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
         .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
+        .badge-holding { background: rgba(249,115,22,0.1); color: #F97316; }
         
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         .text-center { text-align: center; }
@@ -346,11 +351,8 @@
             const d = date instanceof Date ? date : new Date(date);
             if (isNaN(d.getTime())) return '-';
             return d.toLocaleDateString('id-ID', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+                year: 'numeric', month: 'long', day: 'numeric',
+                hour: '2-digit', minute: '2-digit'
             });
         }
 
@@ -387,21 +389,124 @@
         });
 
         // ============================================
-        // LOAD WALLET DATA
+        // LOAD WALLET DATA - FIXED (HITUNG ULANG)
         // ============================================
         async function loadWalletData(uid) {
             addDebug('Loading wallet data...', 'info');
             try {
-                const userRef = doc(db, 'users', uid);
-                const userDoc = await getDoc(userRef);
-                if (userDoc.exists()) {
-                    const wallet = userDoc.data().wallet || { available: 0, holding: 0, totalRevenue: 0, totalWithdraw: 0 };
-                    document.getElementById('availableBalance').textContent = `Rp${formatPrice(wallet.available || 0)}`;
-                    document.getElementById('holdingBalance').textContent = `Rp${formatPrice(wallet.holding || 0)}`;
-                    document.getElementById('totalRevenue').textContent = `Rp${formatPrice(wallet.totalRevenue || 0)}`;
-                    document.getElementById('totalWithdraw').textContent = `Rp${formatPrice(wallet.totalWithdraw || 0)}`;
-                    addDebug('Wallet data loaded', 'success');
+                // Ambil setting holding time
+                let holdingDays = 0, holdingHours = 0, holdingMinutes = 0;
+                try {
+                    const settingsRef = doc(db, 'settings', 'marketplace');
+                    const settingsDoc = await getDoc(settingsRef);
+                    if (settingsDoc.exists()) {
+                        const settings = settingsDoc.data();
+                        holdingDays = settings.holdingDays || 0;
+                        holdingHours = settings.holdingHours || 0;
+                        holdingMinutes = settings.holdingMinutes || 0;
+                    }
+                } catch (e) {}
+                
+                const holdingMilliseconds = (holdingDays * 24 * 60 * 60 * 1000) + 
+                                            (holdingHours * 60 * 60 * 1000) + 
+                                            (holdingMinutes * 60 * 1000);
+                const now = new Date();
+
+                // ============================================
+                // HITUNG DARI ORDER
+                // ============================================
+                const ordersSnapshot = await getDocs(
+                    query(
+                        collection(db, 'orders'),
+                        where('sellerId', '==', uid),
+                        where('type', '==', 'product_purchase')
+                    )
+                );
+                
+                let totalRevenue = 0;
+                let holdingAmount = 0;
+                let availableAmount = 0;
+                
+                ordersSnapshot.forEach(doc => {
+                    const order = doc.data();
+                    const amount = order.amount || 0;
+                    const status = order.paymentStatus || order.status || '';
+                    
+                    if (status === 'settlement' || status === 'paid') {
+                        totalRevenue += amount;
+                        const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
+                        const elapsed = now - createdAt;
+                        if (elapsed >= holdingMilliseconds) {
+                            availableAmount += amount;
+                        } else {
+                            holdingAmount += amount;
+                        }
+                    }
+                });
+
+                // ============================================
+                // KURANGI DENGAN PENDING WITHDRAW
+                // ============================================
+                const pendingWithdrawSnapshot = await getDocs(
+                    query(
+                        collection(db, 'withdrawals'),
+                        where('sellerId', '==', uid),
+                        where('status', '==', 'pending')
+                    )
+                );
+                let pendingAmount = 0;
+                pendingWithdrawSnapshot.forEach(doc => {
+                    pendingAmount += doc.data().amount || 0;
+                });
+
+                // ============================================
+                // KURANGI DENGAN WITHDRAW YANG SUDAH APPROVED
+                // ============================================
+                const approvedWithdrawSnapshot = await getDocs(
+                    query(
+                        collection(db, 'withdrawals'),
+                        where('sellerId', '==', uid),
+                        where('status', '==', 'approved')
+                    )
+                );
+                let approvedAmount = 0;
+                approvedWithdrawSnapshot.forEach(doc => {
+                    approvedAmount += doc.data().amount || 0;
+                });
+
+                // Saldo tersedia = revenue - pending - approved
+                const finalAvailable = Math.max(0, availableAmount - pendingAmount - approvedAmount);
+                // Holding tetap sama
+                const finalHolding = Math.max(0, holdingAmount);
+                // Total withdraw = approved amount
+                const finalTotalWithdraw = approvedAmount;
+                
+                document.getElementById('availableBalance').textContent = `Rp${formatPrice(finalAvailable)}`;
+                document.getElementById('holdingBalance').textContent = `Rp${formatPrice(finalHolding)}`;
+                document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
+                document.getElementById('totalWithdraw').textContent = `Rp${formatPrice(finalTotalWithdraw)}`;
+                
+                addDebug(`Available: Rp${formatPrice(finalAvailable)}`, 'success');
+                addDebug(`Holding: Rp${formatPrice(finalHolding)}`, 'success');
+                addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
+                addDebug(`Total withdraw: Rp${formatPrice(finalTotalWithdraw)}`, 'success');
+
+                // Update wallet di Firestore agar sinkron
+                try {
+                    const userRef = doc(db, 'users', uid);
+                    await updateDoc(userRef, {
+                        'wallet.available': finalAvailable,
+                        'wallet.holding': finalHolding,
+                        'wallet.totalRevenue': totalRevenue,
+                        'wallet.totalWithdraw': finalTotalWithdraw,
+                        'wallet.pendingWithdraw': pendingAmount,
+                        updatedAt: new Date().toISOString()
+                    });
+                    addDebug('Wallet updated in Firestore', 'success');
+                } catch (updateError) {
+                    addDebug(`Error updating wallet: ${updateError.message}`, 'warning');
                 }
+
             } catch (error) {
                 addDebug(`Error loading wallet: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat wallet: ' + error.message);
@@ -467,6 +572,15 @@
                 showToast('error', 'Gagal memuat transaksi: ' + error.message);
             }
         }
+
+        // ============================================
+        // UPDATE DOC (Import di atas)
+        // ============================================
+        // Tambahkan updateDoc di import
+        // import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, updateDoc } from "firebase/firestore";
+
+        // Perbaiki import di atas menjadi:
+        // import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, updateDoc } from "firebase/firestore";
 
         addDebug('Page ready', 'success');
         console.log('✅ [SELLER_WALLET] Page ready');

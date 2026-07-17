@@ -518,11 +518,9 @@
                 
                 const data = userDoc.data();
                 
-                // Cek apakah field wallet ada
                 if (!data.wallet) {
                     addDebug('💰 Wallet tidak ditemukan, membuat baru...', 'warning');
                     
-                    // Hitung saldo dari order yang ada
                     const ordersSnapshot = await getDocs(
                         query(
                             collection(db, 'orders'),
@@ -536,7 +534,6 @@
                         totalRevenue += doc.data().amount || 0;
                     });
                     
-                    // Buat wallet dengan default values
                     await updateDoc(userRef, {
                         wallet: {
                             available: 0,
@@ -555,7 +552,6 @@
                     return true;
                 }
                 
-                // Cek apakah ada field yang hilang di wallet
                 const requiredFields = ['available', 'holding', 'totalRevenue', 'totalWithdraw', 'pendingWithdraw'];
                 const wallet = data.wallet;
                 let needUpdate = false;
@@ -623,9 +619,6 @@
                 userData = { id: userDoc.id, ...userDoc.data() };
                 addDebug(`User data loaded: ${userData.displayName || 'Seller'}`, 'success');
                 
-                // ============================================
-                // CEK & BUAT WALLET JIKA BELUM ADA
-                // ============================================
                 await ensureWalletExists(user.uid);
                 
                 document.getElementById('welcomeMessage').textContent =
@@ -642,7 +635,7 @@
         });
 
         // ============================================
-        // LOAD DASHBOARD DATA
+        // LOAD DASHBOARD DATA - FIXED (KURANGI WITHDRAW)
         // ============================================
         async function loadDashboardData() {
             addDebug('Loading dashboard data...', 'info');
@@ -683,7 +676,9 @@
                                             (holdingMinutes * 60 * 1000);
                 const now = new Date();
 
-                // Orders - HANYA PRODUCT
+                // ============================================
+                // ORDERS - HANYA PRODUCT
+                // ============================================
                 const allOrdersSnapshot = await getDocs(
                     query(
                         collection(db, 'orders'), 
@@ -695,7 +690,7 @@
                 let totalSales = 0;
                 let totalRevenue = 0;
                 let holdingAmount = 0;
-                let availableAmount = 0;
+                let availableFromOrders = 0;
                 const chartData = [];
                 
                 allOrdersSnapshot.forEach(doc => {
@@ -711,7 +706,7 @@
                         const elapsed = now - createdAt;
                         
                         if (elapsed >= holdingMilliseconds) {
-                            availableAmount += amount;
+                            availableFromOrders += amount;
                         } else {
                             holdingAmount += amount;
                         }
@@ -723,7 +718,10 @@
                     }
                 });
 
-                // Withdraw Pending (sedang diproses admin)
+                // ============================================
+                // WITHDRAW - PENDING & APPROVED
+                // ============================================
+                // Pending Withdraw
                 const withdrawPendingSnapshot = await getDocs(
                     query(
                         collection(db, 'withdrawals'),
@@ -735,19 +733,59 @@
                 withdrawPendingSnapshot.forEach(doc => {
                     pendingWithdrawAmount += doc.data().amount || 0;
                 });
-                
+
+                // Approved Withdraw
+                const withdrawApprovedSnapshot = await getDocs(
+                    query(
+                        collection(db, 'withdrawals'),
+                        where('sellerId', '==', sellerId),
+                        where('status', '==', 'approved')
+                    )
+                );
+                let approvedWithdrawAmount = 0;
+                withdrawApprovedSnapshot.forEach(doc => {
+                    approvedWithdrawAmount += doc.data().amount || 0;
+                });
+
+                // ============================================
+                // HITUNG SALDO TERSEDIA
+                // Saldo Tersedia = Pendapatan dari order - Pending Withdraw - Approved Withdraw
+                // ============================================
+                const finalAvailable = Math.max(0, availableFromOrders - pendingWithdrawAmount - approvedWithdrawAmount);
+                const finalHolding = Math.max(0, holdingAmount);
+
                 // Update UI
                 document.getElementById('totalSales').textContent = totalSales;
                 document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
-                document.getElementById('holdingBalance').textContent = `Rp${formatPrice(holdingAmount)}`;
-                document.getElementById('availableBalance').textContent = `Rp${formatPrice(availableAmount)}`;
+                document.getElementById('holdingBalance').textContent = `Rp${formatPrice(finalHolding)}`;
+                document.getElementById('availableBalance').textContent = `Rp${formatPrice(finalAvailable)}`;
                 document.getElementById('pendingWithdraw').textContent = `Rp${formatPrice(pendingWithdrawAmount)}`;
                 
                 addDebug(`Total sales: ${totalSales}`, 'success');
                 addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
-                addDebug(`Holding: Rp${formatPrice(holdingAmount)}`, 'success');
-                addDebug(`Available: Rp${formatPrice(availableAmount)}`, 'success');
-                addDebug(`Pending withdraw: Rp${formatPrice(pendingWithdrawAmount)}`, 'success');
+                addDebug(`Holding: Rp${formatPrice(finalHolding)}`, 'success');
+                addDebug(`Available from orders: Rp${formatPrice(availableFromOrders)}`, 'info');
+                addDebug(`Pending withdraw: Rp${formatPrice(pendingWithdrawAmount)}`, 'info');
+                addDebug(`Approved withdraw: Rp${formatPrice(approvedWithdrawAmount)}`, 'info');
+                addDebug(`Final Available: Rp${formatPrice(finalAvailable)}`, 'success');
+
+                // ============================================
+                // UPDATE WALLET DI FIRESTORE
+                // ============================================
+                try {
+                    const userRef = doc(db, 'users', sellerId);
+                    await updateDoc(userRef, {
+                        'wallet.available': finalAvailable,
+                        'wallet.holding': finalHolding,
+                        'wallet.totalRevenue': totalRevenue,
+                        'wallet.totalWithdraw': approvedWithdrawAmount,
+                        'wallet.pendingWithdraw': pendingWithdrawAmount,
+                        updatedAt: new Date().toISOString()
+                    });
+                    addDebug('Wallet updated in Firestore', 'success');
+                } catch (updateError) {
+                    addDebug(`Error updating wallet: ${updateError.message}`, 'warning');
+                }
 
                 updateStoreLink();
                 await loadRecentProducts(sellerId);
