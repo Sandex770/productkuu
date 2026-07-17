@@ -424,17 +424,14 @@
                     marketplaceSettings.maxWithdraw = data.maxWithdraw || 10000000;
                     marketplaceSettings.withdrawMethods = data.withdrawMethods || ['DANA', 'OVO', 'GoPay', 'ShopeePay', 'Bank BCA', 'Bank BRI', 'Bank Mandiri', 'Bank BNI'];
                     
-                    // Update UI
                     document.getElementById('withdrawLimitHint').textContent = 
                         `Minimal: Rp${formatPrice(marketplaceSettings.minWithdraw)}, Maksimal: Rp${formatPrice(marketplaceSettings.maxWithdraw)}`;
                     
-                    // Update min/max input
                     const amountInput = document.getElementById('withdrawAmount');
                     amountInput.min = marketplaceSettings.minWithdraw;
                     amountInput.max = marketplaceSettings.maxWithdraw;
                     amountInput.placeholder = `Minimal Rp${formatPrice(marketplaceSettings.minWithdraw)}`;
                     
-                    // Update metode withdraw
                     const methodSelect = document.getElementById('withdrawMethod');
                     methodSelect.innerHTML = '<option value="">Pilih Metode</option>';
                     marketplaceSettings.withdrawMethods.forEach(method => {
@@ -452,7 +449,7 @@
         }
 
         // ============================================
-        // LOAD BALANCE - HANYA PRODUK (BUKAN BANNER)
+        // LOAD BALANCE - SAMA SEPERTI DASHBOARD & WALLET
         // ============================================
         async function loadBalance(uid) {
             addDebug('Loading balance...', 'info');
@@ -469,6 +466,7 @@
                         holdingDays = settings.holdingDays || 7;
                         holdingHours = settings.holdingHours || 0;
                         holdingMinutes = settings.holdingMinutes || 0;
+                        addDebug(`Holding settings: ${holdingDays}d ${holdingHours}h ${holdingMinutes}m`, 'info');
                     }
                 } catch (e) {
                     addDebug('Using default holding settings', 'warning');
@@ -520,16 +518,15 @@
         }
 
         // ============================================
-        // LOAD WITHDRAW HISTORY
+        // LOAD WITHDRAW HISTORY - TANPA INDEX (Sortir JavaScript)
         // ============================================
         async function loadWithdrawHistory(uid) {
             addDebug('Loading withdraw history...', 'info');
             try {
+                // QUERY TANPA orderBy (agar tidak perlu index composite)
                 const q = query(
                     collection(db, 'withdrawals'),
-                    where('sellerId', '==', uid),
-                    orderBy('createdAt', 'desc'),
-                    limit(20)
+                    where('sellerId', '==', uid)
                 );
                 const snapshot = await getDocs(q);
                 const container = document.getElementById('withdrawHistory');
@@ -545,6 +542,22 @@
                     return;
                 }
 
+                // SORTIR DI JAVASCRIPT (bukan di query)
+                const withdrawals = snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        ...data,
+                        createdAtDate: data.createdAt?.toDate?.() || new Date(data.createdAt)
+                    };
+                });
+                
+                // Sortir manual descending
+                withdrawals.sort((a, b) => b.createdAtDate - a.createdAtDate);
+                
+                // Ambil 20 teratas
+                const latestWithdrawals = withdrawals.slice(0, 20);
+
                 const statusColors = {
                     'pending': 'badge-warning',
                     'approved': 'badge-success',
@@ -552,14 +565,13 @@
                     'processing': 'badge-info'
                 };
 
-                container.innerHTML = snapshot.docs.map(doc => {
-                    const w = doc.data();
+                container.innerHTML = latestWithdrawals.map(w => {
                     return `
                         <div class="withdraw-item">
                             <div>
                                 <strong style="font-size:16px;">Rp${formatPrice(w.amount)}</strong>
                                 <br><span style="font-size:13px;color:var(--text-secondary);">${w.method} • ${w.accountNumber}</span>
-                                <br><span style="font-size:12px;color:var(--text-light);">${formatDate(w.createdAt)}</span>
+                                <br><span style="font-size:12px;color:var(--text-light);">${formatDate(w.createdAtDate)}</span>
                             </div>
                             <div style="text-align:right;">
                                 <span class="badge ${statusColors[w.status] || 'badge-info'}">${w.status}</span>
@@ -569,7 +581,7 @@
                     `;
                 }).join('');
 
-                addDebug(`Loaded ${snapshot.size} withdraw history`, 'success');
+                addDebug(`Loaded ${latestWithdrawals.length} withdraw history`, 'success');
 
             } catch (error) {
                 addDebug(`Error loading withdraw history: ${error.message}`, 'error');
@@ -735,7 +747,7 @@
         });
 
         addDebug('Page ready', 'success');
-        console.log('✅ [SELLER_WITHDRAW] Page ready - Mengikuti setting admin');
+        console.log('✅ [SELLER_WITHDRAW] Page ready - Saldo sama dengan dashboard & wallet');
     </script>
 </body>
 </html>
