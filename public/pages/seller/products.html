@@ -1307,12 +1307,7 @@ document.getElementById('promoteForm').addEventListener('submit', async (e) => {
             closePromoteModal();
             loadProducts();
             
-            // TAMBAHKAN: Redirect ke wallet agar user melihat perubahan
-            setTimeout(() => {
-                if (confirm('✅ Banner berhasil! Lihat saldo wallet sekarang?')) {
-                    window.location.href = '/seller/wallet';
-                }
-            }, 1000);
+            
             
         // ============================================
         // METODE MIDTRANS
