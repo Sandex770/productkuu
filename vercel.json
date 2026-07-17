@@ -120,6 +120,18 @@
       "destination": "/public/product-seller.html"
     }, 
     {
+      "source": "/product-seller/:slug",
+      "destination": "/product-seller.html"
+    },
+    {
+      "source": "/product-seller.html/:slug",
+      "destination": "/product-seller.html"
+    },
+    {
+      "source": "/product-seller",
+      "destination": "/product-seller.html"
+    }, 
+    {
       "src": "/success",
       "dest": "/public/success.html"
     },
