@@ -116,6 +116,14 @@
       "dest": "/public/pages/seller/product-seller.html"
     },
     {
+      "source": "/:slug/product-seller",
+      "destination": "/public/product-seller.html"
+    },
+    {
+      "source": "/:slug/product-seller/:path*",
+      "destination": "/public/product-seller.html"
+    }, 
+    {
       "src": "/success",
       "dest": "/public/success.html"
     },
