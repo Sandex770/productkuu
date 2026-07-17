@@ -34,6 +34,7 @@
         .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
         .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
         textarea.input { resize: vertical; min-height: 60px; }
+        select.input { appearance: auto; }
         
         .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
         .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
@@ -47,10 +48,12 @@
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         .text-center { text-align: center; }
         .text-secondary { color: var(--text-secondary); }
+        .text-light { color: var(--text-light); font-size: 12px; }
         
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
         .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
         .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
         .btn-block { width: 100%; justify-content: center; }
@@ -97,7 +100,49 @@
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
         
+        .setting-hint { font-size: 12px; color: var(--text-light); margin-top: 4px; }
+        
         @media (max-width: 768px) { .withdraw-grid { grid-template-columns: 1fr; } }
+        
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --bg-tertiary: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-light: #9ca3af;
+            --border-color: #e5e7eb;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+            --radius: 8px;
+            --radius-lg: 16px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --primary: #4F46E5;
+            --secondary: #7C3AED;
+            --transition: all 0.3s ease;
+        }
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #374151;
+            --bg-tertiary: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-light: #6b7280;
+            --border-color: #374151;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font); background: var(--bg-secondary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
+        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); height: 64px; }
+        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .navbar-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
+        .navbar-logo i { color: #4F46E5; }
+        .navbar-actions { display: flex; align-items: center; gap: 8px; }
+        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
+        .btn-icon:hover { background: var(--bg-secondary); }
     </style>
 </head>
 <body>
@@ -158,20 +203,12 @@
                         <div class="input-group">
                             <label for="withdrawAmount">Nominal Withdraw *</label>
                             <input type="number" id="withdrawAmount" class="input" required placeholder="Minimal Rp50.000" min="50000">
-                            <span class="hint" style="font-size:12px;color:var(--text-light);">Minimal: Rp50.000, Maksimal: Rp10.000.000</span>
+                            <span class="setting-hint" id="withdrawLimitHint">Minimal: Rp50.000, Maksimal: Rp10.000.000</span>
                         </div>
                         <div class="input-group">
                             <label for="withdrawMethod">Metode Pembayaran *</label>
                             <select id="withdrawMethod" class="input" required>
                                 <option value="">Pilih Metode</option>
-                                <option value="DANA">DANA</option>
-                                <option value="OVO">OVO</option>
-                                <option value="GoPay">GoPay</option>
-                                <option value="ShopeePay">ShopeePay</option>
-                                <option value="Bank BCA">Bank BCA</option>
-                                <option value="Bank BRI">Bank BRI</option>
-                                <option value="Bank Mandiri">Bank Mandiri</option>
-                                <option value="Bank BNI">Bank BNI</option>
                             </select>
                         </div>
                         <div class="input-group">
@@ -186,7 +223,9 @@
                             <label for="withdrawNote">Catatan (Opsional)</label>
                             <textarea id="withdrawNote" class="input" rows="2" placeholder="Catatan tambahan"></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-arrow-up"></i> Ajukan Withdraw</button>
+                        <button type="submit" class="btn btn-primary btn-block" id="withdrawSubmitBtn">
+                            <i class="fas fa-arrow-up"></i> Ajukan Withdraw
+                        </button>
                     </form>
                 </div>
 
@@ -214,13 +253,13 @@
 
     <script type="module">
         // ============================================
-        // IMPORTS - TANPA onSnapshot
+        // IMPORTS
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, runTransaction } from "firebase/firestore";
 
-        console.log('💰 [SELLER_WITHDRAW] Page loaded (OPTIMIZED)');
+        console.log('💰 [SELLER_WITHDRAW] Page loaded');
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
@@ -237,6 +276,11 @@
         const db = getFirestore(app);
 
         let currentUser = null;
+        let marketplaceSettings = {
+            minWithdraw: 50000,
+            maxWithdraw: 10000000,
+            withdrawMethods: ['DANA', 'OVO', 'GoPay', 'ShopeePay', 'Bank BCA', 'Bank BRI', 'Bank Mandiri', 'Bank BNI']
+        };
 
         // ============================================
         // DEBUG LOG
@@ -270,6 +314,7 @@
             addDebug('Manual refresh triggered', 'info');
             showToast('info', 'Memperbarui data withdraw...');
             if (currentUser) {
+                loadSettings();
                 loadBalance(currentUser.uid);
                 loadWithdrawHistory(currentUser.uid);
             }
@@ -366,54 +411,111 @@
         }
 
         // ============================================
-        // AUTH STATE
+        // LOAD SETTINGS
         // ============================================
-        addDebug('Setting up auth...', 'info');
-
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                addDebug('User not logged in, redirecting...', 'warning');
-                window.location.href = '/seller/login';
-                return;
-            }
-            currentUser = user;
-            addDebug(`User logged in: ${user.email}`, 'success');
-
+        async function loadSettings() {
+            addDebug('Loading marketplace settings...', 'info');
             try {
-                const userRef = doc(db, 'users', user.uid);
-                const userDoc = await getDoc(userRef);
-                if (!userDoc.exists() || userDoc.data().role !== 'seller') {
-                    addDebug('User is not seller, redirecting...', 'error');
-                    window.location.href = '/';
-                    return;
+                const settingsRef = doc(db, 'settings', 'marketplace');
+                const settingsDoc = await getDoc(settingsRef);
+                if (settingsDoc.exists()) {
+                    const data = settingsDoc.data();
+                    marketplaceSettings.minWithdraw = data.minWithdraw || 50000;
+                    marketplaceSettings.maxWithdraw = data.maxWithdraw || 10000000;
+                    marketplaceSettings.withdrawMethods = data.withdrawMethods || ['DANA', 'OVO', 'GoPay', 'ShopeePay', 'Bank BCA', 'Bank BRI', 'Bank Mandiri', 'Bank BNI'];
+                    
+                    // Update UI
+                    document.getElementById('withdrawLimitHint').textContent = 
+                        `Minimal: Rp${formatPrice(marketplaceSettings.minWithdraw)}, Maksimal: Rp${formatPrice(marketplaceSettings.maxWithdraw)}`;
+                    
+                    // Update min/max input
+                    const amountInput = document.getElementById('withdrawAmount');
+                    amountInput.min = marketplaceSettings.minWithdraw;
+                    amountInput.max = marketplaceSettings.maxWithdraw;
+                    amountInput.placeholder = `Minimal Rp${formatPrice(marketplaceSettings.minWithdraw)}`;
+                    
+                    // Update metode withdraw
+                    const methodSelect = document.getElementById('withdrawMethod');
+                    methodSelect.innerHTML = '<option value="">Pilih Metode</option>';
+                    marketplaceSettings.withdrawMethods.forEach(method => {
+                        const option = document.createElement('option');
+                        option.value = method;
+                        option.textContent = method;
+                        methodSelect.appendChild(option);
+                    });
+                    
+                    addDebug(`Settings loaded: min Rp${formatPrice(marketplaceSettings.minWithdraw)}, max Rp${formatPrice(marketplaceSettings.maxWithdraw)}`, 'success');
                 }
-                addDebug('User is seller', 'success');
-                await loadBalance(user.uid);
-                await loadWithdrawHistory(user.uid);
-                // TIDAK ADA onSnapshot
-
             } catch (error) {
-                addDebug(`Error: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat data: ' + error.message);
+                addDebug(`Error loading settings: ${error.message}`, 'error');
             }
-        });
+        }
 
         // ============================================
-        // LOAD BALANCE
+        // LOAD BALANCE - HANYA PRODUK (BUKAN BANNER)
         // ============================================
         async function loadBalance(uid) {
             addDebug('Loading balance...', 'info');
             try {
-                const userRef = doc(db, 'users', uid);
-                const userDoc = await getDoc(userRef);
-                if (userDoc.exists()) {
-                    const wallet = userDoc.data().wallet || { available: 0 };
-                    document.getElementById('availableBalance').textContent = `Rp${formatPrice(wallet.available || 0)}`;
-                    addDebug(`Balance: Rp${formatPrice(wallet.available || 0)}`, 'success');
+                // Ambil setting holding time
+                let holdingDays = 7;
+                let holdingHours = 0;
+                let holdingMinutes = 0;
+                try {
+                    const settingsRef = doc(db, 'settings', 'marketplace');
+                    const settingsDoc = await getDoc(settingsRef);
+                    if (settingsDoc.exists()) {
+                        const settings = settingsDoc.data();
+                        holdingDays = settings.holdingDays || 7;
+                        holdingHours = settings.holdingHours || 0;
+                        holdingMinutes = settings.holdingMinutes || 0;
+                    }
+                } catch (e) {
+                    addDebug('Using default holding settings', 'warning');
                 }
+                
+                const holdingMilliseconds = (holdingDays * 24 * 60 * 60 * 1000) + 
+                                            (holdingHours * 60 * 60 * 1000) + 
+                                            (holdingMinutes * 60 * 1000);
+                
+                const now = new Date();
+                
+                // Ambil semua order seller - HANYA PRODUCT
+                const ordersSnapshot = await getDocs(
+                    query(
+                        collection(db, 'orders'), 
+                        where('sellerId', '==', uid),
+                        where('type', '==', 'product_purchase')
+                    )
+                );
+                
+                let availableAmount = 0;
+                
+                ordersSnapshot.forEach(doc => {
+                    const order = doc.data();
+                    const amount = order.amount || 0;
+                    const status = order.paymentStatus || order.status || '';
+                    
+                    // Hanya hitung yang settlement/paid
+                    if (status === 'settlement' || status === 'paid') {
+                        const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
+                        const elapsed = now - createdAt;
+                        
+                        if (elapsed >= holdingMilliseconds) {
+                            availableAmount += amount;
+                        }
+                    }
+                });
+                
+                document.getElementById('availableBalance').textContent = `Rp${formatPrice(availableAmount)}`;
+                addDebug(`Available balance: Rp${formatPrice(availableAmount)}`, 'success');
+                
+                return availableAmount;
+                
             } catch (error) {
                 addDebug(`Error loading balance: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat saldo: ' + error.message);
+                return 0;
             }
         }
 
@@ -476,7 +578,7 @@
         }
 
         // ============================================
-        // SUBMIT WITHDRAW FORM
+        // SUBMIT WITHDRAW FORM - DENGAN TRANSACTION
         // ============================================
         document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -488,13 +590,14 @@
             const accountName = document.getElementById('withdrawAccountName').value.trim();
             const note = document.getElementById('withdrawNote').value.trim();
 
-            if (!amount || amount < 50000) {
-                showToast('warning', 'Minimal withdraw Rp50.000');
+            // Validasi
+            if (!amount || amount < marketplaceSettings.minWithdraw) {
+                showToast('warning', `Minimal withdraw Rp${formatPrice(marketplaceSettings.minWithdraw)}`);
                 addDebug('Amount too low', 'warning');
                 return;
             }
-            if (amount > 10000000) {
-                showToast('warning', 'Maksimal withdraw Rp10.000.000');
+            if (amount > marketplaceSettings.maxWithdraw) {
+                showToast('warning', `Maksimal withdraw Rp${formatPrice(marketplaceSettings.maxWithdraw)}`);
                 addDebug('Amount too high', 'warning');
                 return;
             }
@@ -504,42 +607,135 @@
                 return;
             }
 
+            const submitBtn = document.getElementById('withdrawSubmitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+
             try {
-                const userRef = doc(db, 'users', currentUser.uid);
-                const userDoc = await getDoc(userRef);
-                const available = userDoc.data()?.wallet?.available || 0;
-
-                if (amount > available) {
-                    showToast('error', 'Saldo tidak mencukupi');
-                    addDebug('Insufficient balance', 'error');
-                    return;
-                }
-
-                await addDoc(collection(db, 'withdrawals'), {
-                    sellerId: currentUser.uid,
-                    amount: amount,
-                    method: method,
-                    accountNumber: accountNumber,
-                    accountName: accountName,
-                    note: note,
-                    status: 'pending',
-                    createdAt: serverTimestamp(),
-                    updatedAt: serverTimestamp()
+                // Gunakan transaction untuk keamanan
+                await runTransaction(db, async (transaction) => {
+                    const userRef = doc(db, 'users', currentUser.uid);
+                    const userDoc = await transaction.get(userRef);
+                    
+                    if (!userDoc.exists()) {
+                        throw new Error('User tidak ditemukan');
+                    }
+                    
+                    // Hitung saldo tersedia dari order (sama seperti di wallet)
+                    const now = new Date();
+                    let holdingDays = 7, holdingHours = 0, holdingMinutes = 0;
+                    try {
+                        const settingsRef = doc(db, 'settings', 'marketplace');
+                        const settingsDoc = await transaction.get(settingsRef);
+                        if (settingsDoc.exists()) {
+                            const settings = settingsDoc.data();
+                            holdingDays = settings.holdingDays || 7;
+                            holdingHours = settings.holdingHours || 0;
+                            holdingMinutes = settings.holdingMinutes || 0;
+                        }
+                    } catch (e) {}
+                    
+                    const holdingMilliseconds = (holdingDays * 24 * 60 * 60 * 1000) + 
+                                                (holdingHours * 60 * 60 * 1000) + 
+                                                (holdingMinutes * 60 * 1000);
+                    
+                    // Ambil semua order product
+                    const ordersQuery = query(
+                        collection(db, 'orders'),
+                        where('sellerId', '==', currentUser.uid),
+                        where('type', '==', 'product_purchase')
+                    );
+                    const ordersSnapshot = await transaction.get(ordersQuery);
+                    
+                    let availableAmount = 0;
+                    ordersSnapshot.forEach(doc => {
+                        const order = doc.data();
+                        const status = order.paymentStatus || order.status || '';
+                        if (status === 'settlement' || status === 'paid') {
+                            const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
+                            const elapsed = now - createdAt;
+                            if (elapsed >= holdingMilliseconds) {
+                                availableAmount += order.amount || 0;
+                            }
+                        }
+                    });
+                    
+                    if (amount > availableAmount) {
+                        throw new Error(`Saldo tidak mencukupi. Saldo tersedia: Rp${formatPrice(availableAmount)}`);
+                    }
+                    
+                    // Update wallet
+                    const currentWallet = userDoc.data().wallet || { available: 0 };
+                    transaction.update(userRef, {
+                        'wallet.available': currentWallet.available - amount
+                    });
+                    
+                    // Create withdraw request
+                    const withdrawRef = doc(collection(db, 'withdrawals'));
+                    transaction.set(withdrawRef, {
+                        sellerId: currentUser.uid,
+                        amount: amount,
+                        method: method,
+                        accountNumber: accountNumber,
+                        accountName: accountName,
+                        note: note,
+                        status: 'pending',
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    });
                 });
 
                 addDebug('Withdraw submitted successfully', 'success');
-                showToast('success', 'Permintaan withdraw berhasil diajukan!');
+                showToast('success', '✅ Permintaan withdraw berhasil diajukan!');
                 document.getElementById('withdrawForm').reset();
                 await loadBalance(currentUser.uid);
                 await loadWithdrawHistory(currentUser.uid);
+                
             } catch (error) {
                 addDebug(`Error submitting withdraw: ${error.message}`, 'error');
-                showToast('error', 'Gagal mengajukan withdraw: ' + error.message);
+                showToast('error', error.message || 'Gagal mengajukan withdraw');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-arrow-up"></i> Ajukan Withdraw';
+            }
+        });
+
+        // ============================================
+        // AUTH STATE
+        // ============================================
+        addDebug('Setting up auth...', 'info');
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                addDebug('User not logged in, redirecting...', 'warning');
+                window.location.href = '/seller/login';
+                return;
+            }
+            currentUser = user;
+            addDebug(`User logged in: ${user.email}`, 'success');
+
+            try {
+                const userRef = doc(db, 'users', user.uid);
+                const userDoc = await getDoc(userRef);
+                if (!userDoc.exists() || userDoc.data().role !== 'seller') {
+                    addDebug('User is not seller, redirecting...', 'error');
+                    window.location.href = '/';
+                    return;
+                }
+                addDebug('User is seller', 'success');
+                
+                await loadSettings();
+                await loadBalance(user.uid);
+                await loadWithdrawHistory(user.uid);
+
+            } catch (error) {
+                addDebug(`Error: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat data: ' + error.message);
             }
         });
 
         addDebug('Page ready', 'success');
-        console.log('✅ [SELLER_WITHDRAW] Page ready (OPTIMIZED - no listeners)');
+        console.log('✅ [SELLER_WITHDRAW] Page ready - Mengikuti setting admin');
     </script>
 </body>
 </html>
