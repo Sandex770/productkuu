@@ -68,6 +68,17 @@
         .debug-box .debug-info { color: #89B4FA; }
         .debug-box .debug-warning { color: #F9E2AF; }
         
+        .suspend-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
         .suspend-overlay .modal .btn-primary {
     background: linear-gradient(135deg, #4F46E5, #7C3AED);
     color: white;
@@ -102,17 +113,6 @@
     text-decoration: none;
 }
         
-        .suspend-modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px);
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
         .suspend-modal-overlay.open { display: flex; }
         .suspend-modal {
             background: var(--bg-primary);
