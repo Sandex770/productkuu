@@ -117,7 +117,7 @@
         .container {
             max-width: var(--max-width);
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 24px;
         }
 
         /* ============================================
@@ -804,12 +804,13 @@
         }
 
         /* ============================================
-           PRODUCTS GRID - IMPROVED
+           PRODUCTS GRID - DENGAN JARAK LEGA
            ============================================ */
         .products-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 24px;
+            gap: 28px;
+            padding: 0 4px;
         }
 
         .product-card {
@@ -877,7 +878,7 @@
         }
 
         .product-card .product-body {
-            padding: 16px 18px 18px;
+            padding: 18px 20px 20px;
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -897,7 +898,29 @@
         .product-card .product-category {
             font-size: 13px;
             color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        /* ============================================
+           PRODUCT SELLER NAME - TAMBAHAN
+           ============================================ */
+        .product-card .product-seller {
+            font-size: 13px;
+            color: var(--text-secondary);
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .product-card .product-seller i {
+            color: var(--primary);
+            font-size: 12px;
+        }
+
+        .product-card .product-seller:hover {
+            color: var(--primary);
+            cursor: pointer;
         }
 
         .product-card .product-footer {
@@ -1330,9 +1353,14 @@
 
         /* Tablet */
         @media (max-width: 1024px) {
+            .container {
+                padding: 0 20px;
+            }
+
             .products-grid {
                 grid-template-columns: repeat(3, 1fr);
-                gap: 20px;
+                gap: 24px;
+                padding: 0 2px;
             }
 
             .features-grid {
@@ -1342,6 +1370,10 @@
 
         /* Mobile Large */
         @media (max-width: 768px) {
+            .container {
+                padding: 0 16px;
+            }
+
             .navbar-search {
                 display: none;
             }
@@ -1372,7 +1404,8 @@
 
             .products-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 16px;
+                gap: 20px;
+                padding: 0 2px;
             }
 
             .features-grid {
@@ -1413,6 +1446,7 @@
             .products-grid {
                 grid-template-columns: 1fr;
                 gap: 16px;
+                padding: 0 2px;
             }
 
             .product-card .product-body {
@@ -1494,6 +1528,7 @@
 
             .products-grid {
                 grid-template-columns: repeat(4, 1fr);
+                gap: 32px;
             }
         }
 
@@ -2068,21 +2103,40 @@
         }
 
         // ============================================
-        // LOAD PRODUCTS
+        // LOAD PRODUCTS - DENGAN SELLER NAME
         // ============================================
         async function loadProducts(tab = 'new') {
             try {
                 const q = query(collection(db, 'products'), where('status', '==', 'published'));
                 const snapshot = await getDocs(q);
 
-                let products = snapshot.docs.map(doc => {
+                let products = [];
+                
+                for (const doc of snapshot.docs) {
                     const data = doc.data();
-                    return {
+                    
+                    // Ambil nama seller dari collection users
+                    let sellerName = 'Seller';
+                    if (data.sellerId) {
+                        try {
+                            const sellerRef = doc(db, 'users', data.sellerId);
+                            const sellerDoc = await getDoc(sellerRef);
+                            if (sellerDoc.exists()) {
+                                const sellerData = sellerDoc.data();
+                                sellerName = sellerData.storeName || sellerData.displayName || 'Seller';
+                            }
+                        } catch (e) {
+                            console.warn('Error fetching seller:', e);
+                        }
+                    }
+                    
+                    products.push({
                         id: doc.id,
                         ...data,
+                        sellerName: sellerName,
                         createdAtDate: data.createdAt?.toDate?.() || new Date(data.createdAt)
-                    };
-                });
+                    });
+                }
 
                 if (tab === 'trending') {
                     products = products.filter(p => p.isTrending === true);
@@ -2116,7 +2170,7 @@
         }
 
         // ============================================
-        // RENDER PRODUCTS - IMPROVED
+        // RENDER PRODUCTS - DENGAN NAMA TOKO
         // ============================================
         function renderProducts() {
             if (!allProducts || allProducts.length === 0) {
@@ -2142,6 +2196,10 @@
                     <div class="product-body">
                         <div class="product-name">${product.name}</div>
                         <div class="product-category">${product.category || 'Uncategorized'}</div>
+                        <div class="product-seller">
+                            <i class="fas fa-store"></i>
+                            ${product.sellerName || 'Seller'}
+                        </div>
                         <div class="product-footer">
                             <span class="product-price">Rp${formatPrice(product.price)}</span>
                             <span class="product-sales">${product.sales || 0} terjual</span>
