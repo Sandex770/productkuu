@@ -804,7 +804,7 @@
         }
 
         /* ============================================
-           PRODUCTS GRID
+           PRODUCTS GRID - IMPROVED
            ============================================ */
         .products-grid {
             display: grid;
@@ -816,9 +816,12 @@
             background: var(--bg-card);
             border-radius: var(--radius-lg);
             overflow: hidden;
-            border: 1px solid var(--border-color);
+            border: 2px solid var(--border-color);
             transition: var(--transition);
             cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
         }
 
         .product-card:hover {
@@ -874,7 +877,10 @@
         }
 
         .product-card .product-body {
-            padding: 16px;
+            padding: 16px 18px 18px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .product-card .product-name {
@@ -885,12 +891,13 @@
             -webkit-line-clamp: 1;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            line-height: 1.4;
         }
 
         .product-card .product-category {
             font-size: 13px;
             color: var(--text-secondary);
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .product-card .product-footer {
@@ -898,6 +905,7 @@
             align-items: center;
             justify-content: space-between;
             padding-top: 12px;
+            margin-top: auto;
             border-top: 1px solid var(--border-color);
         }
 
@@ -915,6 +923,8 @@
         .product-card .btn-add-cart {
             width: 100%;
             margin-top: 12px;
+            padding: 10px 16px;
+            font-size: 13px;
         }
 
         /* ============================================
@@ -1322,6 +1332,7 @@
         @media (max-width: 1024px) {
             .products-grid {
                 grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
             }
 
             .features-grid {
@@ -1402,6 +1413,14 @@
             .products-grid {
                 grid-template-columns: 1fr;
                 gap: 16px;
+            }
+
+            .product-card .product-body {
+                padding: 14px 16px 16px;
+            }
+
+            .product-card .product-price {
+                font-size: 18px;
             }
 
             .hero h1 {
@@ -2097,7 +2116,7 @@
         }
 
         // ============================================
-        // RENDER PRODUCTS
+        // RENDER PRODUCTS - IMPROVED
         // ============================================
         function renderProducts() {
             if (!allProducts || allProducts.length === 0) {
