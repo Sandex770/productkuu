@@ -68,6 +68,40 @@
         .debug-box .debug-info { color: #89B4FA; }
         .debug-box .debug-warning { color: #F9E2AF; }
         
+        .suspend-overlay .modal .btn-primary {
+    background: linear-gradient(135deg, #4F46E5, #7C3AED);
+    color: white;
+    box-shadow: 0 4px 14px rgba(79,70,229,0.3);
+}
+.suspend-overlay .modal .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(79,70,229,0.4);
+}
+.suspend-overlay .modal .btn-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+.suspend-overlay .modal .btn-secondary:hover {
+    background: var(--border-color);
+    transform: translateY(-2px);
+}
+.suspend-overlay .modal .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+        
         .suspend-modal-overlay {
             display: none;
             position: fixed;
@@ -119,20 +153,25 @@
     </nav>
 
     <!-- Suspend Modal -->
-    <div class="suspend-modal-overlay" id="suspendModal">
-        <div class="suspend-modal">
-            <div class="icon"><i class="fas fa-ban"></i></div>
-            <h2>⚠️ Akun Anda Ditangguhkan</h2>
-            <p>Akun seller Anda telah ditangguhkan oleh admin karena melanggar ketentuan.</p>
-            <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
-            <div class="contact">
-                <i class="fab fa-telegram"></i> @Sanzz_offc
-            </div>
-            <button onclick="window.location.href='/'" class="btn btn-secondary">
-                <i class="fas fa-home"></i> Kembali ke Beranda
+    <div class="suspend-overlay" id="suspendOverlay">
+    <div class="modal">
+        <div class="icon"><i class="fas fa-ban"></i></div>
+        <h2>⚠️ Akun Anda Ditangguhkan</h2>
+        <p>Akun seller Anda telah ditangguhkan oleh admin karena melanggar ketentuan.</p>
+        <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
+        <div class="contact">
+            <i class="fab fa-telegram"></i> @Sanzz_offc
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
+            <a href="https://t.me/Sanzz_offc" target="_blank" class="btn btn-primary" style="flex:1;">
+                <i class="fab fa-telegram"></i> Hubungi Admin
+            </a>
+            <button onclick="window.location.href='/'" class="btn btn-secondary" style="flex:1;">
+                <i class="fas fa-home"></i> Kembali
             </button>
         </div>
     </div>
+</div>
 
     <!-- Main Content -->
     <main>
