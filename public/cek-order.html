@@ -8,9 +8,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" href="assets/images/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/assets/images/favicon.ico">
     <style>
+        .main-content { max-width: 640px; margin: 0 auto; padding-top: 80px; padding-bottom: 40px; }
         .order-result { margin-top: 24px; }
         .order-result.hidden { display: none; }
         .order-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -19,9 +20,88 @@
         .order-detail .value { font-weight: 600; font-size: 15px; }
         .order-access { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color); }
         .order-access .btn { margin-bottom: 8px; }
+        .hint { font-size: 12px; color: var(--text-light); margin-top: 4px; }
         @media (max-width: 640px) {
             .order-detail { grid-template-columns: 1fr; }
+            .main-content { padding: 80px 16px 40px; }
         }
+        
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
+        .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
+        .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
+        .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
+        .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
+        
+        .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
+        .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+        .input-group label { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+        .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
+        .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
+        
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
+        .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
+        .btn-block { width: 100%; justify-content: center; }
+        .btn-sm { padding: 8px 16px; font-size: 12px; }
+        
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
+        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
+        .toast-icon { font-size: 20px; }
+        .toast-content { flex: 1; }
+        .toast-message { font-size: 13px; color: var(--text-secondary); }
+        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        
+        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); height: 64px; }
+        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .navbar-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
+        .navbar-logo i { color: #4F46E5; }
+        .navbar-actions { display: flex; align-items: center; gap: 8px; }
+        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
+        .btn-icon:hover { background: var(--bg-secondary); }
+        
+        .footer { background: #111827; color: white; padding: 24px 0; text-align: center; margin-top: 48px; }
+        .footer p { color: #9CA3AF; font-size: 14px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border-color); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --bg-tertiary: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-light: #9ca3af;
+            --border-color: #e5e7eb;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+            --radius: 8px;
+            --radius-lg: 16px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --primary: #4F46E5;
+            --secondary: #7C3AED;
+            --transition: all 0.3s ease;
+        }
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #374151;
+            --bg-tertiary: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-light: #6b7280;
+            --border-color: #374151;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font); background: var(--bg-secondary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
     </style>
 </head>
 <body>
@@ -45,8 +125,8 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="main-content" style="max-width: 640px; margin: 0 auto; padding-top: 80px;">
-        <h1 style="text-align: center; margin-bottom: 24px;">Cek Status Order</h1>
+    <main class="main-content">
+        <h1 style="text-align: center; margin-bottom: 24px; font-size: 28px;">Cek Status Order</h1>
         
         <div class="card">
             <form id="checkOrderForm">
@@ -55,7 +135,7 @@
                     <input type="text" id="orderIdInput" class="input" placeholder="Contoh: PK-20260714-AB91CD" required>
                     <span class="hint">Masukkan Order ID yang Anda terima setelah pembayaran</span>
                 </div>
-                <button type="submit" class="btn btn-primary btn-block">
+                <button type="submit" class="btn btn-primary btn-block" id="checkBtn">
                     <i class="fas fa-search"></i> Cek Order
                 </button>
             </form>
@@ -68,7 +148,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer" style="margin-top: 48px;">
+    <footer class="footer">
         <div class="container">
             <div class="footer-bottom">
                 <p>&copy; 2026 ProductKuu. All rights reserved.</p>
@@ -79,11 +159,43 @@
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <script type="module">
-        import { formatPrice, formatDate } from './js/utils.js';
-        import { showToast } from './js/app.js';
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"
+            }
+        }
+    </script>
 
-        // Dark Mode
+    <script type="module">
+        // ============================================
+        // IMPORTS
+        // ============================================
+        import { initializeApp } from "firebase/app";
+        import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
+
+        console.log('📦 [CEK_ORDER] Page loaded');
+
+        // ============================================
+        // FIREBASE CONFIG
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
+            authDomain: "productkuu.firebaseapp.com",
+            projectId: "productkuu",
+            storageBucket: "productkuu.firebasestorage.app",
+            messagingSenderId: "6615996108",
+            appId: "1:6615996108:web:daa6e17c1275d3061cd469",
+            measurementId: "G-78ZPLZMFEJ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // ============================================
+        // THEME
+        // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) {
@@ -97,23 +209,132 @@
             themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
         });
 
-        // Check Order
+        // ============================================
+        // TOAST
+        // ============================================
+        function showToast(type, message) {
+            const container = document.getElementById('toastContainer');
+            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
+            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeftColor = colors[type] || colors.info;
+            toast.innerHTML = `
+                <span class="toast-icon"><i class="fas ${icons[type] || 'fa-info-circle'}"></i></span>
+                <div class="toast-content"><div class="toast-message">${message}</div></div>
+                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 5000);
+        }
+        window.showToast = showToast;
+
+        // ============================================
+        // FORMAT FUNCTIONS
+        // ============================================
+        function formatPrice(price) {
+            if (!price && price !== 0) return '0';
+            return new Intl.NumberFormat('id-ID').format(price);
+        }
+        window.formatPrice = formatPrice;
+
+        function formatDate(timestamp) {
+            if (!timestamp) return '-';
+            if (timestamp.toDate && typeof timestamp.toDate === 'function') {
+                const date = timestamp.toDate();
+                return date.toLocaleDateString('id-ID', {
+                    year: 'numeric', month: 'long', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                });
+            }
+            if (timestamp instanceof Date) {
+                return timestamp.toLocaleDateString('id-ID', {
+                    year: 'numeric', month: 'long', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                });
+            }
+            try {
+                const date = new Date(timestamp);
+                if (!isNaN(date.getTime())) {
+                    return date.toLocaleDateString('id-ID', {
+                        year: 'numeric', month: 'long', day: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                    });
+                }
+            } catch (e) {}
+            return '-';
+        }
+        window.formatDate = formatDate;
+
+        // ============================================
+        // COPY TEXT
+        // ============================================
+        window.copyText = function(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('success', '✅ Berhasil disalin!');
+            }).catch(() => {
+                const input = document.createElement('input');
+                input.value = text;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                input.remove();
+                showToast('success', '✅ Berhasil disalin!');
+            });
+        };
+
+        // ============================================
+        // CHECK ORDER
+        // ============================================
         document.getElementById('checkOrderForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
             const orderId = document.getElementById('orderIdInput').value.trim();
-            if (!orderId) { showToast('warning', 'Masukkan Order ID'); return; }
+            if (!orderId) {
+                showToast('warning', 'Masukkan Order ID');
+                return;
+            }
+
+            const btn = document.getElementById('checkBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mencari...';
 
             try {
-                const response = await fetch(`/api/orders/${orderId}`);
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error || 'Order tidak ditemukan');
-                displayOrderResult(data);
+                console.log('🔍 Mencari order:', orderId);
+
+                // Cari order berdasarkan orderId
+                const ordersRef = collection(db, 'orders');
+                const q = query(ordersRef, where('orderId', '==', orderId));
+                const snapshot = await getDocs(q);
+
+                if (snapshot.empty) {
+                    showToast('error', '❌ Order tidak ditemukan. Periksa kembali Order ID Anda.');
+                    document.getElementById('orderResult').classList.add('hidden');
+                    return;
+                }
+
+                const orderDoc = snapshot.docs[0];
+                const orderData = orderDoc.data();
+                const order = { id: orderDoc.id, ...orderData };
+
+                console.log('✅ Order ditemukan:', order);
+                displayOrderResult(order);
+
             } catch (error) {
-                showToast('error', error.message);
+                console.error('❌ Error:', error);
+                showToast('error', 'Gagal mencari order: ' + error.message);
                 document.getElementById('orderResult').classList.add('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
             }
         });
 
+        // ============================================
+        // DISPLAY ORDER RESULT
+        // ============================================
         function displayOrderResult(order) {
             const resultDiv = document.getElementById('orderResult');
             const detailDiv = document.getElementById('orderDetail');
@@ -131,11 +352,11 @@
                 <div class="order-detail">
                     <div>
                         <div class="label">Order ID</div>
-                        <div class="value">${order.orderId}</div>
+                        <div class="value" style="font-family:monospace;font-size:13px;">${order.orderId}</div>
                     </div>
                     <div>
                         <div class="label">Status</div>
-                        <span class="badge ${statusClass}">${order.paymentStatus || order.status}</span>
+                        <span class="badge ${statusClass}">${order.paymentStatus || order.status || 'Unknown'}</span>
                     </div>
                     <div>
                         <div class="label">Produk</div>
@@ -143,11 +364,11 @@
                     </div>
                     <div>
                         <div class="label">Pembeli</div>
-                        <div class="value">${order.buyerName}</div>
+                        <div class="value">${order.buyerName || 'Anonymous'}</div>
                     </div>
                     <div>
                         <div class="label">Email</div>
-                        <div class="value">${order.buyerEmail}</div>
+                        <div class="value">${order.buyerEmail || '-'}</div>
                     </div>
                     <div>
                         <div class="label">Harga</div>
@@ -164,15 +385,15 @@
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <i class="fas fa-check-circle" style="color: var(--success); font-size: 24px;"></i>
                             <div>
-                                <strong style="color: var(--success);">Pembayaran Berhasil!</strong>
+                                <strong style="color: var(--success);">✅ Pembayaran Berhasil!</strong>
                                 <p style="font-size: 14px; color: var(--text-secondary);">Silakan akses produk Anda di bawah ini:</p>
                             </div>
                         </div>
                     </div>
                     <div class="order-access">
-                        <h4 style="margin-bottom: 12px;">Akses Produk</h4>
+                        <h4 style="margin-bottom: 12px;">📦 Akses Produk</h4>
                         <div id="productAccess">
-                            <div class="text-center" style="color: var(--text-secondary);">Memuat akses produk...</div>
+                            <div class="text-center" style="color: var(--text-secondary);"><span class="loading-spinner"></span> Memuat akses produk...</div>
                         </div>
                     </div>
                 ` : `
@@ -180,8 +401,9 @@
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <i class="fas fa-clock" style="color: var(--warning); font-size: 24px;"></i>
                             <div>
-                                <strong style="color: var(--warning);">Menunggu Pembayaran</strong>
+                                <strong style="color: var(--warning);">⏳ Menunggu Pembayaran</strong>
                                 <p style="font-size: 14px; color: var(--text-secondary);">Silakan selesaikan pembayaran Anda untuk mengakses produk.</p>
+                                ${order.paymentMethod ? `<p style="font-size: 13px; color: var(--text-secondary);">Metode Pembayaran: ${order.paymentMethod}</p>` : ''}
                             </div>
                         </div>
                     </div>
@@ -190,17 +412,35 @@
 
             resultDiv.classList.remove('hidden');
 
+            // Jika sudah paid/settlement, load akses produk
             if (order.paymentStatus === 'settlement' || order.paymentStatus === 'paid') {
                 loadProductAccess(order.productId);
             }
         }
 
+        // ============================================
+        // LOAD PRODUCT ACCESS
+        // ============================================
         async function loadProductAccess(productId) {
+            const container = document.getElementById('productAccess');
+            
+            if (!productId) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">Tidak ada produk terkait</p>';
+                return;
+            }
+
             try {
-                const response = await fetch(`/api/products/${productId}`);
-                if (!response.ok) throw new Error('Product not found');
-                const product = await response.json();
-                const container = document.getElementById('productAccess');
+                console.log('🔍 Mencari produk:', productId);
+                const productRef = doc(db, 'products', productId);
+                const productDoc = await getDoc(productRef);
+
+                if (!productDoc.exists()) {
+                    container.innerHTML = '<p style="color: var(--danger);">❌ Produk tidak ditemukan</p>';
+                    return;
+                }
+
+                const product = productDoc.data();
+                console.log('✅ Produk ditemukan:', product);
 
                 if (product.type === 'premium-account') {
                     const accounts = product.premiumAccounts || [];
@@ -210,8 +450,8 @@
                             <div style="background: var(--bg-secondary); border-radius: var(--radius); padding: 16px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                     <div>
-                                        <div style="font-size: 13px; color: var(--text-secondary);">Email</div>
-                                        <div style="font-family: monospace;">${account.email}</div>
+                                        <div style="font-size: 13px; color: var(--text-secondary);">📧 Email</div>
+                                        <div style="font-family: monospace; font-size: 14px;">${account.email}</div>
                                     </div>
                                     <button onclick="copyText('${account.email}')" class="btn btn-secondary btn-sm">
                                         <i class="fas fa-copy"></i>
@@ -219,8 +459,8 @@
                                 </div>
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
                                     <div>
-                                        <div style="font-size: 13px; color: var(--text-secondary);">Password</div>
-                                        <div style="font-family: monospace;">${account.password}</div>
+                                        <div style="font-size: 13px; color: var(--text-secondary);">🔑 Password</div>
+                                        <div style="font-family: monospace; font-size: 14px;">${account.password}</div>
                                     </div>
                                     <button onclick="copyText('${account.password}')" class="btn btn-secondary btn-sm">
                                         <i class="fas fa-copy"></i>
@@ -237,17 +477,17 @@
                         container.innerHTML = '<p style="color: var(--text-secondary);">Tidak ada akun tersedia</p>';
                     }
                 } else {
+                    // Digital Product
                     container.innerHTML = `
                         <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <a href="${product.downloadLink}" target="_blank" class="btn btn-primary btn-block">
-                                <i class="fas fa-download"></i> Download Produk
-                            </a>
-                            <button onclick="copyText('${product.downloadLink}')" class="btn btn-secondary btn-block">
-                                <i class="fas fa-copy"></i> Salin Link
-                            </button>
-                            <button onclick="window.open('${product.downloadLink}', '_blank')" class="btn btn-secondary btn-block">
-                                <i class="fas fa-external-link-alt"></i> Buka Link
-                            </button>
+                            ${product.downloadLink ? `
+                                <a href="${product.downloadLink}" target="_blank" class="btn btn-primary btn-block">
+                                    <i class="fas fa-download"></i> Download Produk
+                                </a>
+                                <button onclick="copyText('${product.downloadLink}')" class="btn btn-secondary btn-block">
+                                    <i class="fas fa-copy"></i> Salin Link Download
+                                </button>
+                            ` : '<p style="color: var(--text-secondary);">Link download tidak tersedia</p>'}
                             ${product.demoLink ? `
                                 <a href="${product.demoLink}" target="_blank" class="btn btn-secondary btn-block">
                                     <i class="fas fa-play"></i> Lihat Demo
@@ -256,26 +496,23 @@
                         </div>
                     `;
                 }
+
             } catch (error) {
-                console.error('Error loading product access:', error);
-                document.getElementById('productAccess').innerHTML = 
-                    '<p style="color: var(--danger);">Gagal memuat akses produk</p>';
+                console.error('❌ Error loading product:', error);
+                container.innerHTML = `<p style="color: var(--danger);">❌ Gagal memuat akses produk: ${error.message}</p>`;
             }
         }
 
-        window.copyText = function(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('success', 'Berhasil disalin!');
-            }).catch(() => {
-                const input = document.createElement('input');
-                input.value = text;
-                document.body.appendChild(input);
-                input.select();
-                document.execCommand('copy');
-                input.remove();
-                showToast('success', 'Berhasil disalin!');
-            });
-        };
+        // ============================================
+        // ENTER KEY SUPPORT
+        // ============================================
+        document.getElementById('orderIdInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('checkOrderForm').dispatchEvent(new Event('submit'));
+            }
+        });
+
+        console.log('✅ [CEK_ORDER] Page ready');
     </script>
 </body>
 </html>
