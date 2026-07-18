@@ -54,12 +54,22 @@
         .btn-success { background: var(--success); color: white; }
         .btn-success:hover { transform: translateY(-2px); }
         .btn-sm { padding: 8px 16px; font-size: 12px; }
+        .btn-xs { padding: 4px 8px; font-size: 11px; }
         
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
         .modal-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
         .modal { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 32px; max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; animation: slideUp 0.3s ease; text-align: center; }
         .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
         .modal p { color: var(--text-secondary); margin-bottom: 24px; }
+        .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; color: var(--text-secondary); cursor: pointer; transition: all 0.3s; padding: 4px; }
+        .modal-close:hover { color: var(--text-primary); transform: rotate(90deg); }
+        .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; text-align: left; }
+        .input-group label { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+        .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
+        .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
+        select.input { appearance: auto; }
+        textarea.input { resize: vertical; min-height: 80px; }
+        
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
         
@@ -106,6 +116,48 @@
         .error-box.show { display: block; }
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+
+        /* ============================================
+           ROOT VARIABLES
+           ============================================ */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --bg-tertiary: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-light: #9ca3af;
+            --border-color: #e5e7eb;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+            --radius: 8px;
+            --radius-lg: 16px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --primary: #4F46E5;
+            --transition: all 0.3s ease;
+        }
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #374151;
+            --bg-tertiary: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-light: #6b7280;
+            --border-color: #374151;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font); background: var(--bg-secondary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
+        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); height: 64px; }
+        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .navbar-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
+        .navbar-logo i { color: #4F46E5; }
+        .navbar-actions { display: flex; align-items: center; gap: 8px; }
+        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
+        .btn-icon:hover { background: var(--bg-secondary); }
     </style>
 </head>
 <body>
@@ -288,7 +340,7 @@
 
     <script type="module">
         // ============================================
-        // IMPORTS - TANPA onSnapshot
+        // IMPORTS
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
@@ -302,7 +354,7 @@
             deleteDoc 
         } from "firebase/firestore";
 
-        console.log('📦 [ADMIN_PRODUCTS] Page loaded (OPTIMIZED)');
+        console.log('📦 [ADMIN_PRODUCTS] Page loaded');
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
@@ -324,6 +376,41 @@
         const pageSize = 10;
         let actionId = null;
         let actionType = null;
+
+        // ============================================
+        // SELLER CACHE
+        // ============================================
+        const sellerCache = new Map();
+
+        async function getSellerName(sellerId) {
+            if (!sellerId) return 'Unknown';
+            
+            if (sellerCache.has(sellerId)) {
+                return sellerCache.get(sellerId);
+            }
+            
+            try {
+                const sellerRef = doc(db, 'users', sellerId);
+                const sellerDoc = await getDoc(sellerRef);
+                if (sellerDoc.exists()) {
+                    const sellerData = sellerDoc.data();
+                    const name = sellerData.storeName || 
+                                sellerData.displayName || 
+                                sellerData.name || 
+                                'Seller';
+                    sellerCache.set(sellerId, name);
+                    console.log(`✅ Seller loaded: ${name} (${sellerId})`);
+                    return name;
+                } else {
+                    sellerCache.set(sellerId, 'Unknown');
+                    return 'Unknown';
+                }
+            } catch (error) {
+                console.warn(`Error fetching seller ${sellerId}:`, error);
+                sellerCache.set(sellerId, 'Unknown');
+                return 'Unknown';
+            }
+        }
 
         // ============================================
         // DEBUG LOG
@@ -473,7 +560,6 @@
                 }
                 addDebug('Admin verified', 'success');
                 await loadProducts();
-                // TIDAK ADA onSnapshot
 
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
@@ -482,7 +568,7 @@
         });
 
         // ============================================
-        // LOAD PRODUCTS - TANPA INDEX
+        // LOAD PRODUCTS - DENGAN NAMA SELLER
         // ============================================
         async function loadProducts() {
             addDebug('Loading products...', 'info');
@@ -491,11 +577,21 @@
                 const snapshot = await getDocs(collection(db, 'products'));
                 addDebug(`Fetched ${snapshot.size} products from Firestore`, 'info');
 
-                let products = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                    createdAtDate: doc.data().createdAt?.toDate?.() || new Date(doc.data().createdAt)
-                }));
+                let products = [];
+                
+                for (const doc of snapshot.docs) {
+                    const data = doc.data();
+                    
+                    // Ambil nama seller
+                    const sellerName = await getSellerName(data.sellerId);
+                    
+                    products.push({
+                        id: doc.id,
+                        ...data,
+                        sellerName: sellerName,
+                        createdAtDate: data.createdAt?.toDate?.() || new Date(data.createdAt)
+                    });
+                }
 
                 // Apply filters
                 const status = document.getElementById('filterStatus').value;
@@ -535,7 +631,7 @@
         }
 
         // ============================================
-        // RENDER PRODUCTS
+        // RENDER PRODUCTS - DENGAN NAMA SELLER
         // ============================================
         function renderProducts() {
             const tbody = document.getElementById('productsTableBody');
@@ -556,7 +652,7 @@
                 <tr>
                     <td>
                         <div style="display:flex;align-items:center;gap:8px;">
-                            <div style="width:32px;height:32px;border-radius:var(--radius);background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;">
+                            <div style="width:32px;height:32px;border-radius:var(--radius);background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                                 <i class="fas fa-${p.type === 'premium-account' ? 'user' : 'box'}"></i>
                             </div>
                             <div>
@@ -565,18 +661,25 @@
                             </div>
                         </div>
                     </td>
-                    <td>${p.sellerId || 'Unknown'}</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <i class="fas fa-store" style="font-size:12px;color:var(--primary);"></i>
+                            <span style="font-weight:500;">${p.sellerName}</span>
+                        </div>
+                    </td>
                     <td style="font-weight:600;color:var(--primary);">Rp${formatPrice(p.price)}</td>
                     <td><span class="badge ${p.status === 'published' ? 'badge-success' : p.status === 'pending' ? 'badge-warning' : p.status === 'draft' ? 'badge-info' : 'badge-danger'}">${p.status || 'draft'}</span></td>
                     <td style="text-align:center;">${p.sales || 0}</td>
                     <td>
-                        ${p.status === 'pending' ? `
-                            <button onclick="approveProduct('${p.id}')" class="btn btn-success btn-sm" style="padding:4px 8px;" title="Approve"><i class="fas fa-check"></i></button>
-                            <button onclick="rejectProduct('${p.id}')" class="btn btn-danger btn-sm" style="padding:4px 8px;" title="Reject"><i class="fas fa-times"></i></button>
-                        ` : ''}
-                        <button onclick="editProduct('${p.id}')" class="btn btn-secondary btn-sm" style="padding:4px 8px;" title="Edit"><i class="fas fa-edit"></i></button>
-                        <button onclick="viewProduct('${p.id}')" class="btn btn-secondary btn-sm" style="padding:4px 8px;" title="View"><i class="fas fa-eye"></i></button>
-                        <button onclick="deleteProduct('${p.id}')" class="btn btn-danger btn-sm" style="padding:4px 8px;" title="Delete"><i class="fas fa-trash"></i></button>
+                        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                            ${p.status === 'pending' ? `
+                                <button onclick="approveProduct('${p.id}')" class="btn btn-success btn-xs" title="Approve"><i class="fas fa-check"></i></button>
+                                <button onclick="rejectProduct('${p.id}')" class="btn btn-danger btn-xs" title="Reject"><i class="fas fa-times"></i></button>
+                            ` : ''}
+                            <button onclick="editProduct('${p.id}')" class="btn btn-secondary btn-xs" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button onclick="viewProduct('${p.id}')" class="btn btn-secondary btn-xs" title="View"><i class="fas fa-eye"></i></button>
+                            <button onclick="deleteProduct('${p.id}')" class="btn btn-danger btn-xs" title="Delete"><i class="fas fa-trash"></i></button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
@@ -590,13 +693,13 @@
         function renderPagination(totalPages) {
             const container = document.getElementById('pagination');
             if (totalPages <= 1) {
-                container.innerHTML = '';
+                container.innerHTML = `<span style="font-size:14px;color:var(--text-secondary);">${allProducts.length} produk</span>`;
                 return;
             }
 
             container.innerHTML = `
                 <span style="font-size:14px;color:var(--text-secondary);">${allProducts.length} produk</span>
-                <div style="display:flex;gap:8px;">
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     ${currentPage > 1 ? `<button onclick="goToPage(${currentPage - 1})" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}
                     <span style="font-size:14px;color:var(--text-secondary);">Halaman ${currentPage} dari ${totalPages}</span>
                     ${currentPage < totalPages ? `<button onclick="goToPage(${currentPage + 1})" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}
@@ -782,8 +885,18 @@
             }
         };
 
+        // ============================================
+        // CLOSE MODALS ON OVERLAY CLICK
+        // ============================================
+        document.getElementById('actionModal').addEventListener('click', function(e) {
+            if (e.target === this) closeActionModal();
+        });
+        document.getElementById('editProductModal').addEventListener('click', function(e) {
+            if (e.target === this) closeEditProductModal();
+        });
+
         addDebug('Page ready', 'success');
-        console.log('✅ [ADMIN_PRODUCTS] Page ready (OPTIMIZED - no listeners)');
+        console.log('✅ [ADMIN_PRODUCTS] Page ready - Seller names displayed');
     </script>
 </body>
 </html>
