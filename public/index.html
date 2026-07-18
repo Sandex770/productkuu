@@ -2193,7 +2193,7 @@
             }
 
             productsGrid.innerHTML = allProducts.map(product => `
-                <div class="product-card" onclick="window.location.href='/product/${product.id}'">
+                <div class="product-card">
                     <div class="product-image">
                         ${product.imageUrl ? 
                             `<img src="${product.imageUrl}" alt="${product.name}" onerror="this.src='/image/sanzz.jpg'">` : 
@@ -2380,158 +2380,163 @@
         // ============================================
         // CHECKOUT FORM
         // ============================================
-        document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // ============================================
+// CHECKOUT FORM - DIPERBAIKI (Redirect ke success.html)
+// ============================================
+document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-            const name = document.getElementById('checkoutName').value.trim();
-            const email = document.getElementById('checkoutEmail').value.trim();
-            const phone = document.getElementById('checkoutPhone').value.trim();
-            const errorEl = document.getElementById('checkoutError');
+    const name = document.getElementById('checkoutName').value.trim();
+    const email = document.getElementById('checkoutEmail').value.trim();
+    const phone = document.getElementById('checkoutPhone').value.trim();
+    const errorEl = document.getElementById('checkoutError');
 
-            if (!name || !email) {
-                errorEl.className = 'error-message show';
-                errorEl.textContent = '⚠️ Nama dan email wajib diisi';
-                return;
-            }
+    if (!name || !email) {
+        errorEl.className = 'error-message show';
+        errorEl.textContent = '⚠️ Nama dan email wajib diisi';
+        return;
+    }
 
-            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-                errorEl.className = 'error-message show';
-                errorEl.textContent = '⚠️ Format email tidak valid';
-                return;
-            }
+    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        errorEl.className = 'error-message show';
+        errorEl.textContent = '⚠️ Format email tidak valid';
+        return;
+    }
 
-            errorEl.className = 'error-message';
+    errorEl.className = 'error-message';
 
-            const btn = document.getElementById('checkoutBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner spinner"></i> Memproses...';
+    const btn = document.getElementById('checkoutBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner spinner"></i> Memproses...';
 
-            try {
-                const productRef = doc(db, 'products', currentProductId);
-                const productDoc = await getDoc(productRef);
-                if (!productDoc.exists()) throw new Error('Produk tidak ditemukan');
-                const product = productDoc.data();
+    try {
+        const productRef = doc(db, 'products', currentProductId);
+        const productDoc = await getDoc(productRef);
+        if (!productDoc.exists()) throw new Error('Produk tidak ditemukan');
+        const product = productDoc.data();
 
-                if (product.stock === 0) throw new Error('Produk sedang habis');
+        if (product.stock === 0) throw new Error('Produk sedang habis');
 
-                const orderId = `PK-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+        const orderId = `PK-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
-                // Simpan order ke Firestore
-                const orderData = {
-                    orderId: orderId,
-                    productId: currentProductId,
-                    productName: product.name,
-                    buyerName: name,
-                    buyerEmail: email,
-                    buyerPhone: phone || '',
-                    sellerId: product.sellerId || '',
-                    sellerName: product.sellerName || 'Seller',
-                    amount: product.price,
-                    status: 'pending',
-                    paymentStatus: 'pending',
-                    type: 'product_purchase',
-                    createdAt: serverTimestamp(),
-                    updatedAt: serverTimestamp()
-                };
+        // Simpan order ke Firestore
+        const orderData = {
+            orderId: orderId,
+            productId: currentProductId,
+            productName: product.name,
+            buyerName: name,
+            buyerEmail: email,
+            buyerPhone: phone || '',
+            sellerId: product.sellerId || '',
+            sellerName: product.sellerName || 'Seller',
+            amount: product.price,
+            status: 'pending',
+            paymentStatus: 'pending',
+            type: 'product_purchase',
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+        };
 
-                const ordersRef = collection(db, 'orders');
-                const orderDoc = await addDoc(ordersRef, orderData);
+        const ordersRef = collection(db, 'orders');
+        const orderDoc = await addDoc(ordersRef, orderData);
 
-                console.log('✅ Order created:', orderDoc.id);
+        console.log('✅ Order created:', orderDoc.id);
 
-                // Create Midtrans payment
-                const response = await fetch('/api/payment/create', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        orderId: orderId,
-                        amount: product.price,
-                        buyerName: name,
-                        buyerEmail: email,
-                        buyerPhone: phone || '08123456789',
-                        productName: product.name
-                    })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) throw new Error(data.error || 'Gagal membuat pembayaran');
-
-                closeCheckoutModal();
-
-                if (data.token && typeof snap !== 'undefined') {
-                    window.snap.pay(data.token, {
-                        onSuccess: async function(result) {
-                            console.log('✅ Payment SUCCESS:', result);
-                            showToast('success', '🎉 Pembayaran berhasil!');
-
-                            // 1. Update status order
-                            await updateOrderStatus(orderDoc.id, 'settlement', result);
-
-                            // 2. Update stock produk
-                            try {
-                                await updateDoc(productRef, {
-                                    stock: product.stock === 'unlimited' ? 'unlimited' : (product.stock || 0) - 1,
-                                    sales: (product.sales || 0) + 1,
-                                    updatedAt: serverTimestamp()
-                                });
-                            } catch (stockError) {
-                                console.error('Error updating stock:', stockError);
-                            }
-
-                            // ✅ 3. UPDATE WALLET SELLER
-                            if (product.sellerId) {
-                                try {
-                                    const orderCreatedAt = new Date();
-                                    await updateSellerWallet(product.sellerId, product.price, orderCreatedAt);
-                                } catch (walletError) {
-                                    console.error('Error updating seller wallet:', walletError);
-                                }
-                            }
-
-                            // 4. Redirect ke halaman sukses
-                            setTimeout(() => {
-                                window.location.href = `/cek-order?order=${orderId}`;
-                            }, 1500);
-                        },
-                        onPending: async function(result) {
-                            console.log('⏳ Payment PENDING:', result);
-                            showToast('info', '⏳ Menunggu pembayaran...');
-                            await updateOrderStatus(orderDoc.id, 'pending', result);
-                            setTimeout(() => {
-                                window.location.href = `/cek-order?order=${orderId}`;
-                            }, 1500);
-                        },
-                        onError: async function(result) {
-                            console.log('❌ Payment ERROR:', result);
-                            showToast('error', '❌ Pembayaran gagal: ' + (result.status_message ||
-                                'Silakan coba lagi'));
-                            await updateOrderStatus(orderDoc.id, 'failed', result);
-                            btn.disabled = false;
-                            btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
-                        },
-                        onClose: function() {
-                            console.log('🔒 Payment window closed');
-                            showToast('info', 'Pembayaran dibatalkan');
-                            btn.disabled = false;
-                            btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
-                        }
-                    });
-                } else if (data.redirect_url) {
-                    window.location.href = data.redirect_url;
-                } else {
-                    throw new Error('Metode pembayaran tidak tersedia');
-                }
-
-            } catch (error) {
-                console.error('❌ Checkout error:', error);
-                errorEl.className = 'error-message show';
-                errorEl.textContent = '❌ ' + error.message;
-                showToast('error', 'Gagal memproses checkout: ' + error.message);
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
-            }
+        // Create Midtrans payment
+        const response = await fetch('/api/payment/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                orderId: orderId,
+                amount: product.price,
+                buyerName: name,
+                buyerEmail: email,
+                buyerPhone: phone || '08123456789',
+                productName: product.name
+            })
         });
+
+        const data = await response.json();
+
+        if (!response.ok) throw new Error(data.error || 'Gagal membuat pembayaran');
+
+        closeCheckoutModal();
+
+        if (data.token && typeof snap !== 'undefined') {
+            window.snap.pay(data.token, {
+                onSuccess: async function(result) {
+                    console.log('✅ Payment SUCCESS:', result);
+                    showToast('success', '🎉 Pembayaran berhasil!');
+
+                    // 1. Update status order
+                    await updateOrderStatus(orderDoc.id, 'settlement', result);
+
+                    // 2. Update stock produk
+                    try {
+                        await updateDoc(productRef, {
+                            stock: product.stock === 'unlimited' ? 'unlimited' : (product.stock || 0) - 1,
+                            sales: (product.sales || 0) + 1,
+                            updatedAt: serverTimestamp()
+                        });
+                    } catch (stockError) {
+                        console.error('Error updating stock:', stockError);
+                    }
+
+                    // ✅ 3. UPDATE WALLET SELLER
+                    if (product.sellerId) {
+                        try {
+                            const orderCreatedAt = new Date();
+                            await updateSellerWallet(product.sellerId, product.price, orderCreatedAt);
+                        } catch (walletError) {
+                            console.error('Error updating seller wallet:', walletError);
+                        }
+                    }
+
+                    // ✅ 4. REDIRECT KE SUCCESS.HTML
+                    setTimeout(() => {
+                        window.location.href = `/public/success.html?order=${orderId}&status=success`;
+                    }, 1500);
+                },
+                onPending: async function(result) {
+                    console.log('⏳ Payment PENDING:', result);
+                    showToast('info', '⏳ Menunggu pembayaran...');
+                    await updateOrderStatus(orderDoc.id, 'pending', result);
+                    
+                    // ✅ REDIRECT KE SUCCESS.HTML DENGAN STATUS PENDING
+                    setTimeout(() => {
+                        window.location.href = `/public/success.html?order=${orderId}&status=pending`;
+                    }, 1500);
+                },
+                onError: async function(result) {
+                    console.log('❌ Payment ERROR:', result);
+                    showToast('error', '❌ Pembayaran gagal: ' + (result.status_message ||
+                        'Silakan coba lagi'));
+                    await updateOrderStatus(orderDoc.id, 'failed', result);
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
+                },
+                onClose: function() {
+                    console.log('🔒 Payment window closed');
+                    showToast('info', 'Pembayaran dibatalkan');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
+                }
+            });
+        } else if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+        } else {
+            throw new Error('Metode pembayaran tidak tersedia');
+        }
+
+    } catch (error) {
+        console.error('❌ Checkout error:', error);
+        errorEl.className = 'error-message show';
+        errorEl.textContent = '❌ ' + error.message;
+        showToast('error', 'Gagal memproses checkout: ' + error.message);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
+    }
+});
 
         // ============================================
         // INIT
