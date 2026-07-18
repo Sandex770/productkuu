@@ -18,6 +18,7 @@
             padding: 60px 0 40px;
             border-radius: 0 0 24px 24px;
             margin-bottom: 40px;
+            transition: all 0.3s;
         }
         .seller-header.suspended {
             background: linear-gradient(135deg, #DC2626, #991B1B);
@@ -39,7 +40,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(239,68,68,0.2);
+            background: rgba(239,68,68,0.25);
             color: #FCA5A5;
             padding: 8px 20px;
             border-radius: 9999px;
@@ -403,6 +404,18 @@
     </style>
 </head>
 <body>
+    <!-- SUSPEND OVERLAY -->
+    <div class="suspended-overlay" id="suspendOverlay">
+        <div class="modal-suspend">
+            <div class="icon"><i class="fas fa-ban"></i></div>
+            <h2>⚠️ Toko Ditangguhkan</h2>
+            <p>Toko ini telah ditangguhkan oleh admin karena melanggar ketentuan.</p>
+            <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
+            <div class="contact"><i class="fab fa-telegram"></i> @Sanzz_offc</div>
+            <button onclick="window.location.href='/'" class="btn btn-secondary"><i class="fas fa-home"></i> Kembali ke Beranda</button>
+        </div>
+    </div>
+
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
@@ -412,18 +425,6 @@
             </div>
         </div>
     </nav>
-
-    <!-- SUSPEND OVERLAY -->
-    <div class="suspended-overlay" id="suspendOverlay">
-        <div class="modal-suspend">
-            <div class="icon"><i class="fas fa-ban"></i></div>
-            <h2>⚠️ Toko Ditangguhkan</h2>
-            <p>Toko ini telah ditangguhkan karena melanggar ketentuan.</p>
-            <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
-            <div class="contact"><i class="fab fa-telegram"></i> @Sanzz_offc</div>
-            <button onclick="window.location.href='/'" class="btn btn-secondary"><i class="fas fa-home"></i> Kembali ke Beranda</button>
-        </div>
-    </div>
 
     <main>
         <div class="seller-header" id="sellerHeader">
@@ -757,6 +758,7 @@
             localStorage.setItem('sellerCart', JSON.stringify(cart));
         }
 
+        // ✅ TAMBAHKAN FUNGSI INI KE WINDOW
         window.addToCart = function(productId) {
             if (isSuspended) {
                 showToast('warning', 'Toko sedang ditangguhkan, tidak bisa membeli');
@@ -797,9 +799,11 @@
         };
 
         // ============================================
-        // DIRECT BUY
+        // ✅ DIRECT BUY - FIXED (Tombol Beli langsung muncul form)
         // ============================================
         window.buyNow = function(productId) {
+            console.log('🛒 Buy Now clicked:', productId);
+            
             if (isSuspended) {
                 showToast('warning', 'Toko sedang ditangguhkan, tidak bisa membeli');
                 return;
@@ -826,7 +830,9 @@
             document.getElementById('directBuyError').className = 'error-message';
             document.getElementById('directBuyForm').reset();
             
+            // ✅ BUKA MODAL
             document.getElementById('directBuyModal').classList.add('open');
+            console.log('✅ Direct Buy Modal opened');
         };
 
         window.closeDirectBuyModal = function() {
@@ -1249,7 +1255,7 @@
         });
 
         // ============================================
-        // LOAD SELLER
+        // LOAD SELLER - CEK SUSPEND
         // ============================================
         async function loadSeller() {
             if (!sellerParam) {
@@ -1267,6 +1273,7 @@
 
                 const usersRef = collection(db, 'users');
                 
+                // CARA 1: Cari berdasarkan storeName
                 const q1 = query(usersRef, where('storeName', '==', sellerParam));
                 const snapshot1 = await getDocs(q1);
                 
@@ -1277,22 +1284,28 @@
                     // ✅ CEK STATUS SUSPEND
                     if (data.status === 'suspended') {
                         isSuspended = true;
+                        console.log('🚫 Toko DISUSPEND!');
                         document.getElementById('suspendOverlay').classList.add('open');
                         document.getElementById('sellerHeader').classList.add('suspended');
                         document.getElementById('suspendBadgeContainer').style.display = 'block';
                         document.getElementById('productsGrid').innerHTML = `
-                            <div class="text-center" style="grid-column:1/-1;padding:40px 0;color:var(--text-secondary);">
-                                <i class="fas fa-ban" style="font-size:48px;display:block;margin-bottom:16px;color:var(--danger);"></i>
-                                <p style="font-size:18px;font-weight:600;color:var(--text-primary);">Toko Telah Ditangguhkan</p>
-                                <p style="font-size:14px;color:var(--text-secondary);">Hubungi admin untuk informasi lebih lanjut.</p>
+                            <div class="text-center" style="grid-column:1/-1;padding:60px 0;color:var(--text-secondary);">
+                                <i class="fas fa-ban" style="font-size:64px;display:block;margin-bottom:16px;color:var(--danger);"></i>
+                                <p style="font-size:20px;font-weight:700;color:var(--text-primary);">🚫 Toko Telah Ditangguhkan</p>
+                                <p style="font-size:15px;color:var(--text-secondary);margin-top:8px;">Hubungi admin untuk informasi lebih lanjut.</p>
+                                <div style="margin-top:16px;padding:12px 24px;background:var(--bg-secondary);border-radius:var(--radius);display:inline-block;">
+                                    <i class="fab fa-telegram" style="color:var(--primary);"></i> @Sanzz_offc
+                                </div>
                             </div>
                         `;
+                        document.getElementById('cartBar').style.display = 'none';
                     }
                     
                     await renderSellerData(doc.id, data);
                     return;
                 }
 
+                // CARA 2: Cari berdasarkan displayName
                 const q2 = query(usersRef, where('displayName', '==', sellerParam));
                 const snapshot2 = await getDocs(q2);
                 
@@ -1306,18 +1319,23 @@
                         document.getElementById('sellerHeader').classList.add('suspended');
                         document.getElementById('suspendBadgeContainer').style.display = 'block';
                         document.getElementById('productsGrid').innerHTML = `
-                            <div class="text-center" style="grid-column:1/-1;padding:40px 0;color:var(--text-secondary);">
-                                <i class="fas fa-ban" style="font-size:48px;display:block;margin-bottom:16px;color:var(--danger);"></i>
-                                <p style="font-size:18px;font-weight:600;color:var(--text-primary);">Toko Telah Ditangguhkan</p>
-                                <p style="font-size:14px;color:var(--text-secondary);">Hubungi admin untuk informasi lebih lanjut.</p>
+                            <div class="text-center" style="grid-column:1/-1;padding:60px 0;color:var(--text-secondary);">
+                                <i class="fas fa-ban" style="font-size:64px;display:block;margin-bottom:16px;color:var(--danger);"></i>
+                                <p style="font-size:20px;font-weight:700;color:var(--text-primary);">🚫 Toko Telah Ditangguhkan</p>
+                                <p style="font-size:15px;color:var(--text-secondary);margin-top:8px;">Hubungi admin untuk informasi lebih lanjut.</p>
+                                <div style="margin-top:16px;padding:12px 24px;background:var(--bg-secondary);border-radius:var(--radius);display:inline-block;">
+                                    <i class="fab fa-telegram" style="color:var(--primary);"></i> @Sanzz_offc
+                                </div>
                             </div>
                         `;
+                        document.getElementById('cartBar').style.display = 'none';
                     }
                     
                     await renderSellerData(doc.id, data);
                     return;
                 }
 
+                // CARA 3: Cari berdasarkan UID
                 const q3 = query(usersRef, where('uid', '==', sellerParam));
                 const snapshot3 = await getDocs(q3);
                 
@@ -1331,12 +1349,16 @@
                         document.getElementById('sellerHeader').classList.add('suspended');
                         document.getElementById('suspendBadgeContainer').style.display = 'block';
                         document.getElementById('productsGrid').innerHTML = `
-                            <div class="text-center" style="grid-column:1/-1;padding:40px 0;color:var(--text-secondary);">
-                                <i class="fas fa-ban" style="font-size:48px;display:block;margin-bottom:16px;color:var(--danger);"></i>
-                                <p style="font-size:18px;font-weight:600;color:var(--text-primary);">Toko Telah Ditangguhkan</p>
-                                <p style="font-size:14px;color:var(--text-secondary);">Hubungi admin untuk informasi lebih lanjut.</p>
+                            <div class="text-center" style="grid-column:1/-1;padding:60px 0;color:var(--text-secondary);">
+                                <i class="fas fa-ban" style="font-size:64px;display:block;margin-bottom:16px;color:var(--danger);"></i>
+                                <p style="font-size:20px;font-weight:700;color:var(--text-primary);">🚫 Toko Telah Ditangguhkan</p>
+                                <p style="font-size:15px;color:var(--text-secondary);margin-top:8px;">Hubungi admin untuk informasi lebih lanjut.</p>
+                                <div style="margin-top:16px;padding:12px 24px;background:var(--bg-secondary);border-radius:var(--radius);display:inline-block;">
+                                    <i class="fab fa-telegram" style="color:var(--primary);"></i> @Sanzz_offc
+                                </div>
                             </div>
                         `;
+                        document.getElementById('cartBar').style.display = 'none';
                     }
                     
                     await renderSellerData(doc.id, data);
@@ -1377,6 +1399,7 @@
                 document.getElementById('productCount').textContent = 0;
                 document.getElementById('productCountLabel').textContent = '0 produk';
                 document.getElementById('totalSales').textContent = '0';
+                document.getElementById('cartBar').style.display = 'none';
                 updateCartUI();
                 return;
             }
@@ -1448,10 +1471,10 @@
                             <span class="product-sales">${p.sales || 0} terjual</span>
                         </div>
                         <div style="display:flex;gap:8px;margin-top:8px;">
-                            <button onclick="addToCart('${p.id}')" class="btn btn-secondary btn-sm" style="flex:1;" ${isSuspended ? 'disabled' : ''}>
+                            <button onclick="window.addToCart('${p.id}')" class="btn btn-secondary btn-sm" style="flex:1;" ${isSuspended ? 'disabled' : ''}>
                                 <i class="fas fa-cart-plus"></i> Keranjang
                             </button>
-                            <button onclick="buyNow('${p.id}')" class="btn btn-primary btn-sm" style="flex:1;" ${isSuspended ? 'disabled' : ''}>
+                            <button onclick="window.buyNow('${p.id}')" class="btn btn-primary btn-sm" style="flex:1;" ${isSuspended ? 'disabled' : ''}>
                                 <i class="fas fa-shopping-cart"></i> Beli
                             </button>
                         </div>
@@ -1475,6 +1498,7 @@
         // ============================================
         loadSeller();
         console.log('✅ [SELLER_PAGE] Page ready');
+        console.log('ℹ️ Gunakan tombol "Beli" untuk langsung checkout, atau "Keranjang" untuk menambah ke keranjang.');
     </script>
 </body>
 </html>
