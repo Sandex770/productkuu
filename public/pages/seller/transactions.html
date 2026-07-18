@@ -44,12 +44,10 @@
         .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
         .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
         .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
-        .badge-muted { background: rgba(107,114,128,0.1); color: var(--text-secondary); }
         
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         .text-center { text-align: center; }
         .text-secondary { color: var(--text-secondary); }
-        .text-muted { color: var(--text-light); font-size: 13px; }
         
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
         .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
@@ -92,14 +90,36 @@
         .error-box.show { display: block; }
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
-        
-        .pending-expired {
-            background: rgba(239,68,68,0.05);
-            opacity: 0.6;
-            text-decoration: line-through;
+
+        .suspend-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
-        .pending-expired .badge { opacity: 0.5; }
-        
+        .suspend-overlay.open { display: flex; }
+        .suspend-overlay .modal {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: 48px 40px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+            box-shadow: var(--shadow-2xl);
+        }
+        .suspend-overlay .modal .icon { font-size: 64px; color: var(--danger); margin-bottom: 16px; }
+        .suspend-overlay .modal h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+        .suspend-overlay .modal p { color: var(--text-secondary); font-size: 15px; line-height: 1.7; margin-bottom: 8px; }
+        .suspend-overlay .modal .contact { background: var(--bg-secondary); border-radius: var(--radius); padding: 16px; margin: 16px 0 24px; font-weight: 600; color: var(--primary); }
+        .suspend-overlay .modal .contact i { margin-right: 8px; }
+        .suspend-overlay .modal .btn { width: 100%; justify-content: center; }
+
         :root {
             --bg-primary: #ffffff;
             --bg-secondary: #f3f4f6;
@@ -110,6 +130,7 @@
             --border-color: #e5e7eb;
             --shadow: 0 1px 3px rgba(0,0,0,0.1);
             --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+            --shadow-2xl: 0 25px 50px -12px rgba(0,0,0,0.25);
             --radius: 8px;
             --radius-lg: 16px;
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -142,6 +163,18 @@
     </style>
 </head>
 <body>
+    <!-- SUSPEND OVERLAY -->
+    <div class="suspend-overlay" id="suspendOverlay">
+        <div class="modal">
+            <div class="icon"><i class="fas fa-ban"></i></div>
+            <h2>⚠️ Akun Anda Ditangguhkan</h2>
+            <p>Akun seller Anda telah ditangguhkan oleh admin karena melanggar ketentuan.</p>
+            <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
+            <div class="contact"><i class="fab fa-telegram"></i> @Sanzz_offc</div>
+            <button onclick="window.location.href='/'" class="btn btn-secondary"><i class="fas fa-home"></i> Kembali ke Beranda</button>
+        </div>
+    </div>
+
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
@@ -290,6 +323,29 @@
             loadTransactions(true);
         };
 
+        // ============================================
+        // CHECK SUSPEND STATUS
+        // ============================================
+        async function checkSuspendStatus(uid) {
+            try {
+                const userRef = doc(db, 'users', uid);
+                const userDoc = await getDoc(userRef);
+                if (userDoc.exists()) {
+                    const status = userDoc.data().status || 'active';
+                    if (status === 'suspended') {
+                        addDebug('🚫 Account is SUSPENDED!', 'error');
+                        document.getElementById('suspendOverlay').classList.add('open');
+                        await signOut(auth);
+                        return true;
+                    }
+                }
+                return false;
+            } catch (error) {
+                addDebug(`Error checking status: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -415,6 +471,9 @@
             currentUser = user;
             addDebug(`User logged in: ${user.email}`, 'success');
 
+            const isSuspended = await checkSuspendStatus(user.uid);
+            if (isSuspended) return;
+
             try {
                 const userRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userRef);
@@ -425,7 +484,6 @@
                 }
                 addDebug('User is seller', 'success');
                 await loadTransactions(true);
-
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat data: ' + error.message);
@@ -433,7 +491,7 @@
         });
 
         // ============================================
-        // LOAD TRANSACTIONS - HANYA PRODUK
+        // LOAD TRANSACTIONS
         // ============================================
         async function loadTransactions(reset = true) {
             if (!currentUser) {
@@ -595,7 +653,7 @@
         };
 
         addDebug('Page ready', 'success');
-        console.log('✅ [SELLER_TRANSACTIONS] Page ready - Hanya transaksi PRODUK');
+        console.log('✅ [SELLER_TRANSACTIONS] Page ready');
     </script>
 </body>
 </html>

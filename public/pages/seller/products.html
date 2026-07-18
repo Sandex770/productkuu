@@ -10,9 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="icon" href="/assets/images/favicon.ico">
-    
     <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="Mid-client-OkRCJi3x4-wno9XX"></script>
-    
     <style>
         .app-wrapper { display: flex; min-height: calc(100vh - 64px); margin-top: 64px; }
         .sidebar { width: 260px; background: var(--bg-primary); border-right: 1px solid var(--border-color); padding: 20px 0; position: fixed; top: 64px; bottom: 0; overflow-y: auto; z-index: 100; transition: transform 0.3s ease; }
@@ -119,12 +117,96 @@
         .error-box.show { display: block; }
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+
+        /* Suspend Overlay */
+        .suspend-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .suspend-overlay.open { display: flex; }
+        .suspend-overlay .modal {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: 48px 40px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+            box-shadow: var(--shadow-2xl);
+        }
+        .suspend-overlay .modal .icon { font-size: 64px; color: var(--danger); margin-bottom: 16px; }
+        .suspend-overlay .modal h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+        .suspend-overlay .modal p { color: var(--text-secondary); font-size: 15px; line-height: 1.7; margin-bottom: 8px; }
+        .suspend-overlay .modal .contact { background: var(--bg-secondary); border-radius: var(--radius); padding: 16px; margin: 16px 0 24px; font-weight: 600; color: var(--primary); }
+        .suspend-overlay .modal .contact i { margin-right: 8px; }
+        .suspend-overlay .modal .btn { width: 100%; justify-content: center; }
+
         @media (max-width: 1024px) { .table { min-width: 700px; font-size: 13px; } .table th, .table td { padding: 10px 12px; } .product-cell .product-name { max-width: 100px; } }
         @media (max-width: 768px) { .table { min-width: 650px; font-size: 12px; } .table th, .table td { padding: 8px 10px; } .table .badge { font-size: 10px; padding: 2px 8px; } .product-cell { min-width: 140px; gap: 8px; } .product-cell .product-thumb { width: 30px; height: 30px; } .product-cell .product-name { max-width: 80px; font-size: 12px; } .product-cell .product-date { font-size: 10px; } .action-dropdown-content { min-width: 150px; } .action-dropdown-content a { font-size: 12px; padding: 6px 12px; } .filter-bar .filter-group select, .filter-bar .filter-group input { min-width: 100%; flex: 1; } .filter-bar .filter-actions { width: 100%; } .filter-bar .filter-actions .btn { flex: 1; } .payment-method-option { flex: 1 1 100%; } }
         @media (max-width: 480px) { .table-wrapper { margin: 0 -12px; padding: 0 12px; } .table { min-width: 600px; font-size: 11px; } .table th, .table td { padding: 6px 8px; } .product-cell { min-width: 120px; gap: 6px; } .product-cell .product-thumb { width: 24px; height: 24px; } .product-cell .product-name { max-width: 60px; font-size: 11px; } .product-cell .product-date { font-size: 9px; } .grid-2 { grid-template-columns: 1fr; } .payment-method-option { flex: 1 1 100%; } }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --bg-tertiary: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-light: #9ca3af;
+            --border-color: #e5e7eb;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+            --shadow-2xl: 0 25px 50px -12px rgba(0,0,0,0.25);
+            --radius: 8px;
+            --radius-lg: 16px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --primary: #4F46E5;
+            --secondary: #7C3AED;
+            --transition: all 0.3s ease;
+        }
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #374151;
+            --bg-tertiary: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-light: #6b7280;
+            --border-color: #374151;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font); background: var(--bg-secondary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
+        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); height: 64px; }
+        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .navbar-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
+        .navbar-logo i { color: #4F46E5; }
+        .navbar-actions { display: flex; align-items: center; gap: 8px; }
+        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
+        .btn-icon:hover { background: var(--bg-secondary); }
     </style>
 </head>
 <body>
+    <!-- SUSPEND OVERLAY -->
+    <div class="suspend-overlay" id="suspendOverlay">
+        <div class="modal">
+            <div class="icon"><i class="fas fa-ban"></i></div>
+            <h2>⚠️ Akun Anda Ditangguhkan</h2>
+            <p>Akun seller Anda telah ditangguhkan oleh admin karena melanggar ketentuan.</p>
+            <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
+            <div class="contact"><i class="fab fa-telegram"></i> @Sanzz_offc</div>
+            <button onclick="window.location.href='/'" class="btn btn-secondary"><i class="fas fa-home"></i> Kembali ke Beranda</button>
+        </div>
+    </div>
+
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
@@ -394,7 +476,7 @@
     <script type="module">
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, setDoc, collection, doc, getDoc, getDocs, query, where, addDoc, updateDoc, deleteDoc, serverTimestamp, runTransaction } from "firebase/firestore";
+        import { getFirestore, setDoc, collection, doc, getDoc, getDocs, query, where, addDoc, updateDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
 
         console.log('📦 [SELLER_PRODUCTS] Page loaded');
 
@@ -419,7 +501,6 @@
         let deleteId = null;
         let promoteProductId = null;
         let pricingData = null;
-
         let debugVisible = false;
 
         function addDebug(message, type = 'info') {
@@ -445,6 +526,29 @@
             showToast('info', 'Memperbarui data produk...');
             loadProducts();
         };
+
+        // ============================================
+        // CHECK SUSPEND STATUS
+        // ============================================
+        async function checkSuspendStatus(uid) {
+            try {
+                const userRef = doc(db, 'users', uid);
+                const userDoc = await getDoc(userRef);
+                if (userDoc.exists()) {
+                    const status = userDoc.data().status || 'active';
+                    if (status === 'suspended') {
+                        addDebug('🚫 Account is SUSPENDED!', 'error');
+                        document.getElementById('suspendOverlay').classList.add('open');
+                        await signOut(auth);
+                        return true;
+                    }
+                }
+                return false;
+            } catch (error) {
+                addDebug(`Error checking status: ${error.message}`, 'error');
+                return false;
+            }
+        }
 
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
@@ -524,99 +628,6 @@
         }
 
         // ============================================
-        // HANDLE PAYMENT STATUS DARI URL REDIRECT
-        // ============================================
-
-        function handlePaymentRedirect() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const payment = urlParams.get('payment');
-            const orderId = urlParams.get('order');
-
-            console.log('🔍 [PAYMENT REDIRECT] Payment:', payment, 'Order:', orderId);
-
-            if (payment === 'success' && orderId) {
-                showToast('success', `🎉 Pembayaran berhasil! Banner untuk order ${orderId} sedang diaktifkan.`);
-                activateBannerFromOrder(orderId);
-                window.history.replaceState({}, document.title, window.location.pathname);
-            } else if (payment === 'error' && orderId) {
-                showToast('error', `❌ Pembayaran gagal untuk order ${orderId}. Silakan coba lagi.`);
-                window.history.replaceState({}, document.title, window.location.pathname);
-            } else if (payment === 'pending' && orderId) {
-                showToast('info', `⏳ Pembayaran untuk order ${orderId} sedang diproses.`);
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        }
-
-        // ============================================
-        // AKTIFKAN BANNER DARI ORDER
-        // ============================================
-
-        async function activateBannerFromOrder(orderId) {
-            try {
-                console.log('📦 [ACTIVATE BANNER] Activating banner for order:', orderId);
-                
-                const ordersSnapshot = await getDocs(
-                    query(collection(db, 'orders'), where('orderId', '==', orderId))
-                );
-                
-                if (ordersSnapshot.empty) {
-                    console.log('⚠️ [ACTIVATE BANNER] Order not found');
-                    return;
-                }
-                
-                const orderDoc = ordersSnapshot.docs[0];
-                const orderData = orderDoc.data();
-                
-                if (orderData.paymentStatus === 'settlement' || orderData.status === 'paid') {
-                    console.log('✅ [ACTIVATE BANNER] Order already settled');
-                    showToast('success', '✅ Banner sudah aktif!');
-                    loadProducts();
-                    return;
-                }
-                
-                if (orderData.type === 'banner_purchase') {
-                    const bannerData = orderData.bannerData || {};
-                    const expiresAt = bannerData.expiresAt ? new Date(bannerData.expiresAt) : new Date();
-                    if (!bannerData.expiresAt) {
-                        expiresAt.setHours(expiresAt.getHours() + 24);
-                    }
-
-                    // Update order status
-                    await updateDoc(orderDoc.ref, {
-                        status: 'paid',
-                        paymentStatus: 'settlement',
-                        updatedAt: serverTimestamp()
-                    });
-
-                    // Create banner
-                    await addDoc(collection(db, 'banners'), {
-                        title: bannerData.title || 'Banner Promosi',
-                        description: bannerData.description || '',
-                        imageUrl: bannerData.imageUrl || '',
-                        linkUrl: `/product/${orderData.productId}`,
-                        isActive: true,
-                        type: 'seller',
-                        sellerId: orderData.sellerId,
-                        productId: orderData.productId,
-                        duration: bannerData.duration || 24,
-                        price: orderData.amount || 0,
-                        paymentMethod: orderData.paymentMethod || 'midtrans',
-                        orderId: orderId,
-                        expiresAt: expiresAt,
-                        createdAt: serverTimestamp(),
-                        updatedAt: serverTimestamp()
-                    });
-
-                    showToast('success', '✅ Banner berhasil diaktifkan!');
-                    loadProducts();
-                }
-            } catch (error) {
-                console.error('❌ [ACTIVATE BANNER] Error:', error);
-                showToast('warning', '⚠️ Gagal mengaktifkan banner, tapi pembayaran sudah berhasil.');
-            }
-        }
-
-        // ============================================
         // AUTH STATE
         // ============================================
         onAuthStateChanged(auth, async (user) => {
@@ -627,6 +638,10 @@
             }
             currentUser = user;
             addDebug(`User logged in: ${user.email}`, 'success');
+
+            // ✅ CEK SUSPEND
+            const isSuspended = await checkSuspendStatus(user.uid);
+            if (isSuspended) return;
 
             try {
                 const userRef = doc(db, 'users', user.uid);
@@ -639,7 +654,6 @@
                 addDebug('User is seller', 'success');
                 document.getElementById('productCount').textContent = userDoc.data().productCount || 0;
                 await loadProducts();
-                handlePaymentRedirect();
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat data: ' + error.message);
@@ -1022,9 +1036,8 @@
         };
 
         // ============================================
-        // PROMOTE TO BANNER - FIXED (PASTI UPDATE WALLET)
+        // PROMOTE TO BANNER
         // ============================================
-
         async function getBannerPricing() {
             try {
                 const response = await fetch('/api/banner-pricing');
@@ -1039,7 +1052,6 @@
         window.promoteToBanner = async function(productId) {
             addDebug(`Promoting product to banner: ${productId}`, 'info');
             promoteProductId = productId;
-            
             try {
                 const productRef = doc(db, 'products', productId);
                 const productDoc = await getDoc(productRef);
@@ -1049,17 +1061,13 @@
                 }
                 const product = productDoc.data();
                 document.getElementById('promoteProductName').textContent = product.name;
-
                 pricingData = await getBannerPricing();
                 document.getElementById('promotePrice').textContent = formatPrice(pricingData.price);
-
                 const userRef = doc(db, 'users', currentUser.uid);
                 const userDoc = await getDoc(userRef);
                 const wallet = userDoc.data()?.wallet || { available: 0 };
                 const balance = wallet.available || 0;
-                
                 document.getElementById('promoteBalance').textContent = formatPrice(balance);
-
                 const balanceStatus = document.getElementById('balanceStatus');
                 const walletStatus = document.getElementById('walletStatus');
                 if (balance >= pricingData.price) {
@@ -1072,21 +1080,16 @@
                     balanceStatus.innerHTML = `<span style="color:var(--danger);">⚠️ Saldo kurang (Rp${formatPrice(kurang)})</span>`;
                     walletStatus.textContent = `⚠️ Kurang Rp${formatPrice(kurang)}`;
                     walletStatus.className = 'method-status insufficient';
-                    
                     document.getElementById('promoteError').style.display = 'block';
                     document.getElementById('promoteError').textContent = `⚠️ Saldo tidak mencukupi! Saldo: Rp${formatPrice(balance)}, Harga: Rp${formatPrice(pricingData.price)}. Gunakan "Bayar Langsung" atau isi saldo terlebih dahulu.`;
                 }
-
                 document.getElementById('promoteDuration').value = pricingData.duration || 24;
                 document.getElementById('promoteTotal').textContent = `Rp${formatPrice(pricingData.price)}`;
-
                 document.querySelector('input[name="paymentMethod"][value="wallet"]').checked = true;
                 document.getElementById('walletOption').classList.add('active');
                 document.getElementById('midtransOption').classList.remove('active');
-
                 document.getElementById('promoteModal').classList.add('open');
                 addDebug('Promote modal opened', 'success');
-
             } catch (error) {
                 addDebug(`Error promoting product: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat data: ' + error.message);
@@ -1099,7 +1102,6 @@
             addDebug('Promote modal closed', 'info');
         };
 
-        // Payment method toggle - FIXED
         document.querySelectorAll('.payment-method-option').forEach(option => {
             option.addEventListener('click', async function() {
                 const radio = this.querySelector('input[type="radio"]');
@@ -1107,14 +1109,12 @@
                     radio.checked = true;
                     document.querySelectorAll('.payment-method-option').forEach(opt => opt.classList.remove('active'));
                     this.classList.add('active');
-                    
                     if (radio.value === 'wallet') {
                         try {
                             const userRef = doc(db, 'users', currentUser.uid);
                             const userDoc = await getDoc(userRef);
                             const balance = userDoc.exists() ? (userDoc.data()?.wallet?.available || 0) : 0;
                             const price = pricingData?.price || 0;
-                            
                             if (balance < price) {
                                 document.getElementById('promoteError').style.display = 'block';
                                 document.getElementById('promoteError').textContent = `⚠️ Saldo tidak mencukupi! Saldo: Rp${formatPrice(balance)}, Harga: Rp${formatPrice(price)}. Gunakan "Bayar Langsung" atau isi saldo terlebih dahulu.`;
@@ -1136,285 +1136,267 @@
             document.getElementById('promoteTotal').textContent = `Rp${formatPrice(price)}`;
         });
 
-        // ============================================
-        // PROMOTE FORM SUBMIT - FIXED (PAKAI TRANSACTION)
-        // // ============================================
-// PROMOTE FORM SUBMIT - FIXED (PAKAI SETDOC)
-// ============================================
-document.getElementById('promoteForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    if (!promoteProductId) {
-        showToast('error', 'Produk tidak valid');
-        return;
-    }
-
-    const duration = parseInt(document.getElementById('promoteDuration').value);
-    const imageUrl = document.getElementById('promoteImageUrl').value.trim();
-    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-
-    if (!duration || duration < 1) {
-        showToast('warning', 'Durasi minimal 1 jam');
-        return;
-    }
-
-    const price = pricingData?.price || 0;
-    document.getElementById('promoteError').style.display = 'none';
-    const submitBtn = document.getElementById('promoteSubmitBtn');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
-
-    addDebug(`Purchasing banner for ${duration} hours with ${paymentMethod}`, 'info');
-
-    try {
-        // Ambil data user & produk
-        const userRef = doc(db, 'users', currentUser.uid);
-        const userDoc = await getDoc(userRef);
-        
-        if (!userDoc.exists()) {
-            throw new Error('User tidak ditemukan!');
-        }
-        
-        const userData = userDoc.data();
-        const sellerName = userData?.storeName || userData?.displayName || 'Seller';
-        const userEmail = userData?.email || 'seller@example.com';
-        
-        // AMBIL WALLET DARI FIRESTORE
-        const wallet = userData?.wallet || { 
-            available: 0, 
-            holding: 0, 
-            totalRevenue: 0, 
-            totalWithdraw: 0, 
-            pendingWithdraw: 0 
-        };
-
-        const productRef = doc(db, 'products', promoteProductId);
-        const productDoc = await getDoc(productRef);
-        const productName = productDoc.exists() ? productDoc.data().name : 'Product';
-
-        // ============================================
-        // METODE WALLET
-        // ============================================
-        if (paymentMethod === 'wallet') {
-            
-            addDebug(`💰 Current wallet: available=${wallet.available}, price=${price}`, 'info');
-            
-            if (wallet.available < price) {
-                throw new Error(`Saldo tidak mencukupi! Saldo: Rp${formatPrice(wallet.available)}, Harga: Rp${formatPrice(price)}.`);
+        document.getElementById('promoteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!promoteProductId) {
+                showToast('error', 'Produk tidak valid');
+                return;
             }
-
-            const expiresAt = new Date();
-            expiresAt.setHours(expiresAt.getHours() + duration);
-            const orderId = `BANNER-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-
-            // ============================================
-            // 1. UPDATE WALLET - PAKAI SETDOC
-            // ============================================
-            const newAvailable = wallet.available - price;
-            const newTotalRevenue = wallet.totalRevenue || 0; // TETAP!
-            
-            addDebug(`🔄 Updating wallet: ${wallet.available} -> ${newAvailable}`, 'info');
-            
-            // PAKAI SETDOC DENGAN MERGE
-            await setDoc(userRef, {
-                wallet: {
-                    available: newAvailable,
-                    holding: wallet.holding || 0,
-                    totalRevenue: newTotalRevenue,
-                    totalWithdraw: wallet.totalWithdraw || 0,
-                    pendingWithdraw: wallet.pendingWithdraw || 0,
-                    lastHolding: wallet.lastHolding || null,
-                    lastReleased: wallet.lastReleased || null
-                },
-                updatedAt: new Date().toISOString()
-            }, { merge: true });
-            
-            // VERIFIKASI UPDATE
-            const verifyDoc = await getDoc(userRef);
-            const verifyWallet = verifyDoc.data()?.wallet || {};
-            addDebug(`✅ Verified wallet! Available: ${verifyWallet.available}`, 'success');
-            
-            if (verifyWallet.available !== newAvailable) {
-                throw new Error(`❌ Gagal update wallet! Expected: ${newAvailable}, Actual: ${verifyWallet.available}`);
+            const duration = parseInt(document.getElementById('promoteDuration').value);
+            const imageUrl = document.getElementById('promoteImageUrl').value.trim();
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            if (!duration || duration < 1) {
+                showToast('warning', 'Durasi minimal 1 jam');
+                return;
             }
-
-            // ============================================
-            // 2. CATAT PENDAPATAN ADMIN
-            // ============================================
-            await addDoc(collection(db, 'admin_revenue'), {
-                type: 'banner_purchase',
-                sellerId: currentUser.uid,
-                sellerName: sellerName,
-                productId: promoteProductId,
-                productName: productName,
-                amount: price,
-                duration: duration,
-                orderId: orderId,
-                status: 'paid',
-                paymentMethod: 'wallet',
-                createdAt: serverTimestamp()
-            });
-            addDebug(`✅ Admin revenue recorded: Rp${formatPrice(price)}`, 'success');
-
-            // ============================================
-            // 3. CREATE ORDER
-            // ============================================
-            await addDoc(collection(db, 'orders'), {
-                orderId: orderId,
-                type: 'banner_purchase',
-                sellerId: currentUser.uid,
-                productId: promoteProductId,
-                productName: productName,
-                buyerName: sellerName,
-                buyerEmail: userEmail,
-                sellerName: sellerName,
-                amount: price,
-                status: 'paid',
-                paymentStatus: 'settlement',
-                paymentMethod: 'wallet',
-                adminRevenue: price,
-                bannerData: {
-                    title: productName || 'Banner Promosi',
-                    description: `Promosi produk oleh ${sellerName}`,
-                    imageUrl: imageUrl || '',
-                    duration: duration,
-                    expiresAt: expiresAt.toISOString()
-                },
-                createdAt: serverTimestamp()
-            });
-
-            // ============================================
-            // 4. CREATE BANNER
-            // ============================================
-            await addDoc(collection(db, 'banners'), {
-                title: productName || 'Banner Promosi',
-                description: `Promosi produk oleh ${sellerName}`,
-                imageUrl: imageUrl || '',
-                linkUrl: `/product/${promoteProductId}`,
-                isActive: true,
-                type: 'seller',
-                sellerId: currentUser.uid,
-                productId: promoteProductId,
-                duration: duration,
-                price: price,
-                paymentMethod: 'wallet',
-                orderId: orderId,
-                expiresAt: expiresAt,
-                createdAt: serverTimestamp()
-            });
-
-            showToast('success', '🎉 Banner berhasil dibeli dengan saldo wallet!');
-            closePromoteModal();
-            loadProducts();
-            
-            
-            
-        // ============================================
-        // METODE MIDTRANS
-        // ============================================
-        } else if (paymentMethod === 'midtrans') {
-            const orderId = `BANNER-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-
-            await addDoc(collection(db, 'orders'), {
-                orderId: orderId,
-                type: 'banner_purchase',
-                sellerId: currentUser.uid,
-                productId: promoteProductId,
-                productName: productName,
-                buyerName: sellerName,
-                buyerEmail: userEmail,
-                sellerName: sellerName,
-                amount: price,
-                status: 'pending',
-                paymentStatus: 'pending',
-                paymentMethod: 'midtrans',
-                adminRevenue: price,
-                bannerData: {
-                    title: productName || 'Banner Promosi',
-                    description: '',
-                    imageUrl: imageUrl || '',
-                    duration: duration,
-                    expiresAt: new Date(Date.now() + duration * 60 * 60 * 1000).toISOString()
-                },
-                createdAt: serverTimestamp()
-            });
-
-            const response = await fetch('/api/payment/create', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    orderId: orderId,
-                    amount: price,
-                    buyerName: sellerName,
-                    buyerEmail: userEmail,
-                    buyerPhone: '08123456789',
-                    productName: `Banner Promosi: ${productName}`
-                })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Gagal membuat pembayaran');
-            }
-
-            if (data.token && typeof snap !== 'undefined') {
-                window.snap.pay(data.token, {
-                    onSuccess: async function(result) {
-                        console.log('✅ Payment Success:', result);
-                        showToast('success', '🎉 Pembayaran berhasil! Banner akan aktif.');
-                        closePromoteModal();
-                        
-                        await addDoc(collection(db, 'admin_revenue'), {
-                            type: 'banner_purchase',
-                            sellerId: currentUser.uid,
-                            sellerName: sellerName,
-                            productId: promoteProductId,
-                            productName: productName,
-                            amount: price,
-                            duration: duration,
-                            orderId: orderId,
-                            status: 'paid',
-                            paymentMethod: 'midtrans',
-                            createdAt: serverTimestamp()
-                        });
-                        
-                        await activateBannerFromOrder(orderId);
-                    },
-                    onPending: function(result) {
-                        console.log('⏳ Payment Pending:', result);
-                        showToast('info', '⏳ Menunggu pembayaran...');
-                        closePromoteModal();
-                    },
-                    onError: function(result) {
-                        console.log('❌ Payment Error:', result);
-                        showToast('error', '❌ Pembayaran gagal: ' + (result.status_message || 'Silakan coba lagi'));
-                    },
-                    onClose: function() {
-                        console.log('🔒 Payment window closed');
-                        showToast('info', 'Pembayaran dibatalkan');
+            const price = pricingData?.price || 0;
+            document.getElementById('promoteError').style.display = 'none';
+            const submitBtn = document.getElementById('promoteSubmitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+            addDebug(`Purchasing banner for ${duration} hours with ${paymentMethod}`, 'info');
+            try {
+                const userRef = doc(db, 'users', currentUser.uid);
+                const userDoc = await getDoc(userRef);
+                if (!userDoc.exists()) throw new Error('User tidak ditemukan!');
+                const userData = userDoc.data();
+                const sellerName = userData?.storeName || userData?.displayName || 'Seller';
+                const userEmail = userData?.email || 'seller@example.com';
+                const wallet = userData?.wallet || { available: 0, holding: 0, totalRevenue: 0, totalWithdraw: 0, pendingWithdraw: 0 };
+                const productRef = doc(db, 'products', promoteProductId);
+                const productDoc = await getDoc(productRef);
+                const productName = productDoc.exists() ? productDoc.data().name : 'Product';
+                if (paymentMethod === 'wallet') {
+                    addDebug(`💰 Current wallet: available=${wallet.available}, price=${price}`, 'info');
+                    if (wallet.available < price) {
+                        throw new Error(`Saldo tidak mencukupi! Saldo: Rp${formatPrice(wallet.available)}, Harga: Rp${formatPrice(price)}.`);
                     }
-                });
-            } else if (data.redirect_url) {
-                window.location.href = data.redirect_url;
-            } else {
-                throw new Error('No payment method available');
+                    const expiresAt = new Date();
+                    expiresAt.setHours(expiresAt.getHours() + duration);
+                    const orderId = `BANNER-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+                    const newAvailable = wallet.available - price;
+                    const newTotalRevenue = wallet.totalRevenue || 0;
+                    addDebug(`🔄 Updating wallet: ${wallet.available} -> ${newAvailable}`, 'info');
+                    await setDoc(userRef, {
+                        wallet: {
+                            available: newAvailable,
+                            holding: wallet.holding || 0,
+                            totalRevenue: newTotalRevenue,
+                            totalWithdraw: wallet.totalWithdraw || 0,
+                            pendingWithdraw: wallet.pendingWithdraw || 0,
+                            lastHolding: wallet.lastHolding || null,
+                            lastReleased: wallet.lastReleased || null
+                        },
+                        updatedAt: new Date().toISOString()
+                    }, { merge: true });
+                    const verifyDoc = await getDoc(userRef);
+                    const verifyWallet = verifyDoc.data()?.wallet || {};
+                    addDebug(`✅ Verified wallet! Available: ${verifyWallet.available}`, 'success');
+                    if (verifyWallet.available !== newAvailable) {
+                        throw new Error(`❌ Gagal update wallet! Expected: ${newAvailable}, Actual: ${verifyWallet.available}`);
+                    }
+                    await addDoc(collection(db, 'admin_revenue'), {
+                        type: 'banner_purchase',
+                        sellerId: currentUser.uid,
+                        sellerName: sellerName,
+                        productId: promoteProductId,
+                        productName: productName,
+                        amount: price,
+                        duration: duration,
+                        orderId: orderId,
+                        status: 'paid',
+                        paymentMethod: 'wallet',
+                        createdAt: serverTimestamp()
+                    });
+                    addDebug(`✅ Admin revenue recorded: Rp${formatPrice(price)}`, 'success');
+                    await addDoc(collection(db, 'orders'), {
+                        orderId: orderId,
+                        type: 'banner_purchase',
+                        sellerId: currentUser.uid,
+                        productId: promoteProductId,
+                        productName: productName,
+                        buyerName: sellerName,
+                        buyerEmail: userEmail,
+                        sellerName: sellerName,
+                        amount: price,
+                        status: 'paid',
+                        paymentStatus: 'settlement',
+                        paymentMethod: 'wallet',
+                        adminRevenue: price,
+                        bannerData: {
+                            title: productName || 'Banner Promosi',
+                            description: `Promosi produk oleh ${sellerName}`,
+                            imageUrl: imageUrl || '',
+                            duration: duration,
+                            expiresAt: expiresAt.toISOString()
+                        },
+                        createdAt: serverTimestamp()
+                    });
+                    await addDoc(collection(db, 'banners'), {
+                        title: productName || 'Banner Promosi',
+                        description: `Promosi produk oleh ${sellerName}`,
+                        imageUrl: imageUrl || '',
+                        linkUrl: `/product/${promoteProductId}`,
+                        isActive: true,
+                        type: 'seller',
+                        sellerId: currentUser.uid,
+                        productId: promoteProductId,
+                        duration: duration,
+                        price: price,
+                        paymentMethod: 'wallet',
+                        orderId: orderId,
+                        expiresAt: expiresAt,
+                        createdAt: serverTimestamp()
+                    });
+                    showToast('success', '🎉 Banner berhasil dibeli dengan saldo wallet!');
+                    closePromoteModal();
+                    loadProducts();
+                } else if (paymentMethod === 'midtrans') {
+                    const orderId = `BANNER-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+                    await addDoc(collection(db, 'orders'), {
+                        orderId: orderId,
+                        type: 'banner_purchase',
+                        sellerId: currentUser.uid,
+                        productId: promoteProductId,
+                        productName: productName,
+                        buyerName: sellerName,
+                        buyerEmail: userEmail,
+                        sellerName: sellerName,
+                        amount: price,
+                        status: 'pending',
+                        paymentStatus: 'pending',
+                        paymentMethod: 'midtrans',
+                        adminRevenue: price,
+                        bannerData: {
+                            title: productName || 'Banner Promosi',
+                            description: '',
+                            imageUrl: imageUrl || '',
+                            duration: duration,
+                            expiresAt: new Date(Date.now() + duration * 60 * 60 * 1000).toISOString()
+                        },
+                        createdAt: serverTimestamp()
+                    });
+                    const response = await fetch('/api/payment/create', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            orderId: orderId,
+                            amount: price,
+                            buyerName: sellerName,
+                            buyerEmail: userEmail,
+                            buyerPhone: '08123456789',
+                            productName: `Banner Promosi: ${productName}`
+                        })
+                    });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Gagal membuat pembayaran');
+                    if (data.token && typeof snap !== 'undefined') {
+                        window.snap.pay(data.token, {
+                            onSuccess: async function(result) {
+                                console.log('✅ Payment Success:', result);
+                                showToast('success', '🎉 Pembayaran berhasil! Banner akan aktif.');
+                                closePromoteModal();
+                                await addDoc(collection(db, 'admin_revenue'), {
+                                    type: 'banner_purchase',
+                                    sellerId: currentUser.uid,
+                                    sellerName: sellerName,
+                                    productId: promoteProductId,
+                                    productName: productName,
+                                    amount: price,
+                                    duration: duration,
+                                    orderId: orderId,
+                                    status: 'paid',
+                                    paymentMethod: 'midtrans',
+                                    createdAt: serverTimestamp()
+                                });
+                                await activateBannerFromOrder(orderId);
+                            },
+                            onPending: function(result) {
+                                console.log('⏳ Payment Pending:', result);
+                                showToast('info', '⏳ Menunggu pembayaran...');
+                                closePromoteModal();
+                            },
+                            onError: function(result) {
+                                console.log('❌ Payment Error:', result);
+                                showToast('error', '❌ Pembayaran gagal: ' + (result.status_message || 'Silakan coba lagi'));
+                            },
+                            onClose: function() {
+                                console.log('🔒 Payment window closed');
+                                showToast('info', 'Pembayaran dibatalkan');
+                            }
+                        });
+                    } else if (data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    } else {
+                        throw new Error('No payment method available');
+                    }
+                }
+            } catch (error) {
+                addDebug(`❌ Error purchasing banner: ${error.message}`, 'error');
+                document.getElementById('promoteError').style.display = 'block';
+                document.getElementById('promoteError').textContent = '❌ ' + error.message;
+                showToast('error', 'Gagal membeli banner: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar & Promosikan';
+            }
+        });
+
+        async function activateBannerFromOrder(orderId) {
+            try {
+                console.log('📦 [ACTIVATE BANNER] Activating banner for order:', orderId);
+                const ordersSnapshot = await getDocs(query(collection(db, 'orders'), where('orderId', '==', orderId)));
+                if (ordersSnapshot.empty) {
+                    console.log('⚠️ [ACTIVATE BANNER] Order not found');
+                    return;
+                }
+                const orderDoc = ordersSnapshot.docs[0];
+                const orderData = orderDoc.data();
+                if (orderData.paymentStatus === 'settlement' || orderData.status === 'paid') {
+                    console.log('✅ [ACTIVATE BANNER] Order already settled');
+                    showToast('success', '✅ Banner sudah aktif!');
+                    loadProducts();
+                    return;
+                }
+                if (orderData.type === 'banner_purchase') {
+                    const bannerData = orderData.bannerData || {};
+                    const expiresAt = bannerData.expiresAt ? new Date(bannerData.expiresAt) : new Date();
+                    if (!bannerData.expiresAt) {
+                        expiresAt.setHours(expiresAt.getHours() + 24);
+                    }
+                    await updateDoc(orderDoc.ref, {
+                        status: 'paid',
+                        paymentStatus: 'settlement',
+                        updatedAt: serverTimestamp()
+                    });
+                    await addDoc(collection(db, 'banners'), {
+                        title: bannerData.title || 'Banner Promosi',
+                        description: bannerData.description || '',
+                        imageUrl: bannerData.imageUrl || '',
+                        linkUrl: `/product/${orderData.productId}`,
+                        isActive: true,
+                        type: 'seller',
+                        sellerId: orderData.sellerId,
+                        productId: orderData.productId,
+                        duration: bannerData.duration || 24,
+                        price: orderData.amount || 0,
+                        paymentMethod: orderData.paymentMethod || 'midtrans',
+                        orderId: orderId,
+                        expiresAt: expiresAt,
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    });
+                    showToast('success', '✅ Banner berhasil diaktifkan!');
+                    loadProducts();
+                }
+            } catch (error) {
+                console.error('❌ [ACTIVATE BANNER] Error:', error);
+                showToast('warning', '⚠️ Gagal mengaktifkan banner, tapi pembayaran sudah berhasil.');
             }
         }
-
-    } catch (error) {
-        addDebug(`❌ Error purchasing banner: ${error.message}`, 'error');
-        document.getElementById('promoteError').style.display = 'block';
-        document.getElementById('promoteError').textContent = '❌ ' + error.message;
-        showToast('error', 'Gagal membeli banner: ' + error.message);
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar & Promosikan';
-    }
-});
 
         addDebug('Page ready', 'success');
-        console.log('✅ [SELLER_PRODUCTS] Page ready - Banner selalu buat order dan update wallet');
+        console.log('✅ [SELLER_PRODUCTS] Page ready');
     </script>
 </body>
 </html>

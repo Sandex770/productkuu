@@ -80,9 +80,92 @@
         .error-box.show { display: block; }
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+
+        /* Suspend Overlay */
+        .suspend-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .suspend-overlay.open { display: flex; }
+        .suspend-overlay .modal {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: 48px 40px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+            box-shadow: var(--shadow-2xl);
+        }
+        .suspend-overlay .modal .icon { font-size: 64px; color: var(--danger); margin-bottom: 16px; }
+        .suspend-overlay .modal h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+        .suspend-overlay .modal p { color: var(--text-secondary); font-size: 15px; line-height: 1.7; margin-bottom: 8px; }
+        .suspend-overlay .modal .contact { background: var(--bg-secondary); border-radius: var(--radius); padding: 16px; margin: 16px 0 24px; font-weight: 600; color: var(--primary); }
+        .suspend-overlay .modal .contact i { margin-right: 8px; }
+        .suspend-overlay .modal .btn { width: 100%; justify-content: center; }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --bg-tertiary: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-light: #9ca3af;
+            --border-color: #e5e7eb;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+            --shadow-2xl: 0 25px 50px -12px rgba(0,0,0,0.25);
+            --radius: 8px;
+            --radius-lg: 16px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --primary: #4F46E5;
+            --secondary: #7C3AED;
+            --transition: all 0.3s ease;
+        }
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #374151;
+            --bg-tertiary: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-light: #6b7280;
+            --border-color: #374151;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font); background: var(--bg-secondary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
+        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); height: 64px; }
+        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .navbar-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
+        .navbar-logo i { color: #4F46E5; }
+        .navbar-actions { display: flex; align-items: center; gap: 8px; }
+        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
+        .btn-icon:hover { background: var(--bg-secondary); }
     </style>
 </head>
 <body>
+    <!-- SUSPEND OVERLAY -->
+    <div class="suspend-overlay" id="suspendOverlay">
+        <div class="modal">
+            <div class="icon"><i class="fas fa-ban"></i></div>
+            <h2>⚠️ Akun Anda Ditangguhkan</h2>
+            <p>Akun seller Anda telah ditangguhkan oleh admin karena melanggar ketentuan.</p>
+            <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
+            <div class="contact"><i class="fab fa-telegram"></i> @Sanzz_offc</div>
+            <button onclick="window.location.href='/'" class="btn btn-secondary"><i class="fas fa-home"></i> Kembali ke Beranda</button>
+        </div>
+    </div>
+
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
@@ -177,14 +260,11 @@
     </script>
 
     <script type="module">
-        // ============================================
-        // IMPORTS - TANPA onSnapshot
-        // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
 
-        console.log('⚙️ [SELLER_SETTINGS] Page loaded (OPTIMIZED)');
+        console.log('⚙️ [SELLER_SETTINGS] Page loaded');
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
@@ -201,10 +281,6 @@
         const db = getFirestore(app);
 
         let currentUser = null;
-
-        // ============================================
-        // DEBUG LOG
-        // ============================================
         let debugVisible = false;
 
         function addDebug(message, type = 'info') {
@@ -222,25 +298,38 @@
             const box = document.getElementById('debugBox');
             debugVisible = !debugVisible;
             box.classList.toggle('show');
-            if (debugVisible) {
-                addDebug('Debug mode activated', 'info');
-            }
+            if (debugVisible) addDebug('Debug mode activated', 'info');
         };
 
-        // ============================================
-        // REFRESH DATA
-        // ============================================
         window.refreshData = function() {
             addDebug('Manual refresh triggered', 'info');
             showToast('info', 'Memperbarui data pengaturan...');
-            if (currentUser) {
-                loadSettings(currentUser.uid);
-            }
+            if (currentUser) loadSettings(currentUser.uid);
         };
 
         // ============================================
-        // THEME & SIDEBAR
+        // CHECK SUSPEND STATUS
         // ============================================
+        async function checkSuspendStatus(uid) {
+            try {
+                const userRef = doc(db, 'users', uid);
+                const userDoc = await getDoc(userRef);
+                if (userDoc.exists()) {
+                    const status = userDoc.data().status || 'active';
+                    if (status === 'suspended') {
+                        addDebug('🚫 Account is SUSPENDED!', 'error');
+                        document.getElementById('suspendOverlay').classList.add('open');
+                        await signOut(auth);
+                        return true;
+                    }
+                }
+                return false;
+            } catch (error) {
+                addDebug(`Error checking status: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -280,9 +369,6 @@
             catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
         });
 
-        // ============================================
-        // TOAST & ERROR
-        // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
             const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
@@ -321,6 +407,9 @@
             currentUser = user;
             addDebug(`User logged in: ${user.email}`, 'success');
 
+            const isSuspended = await checkSuspendStatus(user.uid);
+            if (isSuspended) return;
+
             try {
                 const userRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userRef);
@@ -331,8 +420,6 @@
                 }
                 addDebug('User is seller', 'success');
                 await loadSettings(user.uid);
-                // TIDAK ADA onSnapshot
-
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat data: ' + error.message);
@@ -410,7 +497,7 @@
         };
 
         addDebug('Page ready', 'success');
-        console.log('✅ [SELLER_SETTINGS] Page ready (OPTIMIZED - no listeners)');
+        console.log('✅ [SELLER_SETTINGS] Page ready');
     </script>
 </body>
 </html>

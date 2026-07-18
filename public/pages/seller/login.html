@@ -47,7 +47,6 @@
         @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
         @media (max-width: 480px) { .auth-card { padding: 24px; } }
         
-        /* Debug info box */
         .debug-box {
             background: #1E1E2E;
             border-radius: var(--radius);
@@ -68,6 +67,43 @@
         .debug-box .debug-error { color: #F38BA8; }
         .debug-box .debug-info { color: #89B4FA; }
         .debug-box .debug-warning { color: #F9E2AF; }
+        
+        .suspend-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .suspend-modal-overlay.open { display: flex; }
+        .suspend-modal {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: 48px 40px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+            box-shadow: var(--shadow-2xl);
+        }
+        .suspend-modal .icon { font-size: 64px; color: var(--danger); margin-bottom: 16px; }
+        .suspend-modal h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+        .suspend-modal p { color: var(--text-secondary); font-size: 15px; line-height: 1.7; margin-bottom: 8px; }
+        .suspend-modal .contact { 
+            background: var(--bg-secondary); 
+            border-radius: var(--radius); 
+            padding: 16px; 
+            margin: 16px 0 24px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .suspend-modal .contact i { margin-right: 8px; }
+        .suspend-modal .btn { width: 100%; justify-content: center; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
     </style>
 </head>
 <body>
@@ -81,6 +117,22 @@
             </div>
         </div>
     </nav>
+
+    <!-- Suspend Modal -->
+    <div class="suspend-modal-overlay" id="suspendModal">
+        <div class="suspend-modal">
+            <div class="icon"><i class="fas fa-ban"></i></div>
+            <h2>⚠️ Akun Anda Ditangguhkan</h2>
+            <p>Akun seller Anda telah ditangguhkan oleh admin karena melanggar ketentuan.</p>
+            <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
+            <div class="contact">
+                <i class="fab fa-telegram"></i> @Sanzz_offc
+            </div>
+            <button onclick="window.location.href='/'" class="btn btn-secondary">
+                <i class="fas fa-home"></i> Kembali ke Beranda
+            </button>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <main>
@@ -120,7 +172,7 @@
                     </button>
                 </form>
 
-                <!-- Debug Box - Untuk melihat apa yang terjadi -->
+                <!-- Debug Box -->
                 <div class="debug-box" id="debugBox">
                     <div class="debug-line debug-info">🔍 Debug Mode Active</div>
                     <div class="debug-line" id="debugLog">Menunggu login...</div>
@@ -186,18 +238,8 @@
         const debugLog = document.getElementById('debugLog');
 
         function addDebug(message, type = 'info') {
-            const colors = {
-                success: 'debug-success',
-                error: 'debug-error',
-                info: 'debug-info',
-                warning: 'debug-warning'
-            };
-            const icons = {
-                success: '✅',
-                error: '❌',
-                info: 'ℹ️',
-                warning: '⚠️'
-            };
+            const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
+            const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
             const log = document.getElementById('debugLog');
             const time = new Date().toLocaleTimeString();
             log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
@@ -254,8 +296,20 @@
                     const userRef = doc(db, 'users', user.uid);
                     const userDoc = await getDoc(userRef);
                     if (userDoc.exists()) {
-                        const role = userDoc.data().role;
-                        addDebug(`User role: ${role}`, 'success');
+                        const userData = userDoc.data();
+                        const role = userData.role;
+                        const status = userData.status || 'active';
+                        
+                        addDebug(`User role: ${role}, status: ${status}`, 'info');
+                        
+                        // ✅ CEK STATUS SUSPEND
+                        if (status === 'suspended') {
+                            addDebug('🚫 Account is SUSPENDED!', 'error');
+                            await signOut(auth);
+                            document.getElementById('suspendModal').classList.add('open');
+                            return;
+                        }
+                        
                         if (role === 'seller') {
                             addDebug('Redirecting to seller dashboard...', 'success');
                             window.location.href = '/seller/dashboard';
@@ -264,29 +318,11 @@
                             window.location.href = '/admin/dashboard';
                         } else {
                             addDebug(`Unknown role: ${role}`, 'warning');
+                            await signOut(auth);
                         }
                     } else {
                         addDebug('User document NOT FOUND in Firestore!', 'error');
-                        addDebug('Creating user document...', 'warning');
-                        // Auto create user document if missing
-                        try {
-                            await setDoc(userRef, {
-                                uid: user.uid,
-                                email: user.email,
-                                displayName: user.displayName || 'User',
-                                role: 'seller',
-                                status: 'active',
-                                storeName: user.displayName || 'Toko Saya',
-                                wallet: { available: 0, holding: 0, totalRevenue: 0, totalWithdraw: 0 },
-                                createdAt: new Date().toISOString(),
-                                updatedAt: new Date().toISOString()
-                            });
-                            addDebug('User document created! Redirecting...', 'success');
-                            showToast('success', 'Akun berhasil dibuat! Mengarahkan ke dashboard...');
-                            setTimeout(() => { window.location.href = '/seller/dashboard'; }, 1500);
-                        } catch (err) {
-                            addDebug(`Failed to create user: ${err.message}`, 'error');
-                        }
+                        await signOut(auth);
                     }
                 } catch (error) {
                     addDebug(`Error checking user: ${error.message}`, 'error');
@@ -330,7 +366,7 @@
                 const user = userCredential.user;
                 addDebug(`Login success: ${user.email}`, 'success');
 
-                // Get user role
+                // Get user data
                 const userRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userRef);
 
@@ -356,7 +392,19 @@
                 }
 
                 const userData = userDoc.data();
-                addDebug(`User role: ${userData.role}`, 'success');
+                const status = userData.status || 'active';
+                
+                addDebug(`User status: ${status}`, 'info');
+
+                // ✅ CEK STATUS SUSPEND
+                if (status === 'suspended') {
+                    addDebug('🚫 Account is SUSPENDED!', 'error');
+                    await signOut(auth);
+                    document.getElementById('suspendModal').classList.add('open');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Masuk';
+                    return;
+                }
 
                 if (userData.role === 'seller') {
                     showToast('success', 'Selamat datang, ' + (userData.storeName || userData.displayName || 'Seller') + '!');
@@ -401,9 +449,6 @@
                 } else if (error.code === 'auth/network-request-failed') {
                     message = 'Koneksi internet bermasalah. Periksa koneksi Anda.';
                     detail = 'Network error';
-                } else if (error.code === 'auth/too-many-requests') {
-                    message = 'Terlalu banyak percobaan. Coba lagi nanti.';
-                    detail = 'Rate limited';
                 }
 
                 errorMsg.textContent = message;

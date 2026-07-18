@@ -99,6 +99,35 @@
         @media (max-width: 768px) { .wallet-stats { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 480px) { .wallet-stats { grid-template-columns: 1fr; } }
         
+        .suspend-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .suspend-overlay.open { display: flex; }
+        .suspend-overlay .modal {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: 48px 40px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+            box-shadow: var(--shadow-2xl);
+        }
+        .suspend-overlay .modal .icon { font-size: 64px; color: var(--danger); margin-bottom: 16px; }
+        .suspend-overlay .modal h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+        .suspend-overlay .modal p { color: var(--text-secondary); font-size: 15px; line-height: 1.7; margin-bottom: 8px; }
+        .suspend-overlay .modal .contact { background: var(--bg-secondary); border-radius: var(--radius); padding: 16px; margin: 16px 0 24px; font-weight: 600; color: var(--primary); }
+        .suspend-overlay .modal .contact i { margin-right: 8px; }
+        .suspend-overlay .modal .btn { width: 100%; justify-content: center; }
+
         :root {
             --bg-primary: #ffffff;
             --bg-secondary: #f3f4f6;
@@ -109,6 +138,7 @@
             --border-color: #e5e7eb;
             --shadow: 0 1px 3px rgba(0,0,0,0.1);
             --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+            --shadow-2xl: 0 25px 50px -12px rgba(0,0,0,0.25);
             --radius: 8px;
             --radius-lg: 16px;
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -141,6 +171,18 @@
     </style>
 </head>
 <body>
+    <!-- SUSPEND OVERLAY -->
+    <div class="suspend-overlay" id="suspendOverlay">
+        <div class="modal">
+            <div class="icon"><i class="fas fa-ban"></i></div>
+            <h2>⚠️ Akun Anda Ditangguhkan</h2>
+            <p>Akun seller Anda telah ditangguhkan oleh admin karena melanggar ketentuan.</p>
+            <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
+            <div class="contact"><i class="fab fa-telegram"></i> @Sanzz_offc</div>
+            <button onclick="window.location.href='/'" class="btn btn-secondary"><i class="fas fa-home"></i> Kembali ke Beranda</button>
+        </div>
+    </div>
+
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
@@ -224,9 +266,6 @@
     </script>
 
     <script type="module">
-        // ============================================
-        // IMPORTS
-        // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit } from "firebase/firestore";
@@ -276,6 +315,29 @@
                 loadTransactions(currentUser.uid);
             }
         };
+
+        // ============================================
+        // CHECK SUSPEND STATUS
+        // ============================================
+        async function checkSuspendStatus(uid) {
+            try {
+                const userRef = doc(db, 'users', uid);
+                const userDoc = await getDoc(userRef);
+                if (userDoc.exists()) {
+                    const status = userDoc.data().status || 'active';
+                    if (status === 'suspended') {
+                        addDebug('🚫 Account is SUSPENDED!', 'error');
+                        document.getElementById('suspendOverlay').classList.add('open');
+                        await signOut(auth);
+                        return true;
+                    }
+                }
+                return false;
+            } catch (error) {
+                addDebug(`Error checking status: ${error.message}`, 'error');
+                return false;
+            }
+        }
 
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
@@ -369,6 +431,9 @@
             currentUser = user;
             addDebug(`User logged in: ${user.email}`, 'success');
 
+            const isSuspended = await checkSuspendStatus(user.uid);
+            if (isSuspended) return;
+
             try {
                 const userRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userRef);
@@ -380,7 +445,6 @@
                 addDebug('User is seller', 'success');
                 await loadWalletData(user.uid);
                 await loadTransactions(user.uid);
-
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat data: ' + error.message);
@@ -388,22 +452,17 @@
         });
 
         // ============================================
-        // LOAD WALLET DATA - MEMBACA DARI FIRESTORE
+        // LOAD WALLET DATA
         // ============================================
         async function loadWalletData(uid) {
             addDebug('Loading wallet data...', 'info');
             try {
-                // ============================================
-                // BACA WALLET LANGSUNG DARI FIRESTORE
-                // ============================================
                 const userRef = doc(db, 'users', uid);
                 const userDoc = await getDoc(userRef);
-                
                 if (!userDoc.exists()) {
                     addDebug('User not found', 'error');
                     return;
                 }
-                
                 const userData = userDoc.data();
                 const wallet = userData.wallet || { 
                     available: 0, 
@@ -413,7 +472,6 @@
                     pendingWithdraw: 0
                 };
                 
-                // ✅ UPDATE UI DARI DATA WALLET (TIDAK DIHITUNG ULANG!)
                 document.getElementById('availableBalance').textContent = `Rp${formatPrice(wallet.available || 0)}`;
                 document.getElementById('holdingBalance').textContent = `Rp${formatPrice(wallet.holding || 0)}`;
                 document.getElementById('totalRevenue').textContent = `Rp${formatPrice(wallet.totalRevenue || 0)}`;
@@ -432,7 +490,7 @@
         }
 
         // ============================================
-        // LOAD TRANSACTIONS - HANYA PRODUK
+        // LOAD TRANSACTIONS
         // ============================================
         async function loadTransactions(uid) {
             addDebug('Loading transactions...', 'info');

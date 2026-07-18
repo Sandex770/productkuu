@@ -183,6 +183,44 @@
         .navbar-actions { display: flex; align-items: center; gap: 8px; }
         .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
         .btn-icon:hover { background: var(--bg-secondary); }
+        
+        /* Suspend Overlay */
+        .suspend-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .suspend-overlay.open { display: flex; }
+        .suspend-overlay .modal {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: 48px 40px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+            box-shadow: var(--shadow-2xl);
+        }
+        .suspend-overlay .modal .icon { font-size: 64px; color: var(--danger); margin-bottom: 16px; }
+        .suspend-overlay .modal h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+        .suspend-overlay .modal p { color: var(--text-secondary); font-size: 15px; line-height: 1.7; margin-bottom: 8px; }
+        .suspend-overlay .modal .contact { 
+            background: var(--bg-secondary); 
+            border-radius: var(--radius); 
+            padding: 16px; 
+            margin: 16px 0 24px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .suspend-overlay .modal .contact i { margin-right: 8px; }
+        .suspend-overlay .modal .btn { width: 100%; justify-content: center; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
     </style>
 </head>
 <body>
@@ -211,6 +249,22 @@
         </nav>
     </aside>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- SUSPEND OVERLAY -->
+    <div class="suspend-overlay" id="suspendOverlay">
+        <div class="modal">
+            <div class="icon"><i class="fas fa-ban"></i></div>
+            <h2>⚠️ Akun Anda Ditangguhkan</h2>
+            <p>Akun seller Anda telah ditangguhkan oleh admin karena melanggar ketentuan.</p>
+            <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
+            <div class="contact">
+                <i class="fab fa-telegram"></i> @Sanzz_offc
+            </div>
+            <button onclick="window.location.href='/'" class="btn btn-secondary">
+                <i class="fas fa-home"></i> Kembali ke Beranda
+            </button>
+        </div>
+    </div>
 
     <!-- MAIN CONTENT -->
     <div class="app-wrapper">
@@ -472,34 +526,24 @@
         }
 
         // ============================================
+        // UPDATE STORE LINK
         // ============================================
-// UPDATE STORE LINK - MENGGUNAKAN QUERY PARAMETER
-// ============================================
-function updateStoreLink() {
-    const storeName = userData?.storeName || userData?.displayName || '';
-    if (storeName) {
-        // Buat slug dari storeName
-        const slug = storeName.toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-+|-+$/g, '');
-        
-        // ✅ Format: /product-seller.html?seller={slug}
-        const url = `${window.location.origin}/product-seller.html?seller=${slug}`;
-        
-        const linkInput = document.getElementById('storeLink');
-        const linkBtn = document.getElementById('storeLinkBtn');
-        
-        if (linkInput) {
-            linkInput.value = url;
-            console.log(`Store link updated: ${url}`);
+        function updateStoreLink() {
+            const storeName = userData?.storeName || userData?.displayName || '';
+            if (storeName) {
+                const slug = storeName.toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+                
+                const url = `${window.location.origin}/product-seller?seller=${slug}`;
+                
+                const linkInput = document.getElementById('storeLink');
+                const linkBtn = document.getElementById('storeLinkBtn');
+                if (linkInput) linkInput.value = url;
+                if (linkBtn) linkBtn.href = url;
+                addDebug(`Store link updated: ${url}`, 'success');
+            }
         }
-        if (linkBtn) {
-            linkBtn.href = url;
-        }
-    } else {
-        console.warn('Store name not found, cannot generate link');
-    }
-}
 
         window.copyStoreLink = function() {
             const input = document.getElementById('storeLink');
@@ -521,23 +565,19 @@ function updateStoreLink() {
         };
 
         // ============================================
-        // CEK & BUAT WALLET JIKA BELUM ADA
+        // CEK & BUAT WALLET
         // ============================================
         async function ensureWalletExists(uid) {
             try {
                 const userRef = doc(db, 'users', uid);
                 const userDoc = await getDoc(userRef);
-                
                 if (!userDoc.exists()) {
                     addDebug('❌ User tidak ditemukan', 'error');
                     return false;
                 }
-                
                 const data = userDoc.data();
-                
                 if (!data.wallet) {
                     addDebug('💰 Wallet tidak ditemukan, membuat baru...', 'warning');
-                    
                     const ordersSnapshot = await getDocs(
                         query(
                             collection(db, 'orders'),
@@ -545,12 +585,10 @@ function updateStoreLink() {
                             where('paymentStatus', 'in', ['settlement', 'paid'])
                         )
                     );
-                    
                     let totalRevenue = 0;
                     ordersSnapshot.forEach(doc => {
                         totalRevenue += doc.data().amount || 0;
                     });
-                    
                     await updateDoc(userRef, {
                         wallet: {
                             available: 0,
@@ -563,16 +601,35 @@ function updateStoreLink() {
                         },
                         updatedAt: new Date().toISOString()
                     });
-                    
-                    addDebug('✅ Wallet berhasil dibuat dengan total revenue: Rp' + formatPrice(totalRevenue), 'success');
-                    showToast('success', '💰 Wallet berhasil diaktifkan!');
+                    addDebug('✅ Wallet berhasil dibuat', 'success');
                     return true;
                 }
-                
                 return true;
-                
             } catch (error) {
                 addDebug(`❌ Error checking wallet: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // ============================================
+        // CHECK SUSPEND STATUS
+        // ============================================
+        async function checkSuspendStatus(uid) {
+            try {
+                const userRef = doc(db, 'users', uid);
+                const userDoc = await getDoc(userRef);
+                if (userDoc.exists()) {
+                    const status = userDoc.data().status || 'active';
+                    if (status === 'suspended') {
+                        addDebug('🚫 Account is SUSPENDED!', 'error');
+                        document.getElementById('suspendOverlay').classList.add('open');
+                        await signOut(auth);
+                        return true;
+                    }
+                }
+                return false;
+            } catch (error) {
+                addDebug(`Error checking status: ${error.message}`, 'error');
                 return false;
             }
         }
@@ -592,6 +649,10 @@ function updateStoreLink() {
             addDebug(`User logged in: ${user.email}`, 'success');
 
             try {
+                // ✅ CEK SUSPEND STATUS DULU
+                const isSuspended = await checkSuspendStatus(user.uid);
+                if (isSuspended) return;
+
                 const userRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userRef);
                 
@@ -620,7 +681,7 @@ function updateStoreLink() {
         });
 
         // ============================================
-        // LOAD DASHBOARD DATA - MEMBACA DARI FIRESTORE
+        // LOAD DASHBOARD DATA
         // ============================================
         async function loadDashboardData() {
             addDebug('Loading dashboard data...', 'info');
@@ -633,24 +694,18 @@ function updateStoreLink() {
                 const sellerId = currentUser.uid;
                 addDebug(`Seller ID: ${sellerId}`, 'info');
 
-                // Products
                 const productsSnapshot = await getDocs(
                     query(collection(db, 'products'), where('sellerId', '==', sellerId))
                 );
                 document.getElementById('totalProducts').textContent = productsSnapshot.size;
                 addDebug(`Total products: ${productsSnapshot.size}`, 'success');
 
-                // ============================================
-                // BACA WALLET LANGSUNG DARI FIRESTORE
-                // ============================================
                 const userRef = doc(db, 'users', sellerId);
                 const userDoc = await getDoc(userRef);
-                
                 if (!userDoc.exists()) {
                     addDebug('User not found', 'error');
                     return;
                 }
-                
                 const userData = userDoc.data();
                 const wallet = userData.wallet || { 
                     available: 0, 
@@ -659,7 +714,6 @@ function updateStoreLink() {
                     pendingWithdraw: 0
                 };
                 
-                // ✅ UPDATE UI DARI DATA WALLET (TIDAK DIHITUNG ULANG!)
                 document.getElementById('availableBalance').textContent = `Rp${formatPrice(wallet.available || 0)}`;
                 document.getElementById('holdingBalance').textContent = `Rp${formatPrice(wallet.holding || 0)}`;
                 document.getElementById('totalRevenue').textContent = `Rp${formatPrice(wallet.totalRevenue || 0)}`;
@@ -671,9 +725,6 @@ function updateStoreLink() {
                 addDebug(`  Total Revenue: Rp${formatPrice(wallet.totalRevenue)}`, 'info');
                 addDebug(`  Pending Withdraw: Rp${formatPrice(wallet.pendingWithdraw)}`, 'info');
 
-                // ============================================
-                // TOTAL PENJUALAN (HANYA UNTUK COUNTER)
-                // ============================================
                 const orderSnapshot = await getDocs(
                     query(
                         collection(db, 'orders'),
@@ -685,9 +736,6 @@ function updateStoreLink() {
                 document.getElementById('totalSales').textContent = orderSnapshot.size;
                 addDebug(`Total sales: ${orderSnapshot.size}`, 'success');
 
-                // ============================================
-                // CHART DATA (DARI ORDER)
-                // ============================================
                 const chartData = [];
                 orderSnapshot.forEach(doc => {
                     const order = doc.data();
@@ -773,7 +821,6 @@ function updateStoreLink() {
         // ============================================
         function renderCharts(chartData) {
             addDebug('Rendering charts...', 'info');
-            
             try {
                 const salesCtx = document.getElementById('salesChart');
                 if (salesCtx) {
@@ -781,7 +828,6 @@ function updateStoreLink() {
                     const dates = chartData.map(d => d.date);
                     renderChart(salesCtx, dates, salesData, 'Penjualan');
                 }
-
                 const revenueCtx = document.getElementById('revenueChart');
                 if (revenueCtx) {
                     const revData = chartData.map(d => d.amount);
@@ -798,11 +844,9 @@ function updateStoreLink() {
             const rect = canvas.parentElement.getBoundingClientRect();
             canvas.width = rect.width - 40;
             canvas.height = 180;
-            
             const width = canvas.width;
             const height = canvas.height;
             const padding = 30;
-            
             ctx.clearRect(0, 0, width, height);
 
             if (!data || data.length === 0 || data.every(v => v === 0)) {
@@ -814,7 +858,6 @@ function updateStoreLink() {
             }
 
             const maxValue = Math.max(...data, 1) * 1.2;
-            
             ctx.strokeStyle = '#E5E7EB';
             ctx.lineWidth = 1;
             ctx.setLineDash([3, 3]);
@@ -824,7 +867,6 @@ function updateStoreLink() {
                 ctx.moveTo(padding, y);
                 ctx.lineTo(width - padding, y);
                 ctx.stroke();
-                
                 ctx.fillStyle = '#6B7280';
                 ctx.font = '9px Inter, sans-serif';
                 ctx.textAlign = 'right';
@@ -841,16 +883,13 @@ function updateStoreLink() {
                 const x = padding + i * spacing + (spacing - barWidth) / 2;
                 const barHeight = (data[i] / maxValue) * (height - padding * 2);
                 const y = padding + (height - padding * 2) - barHeight;
-                
                 const gradient = ctx.createLinearGradient(x, y, x, padding + height - padding * 2);
                 gradient.addColorStop(0, colors[0]);
                 gradient.addColorStop(1, colors[1]);
-                
                 ctx.fillStyle = gradient;
                 ctx.beginPath();
                 ctx.roundRect(x, y, barWidth, barHeight, 4);
                 ctx.fill();
-
                 ctx.fillStyle = '#6B7280';
                 ctx.font = '9px Inter, sans-serif';
                 ctx.textAlign = 'center';
