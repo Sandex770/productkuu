@@ -117,41 +117,10 @@
         .error-box.show { display: block; }
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
-
-        /* Suspend Overlay */
-        .suspend-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px);
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .suspend-overlay.open { display: flex; }
-        .suspend-overlay .modal {
-            background: var(--bg-primary);
-            border-radius: var(--radius-lg);
-            padding: 48px 40px;
-            max-width: 480px;
-            width: 100%;
-            text-align: center;
-            animation: slideUp 0.3s ease;
-            box-shadow: var(--shadow-2xl);
-        }
-        .suspend-overlay .modal .icon { font-size: 64px; color: var(--danger); margin-bottom: 16px; }
-        .suspend-overlay .modal h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
-        .suspend-overlay .modal p { color: var(--text-secondary); font-size: 15px; line-height: 1.7; margin-bottom: 8px; }
-        .suspend-overlay .modal .contact { background: var(--bg-secondary); border-radius: var(--radius); padding: 16px; margin: 16px 0 24px; font-weight: 600; color: var(--primary); }
-        .suspend-overlay .modal .contact i { margin-right: 8px; }
-        .suspend-overlay .modal .btn { width: 100%; justify-content: center; }
-
         @media (max-width: 1024px) { .table { min-width: 700px; font-size: 13px; } .table th, .table td { padding: 10px 12px; } .product-cell .product-name { max-width: 100px; } }
         @media (max-width: 768px) { .table { min-width: 650px; font-size: 12px; } .table th, .table td { padding: 8px 10px; } .table .badge { font-size: 10px; padding: 2px 8px; } .product-cell { min-width: 140px; gap: 8px; } .product-cell .product-thumb { width: 30px; height: 30px; } .product-cell .product-name { max-width: 80px; font-size: 12px; } .product-cell .product-date { font-size: 10px; } .action-dropdown-content { min-width: 150px; } .action-dropdown-content a { font-size: 12px; padding: 6px 12px; } .filter-bar .filter-group select, .filter-bar .filter-group input { min-width: 100%; flex: 1; } .filter-bar .filter-actions { width: 100%; } .filter-bar .filter-actions .btn { flex: 1; } .payment-method-option { flex: 1 1 100%; } }
         @media (max-width: 480px) { .table-wrapper { margin: 0 -12px; padding: 0 12px; } .table { min-width: 600px; font-size: 11px; } .table th, .table td { padding: 6px 8px; } .product-cell { min-width: 120px; gap: 6px; } .product-cell .product-thumb { width: 24px; height: 24px; } .product-cell .product-name { max-width: 60px; font-size: 11px; } .product-cell .product-date { font-size: 9px; } .grid-2 { grid-template-columns: 1fr; } .payment-method-option { flex: 1 1 100%; } }
-
+        
         :root {
             --bg-primary: #ffffff;
             --bg-secondary: #f3f4f6;
@@ -192,6 +161,40 @@
         .navbar-actions { display: flex; align-items: center; gap: 8px; }
         .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
         .btn-icon:hover { background: var(--bg-secondary); }
+
+        /* Suspend Overlay */
+        .suspend-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .suspend-overlay.open { display: flex; }
+        .suspend-overlay .modal {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: 48px 40px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+            box-shadow: var(--shadow-2xl);
+        }
+        .suspend-overlay .modal .icon { font-size: 64px; color: var(--danger); margin-bottom: 16px; }
+        .suspend-overlay .modal h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+        .suspend-overlay .modal p { color: var(--text-secondary); font-size: 15px; line-height: 1.7; margin-bottom: 8px; }
+        .suspend-overlay .modal .contact { background: var(--bg-secondary); border-radius: var(--radius); padding: 16px; margin: 16px 0 24px; font-weight: 600; color: var(--primary); }
+        .suspend-overlay .modal .contact i { margin-right: 8px; }
+        .suspend-overlay .modal .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; }
+        .suspend-overlay .modal .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
+        .suspend-overlay .modal .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
+        .suspend-overlay .modal .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .suspend-overlay .modal .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
     </style>
 </head>
 <body>
@@ -203,7 +206,10 @@
             <p>Akun seller Anda telah ditangguhkan oleh admin karena melanggar ketentuan.</p>
             <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
             <div class="contact"><i class="fab fa-telegram"></i> @Sanzz_offc</div>
-            <button onclick="window.location.href='/'" class="btn btn-secondary"><i class="fas fa-home"></i> Kembali ke Beranda</button>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
+                <a href="https://t.me/Sanzz_offc" target="_blank" class="btn btn-primary" style="flex:1;"><i class="fab fa-telegram"></i> Hubungi Admin</a>
+                <button onclick="window.location.href='/'" class="btn btn-secondary" style="flex:1;"><i class="fas fa-home"></i> Kembali</button>
+            </div>
         </div>
     </div>
 
@@ -302,84 +308,25 @@
                     <input type="text" id="productName" class="input" required placeholder="Masukkan nama produk">
                 </div>
                 <div class="grid-2" style="margin-bottom:12px;">
-                    <div class="input-group">
-                        <label for="productCategory">Kategori *</label>
-                        <select id="productCategory" class="input" required>
-                            <option value="">Pilih</option>
-                            <option value="Source Code">Source Code</option>
-                            <option value="Preset">Preset</option>
-                            <option value="Plugin">Plugin</option>
-                            <option value="Template">Template</option>
-                            <option value="UI Kit">UI Kit</option>
-                            <option value="Font">Font</option>
-                            <option value="Ebook">Ebook</option>
-                            <option value="Script">Script</option>
-                            <option value="Premium Account">Premium Account</option>
-                            <option value="Lainnya">Lainnya</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label for="productType">Type *</label>
-                        <select id="productType" class="input" onchange="toggleProductType()">
-                            <option value="digital">Digital Product</option>
-                            <option value="premium-account">Premium Account</option>
-                        </select>
-                    </div>
+                    <div class="input-group"><label for="productCategory">Kategori *</label><select id="productCategory" class="input" required><option value="">Pilih</option><option value="Source Code">Source Code</option><option value="Preset">Preset</option><option value="Plugin">Plugin</option><option value="Template">Template</option><option value="UI Kit">UI Kit</option><option value="Font">Font</option><option value="Ebook">Ebook</option><option value="Script">Script</option><option value="Premium Account">Premium Account</option><option value="Lainnya">Lainnya</option></select></div>
+                    <div class="input-group"><label for="productType">Type *</label><select id="productType" class="input" onchange="toggleProductType()"><option value="digital">Digital Product</option><option value="premium-account">Premium Account</option></select></div>
                 </div>
-                <div class="input-group" style="margin-bottom:12px;">
-                    <label for="productPrice">Harga (Rp) *</label>
-                    <input type="number" id="productPrice" class="input" required placeholder="10000" min="1000">
-                </div>
-                <div class="input-group" style="margin-bottom:12px;">
-                    <label for="productImageUrl">URL Gambar Produk (Opsional)</label>
-                    <input type="url" id="productImageUrl" class="input" placeholder="https://example.com/gambar.jpg">
-                    <span style="font-size:12px;color:var(--text-light);">Kosongkan untuk menggunakan gambar default</span>
-                </div>
+                <div class="input-group" style="margin-bottom:12px;"><label for="productPrice">Harga (Rp) *</label><input type="number" id="productPrice" class="input" required placeholder="10000" min="1000"></div>
+                <div class="input-group" style="margin-bottom:12px;"><label for="productImageUrl">URL Gambar Produk (Opsional)</label><input type="url" id="productImageUrl" class="input" placeholder="https://example.com/gambar.jpg"><span style="font-size:12px;color:var(--text-light);">Kosongkan untuk menggunakan gambar default</span></div>
                 <div id="digitalFields">
-                    <div class="input-group" style="margin-bottom:12px;">
-                        <label for="productDownloadLink">Link Download *</label>
-                        <input type="url" id="productDownloadLink" class="input" placeholder="https://drive.google.com/...">
-                    </div>
-                    <div class="input-group" style="margin-bottom:12px;">
-                        <label for="productDemoLink">Link Demo (Opsional)</label>
-                        <input type="url" id="productDemoLink" class="input" placeholder="https://demo.example.com">
-                    </div>
+                    <div class="input-group" style="margin-bottom:12px;"><label for="productDownloadLink">Link Download *</label><input type="url" id="productDownloadLink" class="input" placeholder="https://drive.google.com/..."></div>
+                    <div class="input-group" style="margin-bottom:12px;"><label for="productDemoLink">Link Demo (Opsional)</label><input type="url" id="productDemoLink" class="input" placeholder="https://demo.example.com"></div>
                     <div class="grid-2" style="margin-bottom:12px;">
-                        <div class="input-group">
-                            <label for="productStock">Stok</label>
-                            <input type="number" id="productStock" class="input" placeholder="100" value="100">
-                        </div>
-                        <div style="display:flex;align-items:center;gap:8px;padding-top:24px;">
-                            <input type="checkbox" id="productUnlimited"> 
-                            <label for="productUnlimited" style="font-size:14px;">Unlimited Stock</label>
-                        </div>
+                        <div class="input-group"><label for="productStock">Stok</label><input type="number" id="productStock" class="input" placeholder="100" value="100"></div>
+                        <div style="display:flex;align-items:center;gap:8px;padding-top:24px;"><input type="checkbox" id="productUnlimited"> <label for="productUnlimited" style="font-size:14px;">Unlimited Stock</label></div>
                     </div>
                 </div>
                 <div id="premiumFields" style="display:none;">
-                    <div class="input-group" style="margin-bottom:12px;">
-                        <label for="productNote">Catatan (Opsional)</label>
-                        <textarea id="productNote" class="input" rows="2" placeholder="Catatan untuk pembeli"></textarea>
-                    </div>
-                    <div class="input-group" style="margin-bottom:12px;">
-                        <label>Daftar Akun Premium *</label>
-                        <div id="premiumAccountsList">
-                            <div style="display:flex;gap:8px;margin-bottom:8px;">
-                                <input type="email" class="input premium-email" placeholder="email@example.com" style="flex:1;">
-                                <input type="text" class="input premium-password" placeholder="password" style="flex:1;">
-                                <button type="button" onclick="removePremiumAccount(this)" style="background:none;border:none;color:var(--danger);cursor:pointer;padding:0 8px;"><i class="fas fa-times"></i></button>
-                            </div>
-                        </div>
-                        <button type="button" onclick="addPremiumAccount()" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i> Tambah Akun</button>
-                    </div>
+                    <div class="input-group" style="margin-bottom:12px;"><label for="productNote">Catatan (Opsional)</label><textarea id="productNote" class="input" rows="2" placeholder="Catatan untuk pembeli"></textarea></div>
+                    <div class="input-group" style="margin-bottom:12px;"><label>Daftar Akun Premium *</label><div id="premiumAccountsList"><div style="display:flex;gap:8px;margin-bottom:8px;"><input type="email" class="input premium-email" placeholder="email@example.com" style="flex:1;"><input type="text" class="input premium-password" placeholder="password" style="flex:1;"><button type="button" onclick="removePremiumAccount(this)" style="background:none;border:none;color:var(--danger);cursor:pointer;padding:0 8px;"><i class="fas fa-times"></i></button></div></div><button type="button" onclick="addPremiumAccount()" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i> Tambah Akun</button></div>
                 </div>
-                <div class="input-group" style="margin-bottom:12px;">
-                    <label for="productDescription">Deskripsi</label>
-                    <textarea id="productDescription" class="input" rows="4" placeholder="Deskripsi produk"></textarea>
-                </div>
-                <div class="input-group" style="margin-bottom:12px;">
-                    <label for="productTags">Tags</label>
-                    <input type="text" id="productTags" class="input" placeholder="preset, alight motion, edit">
-                </div>
+                <div class="input-group" style="margin-bottom:12px;"><label for="productDescription">Deskripsi</label><textarea id="productDescription" class="input" rows="4" placeholder="Deskripsi produk"></textarea></div>
+                <div class="input-group" style="margin-bottom:12px;"><label for="productTags">Tags</label><input type="text" id="productTags" class="input" placeholder="preset, alight motion, edit"></div>
                 <div style="display:flex;gap:12px;margin-top:16px;">
                     <button type="submit" class="btn btn-primary" style="flex:1;"><i class="fas fa-save"></i> Simpan</button>
                     <button type="button" onclick="closeProductModal()" class="btn btn-secondary" style="flex:1;">Batal</button>
@@ -416,44 +363,18 @@
                     </div>
                 </div>
                 <form id="promoteForm">
-                    <div class="input-group" style="margin-bottom:12px;">
-                        <label for="promoteDuration">Durasi (Jam)</label>
-                        <input type="number" id="promoteDuration" class="input" value="24" min="1" required>
-                        <span style="font-size:12px;color:var(--text-light);">Total biaya: <strong id="promoteTotal">Rp0</strong></span>
-                    </div>
-                    <div class="input-group" style="margin-bottom:12px;">
-                        <label for="promoteImageUrl">URL Gambar Banner (Opsional)</label>
-                        <input type="url" id="promoteImageUrl" class="input" placeholder="https://example.com/banner.jpg">
-                        <span style="font-size:12px;color:var(--text-light);">Kosongkan untuk menggunakan gambar produk</span>
-                    </div>
+                    <div class="input-group" style="margin-bottom:12px;"><label for="promoteDuration">Durasi (Jam)</label><input type="number" id="promoteDuration" class="input" value="24" min="1" required><span style="font-size:12px;color:var(--text-light);">Total biaya: <strong id="promoteTotal">Rp0</strong></span></div>
+                    <div class="input-group" style="margin-bottom:12px;"><label for="promoteImageUrl">URL Gambar Banner (Opsional)</label><input type="url" id="promoteImageUrl" class="input" placeholder="https://example.com/banner.jpg"><span style="font-size:12px;color:var(--text-light);">Kosongkan untuk menggunakan gambar produk</span></div>
                     <div class="input-group" style="margin-bottom:12px;">
                         <label>Metode Pembayaran</label>
                         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                            <label class="payment-method-option active" id="walletOption" style="flex:1;">
-                                <input type="radio" name="paymentMethod" value="wallet" checked>
-                                <span class="method-icon"><i class="fas fa-wallet" style="color:var(--primary);"></i></span>
-                                <div>
-                                    <div class="method-label">Saldo Wallet</div>
-                                    <div class="method-desc">Bayar dengan saldo Anda</div>
-                                </div>
-                                <span class="method-status available" id="walletStatus">✅ Tersedia</span>
-                            </label>
-                            <label class="payment-method-option" id="midtransOption" style="flex:1;">
-                                <input type="radio" name="paymentMethod" value="midtrans">
-                                <span class="method-icon"><i class="fas fa-credit-card" style="color:var(--success);"></i></span>
-                                <div>
-                                    <div class="method-label">Bayar Langsung</div>
-                                    <div class="method-desc">Via Midtrans (Kartu, Transfer, E-Wallet)</div>
-                                </div>
-                                <span class="method-status available">💳 Instant</span>
-                            </label>
+                            <label class="payment-method-option active" id="walletOption" style="flex:1;"><input type="radio" name="paymentMethod" value="wallet" checked><span class="method-icon"><i class="fas fa-wallet" style="color:var(--primary);"></i></span><div><div class="method-label">Saldo Wallet</div><div class="method-desc">Bayar dengan saldo Anda</div></div><span class="method-status available" id="walletStatus">✅ Tersedia</span></label>
+                            <label class="payment-method-option" id="midtransOption" style="flex:1;"><input type="radio" name="paymentMethod" value="midtrans"><span class="method-icon"><i class="fas fa-credit-card" style="color:var(--success);"></i></span><div><div class="method-label">Bayar Langsung</div><div class="method-desc">Via Midtrans (Kartu, Transfer, E-Wallet)</div></div><span class="method-status available">💳 Instant</span></label>
                         </div>
                     </div>
                     <div id="promoteError" style="display:none;margin-top:8px;padding:12px;background:rgba(239,68,68,0.1);border-radius:var(--radius);color:var(--danger);font-size:13px;"></div>
                     <div style="display:flex;gap:12px;margin-top:16px;">
-                        <button type="submit" class="btn btn-primary" style="flex:1;" id="promoteSubmitBtn">
-                            <i class="fas fa-credit-card"></i> Bayar & Promosikan
-                        </button>
+                        <button type="submit" class="btn btn-primary" style="flex:1;" id="promoteSubmitBtn"><i class="fas fa-credit-card"></i> Bayar & Promosikan</button>
                         <button type="button" onclick="closePromoteModal()" class="btn btn-secondary" style="flex:1;">Batal</button>
                     </div>
                 </form>
@@ -527,9 +448,6 @@
             loadProducts();
         };
 
-        // ============================================
-        // CHECK SUSPEND STATUS
-        // ============================================
         async function checkSuspendStatus(uid) {
             try {
                 const userRef = doc(db, 'users', uid);
@@ -627,9 +545,6 @@
             return d.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
 
-        // ============================================
-        // AUTH STATE
-        // ============================================
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 addDebug('User not logged in, redirecting...', 'warning');
@@ -639,7 +554,6 @@
             currentUser = user;
             addDebug(`User logged in: ${user.email}`, 'success');
 
-            // ✅ CEK SUSPEND
             const isSuspended = await checkSuspendStatus(user.uid);
             if (isSuspended) return;
 
@@ -660,67 +574,39 @@
             }
         });
 
-        // ============================================
-        // LOAD PRODUCTS
-        // ============================================
         async function loadProducts() {
-            if (!currentUser) {
-                addDebug('No current user', 'warning');
-                return;
-            }
+            if (!currentUser) return;
             addDebug('Loading products...', 'info');
-
             try {
                 const q = query(collection(db, 'products'), where('sellerId', '==', currentUser.uid));
                 const snapshot = await getDocs(q);
-                addDebug(`Fetched ${snapshot.size} products from Firestore`, 'info');
-
-                let products = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                    createdAtDate: doc.data().createdAt?.toDate?.() || new Date(doc.data().createdAt)
-                }));
-
+                let products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), createdAtDate: doc.data().createdAt?.toDate?.() || new Date(doc.data().createdAt) }));
                 products.sort((a, b) => b.createdAtDate - a.createdAtDate);
 
                 const status = document.getElementById('filterStatus').value;
                 const type = document.getElementById('filterType').value;
                 const search = document.getElementById('searchProduct').value.trim().toLowerCase();
 
-                if (status !== 'all') {
-                    products = products.filter(p => p.status === status);
-                }
-                if (type !== 'all') {
-                    products = products.filter(p => p.type === type);
-                }
-                if (search) {
-                    products = products.filter(p => p.name?.toLowerCase().includes(search) || p.category?.toLowerCase().includes(search));
-                }
+                if (status !== 'all') products = products.filter(p => p.status === status);
+                if (type !== 'all') products = products.filter(p => p.type === type);
+                if (search) products = products.filter(p => p.name?.toLowerCase().includes(search) || p.category?.toLowerCase().includes(search));
 
                 allProducts = products;
                 addDebug(`Total products after filter: ${allProducts.length}`, 'success');
                 renderProducts();
-
             } catch (error) {
                 addDebug(`Error loading products: ${error.message}`, 'error');
-                console.error('❌ [SELLER_PRODUCTS] Error:', error);
-                showError('Gagal memuat produk', error.message);
                 showToast('error', 'Gagal memuat produk: ' + error.message);
             }
         }
 
-        // ============================================
-        // RENDER PRODUCTS
-        // ============================================
         function renderProducts() {
             const tbody = document.getElementById('productsTableBody');
-
             if (allProducts.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="8" class="text-center text-secondary" style="padding:30px 0;">Tidak ada produk</td></tr>';
                 document.getElementById('pagination').innerHTML = '';
                 return;
             }
-
             const totalPages = Math.ceil(allProducts.length / pageSize);
             if (currentPage > totalPages) currentPage = totalPages;
             const start = (currentPage - 1) * pageSize;
@@ -731,13 +617,8 @@
                 <tr>
                     <td>
                         <div class="product-cell">
-                            <div class="product-thumb">
-                                ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-box\\'></i>'">` : '<i class="fas fa-box"></i>'}
-                            </div>
-                            <div>
-                                <div class="product-name" title="${p.name}">${p.name}</div>
-                                <div class="product-date">${formatDate(p.createdAtDate)}</div>
-                            </div>
+                            <div class="product-thumb">${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-box\\'></i>'">` : '<i class="fas fa-box"></i>'}</div>
+                            <div><div class="product-name" title="${p.name}">${p.name}</div><div class="product-date">${formatDate(p.createdAtDate)}</div></div>
                         </div>
                     </td>
                     <td>${p.category || '-'}</td>
@@ -758,17 +639,12 @@
                     </td>
                 </tr>
             `).join('');
-
             renderPagination(totalPages);
         }
 
         function renderPagination(totalPages) {
             const container = document.getElementById('pagination');
-            if (totalPages <= 1) {
-                container.innerHTML = '';
-                return;
-            }
-
+            if (totalPages <= 1) { container.innerHTML = ''; return; }
             container.innerHTML = `
                 <span style="font-size:14px;color:var(--text-secondary);">${allProducts.length} produk</span>
                 <div style="display:flex;gap:8px;">
@@ -779,44 +655,15 @@
             `;
         }
 
-        window.goToPage = function(page) {
-            currentPage = page;
-            renderProducts();
-        };
-
-        window.applyFilters = function() {
-            currentPage = 1;
-            loadProducts();
-        };
-
-        window.resetFilters = function() {
-            document.getElementById('searchProduct').value = '';
-            document.getElementById('filterStatus').value = 'all';
-            document.getElementById('filterType').value = 'all';
-            applyFilters();
-        };
-
-        window.toggleDropdown = function(id) {
-            document.querySelectorAll('.action-dropdown-content').forEach(el => el.classList.remove('show'));
-            const dropdown = document.getElementById(`dropdown-${id}`);
-            if (dropdown) dropdown.classList.toggle('show');
-        };
-
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.action-dropdown')) {
-                document.querySelectorAll('.action-dropdown-content').forEach(el => el.classList.remove('show'));
-            }
-        });
+        window.goToPage = function(page) { currentPage = page; renderProducts(); };
+        window.applyFilters = function() { currentPage = 1; loadProducts(); };
+        window.resetFilters = function() { document.getElementById('searchProduct').value = ''; document.getElementById('filterStatus').value = 'all'; document.getElementById('filterType').value = 'all'; applyFilters(); };
+        window.toggleDropdown = function(id) { document.querySelectorAll('.action-dropdown-content').forEach(el => el.classList.remove('show')); const dropdown = document.getElementById(`dropdown-${id}`); if (dropdown) dropdown.classList.toggle('show'); };
+        document.addEventListener('click', (e) => { if (!e.target.closest('.action-dropdown')) { document.querySelectorAll('.action-dropdown-content').forEach(el => el.classList.remove('show')); } });
 
         let searchTimeout;
-        document.getElementById('searchProduct').addEventListener('input', () => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(applyFilters, 500);
-        });
+        document.getElementById('searchProduct').addEventListener('input', () => { clearTimeout(searchTimeout); searchTimeout = setTimeout(applyFilters, 500); });
 
-        // ============================================
-        // PRODUCT CRUD
-        // ============================================
         window.openCreateProduct = function() {
             document.getElementById('modalTitle').textContent = 'Tambah Produk';
             document.getElementById('productId').value = '';
@@ -827,51 +674,18 @@
             addDebug('Create product modal opened', 'info');
         };
 
-        window.closeProductModal = function() {
-            document.getElementById('productModal').classList.remove('open');
-            addDebug('Product modal closed', 'info');
-        };
-
-        window.toggleProductType = function() {
-            const type = document.getElementById('productType').value;
-            document.getElementById('digitalFields').style.display = type === 'digital' ? 'block' : 'none';
-            document.getElementById('premiumFields').style.display = type === 'premium-account' ? 'block' : 'none';
-        };
-
-        window.addPremiumAccount = function(email = '', password = '') {
-            const container = document.getElementById('premiumAccountsList');
-            const div = document.createElement('div');
-            div.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;';
-            div.innerHTML = `
-                <input type="email" class="input premium-email" placeholder="email@example.com" value="${email}" style="flex:1;">
-                <input type="text" class="input premium-password" placeholder="password" value="${password}" style="flex:1;">
-                <button type="button" onclick="removePremiumAccount(this)" style="background:none;border:none;color:var(--danger);cursor:pointer;padding:0 8px;"><i class="fas fa-times"></i></button>
-            `;
-            container.appendChild(div);
-        };
-
-        window.removePremiumAccount = function(btn) {
-            const container = document.getElementById('premiumAccountsList');
-            if (container.children.length > 1) {
-                btn.closest('div').remove();
-            } else {
-                showToast('warning', 'Minimal 1 akun diperlukan');
-            }
-        };
+        window.closeProductModal = function() { document.getElementById('productModal').classList.remove('open'); addDebug('Product modal closed', 'info'); };
+        window.toggleProductType = function() { const type = document.getElementById('productType').value; document.getElementById('digitalFields').style.display = type === 'digital' ? 'block' : 'none'; document.getElementById('premiumFields').style.display = type === 'premium-account' ? 'block' : 'none'; };
+        window.addPremiumAccount = function(email = '', password = '') { const container = document.getElementById('premiumAccountsList'); const div = document.createElement('div'); div.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;'; div.innerHTML = `<input type="email" class="input premium-email" placeholder="email@example.com" value="${email}" style="flex:1;"><input type="text" class="input premium-password" placeholder="password" value="${password}" style="flex:1;"><button type="button" onclick="removePremiumAccount(this)" style="background:none;border:none;color:var(--danger);cursor:pointer;padding:0 8px;"><i class="fas fa-times"></i></button>`; container.appendChild(div); };
+        window.removePremiumAccount = function(btn) { const container = document.getElementById('premiumAccountsList'); if (container.children.length > 1) { btn.closest('div').remove(); } else { showToast('warning', 'Minimal 1 akun diperlukan'); } };
 
         window.editProduct = async function(id) {
             addDebug(`Editing product: ${id}`, 'info');
             try {
                 const productRef = doc(db, 'products', id);
                 const productDoc = await getDoc(productRef);
-                if (!productDoc.exists()) {
-                    addDebug('Product not found', 'error');
-                    showToast('error', 'Produk tidak ditemukan');
-                    return;
-                }
+                if (!productDoc.exists()) { addDebug('Product not found', 'error'); showToast('error', 'Produk tidak ditemukan'); return; }
                 const p = productDoc.data();
-                addDebug(`Product data loaded: ${p.name}`, 'success');
-
                 document.getElementById('modalTitle').textContent = 'Edit Produk';
                 document.getElementById('productId').value = id;
                 document.getElementById('productName').value = p.name;
@@ -882,39 +696,24 @@
                 document.getElementById('productTags').value = (p.tags || []).join(', ');
                 document.getElementById('productImageUrl').value = p.imageUrl || '';
                 toggleProductType();
-
                 if (p.type === 'digital') {
                     document.getElementById('productDownloadLink').value = p.downloadLink || '';
                     document.getElementById('productDemoLink').value = p.demoLink || '';
-                    if (p.stock === 'unlimited') {
-                        document.getElementById('productUnlimited').checked = true;
-                        document.getElementById('productStock').value = '';
-                    } else {
-                        document.getElementById('productUnlimited').checked = false;
-                        document.getElementById('productStock').value = p.stock || 0;
-                    }
+                    if (p.stock === 'unlimited') { document.getElementById('productUnlimited').checked = true; document.getElementById('productStock').value = ''; } else { document.getElementById('productUnlimited').checked = false; document.getElementById('productStock').value = p.stock || 0; }
                 } else {
                     document.getElementById('productNote').value = p.note || '';
                     const container = document.getElementById('premiumAccountsList');
                     container.innerHTML = '';
-                    if (p.premiumAccounts && p.premiumAccounts.length > 0) {
-                        p.premiumAccounts.forEach(a => addPremiumAccount(a.email, a.password));
-                    } else {
-                        addPremiumAccount();
-                    }
+                    if (p.premiumAccounts && p.premiumAccounts.length > 0) { p.premiumAccounts.forEach(a => addPremiumAccount(a.email, a.password)); } else { addPremiumAccount(); }
                 }
                 document.getElementById('productModal').classList.add('open');
                 addDebug('Edit modal opened', 'success');
-            } catch (error) {
-                addDebug(`Error loading product: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat data produk: ' + error.message);
-            }
+            } catch (error) { addDebug(`Error loading product: ${error.message}`, 'error'); showToast('error', 'Gagal memuat data produk: ' + error.message); }
         };
 
         document.getElementById('productForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             addDebug('Saving product...', 'info');
-
             const id = document.getElementById('productId').value;
             const name = document.getElementById('productName').value.trim();
             const category = document.getElementById('productCategory').value;
@@ -924,130 +723,39 @@
             const tags = document.getElementById('productTags').value.split(',').map(t => t.trim()).filter(t => t);
             const imageUrl = document.getElementById('productImageUrl').value.trim();
 
-            if (!name || !category || !price || price < 100) {
-                showToast('warning', 'Lengkapi data produk dengan benar');
-                addDebug('Validation failed', 'warning');
-                return;
-            }
+            if (!name || !category || !price || price < 100) { showToast('warning', 'Lengkapi data produk dengan benar'); addDebug('Validation failed', 'warning'); return; }
 
-            let data = {
-                name,
-                category,
-                type,
-                price,
-                description,
-                tags,
-                imageUrl: imageUrl || '',
-                updatedAt: serverTimestamp()
-            };
+            let data = { name, category, type, price, description, tags, imageUrl: imageUrl || '', updatedAt: serverTimestamp() };
 
             if (type === 'digital') {
                 const downloadLink = document.getElementById('productDownloadLink').value.trim();
                 const demoLink = document.getElementById('productDemoLink').value.trim();
                 const unlimited = document.getElementById('productUnlimited').checked;
                 const stock = parseInt(document.getElementById('productStock').value) || 0;
-
-                if (!downloadLink) {
-                    showToast('warning', 'Link download wajib diisi');
-                    addDebug('Download link required', 'warning');
-                    return;
-                }
-                data.downloadLink = downloadLink;
-                data.demoLink = demoLink;
-                data.unlimited = unlimited;
-                data.stock = unlimited ? 'unlimited' : stock;
+                if (!downloadLink) { showToast('warning', 'Link download wajib diisi'); return; }
+                data.downloadLink = downloadLink; data.demoLink = demoLink; data.unlimited = unlimited; data.stock = unlimited ? 'unlimited' : stock;
             } else {
                 const note = document.getElementById('productNote').value.trim();
                 const emails = document.querySelectorAll('.premium-email');
                 const passwords = document.querySelectorAll('.premium-password');
                 const accounts = [];
-                emails.forEach((el, i) => {
-                    const email = el.value.trim();
-                    const password = passwords[i].value.trim();
-                    if (email && password) accounts.push({ email, password });
-                });
-                if (accounts.length === 0) {
-                    showToast('warning', 'Minimal 1 akun premium wajib diisi');
-                    addDebug('Premium accounts required', 'warning');
-                    return;
-                }
-                data.note = note;
-                data.premiumAccounts = accounts;
-                data.stock = accounts.length;
-                data.unlimited = false;
+                emails.forEach((el, i) => { const email = el.value.trim(); const password = passwords[i].value.trim(); if (email && password) accounts.push({ email, password }); });
+                if (accounts.length === 0) { showToast('warning', 'Minimal 1 akun premium wajib diisi'); return; }
+                data.note = note; data.premiumAccounts = accounts; data.stock = accounts.length; data.unlimited = false;
             }
 
             try {
-                if (id) {
-                    await updateDoc(doc(db, 'products', id), data);
-                    addDebug(`Product ${id} updated`, 'success');
-                    showToast('success', 'Produk berhasil diperbarui!');
-                } else {
-                    data.sellerId = currentUser.uid;
-                    data.status = 'published';
-                    data.sales = 0;
-                    data.views = 0;
-                    data.isTrending = false;
-                    data.isBestSeller = false;
-                    data.isPremium = false;
-                    data.isNew = true;
-                    data.createdAt = serverTimestamp();
-                    await addDoc(collection(db, 'products'), data);
-                    addDebug(`Product created`, 'success');
-                    showToast('success', 'Produk berhasil dibuat!');
-                }
-                closeProductModal();
-                loadProducts();
-            } catch (error) {
-                addDebug(`Error saving product: ${error.message}`, 'error');
-                showToast('error', 'Gagal menyimpan produk: ' + error.message);
-                showError('Gagal Menyimpan Produk', error.message);
-            }
+                if (id) { await updateDoc(doc(db, 'products', id), data); addDebug(`Product ${id} updated`, 'success'); showToast('success', 'Produk berhasil diperbarui!'); }
+                else { data.sellerId = currentUser.uid; data.status = 'published'; data.sales = 0; data.views = 0; data.isTrending = false; data.isBestSeller = false; data.isPremium = false; data.isNew = true; data.createdAt = serverTimestamp(); await addDoc(collection(db, 'products'), data); addDebug(`Product created`, 'success'); showToast('success', 'Produk berhasil dibuat!'); }
+                closeProductModal(); loadProducts();
+            } catch (error) { addDebug(`Error saving product: ${error.message}`, 'error'); showToast('error', 'Gagal menyimpan produk: ' + error.message); showError('Gagal Menyimpan Produk', error.message); }
         });
 
-        // ============================================
-        // DELETE PRODUCT
-        // ============================================
-        window.deleteProduct = function(id) {
-            addDebug(`Delete product: ${id}`, 'warning');
-            deleteId = id;
-            document.getElementById('deleteModal').classList.add('open');
-        };
+        window.deleteProduct = function(id) { addDebug(`Delete product: ${id}`, 'warning'); deleteId = id; document.getElementById('deleteModal').classList.add('open'); };
+        window.closeDeleteModal = function() { document.getElementById('deleteModal').classList.remove('open'); deleteId = null; };
+        window.confirmDelete = async function() { if (!deleteId) return; addDebug(`Confirming delete: ${deleteId}`, 'warning'); try { await deleteDoc(doc(db, 'products', deleteId)); addDebug(`Product ${deleteId} deleted`, 'success'); showToast('success', 'Produk berhasil dihapus!'); deleteId = null; closeDeleteModal(); loadProducts(); } catch (error) { addDebug(`Error deleting: ${error.message}`, 'error'); showToast('error', 'Gagal menghapus produk: ' + error.message); } };
 
-        window.closeDeleteModal = function() {
-            document.getElementById('deleteModal').classList.remove('open');
-            deleteId = null;
-        };
-
-        window.confirmDelete = async function() {
-            if (!deleteId) return;
-            addDebug(`Confirming delete: ${deleteId}`, 'warning');
-            try {
-                await deleteDoc(doc(db, 'products', deleteId));
-                addDebug(`Product ${deleteId} deleted`, 'success');
-                showToast('success', 'Produk berhasil dihapus!');
-                deleteId = null;
-                closeDeleteModal();
-                loadProducts();
-            } catch (error) {
-                addDebug(`Error deleting: ${error.message}`, 'error');
-                showToast('error', 'Gagal menghapus produk: ' + error.message);
-            }
-        };
-
-        // ============================================
-        // PROMOTE TO BANNER
-        // ============================================
-        async function getBannerPricing() {
-            try {
-                const response = await fetch('/api/banner-pricing');
-                if (!response.ok) throw new Error('Gagal memuat harga banner');
-                return await response.json();
-            } catch (error) {
-                console.error('Error getting banner pricing:', error);
-                return { price: 100000, duration: 24 };
-            }
-        }
+        async function getBannerPricing() { try { const response = await fetch('/api/banner-pricing'); if (!response.ok) throw new Error('Gagal memuat harga banner'); return await response.json(); } catch (error) { console.error('Error getting banner pricing:', error); return { price: 100000, duration: 24 }; } }
 
         window.promoteToBanner = async function(productId) {
             addDebug(`Promoting product to banner: ${productId}`, 'info');
@@ -1055,10 +763,7 @@
             try {
                 const productRef = doc(db, 'products', productId);
                 const productDoc = await getDoc(productRef);
-                if (!productDoc.exists()) {
-                    showToast('error', 'Produk tidak ditemukan');
-                    return;
-                }
+                if (!productDoc.exists()) { showToast('error', 'Produk tidak ditemukan'); return; }
                 const product = productDoc.data();
                 document.getElementById('promoteProductName').textContent = product.name;
                 pricingData = await getBannerPricing();
@@ -1070,19 +775,7 @@
                 document.getElementById('promoteBalance').textContent = formatPrice(balance);
                 const balanceStatus = document.getElementById('balanceStatus');
                 const walletStatus = document.getElementById('walletStatus');
-                if (balance >= pricingData.price) {
-                    balanceStatus.innerHTML = '<span style="color:var(--success);">✅ Saldo cukup</span>';
-                    walletStatus.textContent = '✅ Tersedia';
-                    walletStatus.className = 'method-status available';
-                    document.getElementById('promoteError').style.display = 'none';
-                } else {
-                    const kurang = pricingData.price - balance;
-                    balanceStatus.innerHTML = `<span style="color:var(--danger);">⚠️ Saldo kurang (Rp${formatPrice(kurang)})</span>`;
-                    walletStatus.textContent = `⚠️ Kurang Rp${formatPrice(kurang)}`;
-                    walletStatus.className = 'method-status insufficient';
-                    document.getElementById('promoteError').style.display = 'block';
-                    document.getElementById('promoteError').textContent = `⚠️ Saldo tidak mencukupi! Saldo: Rp${formatPrice(balance)}, Harga: Rp${formatPrice(pricingData.price)}. Gunakan "Bayar Langsung" atau isi saldo terlebih dahulu.`;
-                }
+                if (balance >= pricingData.price) { balanceStatus.innerHTML = '<span style="color:var(--success);">✅ Saldo cukup</span>'; walletStatus.textContent = '✅ Tersedia'; walletStatus.className = 'method-status available'; document.getElementById('promoteError').style.display = 'none'; } else { const kurang = pricingData.price - balance; balanceStatus.innerHTML = `<span style="color:var(--danger);">⚠️ Saldo kurang (Rp${formatPrice(kurang)})</span>`; walletStatus.textContent = `⚠️ Kurang Rp${formatPrice(kurang)}`; walletStatus.className = 'method-status insufficient'; document.getElementById('promoteError').style.display = 'block'; document.getElementById('promoteError').textContent = `⚠️ Saldo tidak mencukupi! Saldo: Rp${formatPrice(balance)}, Harga: Rp${formatPrice(pricingData.price)}. Gunakan "Bayar Langsung" atau isi saldo terlebih dahulu.`; }
                 document.getElementById('promoteDuration').value = pricingData.duration || 24;
                 document.getElementById('promoteTotal').textContent = `Rp${formatPrice(pricingData.price)}`;
                 document.querySelector('input[name="paymentMethod"][value="wallet"]').checked = true;
@@ -1090,17 +783,10 @@
                 document.getElementById('midtransOption').classList.remove('active');
                 document.getElementById('promoteModal').classList.add('open');
                 addDebug('Promote modal opened', 'success');
-            } catch (error) {
-                addDebug(`Error promoting product: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat data: ' + error.message);
-            }
+            } catch (error) { addDebug(`Error promoting product: ${error.message}`, 'error'); showToast('error', 'Gagal memuat data: ' + error.message); }
         };
 
-        window.closePromoteModal = function() {
-            document.getElementById('promoteModal').classList.remove('open');
-            promoteProductId = null;
-            addDebug('Promote modal closed', 'info');
-        };
+        window.closePromoteModal = function() { document.getElementById('promoteModal').classList.remove('open'); promoteProductId = null; addDebug('Promote modal closed', 'info'); };
 
         document.querySelectorAll('.payment-method-option').forEach(option => {
             option.addEventListener('click', async function() {
@@ -1115,40 +801,22 @@
                             const userDoc = await getDoc(userRef);
                             const balance = userDoc.exists() ? (userDoc.data()?.wallet?.available || 0) : 0;
                             const price = pricingData?.price || 0;
-                            if (balance < price) {
-                                document.getElementById('promoteError').style.display = 'block';
-                                document.getElementById('promoteError').textContent = `⚠️ Saldo tidak mencukupi! Saldo: Rp${formatPrice(balance)}, Harga: Rp${formatPrice(price)}. Gunakan "Bayar Langsung" atau isi saldo terlebih dahulu.`;
-                            } else {
-                                document.getElementById('promoteError').style.display = 'none';
-                            }
-                        } catch (error) {
-                            console.error('Error checking balance:', error);
-                        }
-                    } else {
-                        document.getElementById('promoteError').style.display = 'none';
-                    }
+                            if (balance < price) { document.getElementById('promoteError').style.display = 'block'; document.getElementById('promoteError').textContent = `⚠️ Saldo tidak mencukupi! Saldo: Rp${formatPrice(balance)}, Harga: Rp${formatPrice(price)}. Gunakan "Bayar Langsung" atau isi saldo terlebih dahulu.`; } else { document.getElementById('promoteError').style.display = 'none'; }
+                        } catch (error) { console.error('Error checking balance:', error); }
+                    } else { document.getElementById('promoteError').style.display = 'none'; }
                 }
             });
         });
 
-        document.getElementById('promoteDuration').addEventListener('input', function() {
-            const price = pricingData?.price || 0;
-            document.getElementById('promoteTotal').textContent = `Rp${formatPrice(price)}`;
-        });
+        document.getElementById('promoteDuration').addEventListener('input', function() { const price = pricingData?.price || 0; document.getElementById('promoteTotal').textContent = `Rp${formatPrice(price)}`; });
 
         document.getElementById('promoteForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (!promoteProductId) {
-                showToast('error', 'Produk tidak valid');
-                return;
-            }
+            if (!promoteProductId) { showToast('error', 'Produk tidak valid'); return; }
             const duration = parseInt(document.getElementById('promoteDuration').value);
             const imageUrl = document.getElementById('promoteImageUrl').value.trim();
             const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-            if (!duration || duration < 1) {
-                showToast('warning', 'Durasi minimal 1 jam');
-                return;
-            }
+            if (!duration || duration < 1) { showToast('warning', 'Durasi minimal 1 jam'); return; }
             const price = pricingData?.price || 0;
             document.getElementById('promoteError').style.display = 'none';
             const submitBtn = document.getElementById('promoteSubmitBtn');
@@ -1168,231 +836,55 @@
                 const productName = productDoc.exists() ? productDoc.data().name : 'Product';
                 if (paymentMethod === 'wallet') {
                     addDebug(`💰 Current wallet: available=${wallet.available}, price=${price}`, 'info');
-                    if (wallet.available < price) {
-                        throw new Error(`Saldo tidak mencukupi! Saldo: Rp${formatPrice(wallet.available)}, Harga: Rp${formatPrice(price)}.`);
-                    }
-                    const expiresAt = new Date();
-                    expiresAt.setHours(expiresAt.getHours() + duration);
+                    if (wallet.available < price) throw new Error(`Saldo tidak mencukupi! Saldo: Rp${formatPrice(wallet.available)}, Harga: Rp${formatPrice(price)}.`);
+                    const expiresAt = new Date(); expiresAt.setHours(expiresAt.getHours() + duration);
                     const orderId = `BANNER-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
                     const newAvailable = wallet.available - price;
-                    const newTotalRevenue = wallet.totalRevenue || 0;
-                    addDebug(`🔄 Updating wallet: ${wallet.available} -> ${newAvailable}`, 'info');
-                    await setDoc(userRef, {
-                        wallet: {
-                            available: newAvailable,
-                            holding: wallet.holding || 0,
-                            totalRevenue: newTotalRevenue,
-                            totalWithdraw: wallet.totalWithdraw || 0,
-                            pendingWithdraw: wallet.pendingWithdraw || 0,
-                            lastHolding: wallet.lastHolding || null,
-                            lastReleased: wallet.lastReleased || null
-                        },
-                        updatedAt: new Date().toISOString()
-                    }, { merge: true });
+                    await setDoc(userRef, { wallet: { available: newAvailable, holding: wallet.holding || 0, totalRevenue: wallet.totalRevenue || 0, totalWithdraw: wallet.totalWithdraw || 0, pendingWithdraw: wallet.pendingWithdraw || 0, lastHolding: wallet.lastHolding || null, lastReleased: wallet.lastReleased || null }, updatedAt: new Date().toISOString() }, { merge: true });
                     const verifyDoc = await getDoc(userRef);
                     const verifyWallet = verifyDoc.data()?.wallet || {};
                     addDebug(`✅ Verified wallet! Available: ${verifyWallet.available}`, 'success');
-                    if (verifyWallet.available !== newAvailable) {
-                        throw new Error(`❌ Gagal update wallet! Expected: ${newAvailable}, Actual: ${verifyWallet.available}`);
-                    }
-                    await addDoc(collection(db, 'admin_revenue'), {
-                        type: 'banner_purchase',
-                        sellerId: currentUser.uid,
-                        sellerName: sellerName,
-                        productId: promoteProductId,
-                        productName: productName,
-                        amount: price,
-                        duration: duration,
-                        orderId: orderId,
-                        status: 'paid',
-                        paymentMethod: 'wallet',
-                        createdAt: serverTimestamp()
-                    });
-                    addDebug(`✅ Admin revenue recorded: Rp${formatPrice(price)}`, 'success');
-                    await addDoc(collection(db, 'orders'), {
-                        orderId: orderId,
-                        type: 'banner_purchase',
-                        sellerId: currentUser.uid,
-                        productId: promoteProductId,
-                        productName: productName,
-                        buyerName: sellerName,
-                        buyerEmail: userEmail,
-                        sellerName: sellerName,
-                        amount: price,
-                        status: 'paid',
-                        paymentStatus: 'settlement',
-                        paymentMethod: 'wallet',
-                        adminRevenue: price,
-                        bannerData: {
-                            title: productName || 'Banner Promosi',
-                            description: `Promosi produk oleh ${sellerName}`,
-                            imageUrl: imageUrl || '',
-                            duration: duration,
-                            expiresAt: expiresAt.toISOString()
-                        },
-                        createdAt: serverTimestamp()
-                    });
-                    await addDoc(collection(db, 'banners'), {
-                        title: productName || 'Banner Promosi',
-                        description: `Promosi produk oleh ${sellerName}`,
-                        imageUrl: imageUrl || '',
-                        linkUrl: `/product/${promoteProductId}`,
-                        isActive: true,
-                        type: 'seller',
-                        sellerId: currentUser.uid,
-                        productId: promoteProductId,
-                        duration: duration,
-                        price: price,
-                        paymentMethod: 'wallet',
-                        orderId: orderId,
-                        expiresAt: expiresAt,
-                        createdAt: serverTimestamp()
-                    });
+                    if (verifyWallet.available !== newAvailable) throw new Error(`❌ Gagal update wallet! Expected: ${newAvailable}, Actual: ${verifyWallet.available}`);
+                    await addDoc(collection(db, 'admin_revenue'), { type: 'banner_purchase', sellerId: currentUser.uid, sellerName: sellerName, productId: promoteProductId, productName: productName, amount: price, duration: duration, orderId: orderId, status: 'paid', paymentMethod: 'wallet', createdAt: serverTimestamp() });
+                    await addDoc(collection(db, 'orders'), { orderId: orderId, type: 'banner_purchase', sellerId: currentUser.uid, productId: promoteProductId, productName: productName, buyerName: sellerName, buyerEmail: userEmail, sellerName: sellerName, amount: price, status: 'paid', paymentStatus: 'settlement', paymentMethod: 'wallet', adminRevenue: price, bannerData: { title: productName || 'Banner Promosi', description: `Promosi produk oleh ${sellerName}`, imageUrl: imageUrl || '', duration: duration, expiresAt: expiresAt.toISOString() }, createdAt: serverTimestamp() });
+                    await addDoc(collection(db, 'banners'), { title: productName || 'Banner Promosi', description: `Promosi produk oleh ${sellerName}`, imageUrl: imageUrl || '', linkUrl: `/product/${promoteProductId}`, isActive: true, type: 'seller', sellerId: currentUser.uid, productId: promoteProductId, duration: duration, price: price, paymentMethod: 'wallet', orderId: orderId, expiresAt: expiresAt, createdAt: serverTimestamp() });
                     showToast('success', '🎉 Banner berhasil dibeli dengan saldo wallet!');
-                    closePromoteModal();
-                    loadProducts();
+                    closePromoteModal(); loadProducts();
                 } else if (paymentMethod === 'midtrans') {
                     const orderId = `BANNER-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-                    await addDoc(collection(db, 'orders'), {
-                        orderId: orderId,
-                        type: 'banner_purchase',
-                        sellerId: currentUser.uid,
-                        productId: promoteProductId,
-                        productName: productName,
-                        buyerName: sellerName,
-                        buyerEmail: userEmail,
-                        sellerName: sellerName,
-                        amount: price,
-                        status: 'pending',
-                        paymentStatus: 'pending',
-                        paymentMethod: 'midtrans',
-                        adminRevenue: price,
-                        bannerData: {
-                            title: productName || 'Banner Promosi',
-                            description: '',
-                            imageUrl: imageUrl || '',
-                            duration: duration,
-                            expiresAt: new Date(Date.now() + duration * 60 * 60 * 1000).toISOString()
-                        },
-                        createdAt: serverTimestamp()
-                    });
-                    const response = await fetch('/api/payment/create', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            orderId: orderId,
-                            amount: price,
-                            buyerName: sellerName,
-                            buyerEmail: userEmail,
-                            buyerPhone: '08123456789',
-                            productName: `Banner Promosi: ${productName}`
-                        })
-                    });
+                    await addDoc(collection(db, 'orders'), { orderId: orderId, type: 'banner_purchase', sellerId: currentUser.uid, productId: promoteProductId, productName: productName, buyerName: sellerName, buyerEmail: userEmail, sellerName: sellerName, amount: price, status: 'pending', paymentStatus: 'pending', paymentMethod: 'midtrans', adminRevenue: price, bannerData: { title: productName || 'Banner Promosi', description: '', imageUrl: imageUrl || '', duration: duration, expiresAt: new Date(Date.now() + duration * 60 * 60 * 1000).toISOString() }, createdAt: serverTimestamp() });
+                    const response = await fetch('/api/payment/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId: orderId, amount: price, buyerName: sellerName, buyerEmail: userEmail, buyerPhone: '08123456789', productName: `Banner Promosi: ${productName}` }) });
                     const data = await response.json();
                     if (!response.ok) throw new Error(data.error || 'Gagal membuat pembayaran');
                     if (data.token && typeof snap !== 'undefined') {
                         window.snap.pay(data.token, {
-                            onSuccess: async function(result) {
-                                console.log('✅ Payment Success:', result);
-                                showToast('success', '🎉 Pembayaran berhasil! Banner akan aktif.');
-                                closePromoteModal();
-                                await addDoc(collection(db, 'admin_revenue'), {
-                                    type: 'banner_purchase',
-                                    sellerId: currentUser.uid,
-                                    sellerName: sellerName,
-                                    productId: promoteProductId,
-                                    productName: productName,
-                                    amount: price,
-                                    duration: duration,
-                                    orderId: orderId,
-                                    status: 'paid',
-                                    paymentMethod: 'midtrans',
-                                    createdAt: serverTimestamp()
-                                });
-                                await activateBannerFromOrder(orderId);
-                            },
-                            onPending: function(result) {
-                                console.log('⏳ Payment Pending:', result);
-                                showToast('info', '⏳ Menunggu pembayaran...');
-                                closePromoteModal();
-                            },
-                            onError: function(result) {
-                                console.log('❌ Payment Error:', result);
-                                showToast('error', '❌ Pembayaran gagal: ' + (result.status_message || 'Silakan coba lagi'));
-                            },
-                            onClose: function() {
-                                console.log('🔒 Payment window closed');
-                                showToast('info', 'Pembayaran dibatalkan');
-                            }
+                            onSuccess: async function(result) { console.log('✅ Payment Success:', result); showToast('success', '🎉 Pembayaran berhasil! Banner akan aktif.'); closePromoteModal(); await addDoc(collection(db, 'admin_revenue'), { type: 'banner_purchase', sellerId: currentUser.uid, sellerName: sellerName, productId: promoteProductId, productName: productName, amount: price, duration: duration, orderId: orderId, status: 'paid', paymentMethod: 'midtrans', createdAt: serverTimestamp() }); await activateBannerFromOrder(orderId); },
+                            onPending: function(result) { console.log('⏳ Payment Pending:', result); showToast('info', '⏳ Menunggu pembayaran...'); closePromoteModal(); },
+                            onError: function(result) { console.log('❌ Payment Error:', result); showToast('error', '❌ Pembayaran gagal: ' + (result.status_message || 'Silakan coba lagi')); },
+                            onClose: function() { console.log('🔒 Payment window closed'); showToast('info', 'Pembayaran dibatalkan'); }
                         });
-                    } else if (data.redirect_url) {
-                        window.location.href = data.redirect_url;
-                    } else {
-                        throw new Error('No payment method available');
-                    }
+                    } else if (data.redirect_url) { window.location.href = data.redirect_url; } else { throw new Error('No payment method available'); }
                 }
-            } catch (error) {
-                addDebug(`❌ Error purchasing banner: ${error.message}`, 'error');
-                document.getElementById('promoteError').style.display = 'block';
-                document.getElementById('promoteError').textContent = '❌ ' + error.message;
-                showToast('error', 'Gagal membeli banner: ' + error.message);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar & Promosikan';
-            }
+            } catch (error) { addDebug(`❌ Error purchasing banner: ${error.message}`, 'error'); document.getElementById('promoteError').style.display = 'block'; document.getElementById('promoteError').textContent = '❌ ' + error.message; showToast('error', 'Gagal membeli banner: ' + error.message); } finally { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar & Promosikan'; }
         });
 
         async function activateBannerFromOrder(orderId) {
             try {
                 console.log('📦 [ACTIVATE BANNER] Activating banner for order:', orderId);
                 const ordersSnapshot = await getDocs(query(collection(db, 'orders'), where('orderId', '==', orderId)));
-                if (ordersSnapshot.empty) {
-                    console.log('⚠️ [ACTIVATE BANNER] Order not found');
-                    return;
-                }
+                if (ordersSnapshot.empty) { console.log('⚠️ [ACTIVATE BANNER] Order not found'); return; }
                 const orderDoc = ordersSnapshot.docs[0];
                 const orderData = orderDoc.data();
-                if (orderData.paymentStatus === 'settlement' || orderData.status === 'paid') {
-                    console.log('✅ [ACTIVATE BANNER] Order already settled');
-                    showToast('success', '✅ Banner sudah aktif!');
-                    loadProducts();
-                    return;
-                }
+                if (orderData.paymentStatus === 'settlement' || orderData.status === 'paid') { console.log('✅ [ACTIVATE BANNER] Order already settled'); showToast('success', '✅ Banner sudah aktif!'); loadProducts(); return; }
                 if (orderData.type === 'banner_purchase') {
                     const bannerData = orderData.bannerData || {};
                     const expiresAt = bannerData.expiresAt ? new Date(bannerData.expiresAt) : new Date();
-                    if (!bannerData.expiresAt) {
-                        expiresAt.setHours(expiresAt.getHours() + 24);
-                    }
-                    await updateDoc(orderDoc.ref, {
-                        status: 'paid',
-                        paymentStatus: 'settlement',
-                        updatedAt: serverTimestamp()
-                    });
-                    await addDoc(collection(db, 'banners'), {
-                        title: bannerData.title || 'Banner Promosi',
-                        description: bannerData.description || '',
-                        imageUrl: bannerData.imageUrl || '',
-                        linkUrl: `/product/${orderData.productId}`,
-                        isActive: true,
-                        type: 'seller',
-                        sellerId: orderData.sellerId,
-                        productId: orderData.productId,
-                        duration: bannerData.duration || 24,
-                        price: orderData.amount || 0,
-                        paymentMethod: orderData.paymentMethod || 'midtrans',
-                        orderId: orderId,
-                        expiresAt: expiresAt,
-                        createdAt: serverTimestamp(),
-                        updatedAt: serverTimestamp()
-                    });
-                    showToast('success', '✅ Banner berhasil diaktifkan!');
-                    loadProducts();
+                    if (!bannerData.expiresAt) expiresAt.setHours(expiresAt.getHours() + 24);
+                    await updateDoc(orderDoc.ref, { status: 'paid', paymentStatus: 'settlement', updatedAt: serverTimestamp() });
+                    await addDoc(collection(db, 'banners'), { title: bannerData.title || 'Banner Promosi', description: bannerData.description || '', imageUrl: bannerData.imageUrl || '', linkUrl: `/product/${orderData.productId}`, isActive: true, type: 'seller', sellerId: orderData.sellerId, productId: orderData.productId, duration: bannerData.duration || 24, price: orderData.amount || 0, paymentMethod: orderData.paymentMethod || 'midtrans', orderId: orderId, expiresAt: expiresAt, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+                    showToast('success', '✅ Banner berhasil diaktifkan!'); loadProducts();
                 }
-            } catch (error) {
-                console.error('❌ [ACTIVATE BANNER] Error:', error);
-                showToast('warning', '⚠️ Gagal mengaktifkan banner, tapi pembayaran sudah berhasil.');
-            }
+            } catch (error) { console.error('❌ [ACTIVATE BANNER] Error:', error); showToast('warning', '⚠️ Gagal mengaktifkan banner, tapi pembayaran sudah berhasil.'); }
         }
 
         addDebug('Page ready', 'success');

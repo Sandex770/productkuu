@@ -219,44 +219,64 @@
             color: var(--primary);
         }
         .suspend-overlay .modal .contact i { margin-right: 8px; }
-        .suspend-overlay .modal .btn { width: 100%; justify-content: center; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .suspend-overlay .modal .btn { 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 12px; 
+            font-family: var(--font); 
+            font-size: 14px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            text-decoration: none; 
+        }
         .suspend-overlay .modal .btn-primary {
-    background: linear-gradient(135deg, #4F46E5, #7C3AED);
-    color: white;
-    box-shadow: 0 4px 14px rgba(79,70,229,0.3);
-}
-.suspend-overlay .modal .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(79,70,229,0.4);
-}
-.suspend-overlay .modal .btn-secondary {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-}
-.suspend-overlay .modal .btn-secondary:hover {
-    background: var(--border-color);
-    transform: translateY(-2px);
-}
-.suspend-overlay .modal .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 12px;
-    font-family: var(--font);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-}
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            color: white;
+            box-shadow: 0 4px 14px rgba(79,70,229,0.3);
+        }
+        .suspend-overlay .modal .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79,70,229,0.4);
+        }
+        .suspend-overlay .modal .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        .suspend-overlay .modal .btn-secondary:hover {
+            background: var(--border-color);
+            transform: translateY(-2px);
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
     </style>
 </head>
 <body>
+    <!-- SUSPEND OVERLAY -->
+    <div class="suspend-overlay" id="suspendOverlay">
+        <div class="modal">
+            <div class="icon"><i class="fas fa-ban"></i></div>
+            <h2>⚠️ Akun Anda Ditangguhkan</h2>
+            <p>Akun seller Anda telah ditangguhkan oleh admin karena melanggar ketentuan.</p>
+            <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
+            <div class="contact">
+                <i class="fab fa-telegram"></i> @Sanzz_offc
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
+                <a href="https://t.me/Sanzz_offc" target="_blank" class="btn btn-primary" style="flex:1;">
+                    <i class="fab fa-telegram"></i> Hubungi Admin
+                </a>
+                <button onclick="window.location.href='/'" class="btn btn-secondary" style="flex:1;">
+                    <i class="fas fa-home"></i> Kembali
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- NAVBAR -->
     <nav class="navbar">
         <div class="navbar-inner">
@@ -282,27 +302,6 @@
         </nav>
     </aside>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <!-- SUSPEND OVERLAY -->
-    <div class="suspend-overlay" id="suspendOverlay">
-    <div class="modal">
-        <div class="icon"><i class="fas fa-ban"></i></div>
-        <h2>⚠️ Akun Anda Ditangguhkan</h2>
-        <p>Akun seller Anda telah ditangguhkan oleh admin karena melanggar ketentuan.</p>
-        <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
-        <div class="contact">
-            <i class="fab fa-telegram"></i> @Sanzz_offc
-        </div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
-            <a href="https://t.me/Sanzz_offc" target="_blank" class="btn btn-primary" style="flex:1;">
-                <i class="fab fa-telegram"></i> Hubungi Admin
-            </a>
-            <button onclick="window.location.href='/'" class="btn btn-secondary" style="flex:1;">
-                <i class="fas fa-home"></i> Kembali
-            </button>
-        </div>
-    </div>
-</div>
 
     <!-- MAIN CONTENT -->
     <div class="app-wrapper">
@@ -413,18 +412,12 @@
     </script>
 
     <script type="module">
-        // ============================================
-        // IMPORTS
-        // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, updateDoc } from "firebase/firestore";
 
         console.log('📊 [SELLER_DASHBOARD] Page loaded');
 
-        // ============================================
-        // FIREBASE CONFIG
-        // ============================================
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
             authDomain: "productkuu.firebaseapp.com",
@@ -443,9 +436,6 @@
         let userData = null;
         let debugVisible = false;
 
-        // ============================================
-        // DEBUG LOG
-        // ============================================
         function addDebug(message, type = 'info') {
             const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
             const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
@@ -464,18 +454,12 @@
             if (debugVisible) addDebug('Debug mode activated', 'info');
         };
 
-        // ============================================
-        // REFRESH DATA
-        // ============================================
         window.refreshData = function() {
             addDebug('Manual refresh triggered', 'info');
             showToast('info', 'Memperbarui data...');
             loadDashboardData();
         };
 
-        // ============================================
-        // THEME & SIDEBAR
-        // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -515,9 +499,6 @@
             catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
         });
 
-        // ============================================
-        // TOAST & ERROR
-        // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
             const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
@@ -542,9 +523,6 @@
             setTimeout(() => { box.classList.remove('show'); }, 10000);
         }
 
-        // ============================================
-        // FORMAT FUNCTIONS
-        // ============================================
         function formatPrice(price) {
             if (!price && price !== 0) return '0';
             return new Intl.NumberFormat('id-ID').format(price);
@@ -563,18 +541,13 @@
             });
         }
 
-        // ============================================
-        // UPDATE STORE LINK
-        // ============================================
         function updateStoreLink() {
             const storeName = userData?.storeName || userData?.displayName || '';
             if (storeName) {
                 const slug = storeName.toLowerCase()
                     .replace(/[^a-z0-9]+/g, '-')
                     .replace(/^-+|-+$/g, '');
-                
                 const url = `${window.location.origin}/product-seller?seller=${slug}`;
-                
                 const linkInput = document.getElementById('storeLink');
                 const linkBtn = document.getElementById('storeLinkBtn');
                 if (linkInput) linkInput.value = url;
@@ -602,9 +575,6 @@
             }
         };
 
-        // ============================================
-        // CEK & BUAT WALLET
-        // ============================================
         async function ensureWalletExists(uid) {
             try {
                 const userRef = doc(db, 'users', uid);
@@ -617,26 +587,12 @@
                 if (!data.wallet) {
                     addDebug('💰 Wallet tidak ditemukan, membuat baru...', 'warning');
                     const ordersSnapshot = await getDocs(
-                        query(
-                            collection(db, 'orders'),
-                            where('sellerId', '==', uid),
-                            where('paymentStatus', 'in', ['settlement', 'paid'])
-                        )
+                        query(collection(db, 'orders'), where('sellerId', '==', uid), where('paymentStatus', 'in', ['settlement', 'paid']))
                     );
                     let totalRevenue = 0;
-                    ordersSnapshot.forEach(doc => {
-                        totalRevenue += doc.data().amount || 0;
-                    });
+                    ordersSnapshot.forEach(doc => { totalRevenue += doc.data().amount || 0; });
                     await updateDoc(userRef, {
-                        wallet: {
-                            available: 0,
-                            holding: 0,
-                            totalRevenue: totalRevenue,
-                            totalWithdraw: 0,
-                            pendingWithdraw: 0,
-                            lastHolding: null,
-                            lastReleased: null
-                        },
+                        wallet: { available: 0, holding: 0, totalRevenue: totalRevenue, totalWithdraw: 0, pendingWithdraw: 0, lastHolding: null, lastReleased: null },
                         updatedAt: new Date().toISOString()
                     });
                     addDebug('✅ Wallet berhasil dibuat', 'success');
@@ -649,9 +605,6 @@
             }
         }
 
-        // ============================================
-        // CHECK SUSPEND STATUS
-        // ============================================
         async function checkSuspendStatus(uid) {
             try {
                 const userRef = doc(db, 'users', uid);
@@ -672,11 +625,6 @@
             }
         }
 
-        // ============================================
-        // AUTH STATE
-        // ============================================
-        addDebug('Setting up auth...', 'info');
-
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 addDebug('User not logged in, redirecting...', 'warning');
@@ -686,195 +634,110 @@
             currentUser = user;
             addDebug(`User logged in: ${user.email}`, 'success');
 
-            try {
-                // ✅ CEK SUSPEND STATUS DULU
-                const isSuspended = await checkSuspendStatus(user.uid);
-                if (isSuspended) return;
+            const isSuspended = await checkSuspendStatus(user.uid);
+            if (isSuspended) return;
 
+            try {
                 const userRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userRef);
-                
                 if (!userDoc.exists() || userDoc.data().role !== 'seller') {
                     addDebug('User is not seller, redirecting...', 'error');
                     window.location.href = '/';
                     return;
                 }
-                
                 userData = { id: userDoc.id, ...userDoc.data() };
                 addDebug(`User data loaded: ${userData.displayName || 'Seller'}`, 'success');
-                
                 await ensureWalletExists(user.uid);
-                
-                document.getElementById('welcomeMessage').textContent =
-                    `Selamat datang, ${userData.storeName || userData.displayName || 'Seller'}!`;
+                document.getElementById('welcomeMessage').textContent = `Selamat datang, ${userData.storeName || userData.displayName || 'Seller'}!`;
                 document.getElementById('productCount').textContent = userData.productCount || 0;
-
                 updateStoreLink();
                 await loadDashboardData();
-
             } catch (error) {
                 addDebug(`Error: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat data: ' + error.message);
             }
         });
 
-        // ============================================
-        // LOAD DASHBOARD DATA
-        // ============================================
         async function loadDashboardData() {
             addDebug('Loading dashboard data...', 'info');
-            if (!currentUser) {
-                addDebug('No current user, skipping', 'warning');
-                return;
-            }
-
+            if (!currentUser) return;
             try {
                 const sellerId = currentUser.uid;
                 addDebug(`Seller ID: ${sellerId}`, 'info');
 
-                const productsSnapshot = await getDocs(
-                    query(collection(db, 'products'), where('sellerId', '==', sellerId))
-                );
+                const productsSnapshot = await getDocs(query(collection(db, 'products'), where('sellerId', '==', sellerId)));
                 document.getElementById('totalProducts').textContent = productsSnapshot.size;
                 addDebug(`Total products: ${productsSnapshot.size}`, 'success');
 
                 const userRef = doc(db, 'users', sellerId);
                 const userDoc = await getDoc(userRef);
-                if (!userDoc.exists()) {
-                    addDebug('User not found', 'error');
-                    return;
-                }
+                if (!userDoc.exists()) { addDebug('User not found', 'error'); return; }
                 const userData = userDoc.data();
-                const wallet = userData.wallet || { 
-                    available: 0, 
-                    holding: 0, 
-                    totalRevenue: 0,
-                    pendingWithdraw: 0
-                };
+                const wallet = userData.wallet || { available: 0, holding: 0, totalRevenue: 0, pendingWithdraw: 0 };
                 
                 document.getElementById('availableBalance').textContent = `Rp${formatPrice(wallet.available || 0)}`;
                 document.getElementById('holdingBalance').textContent = `Rp${formatPrice(wallet.holding || 0)}`;
                 document.getElementById('totalRevenue').textContent = `Rp${formatPrice(wallet.totalRevenue || 0)}`;
                 document.getElementById('pendingWithdraw').textContent = `Rp${formatPrice(wallet.pendingWithdraw || 0)}`;
                 
-                addDebug(`Wallet data from Firestore:`, 'info');
-                addDebug(`  Available: Rp${formatPrice(wallet.available)}`, 'success');
-                addDebug(`  Holding: Rp${formatPrice(wallet.holding)}`, 'info');
-                addDebug(`  Total Revenue: Rp${formatPrice(wallet.totalRevenue)}`, 'info');
-                addDebug(`  Pending Withdraw: Rp${formatPrice(wallet.pendingWithdraw)}`, 'info');
-
                 const orderSnapshot = await getDocs(
-                    query(
-                        collection(db, 'orders'),
-                        where('sellerId', '==', sellerId),
-                        where('type', '==', 'product_purchase'),
-                        where('paymentStatus', 'in', ['settlement', 'paid'])
-                    )
+                    query(collection(db, 'orders'), where('sellerId', '==', sellerId), where('type', '==', 'product_purchase'), where('paymentStatus', 'in', ['settlement', 'paid']))
                 );
                 document.getElementById('totalSales').textContent = orderSnapshot.size;
-                addDebug(`Total sales: ${orderSnapshot.size}`, 'success');
 
                 const chartData = [];
                 orderSnapshot.forEach(doc => {
                     const order = doc.data();
                     const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
-                    chartData.push({
-                        date: createdAt,
-                        amount: order.amount || 0
-                    });
+                    chartData.push({ date: createdAt, amount: order.amount || 0 });
                 });
                 chartData.sort((a, b) => a.date - b.date);
 
                 updateStoreLink();
                 await loadRecentProducts(sellerId);
                 renderCharts(chartData);
-                
                 addDebug('Dashboard data loaded successfully', 'success');
-
             } catch (error) {
                 addDebug(`Error loading dashboard data: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat data: ' + error.message);
             }
         }
 
-        // ============================================
-        // LOAD RECENT PRODUCTS
-        // ============================================
         async function loadRecentProducts(sellerId) {
             addDebug('Loading recent products...', 'info');
             try {
-                const q = query(
-                    collection(db, 'products'),
-                    where('sellerId', '==', sellerId),
-                    orderBy('createdAt', 'desc'),
-                    limit(5)
-                );
+                const q = query(collection(db, 'products'), where('sellerId', '==', sellerId), orderBy('createdAt', 'desc'), limit(5));
                 const snapshot = await getDocs(q);
                 const container = document.getElementById('recentProducts');
-
                 if (snapshot.empty) {
-                    container.innerHTML = `
-                        <div class="text-center text-secondary" style="padding:20px 0;">
-                            <i class="fas fa-box-open" style="font-size:24px;display:block;margin-bottom:8px;"></i>
-                            Belum ada produk
-                        </div>
-                    `;
+                    container.innerHTML = `<div class="text-center text-secondary" style="padding:20px 0;"><i class="fas fa-box-open" style="font-size:24px;display:block;margin-bottom:8px;"></i>Belum ada produk</div>`;
                     return;
                 }
-
                 container.innerHTML = snapshot.docs.map(doc => {
                     const p = doc.data();
                     const createdAt = p.createdAt?.toDate?.() || p.createdAt;
                     return `
                         <div class="recent-item">
-                            <div>
-                                <strong>${p.name}</strong>
-                                <span style="font-size:13px;color:var(--text-secondary);">${p.category || 'Uncategorized'}</span>
-                                <div style="font-size:11px;color:var(--text-light);">${formatDate(createdAt)}</div>
-                            </div>
-                            <div style="text-align:right;">
-                                <span style="color:var(--primary);font-weight:600;">Rp${formatPrice(p.price)}</span>
-                                <br>
-                                <span class="badge ${p.status === 'published' ? 'badge-success' : 'badge-warning'}" style="font-size:10px;">
-                                    ${p.status || 'draft'}
-                                </span>
-                                <br>
-                                <span style="font-size:12px;color:var(--text-secondary);">${p.sales || 0} terjual</span>
-                            </div>
+                            <div><strong>${p.name}</strong><span style="font-size:13px;color:var(--text-secondary);">${p.category || 'Uncategorized'}</span><div style="font-size:11px;color:var(--text-light);">${formatDate(createdAt)}</div></div>
+                            <div style="text-align:right;"><span style="color:var(--primary);font-weight:600;">Rp${formatPrice(p.price)}</span><br><span class="badge ${p.status === 'published' ? 'badge-success' : 'badge-warning'}" style="font-size:10px;">${p.status || 'draft'}</span><br><span style="font-size:12px;color:var(--text-secondary);">${p.sales || 0} terjual</span></div>
                         </div>
                     `;
                 }).join('');
-
                 addDebug(`Loaded ${snapshot.size} recent products`, 'success');
-
             } catch (error) {
                 addDebug(`Error loading recent products: ${error.message}`, 'error');
-                document.getElementById('recentProducts').innerHTML =
-                    '<div class="text-center" style="color:var(--danger);">Gagal memuat produk</div>';
+                document.getElementById('recentProducts').innerHTML = '<div class="text-center" style="color:var(--danger);">Gagal memuat produk</div>';
             }
         }
 
-        // ============================================
-        // RENDER CHARTS
-        // ============================================
         function renderCharts(chartData) {
             addDebug('Rendering charts...', 'info');
             try {
                 const salesCtx = document.getElementById('salesChart');
-                if (salesCtx) {
-                    const salesData = chartData.map(() => 1);
-                    const dates = chartData.map(d => d.date);
-                    renderChart(salesCtx, dates, salesData, 'Penjualan');
-                }
+                if (salesCtx) { const salesData = chartData.map(() => 1); const dates = chartData.map(d => d.date); renderChart(salesCtx, dates, salesData, 'Penjualan'); }
                 const revenueCtx = document.getElementById('revenueChart');
-                if (revenueCtx) {
-                    const revData = chartData.map(d => d.amount);
-                    const dates = chartData.map(d => d.date);
-                    renderChart(revenueCtx, dates, revData, 'Pendapatan');
-                }
-            } catch (error) {
-                addDebug(`Error rendering charts: ${error.message}`, 'error');
-            }
+                if (revenueCtx) { const revData = chartData.map(d => d.amount); const dates = chartData.map(d => d.date); renderChart(revenueCtx, dates, revData, 'Pendapatan'); }
+            } catch (error) { addDebug(`Error rendering charts: ${error.message}`, 'error'); }
         }
 
         function renderChart(canvas, dates, data, label) {
@@ -882,11 +745,8 @@
             const rect = canvas.parentElement.getBoundingClientRect();
             canvas.width = rect.width - 40;
             canvas.height = 180;
-            const width = canvas.width;
-            const height = canvas.height;
-            const padding = 30;
+            const width = canvas.width, height = canvas.height, padding = 30;
             ctx.clearRect(0, 0, width, height);
-
             if (!data || data.length === 0 || data.every(v => v === 0)) {
                 ctx.fillStyle = '#9CA3AF';
                 ctx.font = '14px Inter, sans-serif';
@@ -894,7 +754,6 @@
                 ctx.fillText(`Belum ada data ${label}`, width / 2, height / 2);
                 return;
             }
-
             const maxValue = Math.max(...data, 1) * 1.2;
             ctx.strokeStyle = '#E5E7EB';
             ctx.lineWidth = 1;
@@ -912,11 +771,9 @@
                 ctx.fillText(label === 'Pendapatan' ? `Rp${formatPrice(value)}` : value, padding - 5, y + 3);
             }
             ctx.setLineDash([]);
-
             const barWidth = (width - padding * 2) / data.length * 0.6;
             const spacing = (width - padding * 2) / data.length;
             const colors = label === 'Pendapatan' ? ['#7C3AED', '#A78BFA'] : ['#4F46E5', '#818CF8'];
-
             dates.forEach((date, i) => {
                 const x = padding + i * spacing + (spacing - barWidth) / 2;
                 const barHeight = (data[i] / maxValue) * (height - padding * 2);

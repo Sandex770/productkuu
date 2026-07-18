@@ -81,7 +81,6 @@
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
 
-        /* Suspend Overlay */
         .suspend-overlay {
             display: none;
             position: fixed;
@@ -109,7 +108,11 @@
         .suspend-overlay .modal p { color: var(--text-secondary); font-size: 15px; line-height: 1.7; margin-bottom: 8px; }
         .suspend-overlay .modal .contact { background: var(--bg-secondary); border-radius: var(--radius); padding: 16px; margin: 16px 0 24px; font-weight: 600; color: var(--primary); }
         .suspend-overlay .modal .contact i { margin-right: 8px; }
-        .suspend-overlay .modal .btn { width: 100%; justify-content: center; }
+        .suspend-overlay .modal .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; }
+        .suspend-overlay .modal .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
+        .suspend-overlay .modal .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
+        .suspend-overlay .modal .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .suspend-overlay .modal .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
 
         :root {
             --bg-primary: #ffffff;
@@ -162,7 +165,10 @@
             <p>Akun seller Anda telah ditangguhkan oleh admin karena melanggar ketentuan.</p>
             <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
             <div class="contact"><i class="fab fa-telegram"></i> @Sanzz_offc</div>
-            <button onclick="window.location.href='/'" class="btn btn-secondary"><i class="fas fa-home"></i> Kembali ke Beranda</button>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
+                <a href="https://t.me/Sanzz_offc" target="_blank" class="btn btn-primary" style="flex:1;"><i class="fab fa-telegram"></i> Hubungi Admin</a>
+                <button onclick="window.location.href='/'" class="btn btn-secondary" style="flex:1;"><i class="fas fa-home"></i> Kembali</button>
+            </div>
         </div>
     </div>
 
@@ -194,18 +200,14 @@
         <main class="main-content">
             <div class="flex-between" style="margin-bottom:24px;">
                 <div><h1 style="font-size:24px;">Pengaturan Toko</h1><p style="color:var(--text-secondary);">Kelola informasi toko Anda</p></div>
-                <button onclick="refreshData()" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
+                <button onclick="refreshData()" class="btn btn-secondary btn-sm"><i class="fas fa-sync-alt"></i> Refresh</button>
             </div>
 
             <div class="debug-box" id="debugBox">
                 <div class="debug-line debug-info">🔍 Debug Mode Active</div>
                 <div class="debug-line" id="debugLog">Menunggu data...</div>
             </div>
-            <button class="debug-toggle" onclick="toggleDebug()">
-                <i class="fas fa-bug"></i> Toggle Debug
-            </button>
+            <button class="debug-toggle" onclick="toggleDebug()"><i class="fas fa-bug"></i> Toggle Debug</button>
 
             <div class="error-box" id="errorBox">
                 <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
@@ -214,30 +216,12 @@
 
             <div class="card" style="margin-top:8px;">
                 <form id="settingsForm">
-                    <div class="input-group">
-                        <label for="storeName">Nama Toko *</label>
-                        <input type="text" id="storeName" class="input" required placeholder="Nama toko Anda">
-                    </div>
-                    <div class="input-group">
-                        <label for="storeDescription">Deskripsi Toko</label>
-                        <textarea id="storeDescription" class="input" rows="4" placeholder="Deskripsi toko Anda"></textarea>
-                    </div>
-                    <div class="input-group">
-                        <label for="storeLogo">Logo Toko (URL)</label>
-                        <input type="url" id="storeLogo" class="input" placeholder="https://example.com/logo.png">
-                    </div>
-                    <div class="input-group">
-                        <label for="storeWhatsapp">WhatsApp</label>
-                        <input type="text" id="storeWhatsapp" class="input" placeholder="08123456789">
-                    </div>
-                    <div class="input-group">
-                        <label for="storeEmail">Email</label>
-                        <input type="email" id="storeEmail" class="input" placeholder="toko@example.com">
-                    </div>
-                    <div class="input-group">
-                        <label for="storeInstagram">Instagram</label>
-                        <input type="text" id="storeInstagram" class="input" placeholder="@toko_anda">
-                    </div>
+                    <div class="input-group"><label for="storeName">Nama Toko *</label><input type="text" id="storeName" class="input" required placeholder="Nama toko Anda"></div>
+                    <div class="input-group"><label for="storeDescription">Deskripsi Toko</label><textarea id="storeDescription" class="input" rows="4" placeholder="Deskripsi toko Anda"></textarea></div>
+                    <div class="input-group"><label for="storeLogo">Logo Toko (URL)</label><input type="url" id="storeLogo" class="input" placeholder="https://example.com/logo.png"></div>
+                    <div class="input-group"><label for="storeWhatsapp">WhatsApp</label><input type="text" id="storeWhatsapp" class="input" placeholder="08123456789"></div>
+                    <div class="input-group"><label for="storeEmail">Email</label><input type="email" id="storeEmail" class="input" placeholder="toko@example.com"></div>
+                    <div class="input-group"><label for="storeInstagram">Instagram</label><input type="text" id="storeInstagram" class="input" placeholder="@toko_anda"></div>
                     <div style="display:flex;gap:12px;">
                         <button type="submit" class="btn btn-primary" style="flex:1;"><i class="fas fa-save"></i> Simpan</button>
                         <button type="button" onclick="resetSettings()" class="btn btn-secondary" style="flex:1;">Reset</button>
@@ -307,9 +291,6 @@
             if (currentUser) loadSettings(currentUser.uid);
         };
 
-        // ============================================
-        // CHECK SUSPEND STATUS
-        // ============================================
         async function checkSuspendStatus(uid) {
             try {
                 const userRef = doc(db, 'users', uid);
@@ -393,17 +374,8 @@
             setTimeout(() => { box.classList.remove('show'); }, 10000);
         }
 
-        // ============================================
-        // AUTH STATE
-        // ============================================
-        addDebug('Setting up auth...', 'info');
-
         onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                addDebug('User not logged in, redirecting...', 'warning');
-                window.location.href = '/seller/login';
-                return;
-            }
+            if (!user) { addDebug('User not logged in, redirecting...', 'warning'); window.location.href = '/seller/login'; return; }
             currentUser = user;
             addDebug(`User logged in: ${user.email}`, 'success');
 
@@ -413,11 +385,7 @@
             try {
                 const userRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userRef);
-                if (!userDoc.exists() || userDoc.data().role !== 'seller') {
-                    addDebug('User is not seller, redirecting...', 'error');
-                    window.location.href = '/';
-                    return;
-                }
+                if (!userDoc.exists() || userDoc.data().role !== 'seller') { addDebug('User is not seller, redirecting...', 'error'); window.location.href = '/'; return; }
                 addDebug('User is seller', 'success');
                 await loadSettings(user.uid);
             } catch (error) {
@@ -426,9 +394,6 @@
             }
         });
 
-        // ============================================
-        // LOAD SETTINGS
-        // ============================================
         async function loadSettings(uid) {
             addDebug('Loading settings...', 'info');
             try {
@@ -450,19 +415,12 @@
             }
         }
 
-        // ============================================
-        // SAVE SETTINGS
-        // ============================================
         document.getElementById('settingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             addDebug('Saving settings...', 'info');
 
             const storeName = document.getElementById('storeName').value.trim();
-            if (!storeName) {
-                showToast('warning', 'Nama toko wajib diisi');
-                addDebug('Store name required', 'warning');
-                return;
-            }
+            if (!storeName) { showToast('warning', 'Nama toko wajib diisi'); addDebug('Store name required', 'warning'); return; }
 
             try {
                 await updateDoc(doc(db, 'users', currentUser.uid), {
@@ -482,17 +440,10 @@
             }
         });
 
-        // ============================================
-        // RESET SETTINGS
-        // ============================================
         window.resetSettings = function() {
             addDebug('Reset settings clicked', 'info');
             if (confirm('Reset semua pengaturan?')) {
-                if (currentUser) {
-                    loadSettings(currentUser.uid);
-                    showToast('info', 'Pengaturan direset');
-                    addDebug('Settings reset', 'success');
-                }
+                if (currentUser) { loadSettings(currentUser.uid); showToast('info', 'Pengaturan direset'); addDebug('Settings reset', 'success'); }
             }
         };
 

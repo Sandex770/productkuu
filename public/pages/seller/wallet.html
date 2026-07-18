@@ -126,7 +126,11 @@
         .suspend-overlay .modal p { color: var(--text-secondary); font-size: 15px; line-height: 1.7; margin-bottom: 8px; }
         .suspend-overlay .modal .contact { background: var(--bg-secondary); border-radius: var(--radius); padding: 16px; margin: 16px 0 24px; font-weight: 600; color: var(--primary); }
         .suspend-overlay .modal .contact i { margin-right: 8px; }
-        .suspend-overlay .modal .btn { width: 100%; justify-content: center; }
+        .suspend-overlay .modal .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; }
+        .suspend-overlay .modal .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
+        .suspend-overlay .modal .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
+        .suspend-overlay .modal .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .suspend-overlay .modal .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
 
         :root {
             --bg-primary: #ffffff;
@@ -179,7 +183,10 @@
             <p>Akun seller Anda telah ditangguhkan oleh admin karena melanggar ketentuan.</p>
             <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
             <div class="contact"><i class="fab fa-telegram"></i> @Sanzz_offc</div>
-            <button onclick="window.location.href='/'" class="btn btn-secondary"><i class="fas fa-home"></i> Kembali ke Beranda</button>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
+                <a href="https://t.me/Sanzz_offc" target="_blank" class="btn btn-primary" style="flex:1;"><i class="fab fa-telegram"></i> Hubungi Admin</a>
+                <button onclick="window.location.href='/'" class="btn btn-secondary" style="flex:1;"><i class="fas fa-home"></i> Kembali</button>
+            </div>
         </div>
     </div>
 
@@ -211,9 +218,7 @@
         <main class="main-content">
             <div class="flex-between" style="margin-bottom:24px;">
                 <div><h1 style="font-size:24px;">Wallet</h1><p style="color:var(--text-secondary);">Kelola saldo dan pendapatan Anda</p></div>
-                <button onclick="refreshData()" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
+                <button onclick="refreshData()" class="btn btn-secondary btn-sm"><i class="fas fa-sync-alt"></i> Refresh</button>
             </div>
 
             <div class="debug-box" id="debugBox">
@@ -228,22 +233,10 @@
             </div>
 
             <div class="wallet-stats" style="margin-top:8px;">
-                <div class="stat-card">
-                    <div class="stat-info"><span class="stat-label">Saldo Tersedia</span><span class="stat-value" style="color:var(--success);" id="availableBalance">Rp0</span></div>
-                    <div class="stat-icon green"><i class="fas fa-wallet"></i></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-info"><span class="stat-label">Saldo Ditahan (Holding)</span><span class="stat-value" style="color:#F97316;" id="holdingBalance">Rp0</span></div>
-                    <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-info"><span class="stat-label">Total Pendapatan</span><span class="stat-value" style="color:var(--primary);" id="totalRevenue">Rp0</span></div>
-                    <div class="stat-icon indigo"><i class="fas fa-money-bill-wave"></i></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-info"><span class="stat-label">Total Withdraw</span><span class="stat-value" style="color:var(--secondary);" id="totalWithdraw">Rp0</span></div>
-                    <div class="stat-icon purple"><i class="fas fa-arrow-up"></i></div>
-                </div>
+                <div class="stat-card"><div class="stat-info"><span class="stat-label">Saldo Tersedia</span><span class="stat-value" style="color:var(--success);" id="availableBalance">Rp0</span></div><div class="stat-icon green"><i class="fas fa-wallet"></i></div></div>
+                <div class="stat-card"><div class="stat-info"><span class="stat-label">Saldo Ditahan (Holding)</span><span class="stat-value" style="color:#F97316;" id="holdingBalance">Rp0</span></div><div class="stat-icon orange"><i class="fas fa-clock"></i></div></div>
+                <div class="stat-card"><div class="stat-info"><span class="stat-label">Total Pendapatan</span><span class="stat-value" style="color:var(--primary);" id="totalRevenue">Rp0</span></div><div class="stat-icon indigo"><i class="fas fa-money-bill-wave"></i></div></div>
+                <div class="stat-card"><div class="stat-info"><span class="stat-label">Total Withdraw</span><span class="stat-value" style="color:var(--secondary);" id="totalWithdraw">Rp0</span></div><div class="stat-icon purple"><i class="fas fa-arrow-up"></i></div></div>
             </div>
 
             <div class="card">
@@ -316,9 +309,6 @@
             }
         };
 
-        // ============================================
-        // CHECK SUSPEND STATUS
-        // ============================================
         async function checkSuspendStatus(uid) {
             try {
                 const userRef = doc(db, 'users', uid);
@@ -417,11 +407,6 @@
             });
         }
 
-        // ============================================
-        // AUTH STATE
-        // ============================================
-        addDebug('Setting up auth...', 'info');
-
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 addDebug('User not logged in, redirecting...', 'warning');
@@ -451,90 +436,47 @@
             }
         });
 
-        // ============================================
-        // LOAD WALLET DATA
-        // ============================================
         async function loadWalletData(uid) {
             addDebug('Loading wallet data...', 'info');
             try {
                 const userRef = doc(db, 'users', uid);
                 const userDoc = await getDoc(userRef);
-                if (!userDoc.exists()) {
-                    addDebug('User not found', 'error');
-                    return;
-                }
+                if (!userDoc.exists()) { addDebug('User not found', 'error'); return; }
                 const userData = userDoc.data();
-                const wallet = userData.wallet || { 
-                    available: 0, 
-                    holding: 0, 
-                    totalRevenue: 0,
-                    totalWithdraw: 0,
-                    pendingWithdraw: 0
-                };
-                
+                const wallet = userData.wallet || { available: 0, holding: 0, totalRevenue: 0, totalWithdraw: 0, pendingWithdraw: 0 };
                 document.getElementById('availableBalance').textContent = `Rp${formatPrice(wallet.available || 0)}`;
                 document.getElementById('holdingBalance').textContent = `Rp${formatPrice(wallet.holding || 0)}`;
                 document.getElementById('totalRevenue').textContent = `Rp${formatPrice(wallet.totalRevenue || 0)}`;
                 document.getElementById('totalWithdraw').textContent = `Rp${formatPrice(wallet.totalWithdraw || 0)}`;
-                
-                addDebug(`Wallet data from Firestore:`, 'info');
-                addDebug(`  Available: Rp${formatPrice(wallet.available)}`, 'success');
-                addDebug(`  Holding: Rp${formatPrice(wallet.holding)}`, 'info');
-                addDebug(`  Total Revenue: Rp${formatPrice(wallet.totalRevenue)}`, 'info');
-                addDebug(`  Total Withdraw: Rp${formatPrice(wallet.totalWithdraw)}`, 'info');
-
+                addDebug(`Wallet data loaded`, 'success');
             } catch (error) {
                 addDebug(`Error loading wallet: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat wallet: ' + error.message);
             }
         }
 
-        // ============================================
-        // LOAD TRANSACTIONS
-        // ============================================
         async function loadTransactions(uid) {
             addDebug('Loading transactions...', 'info');
             try {
-                const q = query(
-                    collection(db, 'orders'),
-                    where('sellerId', '==', uid),
-                    where('type', '==', 'product_purchase'),
-                    orderBy('createdAt', 'desc'),
-                    limit(20)
-                );
+                const q = query(collection(db, 'orders'), where('sellerId', '==', uid), where('type', '==', 'product_purchase'), orderBy('createdAt', 'desc'), limit(20));
                 const snapshot = await getDocs(q);
                 const container = document.getElementById('transactionHistory');
 
                 if (snapshot.empty) {
-                    container.innerHTML = `
-                        <div class="text-center text-secondary" style="padding:20px 0;">
-                            <i class="fas fa-receipt" style="font-size:24px;display:block;margin-bottom:8px;"></i>
-                            Belum ada transaksi
-                        </div>
-                    `;
+                    container.innerHTML = `<div class="text-center text-secondary" style="padding:20px 0;"><i class="fas fa-receipt" style="font-size:24px;display:block;margin-bottom:8px;"></i>Belum ada transaksi</div>`;
                     addDebug('No transactions found', 'info');
                     return;
                 }
 
-                const statusColors = {
-                    'pending': 'badge-warning',
-                    'settlement': 'badge-success',
-                    'failed': 'badge-danger',
-                    'expire': 'badge-danger'
-                };
+                const statusColors = { 'pending': 'badge-warning', 'settlement': 'badge-success', 'failed': 'badge-danger', 'expire': 'badge-danger' };
 
                 container.innerHTML = snapshot.docs.map(doc => {
                     const t = doc.data();
                     return `
                         <div class="transaction-item">
-                            <div>
-                                <strong>${t.productName || 'Product'}</strong>
-                                <br><span style="font-size:13px;color:var(--text-secondary);">${t.buyerName || 'Anonymous'} • ${formatDate(t.createdAt)}</span>
-                            </div>
+                            <div><strong>${t.productName || 'Product'}</strong><br><span style="font-size:13px;color:var(--text-secondary);">${t.buyerName || 'Anonymous'} • ${formatDate(t.createdAt)}</span></div>
                             <div style="text-align:right;">
-                                <span style="font-weight:600;color:${t.paymentStatus === 'settlement' ? 'var(--success)' : 'var(--text-secondary)'};">
-                                    ${t.paymentStatus === 'settlement' ? '+' : ''}Rp${formatPrice(t.amount)}
-                                </span>
+                                <span style="font-weight:600;color:${t.paymentStatus === 'settlement' ? 'var(--success)' : 'var(--text-secondary)'};">${t.paymentStatus === 'settlement' ? '+' : ''}Rp${formatPrice(t.amount)}</span>
                                 <br><span class="badge ${statusColors[t.paymentStatus] || 'badge-info'}">${t.paymentStatus || t.status}</span>
                             </div>
                         </div>
@@ -542,7 +484,6 @@
                 }).join('');
 
                 addDebug(`Loaded ${snapshot.size} transactions`, 'success');
-
             } catch (error) {
                 addDebug(`Error loading transactions: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat transaksi: ' + error.message);

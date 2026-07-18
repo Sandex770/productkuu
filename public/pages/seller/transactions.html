@@ -44,6 +44,7 @@
         .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
         .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
         .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
+        .badge-muted { background: rgba(107,114,128,0.1); color: var(--text-secondary); }
         
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         .text-center { text-align: center; }
@@ -90,7 +91,7 @@
         .error-box.show { display: block; }
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
-
+        
         .suspend-overlay {
             display: none;
             position: fixed;
@@ -118,7 +119,11 @@
         .suspend-overlay .modal p { color: var(--text-secondary); font-size: 15px; line-height: 1.7; margin-bottom: 8px; }
         .suspend-overlay .modal .contact { background: var(--bg-secondary); border-radius: var(--radius); padding: 16px; margin: 16px 0 24px; font-weight: 600; color: var(--primary); }
         .suspend-overlay .modal .contact i { margin-right: 8px; }
-        .suspend-overlay .modal .btn { width: 100%; justify-content: center; }
+        .suspend-overlay .modal .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; }
+        .suspend-overlay .modal .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
+        .suspend-overlay .modal .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
+        .suspend-overlay .modal .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .suspend-overlay .modal .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
 
         :root {
             --bg-primary: #ffffff;
@@ -171,7 +176,10 @@
             <p>Akun seller Anda telah ditangguhkan oleh admin karena melanggar ketentuan.</p>
             <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
             <div class="contact"><i class="fab fa-telegram"></i> @Sanzz_offc</div>
-            <button onclick="window.location.href='/'" class="btn btn-secondary"><i class="fas fa-home"></i> Kembali ke Beranda</button>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
+                <a href="https://t.me/Sanzz_offc" target="_blank" class="btn btn-primary" style="flex:1;"><i class="fab fa-telegram"></i> Hubungi Admin</a>
+                <button onclick="window.location.href='/'" class="btn btn-secondary" style="flex:1;"><i class="fas fa-home"></i> Kembali</button>
+            </div>
         </div>
     </div>
 
@@ -202,13 +210,8 @@
     <div class="app-wrapper">
         <main class="main-content">
             <div class="flex-between" style="margin-bottom:24px;">
-                <div>
-                    <h1 style="font-size:24px;">Riwayat Transaksi</h1>
-                    <p style="color:var(--text-secondary);">Semua transaksi penjualan produk Anda</p>
-                </div>
-                <button onclick="refreshData()" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
+                <div><h1 style="font-size:24px;">Riwayat Transaksi</h1><p style="color:var(--text-secondary);">Semua transaksi penjualan produk Anda</p></div>
+                <button onclick="refreshData()" class="btn btn-secondary btn-sm"><i class="fas fa-sync-alt"></i> Refresh</button>
             </div>
 
             <div class="debug-box" id="debugBox">
@@ -224,15 +227,8 @@
 
             <div class="filter-bar" style="margin-top:8px;">
                 <div class="filter-group">
-                    <select id="filterStatus">
-                        <option value="all">Semua Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="settlement">Settlement</option>
-                        <option value="failed">Failed</option>
-                        <option value="expire">Expired</option>
-                    </select>
-                    <input type="date" id="filterDateFrom">
-                    <input type="date" id="filterDateTo">
+                    <select id="filterStatus"><option value="all">Semua Status</option><option value="pending">Pending</option><option value="settlement">Settlement</option><option value="failed">Failed</option><option value="expire">Expired</option></select>
+                    <input type="date" id="filterDateFrom"><input type="date" id="filterDateTo">
                 </div>
                 <div class="filter-actions">
                     <button onclick="applyFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Filter</button>
@@ -243,18 +239,8 @@
             <div class="card">
                 <div class="table-wrapper">
                     <table class="table">
-                        <thead><tr>
-                            <th>Order ID</th>
-                            <th>Produk</th>
-                            <th>Buyer</th>
-                            <th>Harga</th>
-                            <th>Komisi</th>
-                            <th>Status</th>
-                            <th>Tanggal</th>
-                        </tr></thead>
-                        <tbody id="transactionsBody">
-                            <tr><td colspan="7" class="text-center text-secondary" style="padding:40px 0;">Memuat transaksi...</td></tr>
-                        </tbody>
+                        <thead><tr><th>Order ID</th><th>Produk</th><th>Buyer</th><th>Harga</th><th>Komisi</th><th>Status</th><th>Tanggal</th></tr></thead>
+                        <tbody id="transactionsBody"><tr><td colspan="7" class="text-center text-secondary" style="padding:40px 0;">Memuat transaksi...</td></tr></tbody>
                     </table>
                 </div>
                 <div id="pagination" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"></div>
@@ -323,9 +309,6 @@
             loadTransactions(true);
         };
 
-        // ============================================
-        // CHECK SUSPEND STATUS
-        // ============================================
         async function checkSuspendStatus(uid) {
             try {
                 const userRef = doc(db, 'users', uid);
@@ -418,56 +401,27 @@
             if (!timestamp) return '-';
             if (timestamp.toDate && typeof timestamp.toDate === 'function') {
                 const date = timestamp.toDate();
-                return date.toLocaleDateString('id-ID', {
-                    year: 'numeric', month: 'long', day: 'numeric',
-                    hour: '2-digit', minute: '2-digit'
-                });
+                return date.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
             }
             if (timestamp instanceof Date) {
-                return timestamp.toLocaleDateString('id-ID', {
-                    year: 'numeric', month: 'long', day: 'numeric',
-                    hour: '2-digit', minute: '2-digit'
-                });
+                return timestamp.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
             }
-            try {
-                const date = new Date(timestamp);
-                if (!isNaN(date.getTime())) {
-                    return date.toLocaleDateString('id-ID', {
-                        year: 'numeric', month: 'long', day: 'numeric',
-                        hour: '2-digit', minute: '2-digit'
-                    });
-                }
-            } catch (e) {}
+            try { const date = new Date(timestamp); if (!isNaN(date.getTime())) { return date.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } } catch (e) {}
             return '-';
         }
 
         function isPendingExpired(timestamp) {
             if (!timestamp) return false;
             let date;
-            if (timestamp.toDate && typeof timestamp.toDate === 'function') {
-                date = timestamp.toDate();
-            } else if (timestamp instanceof Date) {
-                date = timestamp;
-            } else {
-                date = new Date(timestamp);
-            }
+            if (timestamp.toDate && typeof timestamp.toDate === 'function') { date = timestamp.toDate(); } else if (timestamp instanceof Date) { date = timestamp; } else { date = new Date(timestamp); }
             if (isNaN(date.getTime())) return false;
             const now = new Date();
             const diffHours = (now - date) / (1000 * 60 * 60);
             return diffHours > 24;
         }
 
-        // ============================================
-        // AUTH STATE
-        // ============================================
-        addDebug('Setting up auth...', 'info');
-
         onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                addDebug('User not logged in, redirecting...', 'warning');
-                window.location.href = '/seller/login';
-                return;
-            }
+            if (!user) { addDebug('User not logged in, redirecting...', 'warning'); window.location.href = '/seller/login'; return; }
             currentUser = user;
             addDebug(`User logged in: ${user.email}`, 'success');
 
@@ -477,11 +431,7 @@
             try {
                 const userRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userRef);
-                if (!userDoc.exists() || userDoc.data().role !== 'seller') {
-                    addDebug('User is not seller, redirecting...', 'error');
-                    window.location.href = '/';
-                    return;
-                }
+                if (!userDoc.exists() || userDoc.data().role !== 'seller') { addDebug('User is not seller, redirecting...', 'error'); window.location.href = '/'; return; }
                 addDebug('User is seller', 'success');
                 await loadTransactions(true);
             } catch (error) {
@@ -490,167 +440,62 @@
             }
         });
 
-        // ============================================
-        // LOAD TRANSACTIONS
-        // ============================================
         async function loadTransactions(reset = true) {
-            if (!currentUser) {
-                addDebug('No current user', 'warning');
-                return;
-            }
+            if (!currentUser) return;
             addDebug(`Loading transactions (reset: ${reset})...`, 'info');
             try {
                 if (reset) { lastDoc = null; hasMore = true; transactions = []; currentPage = 1; }
-                if (!hasMore) {
-                    addDebug('No more transactions to load', 'info');
-                    return;
-                }
+                if (!hasMore) { addDebug('No more transactions to load', 'info'); return; }
                 
-                let constraints = [
-                    where('sellerId', '==', currentUser.uid),
-                    where('type', '==', 'product_purchase'),
-                    orderBy('createdAt', 'desc')
-                ];
-                
+                let constraints = [where('sellerId', '==', currentUser.uid), where('type', '==', 'product_purchase'), orderBy('createdAt', 'desc')];
                 const status = document.getElementById('filterStatus').value;
-                if (status !== 'all') {
-                    constraints.push(where('paymentStatus', '==', status));
-                    addDebug(`Filter by status: ${status}`, 'info');
-                }
+                if (status !== 'all') { constraints.push(where('paymentStatus', '==', status)); addDebug(`Filter by status: ${status}`, 'info'); }
                 
                 let q = query(collection(db, 'orders'), ...constraints, limit(limitPerPage));
-                if (lastDoc) {
-                    q = query(collection(db, 'orders'), ...constraints, startAfter(lastDoc), limit(limitPerPage));
-                }
+                if (lastDoc) { q = query(collection(db, 'orders'), ...constraints, startAfter(lastDoc), limit(limitPerPage)); }
                 
                 const snapshot = await getDocs(q);
                 addDebug(`Query returned ${snapshot.size} documents`, 'info');
-                
-                if (snapshot.empty) { 
-                    hasMore = false; 
-                    if (reset) {
-                        document.getElementById('transactionsBody').innerHTML = 
-                            '<tr><td colspan="7" class="text-center text-secondary">Belum ada transaksi produk</td></tr>';
-                    }
-                    return; 
-                }
+                if (snapshot.empty) { hasMore = false; if (reset) { document.getElementById('transactionsBody').innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Belum ada transaksi produk</td></tr>'; } return; }
                 
                 lastDoc = snapshot.docs[snapshot.docs.length - 1];
                 hasMore = snapshot.docs.length === limitPerPage;
-                
-                const newData = snapshot.docs.map(doc => {
-                    const data = doc.data();
-                    return {
-                        id: doc.id,
-                        ...data,
-                        createdAtTimestamp: data.createdAt || null
-                    };
-                });
-                
+                const newData = snapshot.docs.map(doc => { const data = doc.data(); return { id: doc.id, ...data, createdAtTimestamp: data.createdAt || null }; });
                 transactions = reset ? newData : [...transactions, ...newData];
                 addDebug(`Loaded ${transactions.length} transactions total`, 'success');
                 renderTransactions();
-                
-            } catch (error) { 
-                addDebug(`Error loading transactions: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat transaksi: ' + error.message); 
-            }
+            } catch (error) { addDebug(`Error loading transactions: ${error.message}`, 'error'); showToast('error', 'Gagal memuat transaksi: ' + error.message); }
         }
 
-        // ============================================
-        // RENDER TRANSACTIONS
-        // ============================================
         function renderTransactions() {
             const tbody = document.getElementById('transactionsBody');
-            
             const filteredTransactions = transactions.filter(t => {
                 if (t.paymentStatus === 'pending') {
                     const isExpired = isPendingExpired(t.createdAtTimestamp);
-                    if (isExpired) {
-                        addDebug(`🚫 Hiding expired pending order: ${t.orderId}`, 'warning');
-                        return false;
-                    }
+                    if (isExpired) { addDebug(`🚫 Hiding expired pending order: ${t.orderId}`, 'warning'); return false; }
                 }
                 return true;
             });
+            if (filteredTransactions.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Tidak ada transaksi</td></tr>'; document.getElementById('pagination').innerHTML = ''; return; }
             
-            if (filteredTransactions.length === 0) { 
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Tidak ada transaksi</td></tr>'; 
-                document.getElementById('pagination').innerHTML = ''; 
-                return; 
-            }
-            
-            const statusColors = { 
-                'pending': 'badge-warning', 
-                'settlement': 'badge-success', 
-                'failed': 'badge-danger', 
-                'expire': 'badge-danger',
-                'paid': 'badge-success'
-            };
-
+            const statusColors = { 'pending': 'badge-warning', 'settlement': 'badge-success', 'failed': 'badge-danger', 'expire': 'badge-danger', 'paid': 'badge-success' };
             tbody.innerHTML = filteredTransactions.map(t => {
                 const commission = Math.round((t.amount || 0) * 0.1);
-                const formattedDate = formatDate(t.createdAtTimestamp);
-                
-                return `
-                <tr>
-                    <td style="font-family:monospace;font-size:13px;">${t.orderId || '-'}</td>
-                    <td>${t.productName || '-'}</td>
-                    <td>${t.buyerName || '-'}</td>
-                    <td style="font-weight:600;color:var(--primary);">Rp${formatPrice(t.amount)}</td>
-                    <td style="color:var(--danger);">Rp${formatPrice(commission)}</td>
-                    <td><span class="badge ${statusColors[t.paymentStatus] || 'badge-info'}">${t.paymentStatus || t.status || '-'}</span></td>
-                    <td style="font-size:13px;color:var(--text-secondary);">${formattedDate}</td>
-                </tr>
-            `}).join('');
-            
+                return `<tr><td style="font-family:monospace;font-size:13px;">${t.orderId || '-'}</td><td>${t.productName || '-'}</td><td>${t.buyerName || '-'}</td><td style="font-weight:600;color:var(--primary);">Rp${formatPrice(t.amount)}</td><td style="color:var(--danger);">Rp${formatPrice(commission)}</td><td><span class="badge ${statusColors[t.paymentStatus] || 'badge-info'}">${t.paymentStatus || t.status || '-'}</span></td><td style="font-size:13px;color:var(--text-secondary);">${formatDate(t.createdAtTimestamp)}</td></tr>`;
+            }).join('');
             renderPagination();
         }
 
         function renderPagination() {
             const container = document.getElementById('pagination');
-            if (!hasMore && transactions.length <= limitPerPage) { 
-                container.innerHTML = `<span style="font-size:14px;color:var(--text-secondary);">${transactions.length} transaksi</span>`;
-                return; 
-            }
-            container.innerHTML = `
-                <span style="font-size:14px;color:var(--text-secondary);">${transactions.length} transaksi</span>
-                <div style="display:flex;gap:8px;">
-                    ${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}
-                    ${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}
-                </div>
-            `;
+            if (!hasMore && transactions.length <= limitPerPage) { container.innerHTML = `<span style="font-size:14px;color:var(--text-secondary);">${transactions.length} transaksi</span>`; return; }
+            container.innerHTML = `<span style="font-size:14px;color:var(--text-secondary);">${transactions.length} transaksi</span><div style="display:flex;gap:8px;">${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}</div>`;
         }
 
-        window.loadNextPage = function() { 
-            addDebug('Next page clicked', 'info');
-            currentPage++; 
-            loadTransactions(false); 
-        };
-
-        window.loadPreviousPage = function() { 
-            addDebug('Previous page clicked', 'info');
-            if (currentPage <= 1) return; 
-            currentPage--; 
-            lastDoc = null; 
-            hasMore = true; 
-            loadTransactions(true); 
-        };
-
-        window.applyFilters = function() { 
-            addDebug('Applying filters', 'info');
-            lastDoc = null; 
-            hasMore = true; 
-            loadTransactions(true); 
-        };
-
-        window.resetFilters = function() { 
-            addDebug('Resetting filters', 'info');
-            document.getElementById('filterStatus').value = 'all'; 
-            document.getElementById('filterDateFrom').value = ''; 
-            document.getElementById('filterDateTo').value = ''; 
-            applyFilters(); 
-        };
+        window.loadNextPage = function() { addDebug('Next page clicked', 'info'); currentPage++; loadTransactions(false); };
+        window.loadPreviousPage = function() { addDebug('Previous page clicked', 'info'); if (currentPage <= 1) return; currentPage--; lastDoc = null; hasMore = true; loadTransactions(true); };
+        window.applyFilters = function() { addDebug('Applying filters', 'info'); lastDoc = null; hasMore = true; loadTransactions(true); };
+        window.resetFilters = function() { addDebug('Resetting filters', 'info'); document.getElementById('filterStatus').value = 'all'; document.getElementById('filterDateFrom').value = ''; document.getElementById('filterDateTo').value = ''; applyFilters(); };
 
         addDebug('Page ready', 'success');
         console.log('✅ [SELLER_TRANSACTIONS] Page ready');
