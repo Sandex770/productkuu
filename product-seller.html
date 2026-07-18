@@ -1460,8 +1460,6 @@
                         ${p.type === 'premium-account' ? `<span class="badge badge-warning" style="position:absolute;bottom:12px;left:12px;">Account</span>` : ''}
                     </div>
                     <div class="product-body">
-                        <div class="product-name" onclick="window.location.href='/product/${p.id}'">${p.name}</div>
-                        <div class="product-category" onclick="window.location.href='/product/${p.id}'">${p.category || 'Uncategorized'}</div>
                         <div class="product-seller">
                             <i class="fas fa-store"></i>
                             ${sellerData?.storeName || sellerData?.displayName || 'Seller'}
