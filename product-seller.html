@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="icon" href="/assets/images/favicon.ico">
-    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-1K1hXZu49blpnZZ8"></script>
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="Mid-client-OkRCJi3x4-wno9XX"></script>
     <style>
         .seller-header {
             background: linear-gradient(135deg, #4F46E5, #7C3AED);
@@ -18,6 +18,9 @@
             padding: 60px 0 40px;
             border-radius: 0 0 24px 24px;
             margin-bottom: 40px;
+        }
+        .seller-header.suspended {
+            background: linear-gradient(135deg, #DC2626, #991B1B);
         }
         .seller-avatar {
             width: 100px;
@@ -32,6 +35,22 @@
             border: 4px solid rgba(255,255,255,0.3);
             margin: 0 auto 16px;
         }
+        .suspend-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(239,68,68,0.2);
+            color: #FCA5A5;
+            padding: 8px 20px;
+            border-radius: 9999px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 12px;
+            border: 1px solid rgba(239,68,68,0.3);
+        }
+        .suspend-badge i {
+            font-size: 18px;
+        }
         .product-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -41,13 +60,16 @@
             background: var(--bg-primary);
             border-radius: var(--radius-lg);
             overflow: hidden;
-            border: 1px solid var(--border-color);
+            border: 2px solid var(--border-color);
             transition: all 0.3s;
             cursor: pointer;
+            display: flex;
+            flex-direction: column;
         }
         .product-card:hover {
             transform: translateY(-4px);
             box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
         }
         .product-card .product-image {
             aspect-ratio: 1;
@@ -64,7 +86,10 @@
             object-fit: cover;
         }
         .product-card .product-body {
-            padding: 16px;
+            padding: 16px 18px 18px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
         .product-card .product-name {
             font-size: 16px;
@@ -75,11 +100,28 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+        .product-card .product-category {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .product-card .product-seller {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .product-card .product-seller i {
+            color: var(--primary);
+            font-size: 12px;
+        }
         .product-card .product-footer {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-top: 12px;
+            margin-top: auto;
             padding-top: 12px;
             border-top: 1px solid var(--border-color);
         }
@@ -88,10 +130,15 @@
             font-weight: 700;
             color: #4F46E5;
         }
+        .product-card .product-sales {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
         .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
         .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
         .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
         .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
+        .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
         .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
@@ -100,6 +147,8 @@
         .btn-sm { padding: 8px 16px; font-size: 12px; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-danger:hover { background: #DC2626; transform: translateY(-2px); }
+        .btn-block { width: 100%; justify-content: center; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
         .text-center { text-align: center; }
         .text-secondary { color: var(--text-secondary); }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
@@ -157,6 +206,48 @@
         .cart-item .cart-item-info { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
         .cart-item .cart-item-info .item-name { font-weight: 500; }
         .cart-item .cart-item-info .item-price { color: var(--primary); font-weight: 600; }
+        
+        .qty-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .qty-control button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .qty-control button:hover {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+        .qty-control .qty-num {
+            font-weight: 700;
+            min-width: 24px;
+            text-align: center;
+            font-size: 16px;
+        }
+        .qty-control button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .qty-control button:disabled:hover {
+            border-color: var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
         .cart-total {
             display: flex;
             justify-content: space-between;
@@ -229,11 +320,42 @@
         }
         .modal-close:hover { color: var(--text-primary); transform: rotate(90deg); }
         .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+        .error-message { display: none; padding: 12px; background: rgba(239,68,68,0.1); border-radius: var(--radius); color: var(--danger); font-size: 13px; margin-bottom: 12px; }
+        .error-message.show { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
         .empty-cart { text-align: center; padding: 30px 0; color: var(--text-secondary); }
         .empty-cart i { font-size: 48px; display: block; margin-bottom: 12px; }
+        
+        .suspended-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .suspended-overlay.open { display: flex; }
+        .suspended-overlay .modal-suspend {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: 48px 40px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+            box-shadow: var(--shadow-2xl);
+        }
+        .suspended-overlay .modal-suspend .icon { font-size: 64px; color: var(--danger); margin-bottom: 16px; }
+        .suspended-overlay .modal-suspend h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+        .suspended-overlay .modal-suspend p { color: var(--text-secondary); font-size: 15px; line-height: 1.7; margin-bottom: 8px; }
+        .suspended-overlay .modal-suspend .contact { background: var(--bg-secondary); border-radius: var(--radius); padding: 16px; margin: 16px 0 24px; font-weight: 600; color: var(--primary); }
+        .suspended-overlay .modal-suspend .contact i { margin-right: 8px; }
+        .suspended-overlay .modal-suspend .btn { width: 100%; justify-content: center; }
 
         @media (max-width: 1024px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 768px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -249,6 +371,7 @@
             --border-color: #e5e7eb;
             --shadow: 0 1px 3px rgba(0,0,0,0.1);
             --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+            --shadow-2xl: 0 25px 50px -12px rgba(0,0,0,0.25);
             --radius: 8px;
             --radius-lg: 16px;
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -290,8 +413,20 @@
         </div>
     </nav>
 
+    <!-- SUSPEND OVERLAY -->
+    <div class="suspended-overlay" id="suspendOverlay">
+        <div class="modal-suspend">
+            <div class="icon"><i class="fas fa-ban"></i></div>
+            <h2>⚠️ Toko Ditangguhkan</h2>
+            <p>Toko ini telah ditangguhkan karena melanggar ketentuan.</p>
+            <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
+            <div class="contact"><i class="fab fa-telegram"></i> @Sanzz_offc</div>
+            <button onclick="window.location.href='/'" class="btn btn-secondary"><i class="fas fa-home"></i> Kembali ke Beranda</button>
+        </div>
+    </div>
+
     <main>
-        <div class="seller-header">
+        <div class="seller-header" id="sellerHeader">
             <div class="container text-center">
                 <div class="seller-avatar" id="sellerAvatar">S</div>
                 <h1 id="sellerName" style="font-size:32px;margin-bottom:8px;">Toko Seller</h1>
@@ -300,6 +435,9 @@
                     <span><strong id="productCount">0</strong> Produk</span>
                     <span><strong id="totalSales">0</strong> Terjual</span>
                     <span id="verifiedBadge" style="display:none;"><i class="fas fa-check-circle" style="color:#34D399;"></i> Verified</span>
+                </div>
+                <div id="suspendBadgeContainer" style="display:none;margin-top:12px;">
+                    <span class="suspend-badge"><i class="fas fa-ban"></i> Toko Telah Ditangguhkan</span>
                 </div>
             </div>
         </div>
@@ -344,12 +482,15 @@
         <div class="modal">
             <button class="modal-close" onclick="closeCheckoutModal()"><i class="fas fa-times"></i></button>
             <h3 class="modal-title">Checkout</h3>
-            <div id="checkoutItems" style="margin-bottom:16px;"></div>
+            <div id="checkoutItems" style="margin-bottom:16px;max-height:300px;overflow-y:auto;"></div>
+            
             <div class="cart-total">
                 <span>Total</span>
                 <span class="total-price" id="checkoutTotal">Rp0</span>
             </div>
+            
             <hr style="margin:16px 0;border-color:var(--border-color);">
+            
             <form id="checkoutForm">
                 <div class="form-group">
                     <label for="buyerName">Nama Lengkap *</label>
@@ -363,7 +504,56 @@
                     <label for="buyerPhone">Nomor HP</label>
                     <input type="tel" id="buyerPhone" placeholder="Masukkan nomor HP">
                 </div>
-                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;" id="payNowBtn">
+                <div class="error-message" id="checkoutError"></div>
+                <button type="submit" class="btn btn-primary btn-block" id="payNowBtn">
+                    <i class="fas fa-credit-card"></i> Bayar Sekarang
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Direct Buy Modal -->
+    <div class="modal-overlay" id="directBuyModal">
+        <div class="modal" style="max-width:500px;">
+            <button class="modal-close" onclick="closeDirectBuyModal()"><i class="fas fa-times"></i></button>
+            <h3 class="modal-title">Beli Produk</h3>
+            <div id="directBuyProduct" style="margin-bottom:16px;padding:16px;background:var(--bg-secondary);border-radius:var(--radius);">
+                <p><strong id="directProductName">-</strong></p>
+                <p style="font-size:24px;font-weight:700;color:var(--primary);" id="directProductPrice">Rp0</p>
+            </div>
+            
+            <div class="form-group" style="margin-bottom:16px;">
+                <label>Jumlah</label>
+                <div class="qty-control">
+                    <button onclick="changeDirectQty(-1)" id="directQtyMinus">-</button>
+                    <span class="qty-num" id="directQtyNum">1</span>
+                    <button onclick="changeDirectQty(1)" id="directQtyPlus">+</button>
+                </div>
+            </div>
+            
+            <hr style="margin:16px 0;border-color:var(--border-color);">
+            <div class="cart-total" style="margin-top:0;">
+                <span>Total</span>
+                <span class="total-price" id="directTotalPrice">Rp0</span>
+            </div>
+            
+            <hr style="margin:16px 0;border-color:var(--border-color);">
+            
+            <form id="directBuyForm">
+                <div class="form-group">
+                    <label for="directBuyerName">Nama Lengkap *</label>
+                    <input type="text" id="directBuyerName" required placeholder="Masukkan nama Anda">
+                </div>
+                <div class="form-group">
+                    <label for="directBuyerEmail">Email *</label>
+                    <input type="email" id="directBuyerEmail" required placeholder="Masukkan email Anda">
+                </div>
+                <div class="form-group">
+                    <label for="directBuyerPhone">Nomor HP</label>
+                    <input type="tel" id="directBuyerPhone" placeholder="Masukkan nomor HP">
+                </div>
+                <div class="error-message" id="directBuyError"></div>
+                <button type="submit" class="btn btn-primary btn-block" id="directPayBtn">
                     <i class="fas fa-credit-card"></i> Bayar Sekarang
                 </button>
             </form>
@@ -390,7 +580,7 @@
         // IMPORTS
         // ============================================
         import { initializeApp } from "firebase/app";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, addDoc, updateDoc } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, addDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 
         console.log('🛒 [SELLER_PAGE] Page loaded');
 
@@ -416,6 +606,9 @@
         let sellerData = null;
         let products = [];
         let cart = JSON.parse(localStorage.getItem('sellerCart') || '[]');
+        let directProductId = null;
+        let directQuantity = 1;
+        let isSuspended = false;
 
         // ============================================
         // GET SELLER FROM QUERY PARAMETER
@@ -473,16 +666,102 @@
         }
 
         // ============================================
+        // UPDATE SELLER WALLET
+        // ============================================
+        async function updateSellerWallet(sellerId, amount, orderCreatedAt) {
+            if (!sellerId) return;
+
+            try {
+                const sellerRef = doc(db, 'users', sellerId);
+                const sellerDoc = await getDoc(sellerRef);
+
+                if (!sellerDoc.exists()) {
+                    console.warn('Seller not found:', sellerId);
+                    return;
+                }
+
+                const sellerData = sellerDoc.data();
+                const wallet = sellerData.wallet || { available: 0, holding: 0, totalRevenue: 0 };
+
+                let holdingDays = 0, holdingHours = 0, holdingMinutes = 0;
+                try {
+                    const settingsRef = doc(db, 'settings', 'marketplace');
+                    const settingsDoc = await getDoc(settingsRef);
+                    if (settingsDoc.exists()) {
+                        const settings = settingsDoc.data();
+                        holdingDays = settings.holdingDays || 0;
+                        holdingHours = settings.holdingHours || 0;
+                        holdingMinutes = settings.holdingMinutes || 0;
+                    }
+                } catch (e) {}
+
+                const holdingMilliseconds = (holdingDays * 24 * 60 * 60 * 1000) +
+                    (holdingHours * 60 * 60 * 1000) +
+                    (holdingMinutes * 60 * 1000);
+
+                const now = new Date();
+                const createdAt = orderCreatedAt instanceof Date ? orderCreatedAt : new Date(orderCreatedAt);
+                const elapsed = now - createdAt;
+
+                let newAvailable = wallet.available || 0;
+                let newHolding = wallet.holding || 0;
+
+                if (elapsed >= holdingMilliseconds || holdingMilliseconds === 0) {
+                    newAvailable += amount;
+                } else {
+                    newHolding += amount;
+                }
+
+                await updateDoc(sellerRef, {
+                    'wallet.available': newAvailable,
+                    'wallet.holding': newHolding,
+                    'wallet.totalRevenue': (wallet.totalRevenue || 0) + amount,
+                    updatedAt: serverTimestamp()
+                });
+
+                console.log(`✅ Wallet seller updated: +Rp${formatPrice(amount)}`);
+
+            } catch (error) {
+                console.error('Error updating seller wallet:', error);
+                throw error;
+            }
+        }
+
+        // ============================================
+        // UPDATE ORDER STATUS
+        // ============================================
+        async function updateOrderStatus(orderDocId, status, result) {
+            try {
+                const orderRef = doc(db, 'orders', orderDocId);
+                await updateDoc(orderRef, {
+                    paymentStatus: status,
+                    status: status === 'settlement' ? 'paid' : status,
+                    midtransResult: result || null,
+                    updatedAt: serverTimestamp()
+                });
+                console.log(`✅ Order ${orderDocId} updated to ${status}`);
+                return true;
+            } catch (error) {
+                console.error('Error updating order:', error);
+                return false;
+            }
+        }
+
+        // ============================================
         // CART FUNCTIONS
         // ============================================
         function updateCartUI() {
             const count = cart.reduce((sum, item) => sum + item.quantity, 0);
             document.getElementById('cartCount').textContent = count;
-            document.getElementById('checkoutBtn').disabled = cart.length === 0;
+            document.getElementById('checkoutBtn').disabled = cart.length === 0 || isSuspended;
             localStorage.setItem('sellerCart', JSON.stringify(cart));
         }
 
         window.addToCart = function(productId) {
+            if (isSuspended) {
+                showToast('warning', 'Toko sedang ditangguhkan, tidak bisa membeli');
+                return;
+            }
             const product = products.find(p => p.id === productId);
             if (!product) return;
 
@@ -518,9 +797,69 @@
         };
 
         // ============================================
+        // DIRECT BUY
+        // ============================================
+        window.buyNow = function(productId) {
+            if (isSuspended) {
+                showToast('warning', 'Toko sedang ditangguhkan, tidak bisa membeli');
+                return;
+            }
+            
+            const product = products.find(p => p.id === productId);
+            if (!product) {
+                showToast('error', 'Produk tidak ditemukan');
+                return;
+            }
+
+            if (product.stock === 0) {
+                showToast('error', 'Maaf, produk ini sedang habis');
+                return;
+            }
+
+            directProductId = productId;
+            directQuantity = 1;
+            
+            document.getElementById('directProductName').textContent = product.name;
+            document.getElementById('directProductPrice').textContent = `Rp${formatPrice(product.price)}`;
+            document.getElementById('directQtyNum').textContent = '1';
+            document.getElementById('directTotalPrice').textContent = `Rp${formatPrice(product.price)}`;
+            document.getElementById('directBuyError').className = 'error-message';
+            document.getElementById('directBuyForm').reset();
+            
+            document.getElementById('directBuyModal').classList.add('open');
+        };
+
+        window.closeDirectBuyModal = function() {
+            document.getElementById('directBuyModal').classList.remove('open');
+            directProductId = null;
+            directQuantity = 1;
+        };
+
+        window.changeDirectQty = function(change) {
+            const product = products.find(p => p.id === directProductId);
+            if (!product) return;
+            
+            let newQty = directQuantity + change;
+            if (newQty < 1) newQty = 1;
+            if (product.stock !== 'unlimited' && newQty > product.stock) {
+                showToast('warning', `Stok tersisa ${product.stock}`);
+                return;
+            }
+            
+            directQuantity = newQty;
+            document.getElementById('directQtyNum').textContent = directQuantity;
+            const total = product.price * directQuantity;
+            document.getElementById('directTotalPrice').textContent = `Rp${formatPrice(total)}`;
+        };
+
+        // ============================================
         // CHECKOUT
         // ============================================
         window.toggleCheckout = function() {
+            if (isSuspended) {
+                showToast('warning', 'Toko sedang ditangguhkan, tidak bisa checkout');
+                return;
+            }
             if (cart.length === 0) {
                 showToast('warning', 'Keranjang kosong');
                 return;
@@ -529,8 +868,8 @@
             const itemsContainer = document.getElementById('checkoutItems');
             
             let total = 0;
-            let html = '<div style="max-height:200px;overflow-y:auto;">';
-            cart.forEach(item => {
+            let html = '';
+            cart.forEach((item, index) => {
                 const subtotal = item.price * item.quantity;
                 total += subtotal;
                 html += `
@@ -538,17 +877,46 @@
                         <div class="cart-item-info">
                             <span class="item-name">${item.name}</span>
                             <span class="item-price">Rp${formatPrice(item.price)}</span>
-                            <span style="color:var(--text-secondary);font-size:13px;">x${item.quantity}</span>
+                            <div class="qty-control">
+                                <button onclick="changeCartQty(${index}, -1)">-</button>
+                                <span class="qty-num">${item.quantity}</span>
+                                <button onclick="changeCartQty(${index}, 1)">+</button>
+                            </div>
                         </div>
                         <span style="font-weight:600;">Rp${formatPrice(subtotal)}</span>
                     </div>
                 `;
             });
-            html += '</div>';
             itemsContainer.innerHTML = html;
             document.getElementById('checkoutTotal').textContent = `Rp${formatPrice(total)}`;
+            document.getElementById('checkoutError').className = 'error-message';
+            document.getElementById('checkoutForm').reset();
             
             modal.classList.add('open');
+        };
+
+        window.changeCartQty = function(index, change) {
+            const item = cart[index];
+            if (!item) return;
+            
+            const product = products.find(p => p.id === item.id);
+            if (!product) return;
+            
+            let newQty = item.quantity + change;
+            if (newQty < 1) {
+                cart.splice(index, 1);
+                updateCartUI();
+                toggleCheckout();
+                return;
+            }
+            if (product.stock !== 'unlimited' && newQty > product.stock) {
+                showToast('warning', `Stok tersisa ${product.stock}`);
+                return;
+            }
+            
+            item.quantity = newQty;
+            updateCartUI();
+            toggleCheckout();
         };
 
         window.closeCheckoutModal = function() {
@@ -556,21 +924,37 @@
         };
 
         // ============================================
-        // PROCESS PAYMENT
+        // PROCESS PAYMENT - CART CHECKOUT
         // ============================================
         document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const buyerName = document.getElementById('buyerName').value.trim();
-            const buyerEmail = document.getElementById('buyerEmail').value.trim();
-            const buyerPhone = document.getElementById('buyerPhone').value.trim();
-
-            if (!buyerName || !buyerEmail) {
-                showToast('warning', 'Nama dan email wajib diisi');
+            if (isSuspended) {
+                showToast('warning', 'Toko sedang ditangguhkan');
                 return;
             }
 
+            const buyerName = document.getElementById('buyerName').value.trim();
+            const buyerEmail = document.getElementById('buyerEmail').value.trim();
+            const buyerPhone = document.getElementById('buyerPhone').value.trim();
+            const errorEl = document.getElementById('checkoutError');
+
+            if (!buyerName || !buyerEmail) {
+                errorEl.className = 'error-message show';
+                errorEl.textContent = '⚠️ Nama dan email wajib diisi';
+                return;
+            }
+
+            if (!buyerEmail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                errorEl.className = 'error-message show';
+                errorEl.textContent = '⚠️ Format email tidak valid';
+                return;
+            }
+
+            errorEl.className = 'error-message';
+
             const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const productNames = cart.map(item => item.name).join(', ');
 
             const btn = document.getElementById('payNowBtn');
             btn.disabled = true;
@@ -583,7 +967,7 @@
                     orderId: orderId,
                     type: 'product_purchase',
                     productId: cart[0].id,
-                    productName: cart.length === 1 ? cart[0].name : `${cart.length} produk`,
+                    productName: productNames,
                     buyerName: buyerName,
                     buyerEmail: buyerEmail,
                     buyerPhone: buyerPhone || '',
@@ -594,8 +978,8 @@
                     status: 'pending',
                     paymentStatus: 'pending',
                     paymentMethod: 'midtrans',
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
                 };
 
                 const ordersRef = collection(db, 'orders');
@@ -610,68 +994,262 @@
                         buyerName: buyerName,
                         buyerEmail: buyerEmail,
                         buyerPhone: buyerPhone || '08123456789',
-                        productName: cart.length === 1 ? cart[0].name : `${cart.length} produk`
+                        productName: productNames
                     })
                 });
 
                 const data = await response.json();
 
-                if (data.token) {
+                if (!response.ok) throw new Error(data.error || 'Gagal membuat pembayaran');
+
+                closeCheckoutModal();
+
+                if (data.token && typeof snap !== 'undefined') {
                     window.snap.pay(data.token, {
                         onSuccess: async (result) => {
+                            console.log('✅ Payment SUCCESS:', result);
+                            showToast('success', '🎉 Pembayaran berhasil!');
+                            
                             await updateOrderStatus(orderDoc.id, 'settlement', result);
-                            showToast('success', '✅ Pembayaran berhasil!');
-                            closeCheckoutModal();
+                            
+                            for (const item of cart) {
+                                try {
+                                    const productRef = doc(db, 'products', item.id);
+                                    const productDoc = await getDoc(productRef);
+                                    if (productDoc.exists()) {
+                                        const product = productDoc.data();
+                                        await updateDoc(productRef, {
+                                            stock: product.stock === 'unlimited' ? 'unlimited' : (product.stock || 0) - item.quantity,
+                                            sales: (product.sales || 0) + item.quantity,
+                                            updatedAt: serverTimestamp()
+                                        });
+                                    }
+                                } catch (stockError) {
+                                    console.error('Error updating stock:', stockError);
+                                }
+                            }
+                            
+                            if (sellerData?.id) {
+                                try {
+                                    await updateSellerWallet(sellerData.id, totalAmount, new Date());
+                                } catch (walletError) {
+                                    console.error('Error updating seller wallet:', walletError);
+                                }
+                            }
+                            
                             cart = [];
                             updateCartUI();
-                            window.location.href = `/order/${orderDoc.id}`;
+                            
+                            setTimeout(() => {
+                                window.location.href = `/public/success.html?order=${orderId}&status=success`;
+                            }, 1500);
                         },
                         onPending: async (result) => {
-                            await updateOrderStatus(orderDoc.id, 'pending', result);
+                            console.log('⏳ Payment PENDING:', result);
                             showToast('info', '⏳ Menunggu pembayaran...');
-                            closeCheckoutModal();
-                            window.location.href = `/order/${orderDoc.id}`;
+                            await updateOrderStatus(orderDoc.id, 'pending', result);
+                            setTimeout(() => {
+                                window.location.href = `/public/success.html?order=${orderId}&status=pending`;
+                            }, 1500);
                         },
                         onError: async (result) => {
+                            console.log('❌ Payment ERROR:', result);
+                            showToast('error', '❌ Pembayaran gagal: ' + (result.status_message || 'Silakan coba lagi'));
                             await updateOrderStatus(orderDoc.id, 'failed', result);
-                            showToast('error', '❌ Pembayaran gagal');
                             btn.disabled = false;
                             btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
                         },
                         onClose: () => {
+                            console.log('🔒 Payment window closed');
                             showToast('info', 'Pembayaran dibatalkan');
                             btn.disabled = false;
                             btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
                         }
                     });
+                } else if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
                 } else {
-                    throw new Error('Tidak ada token pembayaran');
+                    throw new Error('Metode pembayaran tidak tersedia');
                 }
 
             } catch (error) {
-                console.error('❌ Payment error:', error);
+                console.error('❌ Checkout error:', error);
+                errorEl.className = 'error-message show';
+                errorEl.textContent = '❌ ' + error.message;
+                showToast('error', 'Gagal memproses checkout: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
+            }
+        });
+
+        // ============================================
+        // PROCESS PAYMENT - DIRECT BUY
+        // ============================================
+        document.getElementById('directBuyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (isSuspended) {
+                showToast('warning', 'Toko sedang ditangguhkan');
+                return;
+            }
+
+            const buyerName = document.getElementById('directBuyerName').value.trim();
+            const buyerEmail = document.getElementById('directBuyerEmail').value.trim();
+            const buyerPhone = document.getElementById('directBuyerPhone').value.trim();
+            const errorEl = document.getElementById('directBuyError');
+
+            if (!buyerName || !buyerEmail) {
+                errorEl.className = 'error-message show';
+                errorEl.textContent = '⚠️ Nama dan email wajib diisi';
+                return;
+            }
+
+            if (!buyerEmail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                errorEl.className = 'error-message show';
+                errorEl.textContent = '⚠️ Format email tidak valid';
+                return;
+            }
+
+            errorEl.className = 'error-message';
+
+            const product = products.find(p => p.id === directProductId);
+            if (!product) {
+                showToast('error', 'Produk tidak ditemukan');
+                return;
+            }
+
+            const totalAmount = product.price * directQuantity;
+
+            const btn = document.getElementById('directPayBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+
+            try {
+                const orderId = `PK-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+                
+                const orderData = {
+                    orderId: orderId,
+                    type: 'product_purchase',
+                    productId: directProductId,
+                    productName: product.name,
+                    buyerName: buyerName,
+                    buyerEmail: buyerEmail,
+                    buyerPhone: buyerPhone || '',
+                    sellerId: sellerData?.id || '',
+                    sellerName: sellerData?.storeName || sellerData?.displayName || 'Seller',
+                    amount: totalAmount,
+                    quantity: directQuantity,
+                    items: [{
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        quantity: directQuantity,
+                        type: product.type || 'digital'
+                    }],
+                    status: 'pending',
+                    paymentStatus: 'pending',
+                    paymentMethod: 'midtrans',
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                };
+
+                const ordersRef = collection(db, 'orders');
+                const orderDoc = await addDoc(ordersRef, orderData);
+
+                const response = await fetch('/api/payment/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        orderId: orderId,
+                        amount: totalAmount,
+                        buyerName: buyerName,
+                        buyerEmail: buyerEmail,
+                        buyerPhone: buyerPhone || '08123456789',
+                        productName: product.name
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.error || 'Gagal membuat pembayaran');
+
+                closeDirectBuyModal();
+
+                if (data.token && typeof snap !== 'undefined') {
+                    window.snap.pay(data.token, {
+                        onSuccess: async (result) => {
+                            console.log('✅ Payment SUCCESS:', result);
+                            showToast('success', '🎉 Pembayaran berhasil!');
+                            
+                            await updateOrderStatus(orderDoc.id, 'settlement', result);
+                            
+                            try {
+                                const productRef = doc(db, 'products', directProductId);
+                                const productDoc = await getDoc(productRef);
+                                if (productDoc.exists()) {
+                                    const prod = productDoc.data();
+                                    await updateDoc(productRef, {
+                                        stock: prod.stock === 'unlimited' ? 'unlimited' : (prod.stock || 0) - directQuantity,
+                                        sales: (prod.sales || 0) + directQuantity,
+                                        updatedAt: serverTimestamp()
+                                    });
+                                }
+                            } catch (stockError) {
+                                console.error('Error updating stock:', stockError);
+                            }
+                            
+                            if (sellerData?.id) {
+                                try {
+                                    await updateSellerWallet(sellerData.id, totalAmount, new Date());
+                                } catch (walletError) {
+                                    console.error('Error updating seller wallet:', walletError);
+                                }
+                            }
+                            
+                            setTimeout(() => {
+                                window.location.href = `/public/success.html?order=${orderId}&status=success`;
+                            }, 1500);
+                        },
+                        onPending: async (result) => {
+                            console.log('⏳ Payment PENDING:', result);
+                            showToast('info', '⏳ Menunggu pembayaran...');
+                            await updateOrderStatus(orderDoc.id, 'pending', result);
+                            setTimeout(() => {
+                                window.location.href = `/public/success.html?order=${orderId}&status=pending`;
+                            }, 1500);
+                        },
+                        onError: async (result) => {
+                            console.log('❌ Payment ERROR:', result);
+                            showToast('error', '❌ Pembayaran gagal: ' + (result.status_message || 'Silakan coba lagi'));
+                            await updateOrderStatus(orderDoc.id, 'failed', result);
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
+                        },
+                        onClose: () => {
+                            console.log('🔒 Payment window closed');
+                            showToast('info', 'Pembayaran dibatalkan');
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
+                        }
+                    });
+                } else if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    throw new Error('Metode pembayaran tidak tersedia');
+                }
+
+            } catch (error) {
+                console.error('❌ Direct buy error:', error);
+                errorEl.className = 'error-message show';
+                errorEl.textContent = '❌ ' + error.message;
                 showToast('error', 'Gagal memproses pembayaran: ' + error.message);
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
             }
         });
 
-        async function updateOrderStatus(orderId, status, result) {
-            try {
-                const orderRef = doc(db, 'orders', orderId);
-                await updateDoc(orderRef, {
-                    paymentStatus: status,
-                    status: status === 'settlement' ? 'paid' : status,
-                    midtransResult: result,
-                    updatedAt: new Date().toISOString()
-                });
-            } catch (error) {
-                console.error('Error updating order:', error);
-            }
-        }
-
         // ============================================
-        // LOAD SELLER - MENGGUNAKAN QUERY PARAMETER
+        // LOAD SELLER
         // ============================================
         async function loadSeller() {
             if (!sellerParam) {
@@ -689,33 +1267,79 @@
 
                 const usersRef = collection(db, 'users');
                 
-                // CARA 1: Cari berdasarkan storeName
                 const q1 = query(usersRef, where('storeName', '==', sellerParam));
                 const snapshot1 = await getDocs(q1);
                 
                 if (!snapshot1.empty) {
                     const doc = snapshot1.docs[0];
-                    await renderSellerData(doc.id, doc.data());
+                    const data = doc.data();
+                    
+                    // ✅ CEK STATUS SUSPEND
+                    if (data.status === 'suspended') {
+                        isSuspended = true;
+                        document.getElementById('suspendOverlay').classList.add('open');
+                        document.getElementById('sellerHeader').classList.add('suspended');
+                        document.getElementById('suspendBadgeContainer').style.display = 'block';
+                        document.getElementById('productsGrid').innerHTML = `
+                            <div class="text-center" style="grid-column:1/-1;padding:40px 0;color:var(--text-secondary);">
+                                <i class="fas fa-ban" style="font-size:48px;display:block;margin-bottom:16px;color:var(--danger);"></i>
+                                <p style="font-size:18px;font-weight:600;color:var(--text-primary);">Toko Telah Ditangguhkan</p>
+                                <p style="font-size:14px;color:var(--text-secondary);">Hubungi admin untuk informasi lebih lanjut.</p>
+                            </div>
+                        `;
+                    }
+                    
+                    await renderSellerData(doc.id, data);
                     return;
                 }
 
-                // CARA 2: Cari berdasarkan displayName
                 const q2 = query(usersRef, where('displayName', '==', sellerParam));
                 const snapshot2 = await getDocs(q2);
                 
                 if (!snapshot2.empty) {
                     const doc = snapshot2.docs[0];
-                    await renderSellerData(doc.id, doc.data());
+                    const data = doc.data();
+                    
+                    if (data.status === 'suspended') {
+                        isSuspended = true;
+                        document.getElementById('suspendOverlay').classList.add('open');
+                        document.getElementById('sellerHeader').classList.add('suspended');
+                        document.getElementById('suspendBadgeContainer').style.display = 'block';
+                        document.getElementById('productsGrid').innerHTML = `
+                            <div class="text-center" style="grid-column:1/-1;padding:40px 0;color:var(--text-secondary);">
+                                <i class="fas fa-ban" style="font-size:48px;display:block;margin-bottom:16px;color:var(--danger);"></i>
+                                <p style="font-size:18px;font-weight:600;color:var(--text-primary);">Toko Telah Ditangguhkan</p>
+                                <p style="font-size:14px;color:var(--text-secondary);">Hubungi admin untuk informasi lebih lanjut.</p>
+                            </div>
+                        `;
+                    }
+                    
+                    await renderSellerData(doc.id, data);
                     return;
                 }
 
-                // CARA 3: Cari berdasarkan UID
                 const q3 = query(usersRef, where('uid', '==', sellerParam));
                 const snapshot3 = await getDocs(q3);
                 
                 if (!snapshot3.empty) {
                     const doc = snapshot3.docs[0];
-                    await renderSellerData(doc.id, doc.data());
+                    const data = doc.data();
+                    
+                    if (data.status === 'suspended') {
+                        isSuspended = true;
+                        document.getElementById('suspendOverlay').classList.add('open');
+                        document.getElementById('sellerHeader').classList.add('suspended');
+                        document.getElementById('suspendBadgeContainer').style.display = 'block';
+                        document.getElementById('productsGrid').innerHTML = `
+                            <div class="text-center" style="grid-column:1/-1;padding:40px 0;color:var(--text-secondary);">
+                                <i class="fas fa-ban" style="font-size:48px;display:block;margin-bottom:16px;color:var(--danger);"></i>
+                                <p style="font-size:18px;font-weight:600;color:var(--text-primary);">Toko Telah Ditangguhkan</p>
+                                <p style="font-size:14px;color:var(--text-secondary);">Hubungi admin untuk informasi lebih lanjut.</p>
+                            </div>
+                        `;
+                    }
+                    
+                    await renderSellerData(doc.id, data);
                     return;
                 }
 
@@ -746,6 +1370,15 @@
 
             if (seller.verified) {
                 document.getElementById('verifiedBadge').style.display = 'inline';
+            }
+
+            // ✅ JANGAN LOAD PRODUK JIKA SUSPEND
+            if (isSuspended) {
+                document.getElementById('productCount').textContent = 0;
+                document.getElementById('productCountLabel').textContent = '0 produk';
+                document.getElementById('totalSales').textContent = '0';
+                updateCartUI();
+                return;
             }
 
             const productsSnapshot = await getDocs(
@@ -781,6 +1414,10 @@
         function renderProducts(products) {
             const grid = document.getElementById('productsGrid');
 
+            if (isSuspended) {
+                return;
+            }
+
             if (!products || products.length === 0) {
                 grid.innerHTML = `
                     <div class="text-center text-secondary" style="grid-column:1/-1;padding:40px 0;">
@@ -801,16 +1438,20 @@
                     </div>
                     <div class="product-body">
                         <div class="product-name" onclick="window.location.href='/product/${p.id}'">${p.name}</div>
-                        <div style="font-size:13px;color:var(--text-secondary);" onclick="window.location.href='/product/${p.id}'">${p.category || 'Uncategorized'}</div>
+                        <div class="product-category" onclick="window.location.href='/product/${p.id}'">${p.category || 'Uncategorized'}</div>
+                        <div class="product-seller">
+                            <i class="fas fa-store"></i>
+                            ${sellerData?.storeName || sellerData?.displayName || 'Seller'}
+                        </div>
                         <div class="product-footer">
                             <span class="product-price">Rp${formatPrice(p.price)}</span>
-                            <span style="font-size:13px;color:var(--text-secondary);">${p.sales || 0} terjual</span>
+                            <span class="product-sales">${p.sales || 0} terjual</span>
                         </div>
                         <div style="display:flex;gap:8px;margin-top:8px;">
-                            <button onclick="addToCart('${p.id}')" class="btn btn-secondary btn-sm" style="flex:1;">
+                            <button onclick="addToCart('${p.id}')" class="btn btn-secondary btn-sm" style="flex:1;" ${isSuspended ? 'disabled' : ''}>
                                 <i class="fas fa-cart-plus"></i> Keranjang
                             </button>
-                            <button onclick="window.location.href='/product/${p.id}'" class="btn btn-primary btn-sm" style="flex:1;">
+                            <button onclick="buyNow('${p.id}')" class="btn btn-primary btn-sm" style="flex:1;" ${isSuspended ? 'disabled' : ''}>
                                 <i class="fas fa-shopping-cart"></i> Beli
                             </button>
                         </div>
@@ -824,6 +1465,9 @@
         // ============================================
         document.getElementById('checkoutModal').addEventListener('click', function(e) {
             if (e.target === this) closeCheckoutModal();
+        });
+        document.getElementById('directBuyModal').addEventListener('click', function(e) {
+            if (e.target === this) closeDirectBuyModal();
         });
 
         // ============================================
