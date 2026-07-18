@@ -291,8 +291,11 @@
             <i class="fas fa-exclamation-triangle" style="font-size:48px;color:var(--danger);margin-bottom:16px;"></i>
             <h3 class="modal-title">Hapus Order?</h3>
             <p style="color:var(--text-secondary);margin-bottom:24px;">Apakah Anda yakin ingin menghapus order ini? Tindakan ini tidak dapat dibatalkan.</p>
+            <p style="font-size:13px;color:var(--text-light);margin-bottom:24px;">
+                ⚠️ Jika order sudah paid, saldo seller akan dikurangi otomatis.
+            </p>
             <div style="display:flex;gap:12px;">
-                <button onclick="confirmDeleteOrder()" class="btn btn-danger" style="flex:1;"><i class="fas fa-trash"></i> Hapus</button>
+                <button onclick="confirmDeleteOrder()" class="btn btn-danger" style="flex:1;" id="deleteConfirmBtn"><i class="fas fa-trash"></i> Hapus</button>
                 <button onclick="closeDeleteModal()" class="btn btn-secondary" style="flex:1;">Batal</button>
             </div>
         </div>
@@ -329,8 +332,7 @@
             startAfter,
             updateDoc,
             deleteDoc,
-            serverTimestamp,
-            runTransaction
+            serverTimestamp
         } from "firebase/firestore";
 
         console.log('📦 [ADMIN_ORDERS] Page loaded');
@@ -587,9 +589,6 @@
                     constraints.push(where('type', '==', type));
                     addDebug(`Filter by type: ${type}`, 'info');
                 }
-                
-                // Note: date filter would require additional query constraints
-                // For simplicity, we'll filter in JavaScript
                 
                 let q = query(collection(db, 'orders'), ...constraints, limit(limitPerPage));
                 if (lastDoc) {
@@ -948,13 +947,12 @@
         };
 
         // ============================================
-        // DELETE ORDER (DELETE)
+        // DELETE ORDER - OTOMATIS KURANGI SALDO SELLER
         // ============================================
         window.deleteOrder = function(orderId) {
             addDebug(`Delete order: ${orderId}`, 'warning');
             deleteOrderId = orderId;
             document.getElementById('deleteModal').classList.add('open');
-            // Tutup dropdown
             document.querySelectorAll('.action-dropdown-content').forEach(el => el.classList.remove('show'));
         };
 
@@ -967,12 +965,107 @@
             if (!deleteOrderId) return;
             
             addDebug(`Confirming delete: ${deleteOrderId}`, 'warning');
+            
+            const btn = document.getElementById('deleteConfirmBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+            
             try {
+                // Ambil data order dulu sebelum dihapus
                 const orderRef = doc(db, 'orders', deleteOrderId);
+                const orderDoc = await getDoc(orderRef);
+                
+                if (!orderDoc.exists()) {
+                    throw new Error('Order tidak ditemukan');
+                }
+                
+                const orderData = orderDoc.data();
+                const sellerId = orderData.sellerId;
+                const amount = orderData.amount || 0;
+                const paymentStatus = orderData.paymentStatus || orderData.status || '';
+                const orderType = orderData.type || '';
+                const orderCreatedAt = orderData.createdAt?.toDate?.() || new Date(orderData.createdAt);
+                
+                // ✅ HANYA PRODUK YANG MEMPENGARUHI SALDO
+                if (orderType === 'product_purchase' && sellerId && amount > 0) {
+                    // Cek apakah order sudah settlement/paid
+                    const isPaid = paymentStatus === 'settlement' || paymentStatus === 'paid';
+                    
+                    if (isPaid) {
+                        addDebug(`💰 Order sudah paid, mengurangi saldo seller ${sellerId} sebesar Rp${formatPrice(amount)}`, 'info');
+                        
+                        // Ambil data seller
+                        const sellerRef = doc(db, 'users', sellerId);
+                        const sellerDoc = await getDoc(sellerRef);
+                        
+                        if (sellerDoc.exists()) {
+                            const sellerData = sellerDoc.data();
+                            const wallet = sellerData.wallet || { available: 0, holding: 0, totalRevenue: 0, pendingWithdraw: 0 };
+                            
+                            let newAvailable = wallet.available || 0;
+                            let newHolding = wallet.holding || 0;
+                            let newTotalRevenue = Math.max(0, (wallet.totalRevenue || 0) - amount);
+                            
+                            // Ambil setting holding time untuk menentukan posisi saldo
+                            let holdingDays = 0, holdingHours = 0, holdingMinutes = 0;
+                            try {
+                                const settingsRef = doc(db, 'settings', 'marketplace');
+                                const settingsDoc = await getDoc(settingsRef);
+                                if (settingsDoc.exists()) {
+                                    const settings = settingsDoc.data();
+                                    holdingDays = settings.holdingDays || 0;
+                                    holdingHours = settings.holdingHours || 0;
+                                    holdingMinutes = settings.holdingMinutes || 0;
+                                }
+                            } catch (e) {}
+                            
+                            const holdingMilliseconds = (holdingDays * 24 * 60 * 60 * 1000) + 
+                                                        (holdingHours * 60 * 60 * 1000) + 
+                                                        (holdingMinutes * 60 * 1000);
+                            
+                            const now = new Date();
+                            const elapsed = now - orderCreatedAt;
+                            
+                            // CEK: Apakah saldo sudah masuk ke Available atau masih di Holding?
+                            const isInAvailable = elapsed >= holdingMilliseconds;
+                            
+                            if (isInAvailable) {
+                                // ✅ Saldo sudah di Available, kurangi dari Available
+                                newAvailable = Math.max(0, newAvailable - amount);
+                                addDebug(`💰 Saldo di Available, kurangi Available: ${wallet.available || 0} -> ${newAvailable}`, 'info');
+                            } else {
+                                // ✅ Saldo masih di Holding, kurangi dari Holding
+                                newHolding = Math.max(0, newHolding - amount);
+                                addDebug(`💰 Saldo di Holding, kurangi Holding: ${wallet.holding || 0} -> ${newHolding}`, 'info');
+                            }
+                            
+                            // ✅ UPDATE WALLET SELLER
+                            await updateDoc(sellerRef, {
+                                'wallet.available': newAvailable,
+                                'wallet.holding': newHolding,
+                                'wallet.totalRevenue': newTotalRevenue,
+                                updatedAt: new Date().toISOString()
+                            });
+                            
+                            addDebug(`✅ Saldo seller dikurangi: Available Rp${formatPrice(newAvailable)}, Holding Rp${formatPrice(newHolding)}, Total Revenue Rp${formatPrice(newTotalRevenue)}`, 'success');
+                            showToast('success', `✅ Saldo seller dikurangi Rp${formatPrice(amount)} dari ${isInAvailable ? 'Saldo Tersedia' : 'Saldo Ditahan'}`);
+                        }
+                    } else {
+                        addDebug(`ℹ️ Order status "${paymentStatus}" tidak mempengaruhi saldo (belum paid)`, 'info');
+                        showToast('info', 'Order belum paid, saldo tidak terpengaruh');
+                    }
+                } else if (orderType === 'banner_purchase') {
+                    addDebug(`ℹ️ Order banner tidak mempengaruhi saldo seller`, 'info');
+                    showToast('info', 'Order banner tidak mempengaruhi saldo seller');
+                } else {
+                    addDebug(`ℹ️ Order type "${orderType}" tidak mempengaruhi saldo seller`, 'info');
+                }
+                
+                // Hapus order setelah semua proses selesai
                 await deleteDoc(orderRef);
                 
                 addDebug(`Order ${deleteOrderId} deleted`, 'success');
-                showToast('success', 'Order berhasil dihapus!');
+                showToast('success', '✅ Order berhasil dihapus!');
                 deleteOrderId = null;
                 closeDeleteModal();
                 loadOrders(true);
@@ -980,6 +1073,9 @@
             } catch (error) {
                 addDebug(`Error deleting order: ${error.message}`, 'error');
                 showToast('error', 'Gagal menghapus order: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-trash"></i> Hapus';
             }
         };
 
@@ -994,11 +1090,12 @@
         });
 
         addDebug('Page ready', 'success');
-        console.log('✅ [ADMIN_ORDERS] Page ready - CRUD Complete');
+        console.log('✅ [ADMIN_ORDERS] Page ready - CRUD Complete + Auto reduce seller balance on delete');
         console.log('   - Read: Tampilkan semua order');
         console.log('   - Update: Update status order (settlement/failed/expire)');
-        console.log('   - Delete: Hapus order dengan konfirmasi');
+        console.log('   - Delete: Hapus order + otomatis kurangi saldo seller');
         console.log('   - Pending > 24 jam otomatis hilang');
+        console.log('   - Saldo dikurangi dari Available atau Holding sesuai posisi');
     </script>
 </body>
 </html>

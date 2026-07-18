@@ -54,17 +54,20 @@
         .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
         .btn-sm { padding: 6px 12px; font-size: 12px; }
+        .btn-xs { padding: 4px 8px; font-size: 11px; }
         
         .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
         .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
         .input-group { display: flex; flex-direction: column; gap: 6px; }
         .input-group label { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+        .input-group .input-sm { padding: 8px 12px; font-size: 13px; }
         
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
         .modal-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
-        .modal { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 32px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; animation: slideUp 0.3s ease; }
+        .modal { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 32px; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; animation: slideUp 0.3s ease; }
         .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; color: var(--text-secondary); cursor: pointer; transition: all 0.3s; padding: 4px; }
         .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+        .modal .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
         
@@ -115,8 +118,11 @@
         .error-box .error-title { font-weight: 700; color: var(--danger); }
         .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
         
+        .wallet-edit-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .wallet-edit-group .btn { padding: 4px 10px; font-size: 11px; }
+        
         @media (max-width: 1024px) { .table { font-size: 12px; } .table th, .table td { padding: 6px 8px; } }
-        @media (max-width: 768px) { .table-wrapper { overflow-x: auto; } .table { min-width: 900px; } }
+        @media (max-width: 768px) { .table-wrapper { overflow-x: auto; } .table { min-width: 1100px; } .modal .grid-2 { grid-template-columns: 1fr; } }
         
         :root {
             --bg-primary: #ffffff;
@@ -233,7 +239,7 @@
                                 <th style="min-width:100px;">Saldo Ditahan</th>
                                 <th style="min-width:100px;">Pending Withdraw</th>
                                 <th style="min-width:80px;">Status</th>
-                                <th style="min-width:100px;">Aksi</th>
+                                <th style="min-width:140px;">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="sellersTableBody">
@@ -250,26 +256,53 @@
     <div class="modal-overlay" id="editSellerModal">
         <div class="modal">
             <button class="modal-close" onclick="closeEditSellerModal()"><i class="fas fa-times"></i></button>
-            <h3 class="modal-title">Edit Seller</h3>
+            <h3 class="modal-title">Edit Seller &amp; Saldo</h3>
             <form id="editSellerForm">
                 <input type="hidden" id="editSellerId">
+                
                 <div class="input-group" style="margin-bottom:12px;">
                     <label for="editStoreName">Nama Toko</label>
                     <input type="text" id="editStoreName" class="input">
                 </div>
+                
                 <div class="input-group" style="margin-bottom:12px;">
                     <label for="editStatus">Status</label>
                     <select id="editStatus" class="input"><option value="active">Active</option><option value="suspended">Suspended</option></select>
                 </div>
+                
                 <div class="input-group" style="margin-bottom:12px;">
                     <label for="editVerified">Verified</label>
                     <select id="editVerified" class="input"><option value="true">Verified</option><option value="false">Unverified</option></select>
                 </div>
-                <div class="input-group" style="margin-bottom:16px;">
+                
+                <div class="input-group" style="margin-bottom:12px;">
                     <label for="editLevel">Level</label>
                     <select id="editLevel" class="input"><option value="bronze">Bronze</option><option value="silver">Silver</option><option value="gold">Gold</option><option value="platinum">Platinum</option><option value="diamond">Diamond</option></select>
                 </div>
-                <div style="display:flex;gap:12px;">
+                
+                <hr style="margin:16px 0;border-color:var(--border-color);">
+                <h4 style="margin-bottom:12px;">💰 Edit Saldo</h4>
+                
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label for="editTotalRevenue">Total Pendapatan</label>
+                        <input type="number" id="editTotalRevenue" class="input input-sm" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="editAvailable">Saldo Tersedia</label>
+                        <input type="number" id="editAvailable" class="input input-sm" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="editHolding">Saldo Ditahan</label>
+                        <input type="number" id="editHolding" class="input input-sm" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="editPendingWithdraw">Pending Withdraw</label>
+                        <input type="number" id="editPendingWithdraw" class="input input-sm" min="0">
+                    </div>
+                </div>
+                
+                <div style="display:flex;gap:12px;margin-top:16px;">
                     <button type="submit" class="btn btn-primary" style="flex:1;"><i class="fas fa-save"></i> Simpan</button>
                     <button type="button" onclick="closeEditSellerModal()" class="btn btn-secondary" style="flex:1;">Batal</button>
                 </div>
@@ -295,7 +328,7 @@
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, updateDoc } from "firebase/firestore";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, updateDoc, runTransaction } from "firebase/firestore";
 
         console.log('👥 [ADMIN_SELLERS] Page loaded');
 
@@ -514,7 +547,6 @@
                     const data = doc.data();
                     const sellerId = doc.id;
                     
-                    // Ambil wallet dari data user
                     const wallet = data.wallet || { 
                         available: 0, 
                         holding: 0, 
@@ -593,10 +625,13 @@
                     <td style="font-weight:700;color:var(--info);">Rp${formatPrice(s.pendingWithdraw)}</td>
                     <td><span class="badge ${s.status === 'active' ? 'badge-success' : 'badge-danger'}">${s.status || 'active'}</span></td>
                     <td>
-                        <button onclick="editSeller('${s.id}')" class="btn btn-secondary btn-sm" style="padding:4px 8px;" title="Edit"><i class="fas fa-edit"></i></button>
-                        <button onclick="toggleSellerStatus('${s.id}')" class="btn btn-secondary btn-sm" style="padding:4px 8px;" title="${s.status === 'active' ? 'Suspend' : 'Activate'}">
-                            <i class="fas ${s.status === 'active' ? 'fa-pause' : 'fa-play'}"></i>
-                        </button>
+                        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                            <button onclick="editSeller('${s.id}')" class="btn btn-secondary btn-xs" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button onclick="editWallet('${s.id}')" class="btn btn-primary btn-xs" title="Edit Saldo"><i class="fas fa-coins"></i></button>
+                            <button onclick="toggleSellerStatus('${s.id}')" class="btn btn-secondary btn-xs" title="${s.status === 'active' ? 'Suspend' : 'Activate'}">
+                                <i class="fas ${s.status === 'active' ? 'fa-pause' : 'fa-play'}"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
@@ -666,18 +701,29 @@
                     return; 
                 }
                 const s = sellerDoc.data();
-                addDebug('Seller data loaded', 'success');
+                const wallet = s.wallet || {};
+                
                 document.getElementById('editSellerId').value = id;
                 document.getElementById('editStoreName').value = s.storeName || '';
                 document.getElementById('editStatus').value = s.status || 'active';
                 document.getElementById('editVerified').value = s.verified ? 'true' : 'false';
                 document.getElementById('editLevel').value = s.level || 'bronze';
+                document.getElementById('editTotalRevenue').value = wallet.totalRevenue || 0;
+                document.getElementById('editAvailable').value = wallet.available || 0;
+                document.getElementById('editHolding').value = wallet.holding || 0;
+                document.getElementById('editPendingWithdraw').value = wallet.pendingWithdraw || 0;
+                
                 document.getElementById('editSellerModal').classList.add('open');
                 addDebug('Edit modal opened', 'success');
             } catch (error) { 
                 addDebug(`Error loading seller: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat data seller: ' + error.message); 
             }
+        };
+
+        window.editWallet = function(id) {
+            // Langsung buka modal edit dengan ID yang sama
+            editSeller(id);
         };
 
         window.closeEditSellerModal = function() { 
@@ -689,16 +735,26 @@
             e.preventDefault();
             const id = document.getElementById('editSellerId').value;
             addDebug(`Saving seller: ${id}`, 'info');
+            
+            const totalRevenue = parseInt(document.getElementById('editTotalRevenue').value) || 0;
+            const available = parseInt(document.getElementById('editAvailable').value) || 0;
+            const holding = parseInt(document.getElementById('editHolding').value) || 0;
+            const pendingWithdraw = parseInt(document.getElementById('editPendingWithdraw').value) || 0;
+            
             try {
                 await updateDoc(doc(db, 'users', id), {
                     storeName: document.getElementById('editStoreName').value.trim() || undefined,
                     status: document.getElementById('editStatus').value,
                     verified: document.getElementById('editVerified').value === 'true',
                     level: document.getElementById('editLevel').value,
+                    'wallet.totalRevenue': totalRevenue,
+                    'wallet.available': available,
+                    'wallet.holding': holding,
+                    'wallet.pendingWithdraw': pendingWithdraw,
                     updatedAt: new Date().toISOString()
                 });
                 addDebug('Seller updated successfully', 'success');
-                showToast('success', 'Seller diperbarui');
+                showToast('success', 'Seller dan saldo diperbarui');
                 closeEditSellerModal();
                 loadSellers(true);
             } catch (error) { 
@@ -744,7 +800,7 @@
         });
 
         addDebug('Page ready', 'success');
-        console.log('✅ [ADMIN_SELLERS] Page ready - Menampilkan semua data saldo seller');
+        console.log('✅ [ADMIN_SELLERS] Page ready - Admin bisa edit saldo seller');
     </script>
 </body>
 </html>
