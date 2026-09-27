@@ -1,318 +1,449 @@
 <!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manajemen Seller - ProductKuu</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="icon" href="/assets/images/favicon.ico">
-    <style>
-        .app-wrapper { display: flex; min-height: calc(100vh - 64px); margin-top: 64px; }
-        .sidebar { width: 260px; background: var(--bg-primary); border-right: 1px solid var(--border-color); padding: 20px 0; position: fixed; top: 64px; bottom: 0; overflow-y: auto; z-index: 100; transition: transform 0.3s ease; }
-        .sidebar-header { padding: 0 16px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px; }
-        .sidebar-header .title { font-weight: 600; font-size: 14px; color: var(--text-secondary); }
-        .sidebar-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
-        .sidebar-nav a, .sidebar-nav button { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius); color: var(--text-secondary); transition: var(--transition); font-size: 14px; font-weight: 500; text-decoration: none; background: none; border: none; width: 100%; cursor: pointer; font-family: var(--font); text-align: left; }
-        .sidebar-nav a:hover, .sidebar-nav button:hover { background: var(--bg-secondary); color: var(--text-primary); }
-        .sidebar-nav a.active { background: rgba(79,70,229,0.1); color: var(--primary); }
-        .sidebar-nav .logout-btn { color: var(--danger); margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 16px; }
-        .sidebar-nav .logout-btn:hover { background: rgba(239,68,68,0.1); color: var(--danger); }
-        .sidebar-overlay { display: none; position: fixed; top: 64px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99; }
-        .sidebar-overlay.open { display: block; }
-        .main-content { margin-left: 260px; padding: 24px; flex: 1; min-height: calc(100vh - 64px); }
-        .mobile-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-primary); cursor: pointer; padding: 8px; }
-        @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); width: 280px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 16px; } .mobile-toggle { display: block !important; } }
-        
-        .table-wrapper { overflow-x: auto; }
-        .table { width: 100%; border-collapse: collapse; }
-        .table th { text-align: left; padding: 10px 12px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); border-bottom: 2px solid var(--border-color); background: var(--bg-secondary); white-space: nowrap; }
-        .table td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); font-size: 13px; vertical-align: middle; }
-        .table tr:hover td { background: var(--bg-secondary); }
-        
-        .filter-bar { background: var(--bg-primary); border-radius: var(--radius); padding: 16px 20px; border: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 24px; }
-        .filter-bar .filter-group { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
-        .filter-bar .filter-group select, .filter-bar .filter-group input { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 13px; min-width: 120px; }
-        .filter-bar .filter-actions { display: flex; gap: 8px; }
-        
-        .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
-        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
-        .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
-        .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
-        .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
-        .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
-        .badge-purple { background: rgba(124,58,237,0.1); color: var(--secondary); }
-        .badge-primary { background: rgba(79,70,229,0.1); color: var(--primary); }
-        .badge-holding { background: rgba(249,115,22,0.1); color: #F97316; }
-        
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
-        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
-        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
-        .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
-        .btn-sm { padding: 6px 12px; font-size: 12px; }
-        .btn-xs { padding: 4px 8px; font-size: 11px; }
-        
-        .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
-        .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
-        .input-group { display: flex; flex-direction: column; gap: 6px; }
-        .input-group label { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
-        .input-group .input-sm { padding: 8px 12px; font-size: 13px; }
-        
-        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
-        .modal-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
-        .modal { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 32px; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; animation: slideUp 0.3s ease; }
-        .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; color: var(--text-secondary); cursor: pointer; transition: all 0.3s; padding: 4px; }
-        .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
-        .modal .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        
-        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-        .text-center { text-align: center; }
-        .text-secondary { color: var(--text-secondary); }
-        .text-success { color: var(--success); }
-        .text-danger { color: var(--danger); }
-        .text-warning { color: var(--warning); }
-        .text-primary { color: var(--primary); }
-        .font-bold { font-weight: 700; }
-        .font-mono { font-family: monospace; }
-        
-        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
-        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
-        .toast-icon { font-size: 20px; }
-        .toast-content { flex: 1; }
-        .toast-message { font-size: 13px; color: var(--text-secondary); }
-        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-        
-        .debug-box {
-            background: #1E1E2E;
-            border-radius: var(--radius);
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Manajemen Seller - ProductKuu</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=JetBrains+Mono:wght@100..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed": "#320047",
+                    "tertiary-fixed-dim": "#ffb77f",
+                    "tertiary-fixed": "#ffdcc4",
+                    "surface-container-high": "#292932",
+                    "primary-container": "#00f0ff",
+                    "inverse-surface": "#e4e1ed",
+                    "on-tertiary-fixed": "#2f1500",
+                    "surface": "#13131b",
+                    "inverse-on-surface": "#302f39",
+                    "on-surface-variant": "#b9cacb",
+                    "on-secondary-container": "#480063",
+                    "on-secondary": "#520071",
+                    "on-error-container": "#ffdad6",
+                    "tertiary": "#fff3ed",
+                    "secondary": "#ecb2ff",
+                    "surface-container-highest": "#34343d",
+                    "primary-fixed-dim": "#00dbe9",
+                    "error-container": "#93000a",
+                    "on-error": "#690005",
+                    "error": "#ffb4ab",
+                    "secondary-fixed-dim": "#ecb2ff",
+                    "on-primary-container": "#006970",
+                    "on-tertiary": "#4e2600",
+                    "inverse-primary": "#006970",
+                    "secondary-fixed": "#f8d8ff",
+                    "on-primary-fixed": "#002022",
+                    "surface-tint": "#00dbe9",
+                    "surface-container-lowest": "#0d0d15",
+                    "on-primary-fixed-variant": "#004f54",
+                    "on-secondary-fixed-variant": "#74009f",
+                    "on-tertiary-fixed-variant": "#6f3900",
+                    "surface-container-low": "#1b1b23",
+                    "on-background": "#e4e1ed",
+                    "on-tertiary-container": "#924c00",
+                    "outline": "#849495",
+                    "primary": "#dbfcff",
+                    "secondary-container": "#cf5cff",
+                    "surface-container": "#1f1f27",
+                    "surface-bright": "#393842",
+                    "background": "#13131b",
+                    "on-primary": "#00363a",
+                    "outline-variant": "#3b494b",
+                    "primary-fixed": "#7df4ff",
+                    "surface-variant": "#34343d",
+                    "tertiary-container": "#ffd0ae",
+                    "surface-dim": "#13131b",
+                    "on-surface": "#e4e1ed"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "24px",
+                    "base": "8px",
+                    "sm": "12px",
+                    "xl": "80px",
+                    "xs": "4px",
+                    "gutter": "24px",
+                    "lg": "48px",
+                    "container-max": "1280px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["JetBrains Mono"],
+                    "label-md": ["JetBrains Mono"],
+                    "headline-md": ["Inter"],
+                    "display-lg": ["Inter"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body {
+            background-color: #0d0d15;
+            color: #e4e1ed;
+            font-family: 'Inter', sans-serif;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(0, 219, 233, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(207, 92, 255, 0.05) 0px, transparent 50%);
+        }
+
+        .glass-card {
+            background: rgba(31, 31, 39, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .neon-border-primary {
+            border: 1px solid rgba(0, 219, 233, 0.3);
+            box-shadow: 0 0 15px rgba(0, 219, 233, 0.1);
+        }
+
+        .sidebar {
+            width: 260px;
+            background: rgba(13, 13, 21, 0.95);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            position: fixed;
+            top: 64px;
+            bottom: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            padding-top: 88px;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); width: 280px; }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             padding: 12px 16px;
-            margin-bottom: 16px;
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            color: #CDD6F4;
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
-            border: 1px solid #313244;
+            border-radius: 12px;
+            color: #b9cacb;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
         }
-        .debug-box.show { display: block; }
-        .debug-box .debug-line { padding: 2px 0; border-bottom: 1px solid #2A2A3E; }
-        .debug-box .debug-line:last-child { border-bottom: none; }
-        .debug-box .debug-success { color: #A6E3A1; }
-        .debug-box .debug-error { color: #F38BA8; }
-        .debug-box .debug-info { color: #89B4FA; }
-        .debug-box .debug-warning { color: #F9E2AF; }
-        
-        .debug-toggle { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 12px; text-decoration: underline; padding: 4px 8px; margin-bottom: 8px; }
-        .debug-toggle:hover { color: var(--text-primary); }
-        
-        .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
-        .error-box.show { display: block; }
-        .error-box .error-title { font-weight: 700; color: var(--danger); }
-        .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
-        
-        .wallet-edit-group { display: flex; gap: 8px; flex-wrap: wrap; }
-        .wallet-edit-group .btn { padding: 4px 10px; font-size: 11px; }
-        
-        @media (max-width: 1024px) { .table { font-size: 12px; } .table th, .table td { padding: 6px 8px; } }
-        @media (max-width: 768px) { .table-wrapper { overflow-x: auto; } .table { min-width: 1100px; } .modal .grid-2 { grid-template-columns: 1fr; } }
-        
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f3f4f6;
-            --bg-tertiary: #e5e7eb;
-            --text-primary: #111827;
-            --text-secondary: #6b7280;
-            --text-light: #9ca3af;
-            --border-color: #e5e7eb;
-            --shadow: 0 1px 3px rgba(0,0,0,0.1);
-            --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
-            --radius: 8px;
-            --radius-lg: 16px;
-            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --info: #3b82f6;
-            --primary: #4F46E5;
-            --secondary: #7C3AED;
-            --transition: all 0.3s ease;
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(0, 219, 233, 0.1);
+            color: #00dbe9;
+            box-shadow: inset 0 0 10px rgba(0, 219, 233, 0.05);
         }
-        [data-theme="dark"] {
-            --bg-primary: #1f2937;
-            --bg-secondary: #374151;
-            --bg-tertiary: #4b5563;
-            --text-primary: #f9fafb;
-            --text-secondary: #9ca3af;
-            --text-light: #6b7280;
-            --border-color: #374151;
+
+        .gradient-btn-primary {
+            background: linear-gradient(135deg, #00dbe9 0%, #006970 100%);
+            color: #002022;
+            transition: all 0.3s ease;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: var(--font); background: var(--bg-secondary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
-        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); height: 64px; }
-        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        .navbar-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
-        .navbar-logo i { color: #4F46E5; }
-        .navbar-actions { display: flex; align-items: center; gap: 8px; }
-        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
-        .btn-icon:hover { background: var(--bg-secondary); }
+
+        .gradient-btn-primary:hover {
+            box-shadow: 0 0 20px rgba(0, 219, 233, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .table-row:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .badge {
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .modal-overlay {
+            background: rgba(13, 13, 21, 0.8);
+            backdrop-filter: blur(8px);
+        }
+
+        .debug-box {
+            background: #0d0d15;
+            border: 1px solid #3b494b;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        input, select {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #e4e1ed !important;
+        }
+        
+        input:focus, select:focus {
+            border-color: #00dbe9 !important;
+            ring: 1px solid #00dbe9 !important;
+        }
+
+        /* Standard scrollbar for dark theme */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0d0d15; }
+        ::-webkit-scrollbar-thumb { background: #1f1f27; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #34343d; }
     </style>
 </head>
-<body>
-    <nav class="navbar">
-        <div class="navbar-inner">
-            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
-            <div class="navbar-actions">
-                <span class="badge badge-primary" style="font-size:11px;">Admin</span>
-                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
-                <button class="mobile-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-            </div>
-        </div>
-    </nav>
-
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header"><div class="title">Menu Admin</div></div>
-        <nav class="sidebar-nav">
-            <a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a href="/admin/sellers" class="active"><i class="fas fa-users"></i> Seller</a>
-            <a href="/admin/products"><i class="fas fa-box"></i> Produk</a>
-            <a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Order</a>
-            <a href="/admin/banners"><i class="fas fa-images"></i> Banner</a>
-            <a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Withdraw</a>
-            <a href="/admin/settings"><i class="fas fa-cog"></i> Pengaturan</a>
-            <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </nav>
-    </aside>
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <div class="app-wrapper">
-        <main class="main-content">
-            <div class="flex-between" style="margin-bottom:24px;">
-                <div><h1 style="font-size:24px;">Manajemen Seller</h1><p style="color:var(--text-secondary);">Kelola semua seller di platform beserta saldo mereka</p></div>
-                <button onclick="refreshData()" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-sync-alt"></i> Refresh
+<body class="min-h-screen">
+<!-- Navbar -->
+<nav class="fixed top:0 left-0 right-0 h-16 glass-card border-b border-white/5 z-[1001] flex items-center px-6">
+<div class="flex items-center justify-between w-full max-w-[1400px] mx-auto">
+<a class="flex items-center gap-3 text-xl font-extrabold tracking-tight" href="/">
+<div class="w-10 h-10 rounded-xl gradient-btn-primary flex items-center justify-center shadow-lg">
+<i class="fas fa-cube text-white"></i>
+</div>
+<span class="bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">ProductKuu</span>
+</a>
+<div class="flex items-center gap-4">
+<span class="badge px-3 py-1 bg-primary-container/20 text-primary-container rounded-full text-[10px] font-bold border border-primary-container/30">ADMIN MODE</span>
+<button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/5 text-on-surface-variant" id="themeToggle">
+<i class="fas fa-moon"></i>
+</button>
+<button class="lg:hidden w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/5 text-on-surface-variant" id="sidebarToggle">
+<i class="fas fa-bars"></i>
+</button>
+</div>
+</div>
+</nav>
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+<div class="p-6 border-b border-white/5">
+<p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Main Menu</p>
+</div>
+<nav class="p-4 flex flex-col gap-1">
+<a class="nav-link" href="/admin/dashboard"><i class="fas fa-chart-pie w-5"></i> Dashboard</a>
+<a class="nav-link active" href="/admin/sellers"><i class="fas fa-users w-5"></i> Seller</a>
+<a class="nav-link" href="/admin/products"><i class="fas fa-box w-5"></i> Produk</a>
+<a class="nav-link" href="/admin/orders"><i class="fas fa-shopping-cart w-5"></i> Order</a>
+<a class="nav-link" href="/admin/banners"><i class="fas fa-images w-5"></i> Banner</a>
+<a class="nav-link" href="/admin/withdrawals"><i class="fas fa-arrow-up w-5"></i> Withdraw</a>
+<a class="nav-link" href="/admin/settings"><i class="fas fa-cog w-5"></i> Pengaturan</a>
+<div class="mt-4 pt-4 border-t border-white/5">
+<button class="nav-link w-full text-error hover:bg-error/10 hover:text-error" id="logoutBtn">
+<i class="fas fa-sign-out-alt w-5"></i> Logout
                 </button>
-            </div>
-
-            <div class="debug-box" id="debugBox">
-                <div class="debug-line debug-info">🔍 Debug Mode Active</div>
-                <div class="debug-line" id="debugLog">Menunggu data...</div>
-            </div>
-            <button class="debug-toggle" onclick="toggleDebug()"><i class="fas fa-bug"></i> Toggle Debug</button>
-
-            <div class="error-box" id="errorBox">
-                <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
-                <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
-            </div>
-
-            <div class="filter-bar" style="margin-top:8px;">
-                <div class="filter-group">
-                    <input type="text" id="searchSeller" placeholder="Cari seller..." style="min-width:200px;">
-                    <select id="filterStatus"><option value="all">Semua Status</option><option value="active">Active</option><option value="suspended">Suspended</option></select>
-                    <select id="filterLevel"><option value="all">Semua Level</option><option value="bronze">Bronze</option><option value="silver">Silver</option><option value="gold">Gold</option><option value="platinum">Platinum</option><option value="diamond">Diamond</option></select>
-                </div>
-                <div class="filter-actions">
-                    <button onclick="applyFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Filter</button>
-                    <button onclick="resetFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-undo"></i></button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="table-wrapper">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th style="min-width:140px;">Seller</th>
-                                <th style="min-width:120px;">Toko</th>
-                                <th style="min-width:80px;">Level</th>
-                                <th style="min-width:60px;">Produk</th>
-                                <th style="min-width:60px;">Terjual</th>
-                                <th style="min-width:100px;">Total Pendapatan</th>
-                                <th style="min-width:100px;">Saldo Tersedia</th>
-                                <th style="min-width:100px;">Saldo Ditahan</th>
-                                <th style="min-width:100px;">Pending Withdraw</th>
-                                <th style="min-width:80px;">Status</th>
-                                <th style="min-width:140px;">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="sellersTableBody">
-                            <tr><td colspan="11" class="text-center text-secondary" style="padding:40px 0;">Memuat seller...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div id="pagination" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"></div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Edit Seller Modal -->
-    <div class="modal-overlay" id="editSellerModal">
-        <div class="modal">
-            <button class="modal-close" onclick="closeEditSellerModal()"><i class="fas fa-times"></i></button>
-            <h3 class="modal-title">Edit Seller &amp; Saldo</h3>
-            <form id="editSellerForm">
-                <input type="hidden" id="editSellerId">
-                
-                <div class="input-group" style="margin-bottom:12px;">
-                    <label for="editStoreName">Nama Toko</label>
-                    <input type="text" id="editStoreName" class="input">
-                </div>
-                
-                <div class="input-group" style="margin-bottom:12px;">
-                    <label for="editStatus">Status</label>
-                    <select id="editStatus" class="input"><option value="active">Active</option><option value="suspended">Suspended</option></select>
-                </div>
-                
-                <div class="input-group" style="margin-bottom:12px;">
-                    <label for="editVerified">Verified</label>
-                    <select id="editVerified" class="input"><option value="true">Verified</option><option value="false">Unverified</option></select>
-                </div>
-                
-                <div class="input-group" style="margin-bottom:12px;">
-                    <label for="editLevel">Level</label>
-                    <select id="editLevel" class="input"><option value="bronze">Bronze</option><option value="silver">Silver</option><option value="gold">Gold</option><option value="platinum">Platinum</option><option value="diamond">Diamond</option></select>
-                </div>
-                
-                <hr style="margin:16px 0;border-color:var(--border-color);">
-                <h4 style="margin-bottom:12px;">💰 Edit Saldo</h4>
-                
-                <div class="grid-2">
-                    <div class="input-group">
-                        <label for="editTotalRevenue">Total Pendapatan</label>
-                        <input type="number" id="editTotalRevenue" class="input input-sm" min="0">
-                    </div>
-                    <div class="input-group">
-                        <label for="editAvailable">Saldo Tersedia</label>
-                        <input type="number" id="editAvailable" class="input input-sm" min="0">
-                    </div>
-                    <div class="input-group">
-                        <label for="editHolding">Saldo Ditahan</label>
-                        <input type="number" id="editHolding" class="input input-sm" min="0">
-                    </div>
-                    <div class="input-group">
-                        <label for="editPendingWithdraw">Pending Withdraw</label>
-                        <input type="number" id="editPendingWithdraw" class="input input-sm" min="0">
-                    </div>
-                </div>
-                
-                <div style="display:flex;gap:12px;margin-top:16px;">
-                    <button type="submit" class="btn btn-primary" style="flex:1;"><i class="fas fa-save"></i> Simpan</button>
-                    <button type="button" onclick="closeEditSellerModal()" class="btn btn-secondary" style="flex:1;">Batal</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="toast-container" id="toastContainer"></div>
-
-    <script type="importmap">
+</div>
+</nav>
+</aside>
+<div class="fixed inset-0 bg-black/60 z-[99] hidden lg:hidden" id="sidebarOverlay"></div>
+<!-- Main Content -->
+<div class="main-content">
+<main class="max-w-[1400px] mx-auto px-6 pb-20">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+<div>
+<h1 class="text-3xl font-bold text-white mb-2">Manajemen Seller</h1>
+<p class="text-on-surface-variant">Pantau performa, status akun, dan kelola finansial seller secara real-time.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center gap-2 text-sm font-medium" onclick="refreshData()">
+<i class="fas fa-sync-alt"></i> Refresh Data
+                    </button>
+</div>
+</div>
+<!-- Debug Console -->
+<div class="mb-6">
+<button class="text-xs text-gray-500 hover:text-primary-fixed underline flex items-center gap-2 mb-2" onclick="toggleDebug()">
+<i class="fas fa-terminal"></i> <span id="debugToggleLabel">Show System Logs</span>
+</button>
+<div class="debug-box hidden rounded-xl p-4 text-[11px] overflow-hidden" id="debugBox">
+<div class="flex items-center justify-between border-b border-white/5 pb-2 mb-2">
+<span class="text-primary-fixed font-bold">SYSTEM DEBUG CONSOLE</span>
+<span class="text-gray-600">v2.4.0-prod</span>
+</div>
+<div class="max-h-[120px] overflow-y-auto custom-scrollbar leading-relaxed" id="debugLog">
+<span class="text-gray-500">Initializing monitoring services...</span>
+</div>
+</div>
+</div>
+<!-- Error Notification -->
+<div class="hidden mb-6 p-4 rounded-xl border border-error/20 bg-error/5 text-error flex items-start gap-4" id="errorBox">
+<i class="fas fa-exclamation-triangle mt-1"></i>
+<div>
+<h4 class="font-bold text-sm" id="errorTitle">System Error</h4>
+<p class="text-xs opacity-80" id="errorDetail">Failed to establish connection with secure database.</p>
+</div>
+</div>
+<!-- Filters -->
+<div class="glass-card rounded-2xl p-5 mb-8 flex flex-wrap items-center gap-4">
+<div class="flex-1 min-w-[280px] relative">
+<i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+<input class="w-full pl-11 pr-4 py-3 rounded-xl focus:outline-none transition-all" id="searchSeller" placeholder="Cari berdasarkan nama, toko, atau email..." type="text"/>
+</div>
+<div class="flex flex-wrap items-center gap-3">
+<select class="px-4 py-3 rounded-xl border-none focus:outline-none min-w-[150px]" id="filterStatus">
+<option value="all">Semua Status</option>
+<option value="active">Active</option>
+<option value="suspended">Suspended</option>
+</select>
+<select class="px-4 py-3 rounded-xl border-none focus:outline-none min-w-[150px]" id="filterLevel">
+<option value="all">Semua Level</option>
+<option value="bronze">Bronze</option>
+<option value="silver">Silver</option>
+<option value="gold">Gold</option>
+<option value="platinum">Platinum</option>
+<option value="diamond">Diamond</option>
+</select>
+<button class="gradient-btn-primary px-6 py-3 rounded-xl font-bold text-sm" onclick="applyFilters()">
+                        Apply Filter
+                    </button>
+<button class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all" onclick="resetFilters()">
+<i class="fas fa-undo text-gray-400"></i>
+</button>
+</div>
+</div>
+<!-- Table Card -->
+<div class="glass-card rounded-2xl overflow-hidden shadow-2xl">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-white/5 border-b border-white/5">
+<th class="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-gray-400">Seller &amp; Akun</th>
+<th class="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-gray-400">Informasi Toko</th>
+<th class="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-gray-400">Level</th>
+<th class="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-gray-400 text-center">Produk</th>
+<th class="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-gray-400 text-center">Terjual</th>
+<th class="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-gray-400">Finansial (Total)</th>
+<th class="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-gray-400">Status</th>
+<th class="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-gray-400 text-right">Aksi</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5" id="sellersTableBody">
+<tr>
+<td class="px-6 py-20 text-center text-gray-500" colspan="8">
+<div class="flex flex-col items-center gap-4">
+<div class="w-12 h-12 border-4 border-primary-fixed/20 border-t-primary-fixed rounded-full animate-spin"></div>
+<p class="font-medium animate-pulse">Menghubungkan ke server...</p>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="p-6 bg-white/5 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4" id="pagination">
+<!-- Dynamic content -->
+</div>
+</div>
+</main>
+</div>
+<!-- Edit Seller Modal (Glassmorphism) -->
+<div class="modal-overlay fixed inset-0 z-[2000] hidden flex items-center justify-center p-4" id="editSellerModal">
+<div class="glass-card w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl neon-border-primary animate-[scaleIn_0.3s_ease]">
+<div class="p-6 border-b border-white/5 flex items-center justify-between bg-gradient-to-r from-primary-fixed/10 to-transparent">
+<div>
+<h3 class="text-xl font-bold text-white">Edit Profil &amp; Saldo Seller</h3>
+<p class="text-xs text-gray-400">Update parameter akun dan verifikasi finansial</p>
+</div>
+<button class="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center transition-all" onclick="closeEditSellerModal()">
+<i class="fas fa-times text-gray-400"></i>
+</button>
+</div>
+<form class="p-8" id="editSellerForm">
+<input id="editSellerId" type="hidden"/>
+<div class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Nama Toko</label>
+<input class="w-full px-4 py-3 rounded-xl focus:outline-none" id="editStoreName" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Level Seller</label>
+<select class="w-full px-4 py-3 rounded-xl focus:outline-none" id="editLevel">
+<option value="bronze">Bronze</option>
+<option value="silver">Silver</option>
+<option value="gold">Gold</option>
+<option value="platinum">Platinum</option>
+<option value="diamond">Diamond</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Status Akun</label>
+<select class="w-full px-4 py-3 rounded-xl focus:outline-none" id="editStatus">
+<option value="active">Active</option>
+<option value="suspended">Suspended</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Status Verifikasi</label>
+<select class="w-full px-4 py-3 rounded-xl focus:outline-none" id="editVerified">
+<option value="true">Verified Account</option>
+<option value="false">Unverified Account</option>
+</select>
+</div>
+</div>
+<div class="pt-4 border-t border-white/5 mt-6">
+<h4 class="text-sm font-bold text-primary-fixed flex items-center gap-2 mb-6 uppercase tracking-wider">
+<i class="fas fa-wallet"></i> Manajemen Saldo (IDR)
+                        </h4>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-gray-500 uppercase">Total Pendapatan</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xs font-bold">Rp</span>
+<input class="w-full pl-10 pr-4 py-3 rounded-xl focus:outline-none" id="editTotalRevenue" type="number"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-gray-500 uppercase">Saldo Tersedia</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-success text-xs font-bold">Rp</span>
+<input class="w-full pl-10 pr-4 py-3 rounded-xl focus:outline-none" id="editAvailable" type="number"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-gray-500 uppercase">Saldo Ditahan</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400 text-xs font-bold">Rp</span>
+<input class="w-full pl-10 pr-4 py-3 rounded-xl focus:outline-none" id="editHolding" type="number"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-gray-500 uppercase">Pending Withdraw</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-blue-400 text-xs font-bold">Rp</span>
+<input class="w-full pl-10 pr-4 py-3 rounded-xl focus:outline-none" id="editPendingWithdraw" type="number"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex gap-4 mt-10">
+<button class="flex-1 gradient-btn-primary py-4 rounded-2xl font-bold text-sm shadow-xl" type="submit">
+                        Simpan Perubahan
+                    </button>
+<button class="px-8 py-4 rounded-2xl bg-white/5 border border-white/10 font-bold text-sm hover:bg-white/10 transition-all text-gray-300" onclick="closeEditSellerModal()" type="button">
+                        Batal
+                    </button>
+</div>
+</form>
+</div>
+</div>
+<!-- Toast Container -->
+<div class="fixed bottom-8 right-8 z-[3000] flex flex-col gap-3 max-w-[400px] w-full" id="toastContainer"></div>
+<script type="importmap">
         {
             "imports": {
                 "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
@@ -321,16 +452,10 @@
             }
         }
     </script>
-
-    <script type="module">
-        // ============================================
-        // IMPORTS
-        // ============================================
+<script type="module">
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, updateDoc, runTransaction } from "firebase/firestore";
-
-        console.log('👥 [ADMIN_SELLERS] Page loaded');
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, updateDoc } from "firebase/firestore";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
@@ -350,191 +475,134 @@
         let sellers = [], lastDoc = null, hasMore = true, currentPage = 1, limitPerPage = 10;
         let debugVisible = false;
 
-        // ============================================
         // DEBUG LOG
-        // ============================================
         function addDebug(message, type = 'info') {
-            const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
-            const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
+            const colors = { success: 'text-success', error: 'text-error', info: 'text-primary-fixed', warning: 'text-orange-400' };
             const log = document.getElementById('debugLog');
             const time = new Date().toLocaleTimeString();
-            log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
-            console.log(`[ADMIN_SELLERS_DEBUG] ${message}`);
-            const box = document.getElementById('debugBox');
+            log.innerHTML += `<div class="mb-1 border-b border-white/5 pb-1"><span class="text-gray-600 mr-2">${time}</span> <span class="${colors[type] || 'text-white'}">${message}</span></div>`;
+            const box = document.getElementById('debugLog');
             box.scrollTop = box.scrollHeight;
         }
 
         window.toggleDebug = function() {
             const box = document.getElementById('debugBox');
+            const label = document.getElementById('debugToggleLabel');
             debugVisible = !debugVisible;
-            box.classList.toggle('show');
-            if (debugVisible) addDebug('Debug mode activated', 'info');
+            box.classList.toggle('hidden');
+            label.textContent = debugVisible ? 'Hide System Logs' : 'Show System Logs';
+            if (debugVisible) addDebug('Security auditing session initiated...', 'info');
         };
 
-        // ============================================
-        // REFRESH DATA
-        // ============================================
         window.refreshData = function() {
-            addDebug('Manual refresh triggered', 'info');
-            showToast('info', 'Memperbarui data seller...');
+            addDebug('Fetching fresh batch of seller data...', 'info');
+            showToast('info', 'Sinkronisasi data seller...');
             loadSellers(true);
         };
 
-        // ============================================
-        // THEME & SIDEBAR
-        // ============================================
-        const themeToggle = document.getElementById('themeToggle');
-        let darkMode = localStorage.getItem('darkMode') === 'true';
-        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
-        themeToggle.addEventListener('click', () => {
-            darkMode = !darkMode;
-            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-            localStorage.setItem('darkMode', darkMode);
-            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
-        });
-
+        // THEME & UI HANDLERS
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const sidebarToggle = document.getElementById('sidebarToggle');
+        
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', () => {
                 sidebar.classList.toggle('open');
-                sidebarOverlay.classList.toggle('open');
+                sidebarOverlay.classList.toggle('hidden');
             });
         }
+        
         if (sidebarOverlay) {
             sidebarOverlay.addEventListener('click', () => {
                 sidebar.classList.remove('open');
-                sidebarOverlay.classList.remove('open');
+                sidebarOverlay.classList.add('hidden');
             });
         }
 
-        document.querySelectorAll('.sidebar-nav a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const href = this.getAttribute('href');
-                if (href) window.location.href = href;
-            });
-        });
-
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             try { await signOut(auth); window.location.href = '/'; } 
-            catch (error) { showToast('error', 'Gagal logout'); }
+            catch (error) { showToast('error', 'Authentication failure'); }
         });
 
-        // ============================================
-        // TOAST & ERROR
-        // ============================================
+        // TOAST SYSTEM
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
-            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
             const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.style.borderLeftColor = colors[type] || colors.info;
+            const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+            const colorClass = type === 'success' ? 'text-success' : type === 'error' ? 'text-error' : 'text-primary-fixed';
+            
+            toast.className = 'glass-card p-4 rounded-2xl flex items-center gap-3 border-l-4 border-l-primary-fixed animate-[slideInRight_0.3s_ease]';
+            if (type === 'success') toast.style.borderLeftColor = '#00dbe9';
+            if (type === 'error') toast.style.borderLeftColor = '#ffb4ab';
+            
             toast.innerHTML = `
-                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
-                <div class="toast-content"><div class="toast-message">${message}</div></div>
-                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+                <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center ${colorClass}">
+                    <i class="fas ${icon}"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-bold text-white">${message}</p>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
             `;
             container.appendChild(toast);
             setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
         }
         window.showToast = showToast;
 
-        function showError(title, detail) {
-            const box = document.getElementById('errorBox');
-            document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
-            document.getElementById('errorDetail').textContent = detail || '';
-            box.classList.add('show');
-            setTimeout(() => { box.classList.remove('show'); }, 10000);
-        }
-
-        // ============================================
-        // FORMAT FUNCTIONS
-        // ============================================
+        // FORMATTERS
         function formatPrice(price) {
             if (!price && price !== 0) return '0';
             return new Intl.NumberFormat('id-ID').format(price);
         }
 
-        function formatDate(date) {
-            if (!date) return '-';
-            const d = date instanceof Date ? date : new Date(date);
-            if (isNaN(d.getTime())) return '-';
-            return d.toLocaleDateString('id-ID', {
-                year: 'numeric', month: 'long', day: 'numeric',
-                hour: '2-digit', minute: '2-digit'
-            });
-        }
-
-        // ============================================
         // AUTH STATE
-        // ============================================
-        addDebug('Setting up auth...', 'info');
-
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
-                addDebug('User not logged in, redirecting...', 'warning');
                 window.location.href = '/admin/login';
                 return;
             }
             currentUser = user;
-            addDebug(`User logged in: ${user.email}`, 'success');
+            addDebug(`Access granted for: ${user.email}`, 'success');
 
             try {
                 const userRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userRef);
                 if (!userDoc.exists() || userDoc.data().role !== 'admin') {
-                    addDebug('User is not admin, redirecting...', 'error');
+                    addDebug('Unauthorized access attempt detected', 'error');
                     window.location.href = '/';
                     return;
                 }
-                addDebug('Admin verified', 'success');
-                await loadSellers(true);
-
+                loadSellers(true);
             } catch (error) {
-                addDebug(`Error: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat data: ' + error.message);
+                addDebug(`Auth service error: ${error.message}`, 'error');
+                showToast('error', 'Gagal memuat profil admin');
             }
         });
 
-        // ============================================
-        // LOAD SELLERS - DENGAN DATA SALDO LENGKAP
-        // ============================================
+        // LOAD DATA
         async function loadSellers(reset = true) {
-            addDebug(`Loading sellers (reset: ${reset})...`, 'info');
             try {
                 if (reset) { lastDoc = null; hasMore = true; sellers = []; currentPage = 1; }
-                if (!hasMore) {
-                    addDebug('No more sellers to load', 'info');
-                    return;
-                }
+                if (!hasMore) return;
                 
                 let constraints = [where('role', '==', 'seller'), orderBy('createdAt', 'desc')];
                 const status = document.getElementById('filterStatus').value;
                 const level = document.getElementById('filterLevel').value;
-                const search = document.getElementById('searchSeller').value.trim();
                 
-                if (status !== 'all') {
-                    constraints.push(where('status', '==', status));
-                    addDebug(`Filter by status: ${status}`, 'info');
-                }
-                if (level !== 'all') {
-                    constraints.push(where('level', '==', level));
-                    addDebug(`Filter by level: ${level}`, 'info');
-                }
+                if (status !== 'all') constraints.push(where('status', '==', status));
+                if (level !== 'all') constraints.push(where('level', '==', level));
                 
                 let q = query(collection(db, 'users'), ...constraints, limit(limitPerPage));
                 if (lastDoc) q = query(collection(db, 'users'), ...constraints, startAfter(lastDoc), limit(limitPerPage));
                 
                 const snapshot = await getDocs(q);
-                addDebug(`Query returned ${snapshot.size} documents`, 'info');
                 
                 if (snapshot.empty) { 
                     hasMore = false; 
                     if (reset) {
                         document.getElementById('sellersTableBody').innerHTML = 
-                            '<tr><td colspan="11" class="text-center text-secondary">Belum ada seller</td></tr>';
+                            '<tr><td colspan="8" class="px-6 py-20 text-center text-gray-500 font-medium">Data seller tidak ditemukan dengan kriteria ini</td></tr>';
+                        document.getElementById('pagination').innerHTML = '';
                     }
                     return; 
                 }
@@ -542,94 +610,83 @@
                 lastDoc = snapshot.docs[snapshot.docs.length - 1];
                 hasMore = snapshot.docs.length === limitPerPage;
                 
-                const sellersData = [];
-                for (const doc of snapshot.docs) {
+                const sellersData = snapshot.docs.map(doc => {
                     const data = doc.data();
-                    const sellerId = doc.id;
-                    
-                    const wallet = data.wallet || { 
-                        available: 0, 
-                        holding: 0, 
-                        totalRevenue: 0, 
-                        totalWithdraw: 0, 
-                        pendingWithdraw: 0 
-                    };
-                    
-                    sellersData.push({
-                        id: sellerId,
-                        ...data,
-                        wallet: wallet,
-                        availableBalance: wallet.available || 0,
-                        holdingBalance: wallet.holding || 0,
-                        totalRevenue: wallet.totalRevenue || 0,
-                        totalWithdraw: wallet.totalWithdraw || 0,
-                        pendingWithdraw: wallet.pendingWithdraw || 0
-                    });
-                }
+                    const wallet = data.wallet || { available: 0, holding: 0, totalRevenue: 0, pendingWithdraw: 0 };
+                    return { id: doc.id, ...data, wallet };
+                });
                 
                 sellers = reset ? sellersData : [...sellers, ...sellersData];
-                addDebug(`Loaded ${sellers.length} sellers total`, 'success');
+                addDebug(`Successfully retrieved ${snapshot.size} seller nodes`, 'success');
                 renderSellers();
                 
             } catch (error) { 
-                addDebug(`Error loading sellers: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat seller: ' + error.message); 
+                addDebug(`Pipeline error: ${error.message}`, 'error');
+                showToast('error', 'Database sync failure: ' + error.message); 
             }
         }
 
-        // ============================================
-        // RENDER SELLERS - DENGAN DATA SALDO
-        // ============================================
         function renderSellers() {
             const tbody = document.getElementById('sellersTableBody');
-            if (sellers.length === 0) { 
-                tbody.innerHTML = '<tr><td colspan="11" class="text-center text-secondary">Tidak ada seller</td></tr>'; 
-                document.getElementById('pagination').innerHTML = ''; 
-                return; 
-            }
             
-            const levelColors = { 
-                'bronze': 'badge-warning', 
-                'silver': 'badge-info', 
-                'gold': 'badge-success', 
-                'platinum': 'badge-purple', 
-                'diamond': 'badge-info' 
+            const levelMap = { 
+                'bronze': { class: 'text-orange-400 bg-orange-400/10 border-orange-400/30' }, 
+                'silver': { class: 'text-gray-400 bg-gray-400/10 border-gray-400/30' }, 
+                'gold': { class: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30' }, 
+                'platinum': { class: 'text-purple-400 bg-purple-400/10 border-purple-400/30' }, 
+                'diamond': { class: 'text-cyan-400 bg-cyan-400/10 border-cyan-400/30' } 
             };
 
             tbody.innerHTML = sellers.map(s => `
-                <tr>
-                    <td>
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <div style="width:32px;height:32px;border-radius:50%;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--primary);font-size:14px;">
+                <tr class="table-row group transition-all">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center font-bold text-primary-fixed border border-white/10 shadow-inner">
                                 ${(s.displayName || s.storeName || 'S')[0].toUpperCase()}
                             </div>
                             <div>
-                                <strong>${s.displayName || 'Seller'}</strong>
-                                <br><span style="font-size:11px;color:var(--text-secondary);">${s.email || '-'}</span>
+                                <div class="text-sm font-bold text-white mb-0.5">${s.displayName || 'Seller Name'}</div>
+                                <div class="text-[11px] text-gray-500 font-mono">${s.email || 'no-email@prod.ku'}</div>
                             </div>
                         </div>
                     </td>
-                    <td>
-                        <strong>${s.storeName || '-'}</strong>
-                        <br><span style="font-size:11px;color:var(--text-secondary);">${s.storeDescription ? s.storeDescription.substring(0,25) + '...' : ''}</span>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium text-gray-200">${s.storeName || '-'}</span>
+                            ${s.verified ? '<i class="fas fa-check-circle text-primary-fixed text-xs" title="Verified Store"></i>' : ''}
+                        </div>
                     </td>
-                    <td>
-                        <span class="badge ${levelColors[s.level] || 'badge-info'}">${s.level || 'bronze'}</span>
-                        ${s.verified ? '<span style="color:var(--info);font-size:14px;" title="Verified"><i class="fas fa-check-circle"></i></span>' : ''}
+                    <td class="px-6 py-4">
+                        <span class="badge px-3 py-1 rounded-full text-[9px] font-bold border ${levelMap[s.level]?.class || 'text-gray-400 bg-gray-400/10'}">${s.level || 'bronze'}</span>
                     </td>
-                    <td style="text-align:center;font-weight:600;">${s.productCount || 0}</td>
-                    <td style="text-align:center;font-weight:600;">${s.totalSales || 0}</td>
-                    <td style="font-weight:700;color:var(--primary);">Rp${formatPrice(s.totalRevenue)}</td>
-                    <td style="font-weight:700;color:var(--success);">Rp${formatPrice(s.availableBalance)}</td>
-                    <td style="font-weight:700;color:#F97316;">Rp${formatPrice(s.holdingBalance)}</td>
-                    <td style="font-weight:700;color:var(--info);">Rp${formatPrice(s.pendingWithdraw)}</td>
-                    <td><span class="badge ${s.status === 'active' ? 'badge-success' : 'badge-danger'}">${s.status || 'active'}</span></td>
-                    <td>
-                        <div style="display:flex;gap:4px;flex-wrap:wrap;">
-                            <button onclick="editSeller('${s.id}')" class="btn btn-secondary btn-xs" title="Edit"><i class="fas fa-edit"></i></button>
-                            <button onclick="editWallet('${s.id}')" class="btn btn-primary btn-xs" title="Edit Saldo"><i class="fas fa-coins"></i></button>
-                            <button onclick="toggleSellerStatus('${s.id}')" class="btn btn-secondary btn-xs" title="${s.status === 'active' ? 'Suspend' : 'Activate'}">
-                                <i class="fas ${s.status === 'active' ? 'fa-pause' : 'fa-play'}"></i>
+                    <td class="px-6 py-4 text-center">
+                        <span class="text-sm font-bold text-white">${s.productCount || 0}</span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="text-sm font-bold text-primary-fixed">${s.totalSales || 0}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="space-y-1">
+                            <div class="text-xs font-bold text-white">Rp${formatPrice(s.wallet?.totalRevenue)}</div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] text-success font-bold">Rp${formatPrice(s.wallet?.available)}</span>
+                                <span class="text-[10px] text-gray-600">•</span>
+                                <span class="text-[10px] text-orange-400 font-bold">Rp${formatPrice(s.wallet?.holding)}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="badge px-3 py-1 rounded-lg text-[9px] font-black ${s.status === 'active' ? 'bg-success/20 text-success border border-success/30' : 'bg-error/20 text-error border border-error/30'}">
+                            ${s.status?.toUpperCase() || 'ACTIVE'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="editSeller('${s.id}')" class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-primary-fixed/20 hover:text-primary-fixed transition-all" title="Edit Saldo & Profil">
+                                <i class="fas fa-edit text-xs"></i>
+                            </button>
+                            <button onclick="toggleSellerStatus('${s.id}')" class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-error/20 hover:text-error transition-all" title="${s.status === 'active' ? 'Suspend' : 'Activate'}">
+                                <i class="fas ${s.status === 'active' ? 'fa-pause' : 'fa-play'} text-xs"></i>
                             </button>
                         </div>
                     </td>
@@ -639,68 +696,43 @@
             renderPagination();
         }
 
-        // ============================================
-        // PAGINATION
-        // ============================================
         function renderPagination() {
             const container = document.getElementById('pagination');
             if (!hasMore && sellers.length <= limitPerPage) { 
-                container.innerHTML = ''; 
+                container.innerHTML = `<span class="text-xs text-gray-500 font-mono">End of listing • ${sellers.length} entities</span>`; 
                 return; 
             }
             container.innerHTML = `
-                <span style="font-size:14px;color:var(--text-secondary);">${sellers.length} seller</span>
-                <div style="display:flex;gap:8px;">
-                    ${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}
-                    ${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></div>
+                    <span class="text-xs text-gray-400 font-bold uppercase tracking-widest">${sellers.length} SELLERS DISCOVERED</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    ${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold hover:bg-white/10 transition-all">Prev Page</button>` : ''}
+                    ${hasMore ? `<button onclick="loadNextPage()" class="px-4 py-2 rounded-xl gradient-btn-primary text-xs font-bold shadow-lg">Load More</button>` : ''}
                 </div>
             `;
         }
 
-        window.loadNextPage = function() { 
-            addDebug('Next page clicked', 'info');
-            currentPage++; 
-            loadSellers(false); 
-        };
-
-        window.loadPreviousPage = function() { 
-            addDebug('Previous page clicked', 'info');
-            if (currentPage <= 1) return; 
-            currentPage--; 
-            lastDoc = null; 
-            hasMore = true; 
-            loadSellers(true); 
-        };
-
-        window.applyFilters = function() { 
-            addDebug('Applying filters', 'info');
-            lastDoc = null; 
-            hasMore = true; 
-            loadSellers(true); 
-        };
-
-        window.resetFilters = function() { 
-            addDebug('Resetting filters', 'info');
+        window.loadNextPage = () => { currentPage++; loadSellers(false); };
+        window.loadPreviousPage = () => { if (currentPage <= 1) return; currentPage--; lastDoc = null; hasMore = true; loadSellers(true); };
+        window.applyFilters = () => { lastDoc = null; hasMore = true; loadSellers(true); };
+        window.resetFilters = () => { 
             document.getElementById('searchSeller').value = ''; 
             document.getElementById('filterStatus').value = 'all'; 
             document.getElementById('filterLevel').value = 'all'; 
             applyFilters(); 
         };
 
-        // ============================================
-        // EDIT SELLER
-        // ============================================
-        window.editSeller = async function(id) {
-            addDebug(`Editing seller: ${id}`, 'info');
+        // EDIT SELLER LOGIC
+        window.editSeller = async (id) => {
+            addDebug(`Opening node edit session: ${id}`, 'info');
             try {
                 const sellerRef = doc(db, 'users', id);
-                const sellerDoc = await getDoc(sellerRef);
-                if (!sellerDoc.exists()) { 
-                    addDebug('Seller not found', 'error');
-                    showToast('error', 'Seller tidak ditemukan'); 
-                    return; 
-                }
-                const s = sellerDoc.data();
+                const snapshot = await getDoc(sellerRef);
+                if (!snapshot.exists()) return;
+                
+                const s = snapshot.data();
                 const wallet = s.wallet || {};
                 
                 document.getElementById('editSellerId').value = id;
@@ -713,94 +745,65 @@
                 document.getElementById('editHolding').value = wallet.holding || 0;
                 document.getElementById('editPendingWithdraw').value = wallet.pendingWithdraw || 0;
                 
-                document.getElementById('editSellerModal').classList.add('open');
-                addDebug('Edit modal opened', 'success');
+                document.getElementById('editSellerModal').classList.remove('hidden');
             } catch (error) { 
-                addDebug(`Error loading seller: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat data seller: ' + error.message); 
+                showToast('error', 'Node retrieval failed'); 
             }
         };
 
-        window.editWallet = function(id) {
-            // Langsung buka modal edit dengan ID yang sama
-            editSeller(id);
-        };
-
-        window.closeEditSellerModal = function() { 
-            addDebug('Edit modal closed', 'info');
-            document.getElementById('editSellerModal').classList.remove('open'); 
+        window.closeEditSellerModal = () => { 
+            document.getElementById('editSellerModal').classList.add('hidden'); 
         };
 
         document.getElementById('editSellerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('editSellerId').value;
-            addDebug(`Saving seller: ${id}`, 'info');
-            
-            const totalRevenue = parseInt(document.getElementById('editTotalRevenue').value) || 0;
-            const available = parseInt(document.getElementById('editAvailable').value) || 0;
-            const holding = parseInt(document.getElementById('editHolding').value) || 0;
-            const pendingWithdraw = parseInt(document.getElementById('editPendingWithdraw').value) || 0;
+            addDebug(`Pushing update payload for: ${id}`, 'info');
             
             try {
                 await updateDoc(doc(db, 'users', id), {
-                    storeName: document.getElementById('editStoreName').value.trim() || undefined,
+                    storeName: document.getElementById('editStoreName').value,
                     status: document.getElementById('editStatus').value,
                     verified: document.getElementById('editVerified').value === 'true',
                     level: document.getElementById('editLevel').value,
-                    'wallet.totalRevenue': totalRevenue,
-                    'wallet.available': available,
-                    'wallet.holding': holding,
-                    'wallet.pendingWithdraw': pendingWithdraw,
+                    'wallet.totalRevenue': parseInt(document.getElementById('editTotalRevenue').value),
+                    'wallet.available': parseInt(document.getElementById('editAvailable').value),
+                    'wallet.holding': parseInt(document.getElementById('editHolding').value),
+                    'wallet.pendingWithdraw': parseInt(document.getElementById('editPendingWithdraw').value),
                     updatedAt: new Date().toISOString()
                 });
-                addDebug('Seller updated successfully', 'success');
-                showToast('success', 'Seller dan saldo diperbarui');
+                showToast('success', 'Database updated successfully');
                 closeEditSellerModal();
                 loadSellers(true);
             } catch (error) { 
-                addDebug(`Error updating seller: ${error.message}`, 'error');
-                showToast('error', 'Gagal memperbarui seller: ' + error.message); 
+                showToast('error', 'Write operation failed'); 
             }
         });
 
-        // ============================================
-        // TOGGLE SELLER STATUS
-        // ============================================
-        window.toggleSellerStatus = async function(id) {
-            addDebug(`Toggling status for seller: ${id}`, 'info');
+        window.toggleSellerStatus = async (id) => {
             try {
-                const sellerRef = doc(db, 'users', id);
-                const sellerDoc = await getDoc(sellerRef);
-                if (!sellerDoc.exists()) { 
-                    addDebug('Seller not found', 'error');
-                    showToast('error', 'Seller tidak ditemukan'); 
-                    return; 
-                }
-                const current = sellerDoc.data().status || 'active';
+                const ref = doc(db, 'users', id);
+                const snapshot = await getDoc(ref);
+                const current = snapshot.data().status || 'active';
                 const next = current === 'active' ? 'suspended' : 'active';
-                addDebug(`Changing status from ${current} to ${next}`, 'info');
-                if (!confirm(`Yakin ingin ${next === 'active' ? 'mengaktifkan' : 'mensuspend'} seller ini?`)) return;
-                await updateDoc(sellerRef, { status: next, updatedAt: new Date().toISOString() });
-                addDebug(`Status changed to ${next}`, 'success');
-                showToast('success', `Seller ${next === 'active' ? 'diaktifkan' : 'disuspend'}`);
+                
+                if (!confirm(`Switch account status to ${next.toUpperCase()}?`)) return;
+                
+                await updateDoc(ref, { status: next, updatedAt: new Date().toISOString() });
+                addDebug(`Node ${id} status toggled to ${next}`, 'success');
+                showToast('success', `Seller status: ${next}`);
                 loadSellers(true);
             } catch (error) { 
-                addDebug(`Error toggling status: ${error.message}`, 'error');
-                showToast('error', 'Gagal mengubah status: ' + error.message); 
+                showToast('error', 'Status toggle failed'); 
             }
         };
 
-        // ============================================
         // SEARCH DEBOUNCE
-        // ============================================
         let searchTimeout;
         document.getElementById('searchSeller').addEventListener('input', () => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(applyFilters, 500);
         });
 
-        addDebug('Page ready', 'success');
-        console.log('✅ [ADMIN_SELLERS] Page ready - Admin bisa edit saldo seller');
     </script>
-</body>
-</html>
+</body></html>

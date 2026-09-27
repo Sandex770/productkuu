@@ -3,266 +3,522 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Seller - ProductKuu</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>Register Admin - ProductKuu</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="icon" href="/assets/images/favicon.ico">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <style>
-        .auth-container { max-width: 480px; margin: 80px auto 40px; padding: 0 20px; }
-        .auth-card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 40px; border: 1px solid var(--border-color); box-shadow: var(--shadow-lg); }
-        .auth-card .auth-header { text-align: center; margin-bottom: 32px; }
-        .auth-card .auth-header h1 { font-size: 28px; margin-bottom: 8px; }
-        .auth-card .auth-header p { color: var(--text-secondary); font-size: 15px; }
-        .auth-card .auth-header .logo { font-size: 48px; color: var(--primary); margin-bottom: 12px; display: block; }
-        .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-        .input-group label { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
-        .input-group .hint { font-size: 12px; color: var(--text-light); }
-        .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
-        .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
-        .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        .btn-block { width: 100%; justify-content: center; }
-        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
-        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
-        .auth-footer { text-align: center; margin-top: 24px; font-size: 14px; color: var(--text-secondary); }
-        .auth-footer a { color: var(--primary); font-weight: 600; }
-        .auth-divider { display: flex; align-items: center; gap: 16px; margin: 20px 0; color: var(--text-light); font-size: 13px; }
-        .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border-color); }
-        .register-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 12px 16px; color: var(--danger); font-size: 14px; display: none; margin-bottom: 16px; }
-        .register-error.show { display: block; }
-        .register-success { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); border-radius: var(--radius); padding: 16px 20px; color: var(--success); font-size: 14px; display: none; margin-bottom: 16px; text-align: center; }
-        .register-success.show { display: block; }
-        .register-success i { font-size: 48px; display: block; margin-bottom: 12px; }
-        .input-icon { position: relative; }
-        .input-icon i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-light); }
-        .input-icon .input { padding-left: 44px; }
-        .password-strength { height: 4px; border-radius: 2px; margin-top: 6px; background: var(--border-color); overflow: hidden; }
-        .password-strength .bar { height: 100%; border-radius: 2px; transition: var(--transition); width: 0%; }
+        :root {
+            --bg-deep: #0d0d15;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --primary-gradient: linear-gradient(135deg, #00dbe9 0%, #7C3AED 100%);
+            --ice-blue: #00dbe9;
+            --purple: #a855f7;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --font: 'Inter', sans-serif;
+            --radius-lg: 24px;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font);
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(0, 219, 233, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(124, 58, 237, 0.05) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        .navbar {
+            background: rgba(13, 13, 21, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            height: 72px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .navbar-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .navbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-decoration: none;
+            letter-spacing: -0.02em;
+        }
+
+        .navbar-logo i {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 20px 40px;
+        }
+
+        .auth-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 48px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .auth-header .logo-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: inline-block;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .auth-header .subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .admin-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 219, 233, 0.1);
+            color: var(--ice-blue);
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: 1px solid rgba(0, 219, 233, 0.2);
+            margin-top: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .input-group .hint {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: all 0.3s;
+            outline: none;
+            font-family: var(--font);
+        }
+
+        .input:focus {
+            border-color: var(--ice-blue);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 0 4px rgba(0, 219, 233, 0.1);
+        }
+
+        .input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.5;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 10px 20px -5px rgba(0, 219, 233, 0.3);
+            font-family: var(--font);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(0, 219, 233, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-family: var(--font);
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .auth-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: var(--danger);
+            font-size: 14px;
+            display: none;
+            margin-bottom: 24px;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .auth-error.show { display: flex; }
+
+        .auth-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: var(--success);
+            font-size: 14px;
+            display: none;
+            margin-bottom: 24px;
+            align-items: flex-start;
+            gap: 12px;
+            text-align: center;
+            flex-direction: column;
+        }
+
+        .auth-success.show { display: flex; }
+
+        .auth-success i {
+            font-size: 32px;
+        }
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 24px 0;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--glass-border);
+        }
+
+        .auth-footer {
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 24px;
+        }
+
+        .auth-footer a {
+            color: var(--ice-blue);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .auth-footer a:hover {
+            color: white;
+        }
+
+        /* Password Strength */
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .password-strength .bar {
+            height: 100%;
+            border-radius: 2px;
+            transition: all 0.3s;
+            width: 0%;
+        }
+
         .password-strength .bar.weak { width: 25%; background: var(--danger); }
         .password-strength .bar.medium { width: 50%; background: var(--warning); }
         .password-strength .bar.strong { width: 75%; background: var(--info); }
         .password-strength .bar.very-strong { width: 100%; background: var(--success); }
-        .password-hint { font-size: 12px; color: var(--text-light); margin-top: 4px; }
-        .terms-check { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--text-secondary); margin: 16px 0; }
-        .terms-check input[type="checkbox"] { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0; }
-        .terms-check a { color: var(--primary); font-weight: 500; }
-        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
-        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
-        .toast-icon { font-size: 20px; }
-        .toast-content { flex: 1; }
-        .toast-message { font-size: 13px; color: var(--text-secondary); }
-        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-        
-        /* CAPTCHA STYLES */
-        .captcha-container {
-            background: var(--bg-secondary);
-            border-radius: var(--radius);
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 1px solid var(--border-color);
+
+        .password-hint {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
         }
-        .captcha-container .captcha-question {
-            font-size: 18px;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 12px;
-            color: var(--text-primary);
-        }
-        .captcha-container .captcha-question span {
-            color: var(--primary);
-        }
-        .captcha-container .captcha-input-group {
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 3000;
             display: flex;
-            gap: 10px;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .toast {
+            background: rgba(13, 13, 21, 0.9);
+            backdrop-filter: blur(12px);
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
             align-items: center;
+            gap: 12px;
+            animation: slideInRight 0.3s ease;
         }
-        .captcha-container .captcha-input-group input {
-            flex: 1;
-            padding: 10px 14px;
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius);
-            font-family: var(--font);
-            font-size: 14px;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            transition: all 0.3s;
-            text-align: center;
-            font-size: 18px;
-            font-weight: 600;
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
         }
-        .captcha-container .captcha-input-group input:focus {
-            outline: none;
-            border-color: #4F46E5;
-            box-shadow: 0 0 0 4px rgba(79,70,229,0.1);
-        }
-        .captcha-container .captcha-input-group input.correct {
-            border-color: var(--success);
-            background: rgba(16,185,129,0.05);
-        }
-        .captcha-container .captcha-input-group input.wrong {
-            border-color: var(--danger);
-            background: rgba(239,68,68,0.05);
-        }
-        .captcha-container .captcha-refresh {
-            background: none;
-            border: none;
-            color: var(--text-light);
-            cursor: pointer;
-            font-size: 18px;
-            padding: 8px;
-            transition: var(--transition);
+
+        .toast-success { border-left: 4px solid var(--success); }
+        .toast-error { border-left: 4px solid var(--danger); }
+        .toast-warning { border-left: 4px solid var(--warning); }
+        .toast-info { border-left: 4px solid var(--info); }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+            border-top-color: white;
+            animation: spin 0.8s ease-in-out infinite;
         }
-        .captcha-container .captcha-refresh:hover {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
-        .captcha-container .captcha-status {
-            font-size: 12px;
-            margin-top: 8px;
-            text-align: center;
-        }
-        .captcha-container .captcha-status.success {
-            color: var(--success);
-        }
-        .captcha-container .captcha-status.error {
-            color: var(--danger);
-        }
-        
-        @media (max-width: 480px) { 
-            .auth-card { padding: 24px; }
-            .captcha-container .captcha-input-group { flex-wrap: wrap; }
-            .captcha-container .captcha-input-group input { flex: 1 1 100%; }
+
+        @media (max-width: 480px) {
+            .auth-card { padding: 32px 24px; }
+            .navbar-inner { padding: 0 20px; }
         }
     </style>
 </head>
 <body>
+
     <!-- Navbar -->
     <nav class="navbar">
         <div class="navbar-inner">
-            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
-            <div class="navbar-actions">
-                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
-                <a href="/seller/login" class="btn btn-secondary btn-sm"><i class="fas fa-sign-in-alt"></i> Login</a>
+            <a class="navbar-logo" href="/">
+                <i class="fas fa-cube"></i>
+                <span>ProductKuu</span>
+            </a>
+            <div class="flex items-center gap-3">
+                <a class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm font-semibold hover:bg-white/10 transition-all" href="/admin/login">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Login
+                </a>
             </div>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main>
-        <div class="auth-container">
-            <div class="auth-card">
-                <div class="auth-header">
-                    <span class="logo"><i class="fas fa-store"></i></span>
-                    <h1>Daftar Seller</h1>
-                    <p>Mulai jualan produk digital di ProductKuu</p>
+    <main class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <span class="logo-icon"><i class="fas fa-user-shield"></i></span>
+                <h1>Register Admin</h1>
+                <p class="subtitle">Buat akun administrator untuk mengelola ProductKuu</p>
+                <div>
+                    <span class="admin-badge"><i class="fas fa-lock text-[10px]"></i> Akses Terbatas</span>
                 </div>
+            </div>
 
-                <div class="register-error" id="registerError">
-                    <i class="fas fa-exclamation-circle"></i>
+            <!-- Error Message -->
+            <div class="auth-error" id="authError">
+                <i class="fas fa-exclamation-circle mt-1"></i>
+                <div>
                     <span id="errorMessage">Terjadi kesalahan</span>
+                    <div class="error-detail" id="errorDetail" style="font-size:11px;opacity:0.7;margin-top:4px;"></div>
+                </div>
+            </div>
+
+            <!-- Success Message -->
+            <div class="auth-success" id="authSuccess">
+                <i class="fas fa-check-circle"></i>
+                <div>
+                    <strong id="successMessage">Akun berhasil dibuat!</strong>
+                    <p style="font-size:13px;color:var(--text-secondary);margin-top:4px;">Mengarahkan ke halaman login...</p>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <form id="registerForm">
+                <div class="input-group">
+                    <label for="fullName">Nama Lengkap</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input class="input" id="fullName" placeholder="Admin ProductKuu" required type="text">
+                    </div>
                 </div>
 
-                <div class="register-success" id="registerSuccess">
-                    <i class="fas fa-check-circle"></i>
-                    <span id="successMessage">Pendaftaran berhasil!</span>
-                    <p style="font-size:13px;color:var(--text-secondary);margin-top:8px;">Mengarahkan ke dashboard...</p>
+                <div class="input-group">
+                    <label for="email">Email Admin</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input class="input" id="email" placeholder="admin@productkuu.com" required type="email">
+                    </div>
                 </div>
 
-                <form id="registerForm">
-                    <div class="input-group">
-                        <label for="fullName">Nama Lengkap *</label>
-                        <div class="input-icon">
-                            <i class="fas fa-user"></i>
-                            <input type="text" id="fullName" class="input" required placeholder="Masukkan nama lengkap">
-                        </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input class="input" id="password" placeholder="Minimal 6 karakter" required type="password">
                     </div>
-
-                    <div class="input-group">
-                        <label for="storeName">Nama Toko *</label>
-                        <div class="input-icon">
-                            <i class="fas fa-store"></i>
-                            <input type="text" id="storeName" class="input" required placeholder="Masukkan nama toko">
-                        </div>
-                        <span class="hint">Nama toko akan muncul di halaman produk Anda</span>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="bar" id="strengthBar"></div>
                     </div>
+                    <div class="password-hint" id="passwordHint">Gunakan minimal 6 karakter dengan kombinasi huruf dan angka</div>
+                </div>
 
-                    <div class="input-group">
-                        <label for="email">Email *</label>
-                        <div class="input-icon">
-                            <i class="fas fa-envelope"></i>
-                            <input type="email" id="email" class="input" required placeholder="Masukkan email">
-                        </div>
+                <div class="input-group">
+                    <label for="confirmPassword">Konfirmasi Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-check-circle"></i>
+                        <input class="input" id="confirmPassword" placeholder="Masukkan ulang password" required type="password">
                     </div>
+                </div>
 
-                    <div class="input-group">
-                        <label for="password">Password *</label>
-                        <div class="input-icon">
-                            <i class="fas fa-lock"></i>
-                            <input type="password" id="password" class="input" required placeholder="Minimal 6 karakter">
-                        </div>
-                        <div class="password-strength" id="passwordStrength">
-                            <div class="bar" id="strengthBar"></div>
-                        </div>
-                        <div class="password-hint" id="passwordHint">Gunakan minimal 6 karakter dengan huruf dan angka</div>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="confirmPassword">Konfirmasi Password *</label>
-                        <div class="input-icon">
-                            <i class="fas fa-check-circle"></i>
-                            <input type="password" id="confirmPassword" class="input" required placeholder="Konfirmasi password">
-                        </div>
-                    </div>
-
-                    <!-- ============================================ -->
-                    <!-- CAPTCHA - PERTANYAAN MATEMATIKA               -->
-                    <!-- ============================================ -->
-                    <div class="captcha-container">
-                        <div class="captcha-question">
-                            <i class="fas fa-shield-alt" style="color:var(--primary);margin-right:8px;"></i>
-                            Verifikasi: <span id="captchaQuestion">Berapa 1 + 4?</span>
-                        </div>
-                        <div class="captcha-input-group">
-                            <input type="number" id="captchaAnswer" placeholder="Masukkan jawaban" autocomplete="off">
-                            <button type="button" class="captcha-refresh" id="captchaRefresh" title="Refresh pertanyaan">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
-                        </div>
-                        <div class="captcha-status" id="captchaStatus">Masukkan jawaban yang benar untuk melanjutkan</div>
-                    </div>
-
-                    <div class="terms-check">
-                        <input type="checkbox" id="terms" required>
-                        <label for="terms">
+                <div class="input-group" style="margin-bottom:24px;">
+                    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                        <input type="checkbox" id="terms" required style="width:18px;height:18px;accent-color:#00dbe9;">
+                        <span style="font-size:13px;font-weight:400;">
                             Saya setuju dengan 
-                            <a href="/syarat-ketentuan">Syarat & Ketentuan</a> 
-                            dan 
-                            <a href="/kebijakan-privasi">Kebijakan Privasi</a>
-                        </label>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-block" id="registerBtn">
-                        <i class="fas fa-rocket"></i> Daftar Sekarang
-                    </button>
-                </form>
-
-                <div class="auth-divider">atau</div>
-                <div class="auth-footer">
-                    Sudah punya akun? <a href="/seller/login">Masuk di sini</a>
+                            <a href="#" style="color:var(--ice-blue);text-decoration:none;">Syarat & Ketentuan</a>
+                        </span>
+                    </label>
                 </div>
+
+                <button class="btn-primary" id="registerBtn" type="submit">
+                    <i class="fas fa-user-plus"></i> Buat Akun Admin
+                </button>
+            </form>
+
+            <div class="auth-divider">atau</div>
+
+            <a class="btn-secondary" href="/admin/login">
+                <i class="fas fa-sign-in-alt"></i> Sudah punya akun? Login
+            </a>
+
+            <div class="auth-footer">
+                Kembali ke <a href="/">Beranda</a>
             </div>
         </div>
     </main>
@@ -286,14 +542,15 @@
         // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged } from "firebase/auth";
-        import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+        import { getFirestore, doc, setDoc, serverTimestamp } from "firebase/firestore";
 
-        console.log('📝 [REGISTER] Page loaded');
+        console.log('📝 [ADMIN_REGISTER] Page loaded');
 
         // ============================================
         // FIREBASE CONFIG
         // ============================================
-        const firebaseConfig = {
+        // Gunakan config dari Android jika ada, atau fallback
+        const firebaseConfig = window.FirebaseConfig || {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
             authDomain: "productkuu.firebaseapp.com",
             projectId: "productkuu",
@@ -307,37 +564,30 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        console.log('✅ [REGISTER] Firebase initialized');
-
-        // ============================================
-        // THEME
-        // ============================================
-        const themeToggle = document.getElementById('themeToggle');
-        let darkMode = localStorage.getItem('darkMode') === 'true';
-        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
-        themeToggle.addEventListener('click', () => {
-            darkMode = !darkMode;
-            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-            localStorage.setItem('darkMode', darkMode);
-            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
-        });
+        console.log('✅ [ADMIN_REGISTER] Firebase initialized');
 
         // ============================================
         // TOAST
         // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
-            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
             const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.style.borderLeftColor = colors[type] || colors.info;
+            toast.className = `toast toast-${type}`;
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
             toast.innerHTML = `
-                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
-                <div class="toast-content"><div class="toast-message">${message}</div></div>
-                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+                <i class="fas ${icons[type] || icons.info}" style="font-size:20px;"></i>
+                <div style="flex:1;font-size:14px;">${message}</div>
+                <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:16px;">
+                    <i class="fas fa-times"></i>
+                </button>
             `;
             container.appendChild(toast);
-            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
+            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 5000);
         }
         window.showToast = showToast;
 
@@ -347,14 +597,13 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 try {
+                    // Cek apakah user sudah admin
                     const userRef = doc(db, 'users', user.uid);
-                    const userDoc = await getDoc(userRef);
-                    if (userDoc.exists()) {
-                        const role = userDoc.data().role;
-                        if (role === 'seller') window.location.href = '/seller/dashboard';
-                        else if (role === 'admin') window.location.href = '/admin/dashboard';
-                    }
-                } catch (error) { console.error('❌ [REGISTER] Error:', error); }
+                    // Redirect ke dashboard
+                    window.location.href = '/admin/dashboard';
+                } catch (error) {
+                    console.error('Error checking user:', error);
+                }
             }
         });
 
@@ -368,6 +617,7 @@
         passwordInput.addEventListener('input', function() {
             const value = this.value;
             let strength = 0;
+            
             if (value.length >= 6) strength++;
             if (value.length >= 10) strength++;
             if (/[A-Z]/.test(value) && /[a-z]/.test(value)) strength++;
@@ -385,8 +635,8 @@
             if (value.length === 0) {
                 strengthBar.className = 'bar';
                 strengthBar.style.width = '0%';
-                passwordHint.textContent = 'Gunakan minimal 6 karakter dengan huruf dan angka';
-                passwordHint.style.color = 'var(--text-light)';
+                passwordHint.textContent = 'Gunakan minimal 6 karakter dengan kombinasi huruf dan angka';
+                passwordHint.style.color = 'var(--text-secondary)';
                 return;
             }
 
@@ -395,236 +645,141 @@
                 strengthBar.className = `bar ${levels[index]}`;
                 strengthBar.style.width = `${(strength / 4) * 100}%`;
                 passwordHint.textContent = hints[index] || 'Password kuat!';
-                passwordHint.style.color = strength >= 4 ? 'var(--success)' : 'var(--text-light)';
+                passwordHint.style.color = strength >= 4 ? 'var(--success)' : 'var(--text-secondary)';
             }
         });
-
-        // ============================================
-        // CAPTCHA - PERTANYAAN MATEMATIKA
-        // ============================================
-        let captchaAnswer = 0;
-        let captchaAttempts = 0;
-
-        function generateCaptcha() {
-            const num1 = Math.floor(Math.random() * 9) + 1;
-            const num2 = Math.floor(Math.random() * 9) + 1;
-            const operators = ['+', '-', '×'];
-            const operator = operators[Math.floor(Math.random() * operators.length)];
-            
-            let displayOp = operator;
-            let answer = 0;
-            let displayQuestion = '';
-            
-            if (operator === '+') {
-                answer = num1 + num2;
-                displayQuestion = `${num1} + ${num2}`;
-            } else if (operator === '-') {
-                // Pastikan hasil tidak negatif
-                const a = Math.max(num1, num2);
-                const b = Math.min(num1, num2);
-                answer = a - b;
-                displayQuestion = `${a} - ${b}`;
-            } else if (operator === '×') {
-                answer = num1 * num2;
-                displayQuestion = `${num1} × ${num2}`;
-            }
-            
-            captchaAnswer = answer;
-            document.getElementById('captchaQuestion').textContent = `Berapa ${displayQuestion}?`;
-            
-            // Reset input
-            const input = document.getElementById('captchaAnswer');
-            input.value = '';
-            input.className = 'input';
-            document.getElementById('captchaStatus').textContent = 'Masukkan jawaban yang benar untuk melanjutkan';
-            document.getElementById('captchaStatus').className = 'captcha-status';
-        }
-
-        // Generate pertama kali
-        generateCaptcha();
-
-        // Refresh captcha
-        document.getElementById('captchaRefresh').addEventListener('click', generateCaptcha);
-
-        // Validasi captcha saat input
-        document.getElementById('captchaAnswer').addEventListener('input', function() {
-            const val = parseInt(this.value);
-            const status = document.getElementById('captchaStatus');
-            
-            if (isNaN(val) || val === '') {
-                this.className = 'input';
-                status.textContent = 'Masukkan jawaban yang benar untuk melanjutkan';
-                status.className = 'captcha-status';
-                return;
-            }
-            
-            if (val === captchaAnswer) {
-                this.className = 'input correct';
-                status.textContent = '✅ Jawaban benar!';
-                status.className = 'captcha-status success';
-                captchaAttempts = 0;
-            } else {
-                this.className = 'input wrong';
-                status.textContent = '❌ Jawaban salah, coba lagi';
-                status.className = 'captcha-status error';
-                captchaAttempts++;
-                
-                // Jika salah 3 kali, refresh otomatis
-                if (captchaAttempts >= 3) {
-                    status.textContent = '🔄 Terlalu banyak salah, pertanyaan di-refresh';
-                    setTimeout(() => {
-                        generateCaptcha();
-                        captchaAttempts = 0;
-                    }, 1000);
-                }
-            }
-        });
-
-        // ============================================
-        // CHECK STORE NAME
-        // ============================================
-        async function isStoreNameTaken(storeName) {
-            try {
-                const q = query(collection(db, 'users'), where('storeName', '==', storeName));
-                const snapshot = await getDocs(q);
-                return !snapshot.empty;
-            } catch (error) {
-                console.error('❌ [REGISTER] Check store name error:', error);
-                return false;
-            }
-        }
 
         // ============================================
         // REGISTER FORM
         // ============================================
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            console.log('📤 [REGISTER] Form submitted');
+            console.log('📤 [ADMIN_REGISTER] Form submitted');
 
             const fullName = document.getElementById('fullName').value.trim();
-            const storeName = document.getElementById('storeName').value.trim();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const terms = document.getElementById('terms').checked;
-            const captchaInput = document.getElementById('captchaAnswer').value.trim();
 
-            const errorEl = document.getElementById('registerError');
+            const errorEl = document.getElementById('authError');
             const errorMsg = document.getElementById('errorMessage');
-            const successEl = document.getElementById('registerSuccess');
+            const errorDetail = document.getElementById('errorDetail');
+            const successEl = document.getElementById('authSuccess');
+            
             errorEl.classList.remove('show');
             successEl.classList.remove('show');
 
-            // Validasi CAPTCHA
-            if (parseInt(captchaInput) !== captchaAnswer) {
-                showToast('warning', '❌ Jawaban verifikasi salah!');
-                document.getElementById('captchaAnswer').className = 'input wrong';
-                document.getElementById('captchaStatus').textContent = '❌ Jawaban salah, silakan coba lagi';
-                document.getElementById('captchaStatus').className = 'captcha-status error';
-                generateCaptcha();
+            // Validasi
+            if (!fullName) {
+                showToast('warning', 'Nama lengkap wajib diisi');
                 return;
             }
-
-            // Validasi lainnya
-            if (!fullName) { showToast('warning', 'Nama lengkap wajib diisi'); return; }
-            if (!storeName) { showToast('warning', 'Nama toko wajib diisi'); return; }
-            if (!email) { showToast('warning', 'Email wajib diisi'); return; }
-            if (!password) { showToast('warning', 'Password wajib diisi'); return; }
-            if (password.length < 6) { showToast('warning', 'Password minimal 6 karakter'); return; }
-            if (password !== confirmPassword) { showToast('warning', 'Password tidak cocok'); return; }
-            if (!terms) { showToast('warning', 'Anda harus menyetujui syarat & ketentuan'); return; }
+            if (!email) {
+                showToast('warning', 'Email wajib diisi');
+                return;
+            }
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 showToast('warning', 'Format email tidak valid');
                 return;
             }
-
-            // Check store name
-            const storeTaken = await isStoreNameTaken(storeName);
-            if (storeTaken) {
-                showToast('error', 'Nama toko sudah digunakan, silakan pilih nama lain');
+            if (!password || password.length < 6) {
+                showToast('warning', 'Password minimal 6 karakter');
+                return;
+            }
+            if (password !== confirmPassword) {
+                showToast('warning', 'Password tidak cocok');
+                return;
+            }
+            if (!terms) {
+                showToast('warning', 'Anda harus menyetujui syarat & ketentuan');
                 return;
             }
 
             const btn = document.getElementById('registerBtn');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mendaftar...';
+            btn.innerHTML = '<span class="loading-spinner"></span> Membuat akun...';
 
             try {
-                console.log('🔐 [REGISTER] Creating user...');
+                console.log('🔐 [ADMIN_REGISTER] Creating admin account...');
+                
+                // Create user
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
-                console.log('✅ [REGISTER] User created:', user.uid);
+                console.log('✅ [ADMIN_REGISTER] User created:', user.uid);
 
+                // Update profile
                 await updateProfile(user, { displayName: fullName });
-                console.log('✅ [REGISTER] Profile updated');
+                console.log('✅ [ADMIN_REGISTER] Profile updated');
 
-                // ============================================
-                // SAVE USER DATA - DENGAN SEMUA FIELD SALDO
-                // ============================================
+                // Save user data as ADMIN
                 await setDoc(doc(db, 'users', user.uid), {
                     uid: user.uid,
                     email: email,
                     displayName: fullName,
-                    storeName: storeName,
-                    storeDescription: '',
-                    whatsapp: '',
-                    instagram: '',
-                    role: 'seller',
+                    role: 'admin',
                     status: 'active',
-                    verified: false,
-                    level: 'bronze',
-                    productCount: 0,
-                    totalSales: 0,
-                    // ============================================
-                    // WALLET - LENGKAP SEMUA FIELD
-                    // ============================================
-                    wallet: {
-                        available: 0,        // Saldo tersedia (bisa di-withdraw)
-                        holding: 0,           // Saldo ditahan (masih dalam masa holding)
-                        totalRevenue: 0,      // Total pendapatan
-                        totalWithdraw: 0,     // Total sudah di-withdraw
-                        pendingWithdraw: 0,   // Saldo yang sedang diproses withdraw
-                        lastHolding: null,
-                        lastReleased: null
-                    },
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
+                    verified: true,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
                 });
-                console.log('✅ [REGISTER] User data saved dengan wallet lengkap');
+                console.log('✅ [ADMIN_REGISTER] Admin data saved');
 
+                // Show success
                 successEl.classList.add('show');
-                document.getElementById('successMessage').textContent = `🎉 Selamat ${fullName}! Pendaftaran berhasil!`;
-                showToast('success', '🎉 Pendaftaran berhasil!');
+                document.getElementById('successMessage').textContent = `🎉 Selamat ${fullName}! Akun Admin berhasil dibuat!`;
+                
+                showToast('success', '✅ Akun Admin berhasil dibuat!');
 
+                // Redirect after 2 seconds
                 setTimeout(() => {
-                    window.location.href = '/seller/dashboard';
-                }, 2000);
+                    window.location.href = '/admin/login';
+                }, 2500);
 
             } catch (error) {
-                console.error('❌ [REGISTER] Error:', error);
-                let message = 'Gagal mendaftar. Silakan coba lagi.';
-                if (error.code === 'auth/email-already-in-use') {
-                    message = 'Email sudah terdaftar. Silakan gunakan email lain.';
-                } else if (error.code === 'auth/weak-password') {
-                    message = 'Password terlalu lemah. Gunakan minimal 6 karakter.';
-                } else if (error.code === 'auth/invalid-email') {
-                    message = 'Format email tidak valid.';
-                } else if (error.code === 'auth/network-request-failed') {
-                    message = 'Koneksi internet bermasalah. Periksa koneksi Anda.';
-                } else if (error.code === 'permission-denied') {
-                    message = 'Gagal menyimpan data. Periksa Firestore Security Rules.';
+                console.error('❌ [ADMIN_REGISTER] Error:', error);
+                
+                let message = 'Gagal membuat akun. Silakan coba lagi.';
+                let detail = `Error code: ${error.code}`;
+
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        message = 'Email sudah terdaftar. Silakan gunakan email lain.';
+                        detail = 'Email already registered';
+                        break;
+                    case 'auth/weak-password':
+                        message = 'Password terlalu lemah. Gunakan minimal 6 karakter dengan kombinasi.';
+                        detail = 'Weak password';
+                        break;
+                    case 'auth/invalid-email':
+                        message = 'Format email tidak valid.';
+                        detail = 'Invalid email format';
+                        break;
+                    case 'auth/network-request-failed':
+                        message = 'Koneksi internet bermasalah. Periksa koneksi Anda.';
+                        detail = 'Network error';
+                        break;
+                    case 'auth/too-many-requests':
+                        message = 'Terlalu banyak percobaan. Coba lagi nanti.';
+                        detail = 'Too many requests';
+                        break;
+                    default:
+                        message = error.message || 'Gagal membuat akun.';
+                        detail = `Error: ${error.code}`;
                 }
 
-                showToast('error', message);
                 errorMsg.textContent = message;
+                errorDetail.textContent = detail;
                 errorEl.classList.add('show');
+                showToast('error', message);
+
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-rocket"></i> Daftar Sekarang';
+                btn.innerHTML = '<i class="fas fa-user-plus"></i> Buat Akun Admin';
             }
         });
 
-        console.log('✅ [REGISTER] Page ready');
+        console.log('✅ [ADMIN_REGISTER] Page ready');
     </script>
 </body>
 </html>

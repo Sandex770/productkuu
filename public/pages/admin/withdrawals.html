@@ -1,202 +1,280 @@
 <!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manajemen Withdraw - ProductKuu</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="icon" href="/assets/images/favicon.ico">
-    <style>
-        .app-wrapper { display: flex; min-height: calc(100vh - 64px); margin-top: 64px; }
-        .sidebar { width: 260px; background: var(--bg-primary); border-right: 1px solid var(--border-color); padding: 20px 0; position: fixed; top: 64px; bottom: 0; overflow-y: auto; z-index: 100; transition: transform 0.3s ease; }
-        .sidebar-header { padding: 0 16px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px; }
-        .sidebar-header .title { font-weight: 600; font-size: 14px; color: var(--text-secondary); }
-        .sidebar-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
-        .sidebar-nav a, .sidebar-nav button { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius); color: var(--text-secondary); transition: var(--transition); font-size: 14px; font-weight: 500; text-decoration: none; background: none; border: none; width: 100%; cursor: pointer; font-family: var(--font); text-align: left; }
-        .sidebar-nav a:hover, .sidebar-nav button:hover { background: var(--bg-secondary); color: var(--text-primary); }
-        .sidebar-nav a.active { background: rgba(79,70,229,0.1); color: var(--primary); }
-        .sidebar-nav .logout-btn { color: var(--danger); margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 16px; }
-        .sidebar-nav .logout-btn:hover { background: rgba(239,68,68,0.1); color: var(--danger); }
-        .sidebar-overlay { display: none; position: fixed; top: 64px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99; }
-        .sidebar-overlay.open { display: block; }
-        .main-content { margin-left: 260px; padding: 24px; flex: 1; min-height: calc(100vh - 64px); }
-        .mobile-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-primary); cursor: pointer; padding: 8px; }
-        @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); width: 280px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 16px; } .mobile-toggle { display: block !important; } }
-        
-        .table-wrapper { overflow-x: auto; }
-        .table { width: 100%; border-collapse: collapse; }
-        .table th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); border-bottom: 2px solid var(--border-color); background: var(--bg-secondary); }
-        .table td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
-        .table tr:hover td { background: var(--bg-secondary); }
-        
-        .filter-bar { background: var(--bg-primary); border-radius: var(--radius); padding: 16px 20px; border: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 24px; }
-        .filter-bar .filter-group { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
-        .filter-bar .filter-group select, .filter-bar .filter-group input { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 13px; min-width: 120px; }
-        .filter-bar .filter-actions { display: flex; gap: 8px; }
-        
-        .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
-        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
-        .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
-        .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
-        .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
-        .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
-        .badge-primary { background: rgba(79,70,229,0.1); color: var(--primary); }
-        
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-success:hover { transform: translateY(-2px); }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-danger:hover { transform: translateY(-2px); }
-        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
-        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
-        .btn-sm { padding: 8px 16px; font-size: 12px; }
-        
-        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
-        .modal-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
-        .modal { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 32px; max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; animation: slideUp 0.3s ease; text-align: center; }
-        .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
-        .modal p { color: var(--text-secondary); margin-bottom: 24px; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        
-        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-        .text-center { text-align: center; }
-        .text-secondary { color: var(--text-secondary); }
-        
-        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
-        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
-        .toast-icon { font-size: 20px; }
-        .toast-content { flex: 1; }
-        .toast-message { font-size: 13px; color: var(--text-secondary); }
-        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-        
-        .debug-box {
-            background: #1E1E2E;
-            border-radius: var(--radius);
-            padding: 12px 16px;
-            margin-bottom: 16px;
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            color: #CDD6F4;
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
-            border: 1px solid #313244;
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Manajemen Withdraw - ProductKuu Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "tertiary-fixed-dim": "#ffb77f",
+                "on-primary": "#00363a",
+                "inverse-surface": "#e4e1ed",
+                "inverse-primary": "#006970",
+                "outline-variant": "#3b494b",
+                "surface-tint": "#00dbe9",
+                "surface": "#13131b",
+                "on-surface-variant": "#b9cacb",
+                "primary-fixed": "#7df4ff",
+                "on-tertiary-fixed-variant": "#6f3900",
+                "secondary-fixed": "#f8d8ff",
+                "on-tertiary-container": "#924c00",
+                "on-surface": "#e4e1ed",
+                "background": "#0d0d15",
+                "on-primary-container": "#006970",
+                "surface-container": "#1f1f27",
+                "on-error": "#690005",
+                "surface-container-low": "#1b1b23",
+                "primary": "#00f0ff",
+                "outline": "#849495",
+                "on-secondary-fixed": "#320047",
+                "primary-container": "#00f0ff",
+                "on-background": "#e4e1ed",
+                "tertiary-fixed": "#ffdcc4",
+                "on-tertiary-fixed": "#2f1500",
+                "on-secondary-container": "#480063",
+                "surface-dim": "#13131b",
+                "tertiary": "#fff3ed",
+                "secondary": "#ecb2ff",
+                "error": "#ffb4ab",
+                "on-primary-fixed-variant": "#004f54",
+                "surface-variant": "#34343d",
+                "tertiary-container": "#ffd0ae",
+                "primary-fixed-dim": "#00dbe9",
+                "surface-container-high": "#292932",
+                "secondary-container": "#cf5cff",
+                "on-secondary": "#520071",
+                "on-error-container": "#ffdad6",
+                "surface-container-highest": "#34343d",
+                "on-tertiary": "#4e2600",
+                "on-secondary-fixed-variant": "#74009f",
+                "surface-container-lowest": "#0d0d15",
+                "inverse-on-surface": "#302f39",
+                "secondary-fixed-dim": "#ecb2ff",
+                "error-container": "#93000a",
+                "on-primary-fixed": "#002022",
+                "surface-bright": "#393842"
+            },
+            "fontFamily": {
+                "sans": ["Inter", "sans-serif"],
+                "mono": ["JetBrains Mono", "monospace"]
+            }
+          }
         }
-        .debug-box.show { display: block; }
-        .debug-box .debug-line { padding: 2px 0; border-bottom: 1px solid #2A2A3E; }
-        .debug-box .debug-line:last-child { border-bottom: none; }
-        .debug-box .debug-success { color: #A6E3A1; }
-        .debug-box .debug-error { color: #F38BA8; }
-        .debug-box .debug-info { color: #89B4FA; }
-        .debug-box .debug-warning { color: #F9E2AF; }
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #0d0d15; color: #e4e1ed; }
+        .glass-card { background: rgba(31, 31, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .sidebar-item-active { background: linear-gradient(90deg, rgba(0, 240, 255, 0.1) 0%, rgba(0, 240, 255, 0) 100%); border-left: 3px solid #00f0ff; color: #00f0ff; }
         
-        .debug-toggle { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 12px; text-decoration: underline; padding: 4px 8px; margin-bottom: 8px; }
-        .debug-toggle:hover { color: var(--text-primary); }
-        
-        .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
-        .error-box.show { display: block; }
-        .error-box .error-title { font-weight: 700; color: var(--danger); }
-        .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+        /* Table Styles */
+        .admin-table th { background: rgba(31, 31, 39, 0.9); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; color: #849495; }
+        .admin-table td { border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
+        .admin-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #34343d; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4a4a55; }
+
+        /* Badges */
+        .badge-warning { background: rgba(255, 183, 127, 0.1); color: #ffb77f; border: 1px solid rgba(255, 183, 127, 0.2); }
+        .badge-success { background: rgba(0, 240, 255, 0.1); color: #00f0ff; border: 1px solid rgba(0, 240, 255, 0.2); }
+        .badge-danger { background: rgba(255, 180, 171, 0.1); color: #ffb4ab; border: 1px solid rgba(255, 180, 171, 0.2); }
+        .badge-info { background: rgba(236, 178, 255, 0.1); color: #ecb2ff; border: 1px solid rgba(236, 178, 255, 0.2); }
+
+        .btn-gradient { background: linear-gradient(135deg, #00f0ff 0%, #00dbe9 100%); color: #00363a; }
+        .btn-gradient:hover { filter: brightness(1.1); }
     </style>
 </head>
-<body>
-    <nav class="navbar">
-        <div class="navbar-inner">
-            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
-            <div class="navbar-actions">
-                <span class="badge badge-primary" style="font-size:11px;">Admin</span>
-                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
-                <button class="mobile-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-            </div>
-        </div>
-    </nav>
-
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header"><div class="title">Menu Admin</div></div>
-        <nav class="sidebar-nav">
-            <a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a href="/admin/sellers"><i class="fas fa-users"></i> Seller</a>
-            <a href="/admin/products"><i class="fas fa-box"></i> Produk</a>
-            <a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Order</a>
-            <a href="/admin/banners"><i class="fas fa-images"></i> Banner</a>
-            <a href="/admin/withdrawals" class="active"><i class="fas fa-arrow-up"></i> Withdraw</a>
-            <a href="/admin/settings"><i class="fas fa-cog"></i> Pengaturan</a>
-            <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </nav>
-    </aside>
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <div class="app-wrapper">
-        <main class="main-content">
-            <div class="flex-between" style="margin-bottom:24px;">
-                <div><h1 style="font-size:24px;">Manajemen Withdraw</h1><p style="color:var(--text-secondary);">Kelola semua permintaan withdraw</p></div>
-                <button onclick="refreshData()" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-sync-alt"></i> Refresh
+<body class="min-h-screen">
+<!-- Navbar -->
+<nav class="fixed top-0 left-0 right-0 h-16 glass-card border-b border-white/5 z-50 px-4 md:px-8 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center text-primary border border-primary/30">
+<i class="fas fa-cube text-xl"></i>
+</div>
+<span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">ProductKuu</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="hidden md:inline-block px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold tracking-widest uppercase">Admin Panel</span>
+<button class="w-10 h-10 rounded-xl hover:bg-white/5 flex items-center justify-center transition-all text-on-surface-variant" id="themeToggle">
+<i class="fas fa-moon"></i>
+</button>
+<button class="md:hidden w-10 h-10 rounded-xl hover:bg-white/5 flex items-center justify-center transition-all text-on-surface-variant" id="sidebarToggle">
+<i class="fas fa-bars"></i>
+</button>
+</div>
+</nav>
+<!-- Sidebar Overlay -->
+<div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden transition-opacity duration-300" id="sidebarOverlay"></div>
+<!-- Sidebar -->
+<aside class="fixed top-16 left-0 bottom-0 w-64 glass-card border-r border-white/5 z-40 transition-transform duration-300 -translate-x-full md:translate-x-0" id="sidebar">
+<div class="p-6">
+<p class="text-[10px] font-bold text-outline uppercase tracking-[0.2em] mb-4">Navigation</p>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all text-on-surface-variant group" href="/admin/dashboard">
+<i class="fas fa-chart-pie w-5 text-lg group-hover:text-primary transition-colors"></i>
+<span class="font-medium text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all text-on-surface-variant group" href="/admin/sellers">
+<i class="fas fa-users w-5 text-lg group-hover:text-primary transition-colors"></i>
+<span class="font-medium text-sm">Seller</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all text-on-surface-variant group" href="/admin/products">
+<i class="fas fa-box w-5 text-lg group-hover:text-primary transition-colors"></i>
+<span class="font-medium text-sm">Produk</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all text-on-surface-variant group" href="/admin/orders">
+<i class="fas fa-shopping-cart w-5 text-lg group-hover:text-primary transition-colors"></i>
+<span class="font-medium text-sm">Order</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all text-on-surface-variant group" href="/admin/banners">
+<i class="fas fa-images w-5 text-lg group-hover:text-primary transition-colors"></i>
+<span class="font-medium text-sm">Banner</span>
+</a>
+<a class="sidebar-item-active flex items-center gap-3 px-4 py-3 rounded-xl transition-all group" href="/admin/withdrawals">
+<i class="fas fa-arrow-up w-5 text-lg transition-colors"></i>
+<span class="font-medium text-sm">Withdraw</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all text-on-surface-variant group" href="/admin/settings">
+<i class="fas fa-cog w-5 text-lg group-hover:text-primary transition-colors"></i>
+<span class="font-medium text-sm">Pengaturan</span>
+</a>
+</nav>
+<div class="mt-8 pt-8 border-t border-white/5">
+<button class="flex items-center gap-3 px-4 py-3 rounded-xl w-full hover:bg-error/10 text-error/80 transition-all group" id="logoutBtn">
+<i class="fas fa-sign-out-alt w-5 text-lg"></i>
+<span class="font-medium text-sm">Logout Admin</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="md:ml-64 pt-24 p-4 md:p-8 min-h-screen">
+<div class="max-w-7xl mx-auto space-y-6">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h1 class="text-3xl font-extrabold text-white tracking-tight">Manajemen Withdraw</h1>
+<p class="text-on-surface-variant mt-1">Pantau dan kelola permintaan pencairan dana dari seller.</p>
+</div>
+<button class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-medium border border-white/10 transition-all" onclick="refreshData()">
+<i class="fas fa-sync-alt text-sm"></i>
+<span>Refresh Data</span>
+</button>
+</div>
+<!-- Debug and Error Boxes -->
+<div class="hidden overflow-hidden rounded-xl bg-slate-900 border border-slate-700/50 font-mono text-[11px] text-slate-300" id="debugBox">
+<div class="bg-slate-800 px-4 py-2 border-b border-slate-700/50 flex items-center justify-between">
+<span class="flex items-center gap-2 text-primary"><i class="fas fa-bug"></i> SYSTEM DEBUG LOG</span>
+<button class="hover:text-white" onclick="toggleDebug()"><i class="fas fa-times"></i></button>
+</div>
+<div class="p-4 max-h-48 overflow-y-auto space-y-1" id="debugLog">
+<div class="text-slate-500 italic">Menunggu log data...</div>
+</div>
+</div>
+<button class="text-xs text-on-surface-variant hover:text-primary flex items-center gap-1 ml-1 opacity-50 hover:opacity-100 transition-all" onclick="toggleDebug()">
+<i class="fas fa-terminal"></i> <u>Toggle Admin Debug Mode</u>
+</button>
+<div class="hidden p-4 rounded-xl bg-error/10 border border-error/20 flex items-start gap-3" id="errorBox">
+<i class="fas fa-exclamation-circle text-error mt-1"></i>
+<div>
+<h4 class="font-bold text-error" id="errorTitle">Terjadi Kesalahan</h4>
+<p class="text-sm text-on-surface-variant" id="errorDetail">Detail error akan muncul di sini.</p>
+</div>
+</div>
+<!-- Filter Bar -->
+<div class="glass-card rounded-2xl p-4 flex flex-wrap items-center gap-4">
+<div class="flex-1 min-w-[200px] flex items-center gap-2">
+<div class="relative flex-1">
+<i class="fas fa-filter absolute left-4 top-1/2 -translate-y-1/2 text-outline text-sm"></i>
+<select class="w-full pl-10 pr-4 py-2.5 bg-background border border-white/5 rounded-xl text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all" id="filterStatus">
+<option value="all">Semua Status</option>
+<option value="pending">Pending</option>
+<option value="approved">Approved</option>
+<option value="rejected">Rejected</option>
+<option value="processing">Processing</option>
+</select>
+</div>
+<div class="flex items-center gap-2">
+<input class="px-4 py-2.5 bg-background border border-white/5 rounded-xl text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all" id="filterDateFrom" type="date"/>
+<span class="text-outline">s/d</span>
+<input class="px-4 py-2.5 bg-background border border-white/5 rounded-xl text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all" id="filterDateTo" type="date"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-6 py-2.5 rounded-xl bg-primary text-on-primary font-bold text-sm hover:brightness-110 transition-all" onclick="applyFilters()">
+<i class="fas fa-search mr-2"></i>Terapkan
+                    </button>
+<button class="w-11 h-11 rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/10 flex items-center justify-center transition-all" onclick="resetFilters()" title="Reset Filters">
+<i class="fas fa-undo"></i>
+</button>
+</div>
+</div>
+<!-- Main Data Table -->
+<div class="glass-card rounded-2xl overflow-hidden">
+<div class="overflow-x-auto">
+<table class="admin-table w-full text-left border-collapse">
+<thead>
+<tr>
+<th class="px-6 py-4 font-bold">Seller</th>
+<th class="px-6 py-4 font-bold">Metode</th>
+<th class="px-6 py-4 font-bold">Tujuan</th>
+<th class="px-6 py-4 font-bold text-right">Nominal</th>
+<th class="px-6 py-4 font-bold text-center">Status</th>
+<th class="px-6 py-4 font-bold">Tanggal</th>
+<th class="px-6 py-4 font-bold text-center">Aksi</th>
+</tr>
+</thead>
+<tbody id="withdrawalsTableBody">
+<tr>
+<td class="px-6 py-20 text-center" colspan="7">
+<div class="flex flex-col items-center gap-3">
+<div class="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+<p class="text-on-surface-variant font-medium">Menarik data withdraw...</p>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="px-6 py-6 border-t border-white/5 flex items-center justify-between" id="pagination"></div>
+</div>
+</div>
+</main>
+<!-- Action Modal -->
+<div class="modal-overlay fixed inset-0 z-[100] bg-black/80 backdrop-blur-md hidden items-center justify-center p-4" id="actionModal">
+<div class="bg-surface-container rounded-3xl p-8 max-w-md w-full border border-white/10 shadow-2xl scale-95 transition-transform duration-300">
+<div class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mx-auto mb-6">
+<i class="fas fa-question-circle text-3xl"></i>
+</div>
+<h3 class="text-2xl font-bold text-white text-center mb-2" id="actionModalTitle">Konfirmasi Tindakan</h3>
+<p class="text-on-surface-variant text-center mb-8" id="actionModalMessage">Apakah Anda yakin ingin memproses permintaan withdraw ini?</p>
+<div class="grid grid-cols-2 gap-4">
+<button class="py-3.5 rounded-2xl bg-primary text-on-primary font-bold hover:brightness-110 transition-all flex items-center justify-center gap-2" id="actionConfirmBtn" onclick="confirmWithdrawAction()">
+<i class="fas fa-check"></i> <span>Konfirmasi</span>
+</button>
+<button class="py-3.5 rounded-2xl bg-white/5 text-white font-bold hover:bg-white/10 transition-all border border-white/10" onclick="closeActionModal()">
+                    Batal
                 </button>
-            </div>
-
-            <div class="debug-box" id="debugBox">
-                <div class="debug-line debug-info">🔍 Debug Mode Active</div>
-                <div class="debug-line" id="debugLog">Menunggu data...</div>
-            </div>
-            <button class="debug-toggle" onclick="toggleDebug()"><i class="fas fa-bug"></i> Toggle Debug</button>
-
-            <div class="error-box" id="errorBox">
-                <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
-                <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
-            </div>
-
-            <div class="filter-bar" style="margin-top:8px;">
-                <div class="filter-group">
-                    <select id="filterStatus">
-                        <option value="all">Semua Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
-                        <option value="processing">Processing</option>
-                    </select>
-                    <input type="date" id="filterDateFrom">
-                    <input type="date" id="filterDateTo">
-                </div>
-                <div class="filter-actions">
-                    <button onclick="applyFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Filter</button>
-                    <button onclick="resetFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-undo"></i></button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="table-wrapper">
-                    <table class="table">
-                        <thead><tr><th>Seller</th><th>Metode</th><th>Nomor Tujuan</th><th>Nama</th><th>Nominal</th><th>Status</th><th>Tanggal</th><th>Aksi</th></tr></thead>
-                        <tbody id="withdrawalsTableBody"><tr><td colspan="8" class="text-center text-secondary" style="padding:40px 0;">Memuat withdraw...</td></tr></tbody>
-                    </table>
-                </div>
-                <div id="pagination" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"></div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Action Modal -->
-    <div class="modal-overlay" id="actionModal">
-        <div class="modal">
-            <h3 class="modal-title" id="actionModalTitle">Approve Withdraw</h3>
-            <p id="actionModalMessage">Apakah Anda yakin ingin menyetujui permintaan withdraw ini?</p>
-            <div style="display:flex;gap:12px;">
-                <button onclick="confirmWithdrawAction()" class="btn btn-success" style="flex:1;" id="actionConfirmBtn"><i class="fas fa-check"></i> Ya</button>
-                <button onclick="closeActionModal()" class="btn btn-secondary" style="flex:1;">Batal</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="toast-container" id="toastContainer"></div>
-
-    <script type="importmap">
+</div>
+</div>
+</div>
+<!-- Toasts Container -->
+<div class="fixed bottom-8 right-8 z-[200] flex flex-col gap-3 pointer-events-none" id="toastContainer"></div>
+<script type="importmap">
         {
             "imports": {
                 "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
@@ -205,8 +283,7 @@
             }
         }
     </script>
-
-    <script type="module">
+<script type="module">
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, updateDoc } from "firebase/firestore";
@@ -232,21 +309,29 @@
         let debugVisible = false;
 
         function addDebug(message, type = 'info') {
-            const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
+            const colors = { success: 'text-green-400', error: 'text-red-400', info: 'text-blue-400', warning: 'text-yellow-400' };
             const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
             const log = document.getElementById('debugLog');
             const time = new Date().toLocaleTimeString();
-            log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
+            
+            const line = document.createElement('div');
+            line.className = `border-b border-white/5 pb-1 mb-1 ${colors[type] || 'text-slate-300'}`;
+            line.innerHTML = `<span class="opacity-50">[${time}]</span> ${icons[type] || 'ℹ️'} ${message}`;
+            log.appendChild(line);
+            
             console.log(`[ADMIN_WITHDRAWALS_DEBUG] ${message}`);
-            const box = document.getElementById('debugBox');
-            box.scrollTop = box.scrollHeight;
+            log.scrollTop = log.scrollHeight;
         }
 
         window.toggleDebug = function() {
             const box = document.getElementById('debugBox');
             debugVisible = !debugVisible;
-            box.classList.toggle('show');
-            if (debugVisible) addDebug('Debug mode activated', 'info');
+            if (debugVisible) {
+                box.classList.remove('hidden');
+                addDebug('Debug mode activated', 'info');
+            } else {
+                box.classList.add('hidden');
+            }
         };
 
         window.refreshData = function() {
@@ -255,58 +340,62 @@
             loadWithdrawals(true);
         };
 
+        // Theme Toggle Persistence
         const themeToggle = document.getElementById('themeToggle');
-        let darkMode = localStorage.getItem('darkMode') === 'true';
-        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
+        let darkMode = localStorage.getItem('darkMode') !== 'false'; // Default true for admin
+        document.documentElement.classList.toggle('dark', darkMode);
+        
         themeToggle.addEventListener('click', () => {
             darkMode = !darkMode;
-            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+            document.documentElement.classList.toggle('dark', darkMode);
             localStorage.setItem('darkMode', darkMode);
             themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
         });
 
+        // Sidebar Management
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const sidebarToggle = document.getElementById('sidebarToggle');
+        
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('open');
-                sidebarOverlay.classList.toggle('open');
+                sidebar.classList.toggle('-translate-x-full');
+                sidebarOverlay.classList.toggle('hidden');
             });
         }
+        
         if (sidebarOverlay) {
             sidebarOverlay.addEventListener('click', () => {
-                sidebar.classList.remove('open');
-                sidebarOverlay.classList.remove('open');
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
             });
         }
 
-        document.querySelectorAll('.sidebar-nav a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const href = this.getAttribute('href');
-                if (href) window.location.href = href;
-            });
-        });
-
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            try { await signOut(auth); window.location.href = '/'; } 
-            catch (error) { showToast('error', 'Gagal logout'); }
+            if (confirm('Yakin ingin keluar?')) {
+                try { await signOut(auth); window.location.href = '/'; } 
+                catch (error) { showToast('error', 'Gagal logout'); }
+            }
         });
 
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
-            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
+            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+            const colors = { success: 'border-primary text-primary bg-primary/10', error: 'border-error text-error bg-error/10', warning: 'border-tertiary-fixed-dim text-tertiary-fixed-dim bg-tertiary-fixed-dim/10', info: 'border-secondary text-secondary bg-secondary/10' };
+            
             const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.style.borderLeftColor = colors[type] || colors.info;
+            toast.className = `pointer-events-auto px-6 py-4 rounded-2xl border backdrop-blur-md shadow-2xl flex items-center gap-4 animate-slide-in-right ${colors[type] || colors.info}`;
+            toast.style.animation = 'slideInRight 0.3s ease-out forwards';
             toast.innerHTML = `
-                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
-                <div class="toast-content"><div class="toast-message">${message}</div></div>
-                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+                <i class="fas ${icons[type]} text-xl"></i>
+                <div class="font-bold text-sm text-white">${message}</div>
+                <button onclick="this.parentElement.remove()" class="ml-auto opacity-50 hover:opacity-100"><i class="fas fa-times"></i></button>
             `;
             container.appendChild(toast);
-            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
+            setTimeout(() => { 
+                toast.style.animation = 'slideInRight 0.3s ease-in reverse forwards';
+                setTimeout(() => { if (toast.parentElement) toast.remove(); }, 300);
+            }, 5000);
         }
         window.showToast = showToast;
 
@@ -314,8 +403,8 @@
             const box = document.getElementById('errorBox');
             document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
             document.getElementById('errorDetail').textContent = detail || '';
-            box.classList.add('show');
-            setTimeout(() => { box.classList.remove('show'); }, 10000);
+            box.classList.remove('hidden');
+            setTimeout(() => { box.classList.add('hidden'); }, 10000);
         }
 
         function formatPrice(price) {
@@ -328,7 +417,7 @@
             const d = date instanceof Date ? date : new Date(date);
             if (isNaN(d.getTime())) return '-';
             return d.toLocaleDateString('id-ID', {
-                year: 'numeric', month: 'long', day: 'numeric',
+                year: 'numeric', month: 'short', day: 'numeric',
                 hour: '2-digit', minute: '2-digit'
             });
         }
@@ -370,8 +459,16 @@
         async function loadWithdrawals(reset = true) {
             addDebug(`Loading withdrawals (reset: ${reset})...`, 'info');
             try {
-                if (reset) { lastDoc = null; hasMore = true; withdrawals = []; currentPage = 1; }
-                if (!hasMore) {
+                const tbody = document.getElementById('withdrawalsTableBody');
+                if (reset) { 
+                    lastDoc = null; 
+                    hasMore = true; 
+                    withdrawals = []; 
+                    currentPage = 1;
+                    tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-20 text-center"><div class="flex flex-col items-center gap-3"><div class="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div><p class="text-on-surface-variant">Memuat data...</p></div></td></tr>';
+                }
+                
+                if (!hasMore && !reset) {
                     addDebug('No more withdrawals to load', 'info');
                     return;
                 }
@@ -392,8 +489,7 @@
                 if (snapshot.empty) { 
                     hasMore = false; 
                     if (reset) {
-                        document.getElementById('withdrawalsTableBody').innerHTML = 
-                            '<tr><td colspan="8" class="text-center text-secondary">Belum ada withdraw</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-20 text-center text-on-surface-variant font-medium">Tidak ada data withdraw yang ditemukan</td></tr>';
                     }
                     return; 
                 }
@@ -436,7 +532,7 @@
         function renderWithdrawals() {
             const tbody = document.getElementById('withdrawalsTableBody');
             if (withdrawals.length === 0) { 
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-secondary">Tidak ada withdraw</td></tr>'; 
+                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-20 text-center text-on-surface-variant">Tidak ada withdraw ditemukan.</td></tr>'; 
                 document.getElementById('pagination').innerHTML = ''; 
                 return; 
             }
@@ -449,20 +545,49 @@
             };
 
             tbody.innerHTML = withdrawals.map(w => `
-                <tr>
-                    <td><strong>${w.sellerName}</strong></td>
-                    <td>${w.method}</td>
-                    <td>${w.accountNumber}</td>
-                    <td>${w.accountName}</td>
-                    <td style="font-weight:600;color:${w.status === 'pending' ? 'var(--danger)' : 'var(--primary)'};">Rp${formatPrice(w.amount)}</td>
-                    <td><span class="badge ${statusColors[w.status] || 'badge-info'}">${w.status}</span></td>
-                    <td style="font-size:13px;color:var(--text-secondary);">${formatDate(w.createdAt)}</td>
-                    <td>
-                        ${w.status === 'pending' ? `
-                            <button onclick="approveWithdraw('${w.id}')" class="btn btn-success btn-sm" style="padding:4px 8px;" title="Approve"><i class="fas fa-check"></i></button>
-                            <button onclick="rejectWithdraw('${w.id}')" class="btn btn-danger btn-sm" style="padding:4px 8px;" title="Reject"><i class="fas fa-times"></i></button>
-                        ` : ''}
-                        ${w.adminNote ? `<span style="font-size:11px;color:var(--text-light);display:block;">${w.adminNote}</span>` : ''}
+                <tr class="group transition-colors">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[10px] font-bold text-primary border border-white/5">
+                                ${w.sellerName.substring(0,2).toUpperCase()}
+                            </div>
+                            <span class="font-semibold text-white truncate max-w-[150px]">${w.sellerName}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="text-xs font-bold text-on-surface-variant bg-white/5 px-2 py-1 rounded-md border border-white/5">${w.method}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex flex-col">
+                            <span class="text-sm text-white font-medium font-mono">${w.accountNumber}</span>
+                            <span class="text-[10px] text-on-surface-variant uppercase tracking-wider">${w.accountName}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <span class="text-primary font-bold font-mono">Rp${formatPrice(w.amount)}</span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="badge ${statusColors[w.status] || 'badge-info'} text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest inline-block">
+                            ${w.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="text-xs text-on-surface-variant">${formatDate(w.createdAt)}</span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            ${w.status === 'pending' ? `
+                                <button onclick="approveWithdraw('${w.id}')" class="w-8 h-8 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-on-primary transition-all flex items-center justify-center" title="Approve">
+                                    <i class="fas fa-check text-xs"></i>
+                                </button>
+                                <button onclick="rejectWithdraw('${w.id}')" class="w-8 h-8 rounded-lg bg-error/10 text-error hover:bg-error hover:text-on-error transition-all flex items-center justify-center" title="Reject">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            ` : `
+                                <span class="text-[10px] text-outline italic">Processed</span>
+                            `}
+                        </div>
+                        ${w.adminNote ? `<div class="mt-1 text-[9px] text-outline truncate max-w-[100px] mx-auto" title="${w.adminNote}">${w.adminNote}</div>` : ''}
                     </td>
                 </tr>
             `).join('');
@@ -472,15 +597,19 @@
 
         function renderPagination() {
             const container = document.getElementById('pagination');
-            if (!hasMore && withdrawals.length <= limitPerPage) { 
-                container.innerHTML = ''; 
+            if (!hasMore && withdrawals.length <= limitPerPage && currentPage === 1) { 
+                container.innerHTML = `<span class="text-sm text-outline">Menampilkan semua ${withdrawals.length} data</span>`; 
                 return; 
             }
             container.innerHTML = `
-                <span style="font-size:14px;color:var(--text-secondary);">${withdrawals.length} withdraw</span>
-                <div style="display:flex;gap:8px;">
-                    ${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}
-                    ${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}
+                <span class="text-sm text-outline">Hal. ${currentPage} &bull; ${withdrawals.length} entri dimuat</span>
+                <div class="flex items-center gap-2">
+                    <button onclick="loadPreviousPage()" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold hover:bg-white/10 transition-all ${currentPage <= 1 ? 'opacity-30 cursor-not-allowed' : ''}" ${currentPage <= 1 ? 'disabled' : ''}>
+                        <i class="fas fa-chevron-left mr-2"></i>Sebelumnya
+                    </button>
+                    <button onclick="loadNextPage()" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold hover:bg-white/10 transition-all ${!hasMore ? 'opacity-30 cursor-not-allowed' : ''}" ${!hasMore ? 'disabled' : ''}>
+                        Selanjutnya<i class="fas fa-chevron-right ml-2"></i>
+                    </button>
                 </div>
             `;
         }
@@ -523,95 +652,119 @@
             actionId = id;
             actionType = 'approve';
             document.getElementById('actionModalTitle').textContent = 'Approve Withdraw';
-            document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menyetujui permintaan withdraw ini?';
-            document.getElementById('actionConfirmBtn').className = 'btn btn-success';
-            document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-check"></i> Approve';
-            document.getElementById('actionModal').classList.add('open');
+            document.getElementById('actionModalMessage').textContent = 'Konfirmasi penyetujuan pencairan dana ini? Dana akan dianggap sudah terkirim.';
+            
+            const confirmBtn = document.getElementById('actionConfirmBtn');
+            confirmBtn.className = 'py-3.5 rounded-2xl bg-primary text-on-primary font-bold hover:brightness-110 transition-all flex items-center justify-center gap-2';
+            confirmBtn.innerHTML = '<i class="fas fa-check"></i> <span>Ya, Approve</span>';
+            
+            document.getElementById('actionModal').classList.remove('hidden');
+            document.getElementById('actionModal').classList.add('flex');
+            setTimeout(() => { document.getElementById('actionModal').querySelector('.scale-95').classList.replace('scale-95', 'scale-100'); }, 10);
         };
 
         window.rejectWithdraw = function(id) {
             addDebug(`Reject withdraw: ${id}`, 'warning');
-            const note = prompt('Alasan penolakan:');
+            const note = prompt('Tuliskan alasan penolakan (opsional):');
             if (note === null) return;
+            
             actionId = id;
             actionType = 'reject';
             document.getElementById('actionModalTitle').textContent = 'Reject Withdraw';
-            document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menolak permintaan withdraw ini?';
-            document.getElementById('actionConfirmBtn').className = 'btn btn-danger';
-            document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-times"></i> Reject';
-            document.getElementById('actionModal').classList.add('open');
+            document.getElementById('actionModalMessage').textContent = 'Konfirmasi penolakan withdraw? Saldo akan dikembalikan ke seller.';
+            
+            const confirmBtn = document.getElementById('actionConfirmBtn');
+            confirmBtn.className = 'py-3.5 rounded-2xl bg-error text-on-error font-bold hover:brightness-110 transition-all flex items-center justify-center gap-2';
+            confirmBtn.innerHTML = '<i class="fas fa-times"></i> <span>Ya, Tolak</span>';
+            
+            document.getElementById('actionModal').classList.remove('hidden');
+            document.getElementById('actionModal').classList.add('flex');
             document.getElementById('actionModal').dataset.note = note;
+            setTimeout(() => { document.getElementById('actionModal').querySelector('.scale-95').classList.replace('scale-95', 'scale-100'); }, 10);
         };
 
         window.closeActionModal = function() { 
-            document.getElementById('actionModal').classList.remove('open'); 
-            actionId = null; 
-            actionType = null; 
+            const modal = document.getElementById('actionModal');
+            modal.querySelector('.scale-100').classList.replace('scale-100', 'scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                actionId = null; 
+                actionType = null; 
+                delete modal.dataset.note;
+            }, 300);
         };
 
         window.confirmWithdrawAction = async function() {
-    if (!actionId || !actionType) return;
-    addDebug(`Confirming ${actionType} for ${actionId}`, 'info');
-    try {
-        const note = document.getElementById('actionModal').dataset.note || (actionType === 'approve' ? 'Disetujui admin' : 'Ditolak admin');
-        
-        const withdrawRef = doc(db, 'withdrawals', actionId);
-        const withdrawDoc = await getDoc(withdrawRef);
-        
-        if (!withdrawDoc.exists()) {
-            throw new Error('Withdraw not found');
-        }
-        
-        const withdrawData = withdrawDoc.data();
-        const sellerId = withdrawData.sellerId;
-        const amount = withdrawData.amount;
-        
-        // UPDATE STATUS WITHDRAW
-        await updateDoc(withdrawRef, {
-            status: actionType === 'approve' ? 'approved' : 'rejected',
-            adminNote: note,
-            updatedAt: new Date().toISOString()
-        });
-
-        // UPDATE WALLET SELLER
-        const userRef = doc(db, 'users', sellerId);
-        const userDoc = await getDoc(userRef);
-        
-        if (userDoc.exists()) {
-            const wallet = userDoc.data().wallet || {};
+            if (!actionId || !actionType) return;
+            addDebug(`Confirming ${actionType} for ${actionId}`, 'info');
             
-            if (actionType === 'approve') {
-                // APPROVE: Kurangi pendingWithdraw, tambah totalWithdraw
-                await updateDoc(userRef, {
-                    'wallet.pendingWithdraw': Math.max(0, (wallet.pendingWithdraw || 0) - amount),
-                    'wallet.totalWithdraw': (wallet.totalWithdraw || 0) + amount,
-                    // available TIDAK DIKURANGI lagi karena sudah dikurangi saat submit
-                    updatedAt: new Date().toISOString()
-                });
-                addDebug(`✅ Approved withdraw for seller ${sellerId}`, 'success');
-            } else {
-                // REJECT: Kurangi pendingWithdraw, KEMBALIKAN ke available
-                await updateDoc(userRef, {
-                    'wallet.pendingWithdraw': Math.max(0, (wallet.pendingWithdraw || 0) - amount),
-                    'wallet.available': (wallet.available || 0) + amount,
-                    updatedAt: new Date().toISOString()
-                });
-                addDebug(`❌ Rejected withdraw for seller ${sellerId}, saldo dikembalikan`, 'success');
-            }
-        }
+            const confirmBtn = document.getElementById('actionConfirmBtn');
+            const originalContent = confirmBtn.innerHTML;
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-circle-notch animate-spin"></i> Memproses...';
 
-        showToast('success', `Withdraw ${actionType === 'approve' ? 'disetujui' : 'ditolak'}`);
-        closeActionModal();
-        loadWithdrawals(true);
-        
-    } catch (error) {
-        addDebug(`Error processing withdrawal: ${error.message}`, 'error');
-        showToast('error', error.message);
-    }
-};
+            try {
+                const note = document.getElementById('actionModal').dataset.note || (actionType === 'approve' ? 'Disetujui admin' : 'Ditolak admin');
+                
+                const withdrawRef = doc(db, 'withdrawals', actionId);
+                const withdrawDoc = await getDoc(withdrawRef);
+                
+                if (!withdrawDoc.exists()) {
+                    throw new Error('Data withdraw tidak ditemukan');
+                }
+                
+                const withdrawData = withdrawDoc.data();
+                const sellerId = withdrawData.sellerId;
+                const amount = withdrawData.amount;
+                
+                // UPDATE STATUS WITHDRAW
+                await updateDoc(withdrawRef, {
+                    status: actionType === 'approve' ? 'approved' : 'rejected',
+                    adminNote: note,
+                    updatedAt: new Date().toISOString()
+                });
+
+                // UPDATE WALLET SELLER
+                const userRef = doc(db, 'users', sellerId);
+                const userDoc = await getDoc(userRef);
+                
+                if (userDoc.exists()) {
+                    const wallet = userDoc.data().wallet || {};
+                    
+                    if (actionType === 'approve') {
+                        // APPROVE: Kurangi pendingWithdraw, tambah totalWithdraw
+                        await updateDoc(userRef, {
+                            'wallet.pendingWithdraw': Math.max(0, (wallet.pendingWithdraw || 0) - amount),
+                            'wallet.totalWithdraw': (wallet.totalWithdraw || 0) + amount,
+                            updatedAt: new Date().toISOString()
+                        });
+                        addDebug(`✅ Approved withdraw for seller ${sellerId}`, 'success');
+                    } else {
+                        // REJECT: Kurangi pendingWithdraw, KEMBALIKAN ke available
+                        await updateDoc(userRef, {
+                            'wallet.pendingWithdraw': Math.max(0, (wallet.pendingWithdraw || 0) - amount),
+                            'wallet.available': (wallet.available || 0) + amount,
+                            updatedAt: new Date().toISOString()
+                        });
+                        addDebug(`❌ Rejected withdraw for seller ${sellerId}, saldo dikembalikan`, 'success');
+                    }
+                }
+
+                showToast('success', `Withdraw berhasil ${actionType === 'approve' ? 'disetujui' : 'ditolak'}`);
+                closeActionModal();
+                loadWithdrawals(true);
+                
+            } catch (error) {
+                addDebug(`Error processing withdrawal: ${error.message}`, 'error');
+                showToast('error', error.message);
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = originalContent;
+            }
+        };
 
         addDebug('Page ready', 'success');
         console.log('✅ [ADMIN_WITHDRAWALS] Page ready');
     </script>
-</body>
-</html>
+</body></html>

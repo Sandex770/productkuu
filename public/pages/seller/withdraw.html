@@ -296,6 +296,12 @@
         let marketplaceSettings = { minWithdraw: 50000, maxWithdraw: 10000000, withdrawMethods: ['DANA', 'OVO', 'GoPay', 'ShopeePay', 'Bank BCA', 'Bank BRI', 'Bank Mandiri', 'Bank BNI'] };
         let debugVisible = false;
 
+        // ================================================
+        // 🔧 KONFIGURASI API NOTIFIKASI
+        // ⚠️ GANTI URL INI DENGAN URL VERCEL ANDA!
+        // ================================================
+        const VERCEL_API_URL = 'https://api-firebase-sigma.vercel.app/api/notify';
+
         function addDebug(message, type = 'info') {
             const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
             const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
@@ -504,6 +510,9 @@
             }
         }
 
+        // ================================================
+        // 📝 SUBMIT FORM WITHDRAW + KIRIM NOTIFIKASI
+        // ================================================
         document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             addDebug('Withdraw form submitted', 'info');
@@ -514,29 +523,110 @@
             const accountName = document.getElementById('withdrawAccountName').value.trim();
             const note = document.getElementById('withdrawNote').value.trim();
 
-            if (!amount || amount < marketplaceSettings.minWithdraw) { showToast('warning', `Minimal withdraw Rp${formatPrice(marketplaceSettings.minWithdraw)}`); return; }
-            if (amount > marketplaceSettings.maxWithdraw) { showToast('warning', `Maksimal withdraw Rp${formatPrice(marketplaceSettings.maxWithdraw)}`); return; }
-            if (!method || !accountNumber || !accountName) { showToast('warning', 'Lengkapi data withdraw'); return; }
+            // Validasi
+            if (!amount || amount < marketplaceSettings.minWithdraw) { 
+                showToast('warning', `Minimal withdraw Rp${formatPrice(marketplaceSettings.minWithdraw)}`); 
+                return; 
+            }
+            if (amount > marketplaceSettings.maxWithdraw) { 
+                showToast('warning', `Maksimal withdraw Rp${formatPrice(marketplaceSettings.maxWithdraw)}`); 
+                return; 
+            }
+            if (!method || !accountNumber || !accountName) { 
+                showToast('warning', 'Lengkapi data withdraw'); 
+                return; 
+            }
 
             const submitBtn = document.getElementById('withdrawSubmitBtn');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
 
             try {
+                // ================================================
+                // 1. UPDATE SALDO SELLER
+                // ================================================
                 const userRef = doc(db, 'users', currentUser.uid);
                 const userDoc = await getDoc(userRef);
                 if (!userDoc.exists()) throw new Error('User tidak ditemukan');
+                
                 const currentWallet = userDoc.data().wallet || { available: 0 };
-                if (amount > currentWallet.available) { throw new Error(`Saldo tidak mencukupi. Saldo tersedia: Rp${formatPrice(currentWallet.available)}`); }
-                await updateDoc(userRef, { 'wallet.available': (currentWallet.available || 0) - amount, 'wallet.pendingWithdraw': (currentWallet.pendingWithdraw || 0) + amount, updatedAt: serverTimestamp() });
-                await addDoc(collection(db, 'withdrawals'), { sellerId: currentUser.uid, amount: amount, method: method, accountNumber: accountNumber, accountName: accountName, note: note, status: 'pending', createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
-                addDebug('Withdraw submitted successfully', 'success');
+                if (amount > currentWallet.available) { 
+                    throw new Error(`Saldo tidak mencukupi. Saldo tersedia: Rp${formatPrice(currentWallet.available)}`); 
+                }
+
+                await updateDoc(userRef, { 
+                    'wallet.available': (currentWallet.available || 0) - amount, 
+                    'wallet.pendingWithdraw': (currentWallet.pendingWithdraw || 0) + amount, 
+                    updatedAt: serverTimestamp() 
+                });
+
+                // ================================================
+                // 2. SIMPAN DATA WITHDRAW KE FIRESTORE
+                // ================================================
+                const withdrawData = {
+                    sellerId: currentUser.uid,
+                    sellerEmail: currentUser.email,
+                    amount: amount,
+                    method: method,
+                    accountNumber: accountNumber,
+                    accountName: accountName,
+                    note: note,
+                    status: 'pending',
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                };
+
+                const docRef = await addDoc(collection(db, 'withdrawals'), withdrawData);
+                addDebug(`✅ Withdraw data saved to Firestore (ID: ${docRef.id})`, 'success');
+
+                // ================================================
+                // 3. 🔔 KIRIM NOTIFIKASI KE ADMIN VIA VERCEL
+                // ================================================
+                const formattedAmount = new Intl.NumberFormat('id-ID').format(amount);
+                
+                try {
+                    addDebug('📨 Mengirim notifikasi ke admin...', 'info');
+                    
+                    const response = await fetch(VERCEL_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            amount: formattedAmount,
+                            accountName: accountName,
+                            method: method,
+                            accountNumber: accountNumber,
+                            sellerEmail: currentUser.email
+                        })
+                    });
+
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        addDebug(`✅ Notifikasi admin berhasil dikirim!`, 'success');
+                        console.log('📨 Notifikasi response:', result);
+                    } else {
+                        addDebug(`⚠️ Notifikasi gagal: ${result.error || 'Unknown error'}`, 'warning');
+                        console.warn('Notifikasi error:', result);
+                    }
+                } catch (apiError) {
+                    // ❌ ERROR TIDAK MEMPENGARUHI PROSES WITHDRAW
+                    addDebug(`⚠️ Gagal kirim notifikasi: ${apiError.message}`, 'warning');
+                    console.warn('Notifikasi API error:', apiError);
+                }
+
+                // ================================================
+                // 4. TAMPILKAN SUKSES & RESET FORM
+                // ================================================
                 showToast('success', '✅ Permintaan withdraw berhasil diajukan!');
                 document.getElementById('withdrawForm').reset();
                 await loadBalance(currentUser.uid);
                 await loadWithdrawHistory(currentUser.uid);
+                addDebug('✅ Withdraw process completed!', 'success');
+
             } catch (error) {
-                addDebug(`Error submitting withdraw: ${error.message}`, 'error');
+                addDebug(`❌ Error submitting withdraw: ${error.message}`, 'error');
                 showToast('error', error.message || 'Gagal mengajukan withdraw');
             } finally {
                 submitBtn.disabled = false;

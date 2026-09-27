@@ -1,335 +1,402 @@
 <!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pengaturan - ProductKuu Admin</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="icon" href="/assets/images/favicon.ico">
-    <style>
-        .app-wrapper { display: flex; min-height: calc(100vh - 64px); margin-top: 64px; }
-        .sidebar { width: 260px; background: var(--bg-primary); border-right: 1px solid var(--border-color); padding: 20px 0; position: fixed; top: 64px; bottom: 0; overflow-y: auto; z-index: 100; transition: transform 0.3s ease; }
-        .sidebar-header { padding: 0 16px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px; }
-        .sidebar-header .title { font-weight: 600; font-size: 14px; color: var(--text-secondary); }
-        .sidebar-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
-        .sidebar-nav a, .sidebar-nav button { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius); color: var(--text-secondary); transition: var(--transition); font-size: 14px; font-weight: 500; text-decoration: none; background: none; border: none; width: 100%; cursor: pointer; font-family: var(--font); text-align: left; }
-        .sidebar-nav a:hover, .sidebar-nav button:hover { background: var(--bg-secondary); color: var(--text-primary); }
-        .sidebar-nav a.active { background: rgba(79,70,229,0.1); color: var(--primary); }
-        .sidebar-nav .logout-btn { color: var(--danger); margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 16px; }
-        .sidebar-nav .logout-btn:hover { background: rgba(239,68,68,0.1); color: var(--danger); }
-        .sidebar-overlay { display: none; position: fixed; top: 64px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99; }
-        .sidebar-overlay.open { display: block; }
-        .main-content { margin-left: 260px; padding: 24px; flex: 1; min-height: calc(100vh - 64px); }
-        .mobile-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-primary); cursor: pointer; padding: 8px; }
-        @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); width: 280px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 16px; } .mobile-toggle { display: block !important; } }
-        
-        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
-        .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-        .input-group label { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
-        .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
-        .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
-        textarea.input { resize: vertical; min-height: 80px; }
-        input[type="color"].input { height: 48px; padding: 4px; cursor: pointer; }
-        input[type="number"].input { -moz-appearance: textfield; }
-        input[type="number"].input::-webkit-outer-spin-button,
-        input[type="number"].input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        
-        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
-        .badge-primary { background: rgba(79,70,229,0.1); color: var(--primary); }
-        .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
-        
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
-        .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
-        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
-        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
-        .btn-block { width: 100%; justify-content: center; }
-        .btn-sm { padding: 8px 16px; font-size: 12px; }
-        
-        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-        .text-secondary { color: var(--text-secondary); }
-        .text-light { color: var(--text-light); font-size: 12px; }
-        
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pengaturan - ProductKuu Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#1f1f27",
+                    "on-primary-container": "#006970",
+                    "secondary-fixed-dim": "#ecb2ff",
+                    "tertiary-fixed-dim": "#ffb77f",
+                    "primary-fixed-dim": "#00dbe9",
+                    "inverse-surface": "#e4e1ed",
+                    "outline-variant": "#3b494b",
+                    "surface-container-highest": "#34343d",
+                    "tertiary": "#fff3ed",
+                    "surface-container-high": "#292932",
+                    "on-secondary-container": "#480063",
+                    "tertiary-container": "#ffd0ae",
+                    "on-secondary-fixed": "#320047",
+                    "on-error": "#690005",
+                    "primary-fixed": "#7df4ff",
+                    "surface-bright": "#393842",
+                    "primary-container": "#00f0ff",
+                    "secondary-container": "#cf5cff",
+                    "on-error-container": "#ffdad6",
+                    "surface-dim": "#13131b",
+                    "secondary": "#ecb2ff",
+                    "on-tertiary-fixed": "#2f1500",
+                    "on-tertiary": "#4e2600",
+                    "error": "#ffb4ab",
+                    "background": "#13131b",
+                    "tertiary-fixed": "#ffdcc4",
+                    "outline": "#849495",
+                    "secondary-fixed": "#f8d8ff",
+                    "on-primary-fixed": "#002022",
+                    "on-surface-variant": "#b9cacb",
+                    "surface-variant": "#34343d",
+                    "on-tertiary-container": "#924c00",
+                    "error-container": "#93000a",
+                    "primary": "#dbfcff",
+                    "on-secondary": "#520071",
+                    "on-primary-fixed-variant": "#004f54",
+                    "on-primary": "#00363a",
+                    "inverse-primary": "#006970",
+                    "inverse-on-surface": "#302f39",
+                    "surface-container-lowest": "#0d0d15",
+                    "surface": "#13131b",
+                    "on-tertiary-fixed-variant": "#6f3900",
+                    "on-background": "#e4e1ed",
+                    "surface-container-low": "#1b1b23",
+                    "on-secondary-fixed-variant": "#74009f",
+                    "surface-tint": "#00dbe9",
+                    "on-surface": "#e4e1ed"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "label-md": ["JetBrains Mono"],
+                    "body-md": ["Inter"],
+                    "label-sm": ["JetBrains Mono"],
+                    "body-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "display-lg": ["Inter"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #13131b;
+            color: #e4e1ed;
+        }
+        .glass-card {
+            background: rgba(31, 31, 39, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+        }
+        .sidebar-item-active {
+            background: rgba(0, 219, 233, 0.1);
+            color: #00dbe9;
+            border-right: 2px solid #00dbe9;
+        }
+        .input-glow:focus {
+            box-shadow: 0 0 15px rgba(0, 219, 233, 0.15);
+        }
+        .btn-gradient-primary {
+            background: linear-gradient(135deg, #00dbe9, #cf5cff);
+            transition: all 0.3s ease;
+        }
+        .btn-gradient-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0d0d15; }
+        ::-webkit-scrollbar-thumb { background: #34343d; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #484852; }
+
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
-        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
-        .toast-icon { font-size: 20px; }
-        .toast-content { flex: 1; }
-        .toast-message { font-size: 13px; color: var(--text-secondary); }
-        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
+        .toast { padding: 16px 20px; border-radius: 0.75rem; background: #1f1f27; box-shadow: 0 10px 40px rgba(0,0,0,0.5); border-left: 4px solid #00dbe9; animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-        
-        .debug-box {
-            background: #1E1E2E;
-            border-radius: var(--radius);
-            padding: 12px 16px;
-            margin-bottom: 16px;
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            color: #CDD6F4;
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
-            border: 1px solid #313244;
-        }
-        .debug-box.show { display: block; }
-        .debug-box .debug-line { padding: 2px 0; border-bottom: 1px solid #2A2A3E; }
-        .debug-box .debug-line:last-child { border-bottom: none; }
-        .debug-box .debug-success { color: #A6E3A1; }
-        .debug-box .debug-error { color: #F38BA8; }
-        .debug-box .debug-info { color: #89B4FA; }
-        .debug-box .debug-warning { color: #F9E2AF; }
-        
-        .debug-toggle { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 12px; text-decoration: underline; padding: 4px 8px; margin-bottom: 8px; }
-        .debug-toggle:hover { color: var(--text-primary); }
-        
-        .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
-        .error-box.show { display: block; }
-        .error-box .error-title { font-weight: 700; color: var(--danger); }
-        .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
-        
-        .holding-preview {
-            background: var(--bg-secondary);
-            border-radius: var(--radius);
-            padding: 12px 16px;
-            margin-top: 4px;
-            font-size: 14px;
-            color: var(--text-primary);
-        }
-        .holding-preview span {
-            font-weight: 700;
-            color: var(--primary);
-        }
-        
-        @media (max-width: 768px) { .settings-grid { grid-template-columns: 1fr; } }
-        
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f3f4f6;
-            --bg-tertiary: #e5e7eb;
-            --text-primary: #111827;
-            --text-secondary: #6b7280;
-            --text-light: #9ca3af;
-            --border-color: #e5e7eb;
-            --shadow: 0 1px 3px rgba(0,0,0,0.1);
-            --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
-            --radius: 8px;
-            --radius-lg: 16px;
-            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --info: #3b82f6;
-            --primary: #4F46E5;
-            --secondary: #7C3AED;
-            --transition: all 0.3s ease;
-        }
-        [data-theme="dark"] {
-            --bg-primary: #1f2937;
-            --bg-secondary: #374151;
-            --bg-tertiary: #4b5563;
-            --text-primary: #f9fafb;
-            --text-secondary: #9ca3af;
-            --text-light: #6b7280;
-            --border-color: #374151;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: var(--font); background: var(--bg-secondary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
-        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); height: 64px; }
-        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        .navbar-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
-        .navbar-logo i { color: #4F46E5; }
-        .navbar-actions { display: flex; align-items: center; gap: 8px; }
-        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
-        .btn-icon:hover { background: var(--bg-secondary); }
     </style>
 </head>
-<body>
-    <nav class="navbar">
-        <div class="navbar-inner">
-            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
-            <div class="navbar-actions">
-                <span class="badge badge-primary" style="font-size:11px;">Admin</span>
-                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
-                <button class="mobile-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-            </div>
-        </div>
-    </nav>
-
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header"><div class="title">Menu Admin</div></div>
-        <nav class="sidebar-nav">
-            <a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a href="/admin/sellers"><i class="fas fa-users"></i> Seller</a>
-            <a href="/admin/products"><i class="fas fa-box"></i> Produk</a>
-            <a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Order</a>
-            <a href="/admin/banners"><i class="fas fa-images"></i> Banner</a>
-            <a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Withdraw</a>
-            <a href="/admin/settings" class="active"><i class="fas fa-cog"></i> Pengaturan</a>
-            <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </nav>
-    </aside>
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <div class="app-wrapper">
-        <main class="main-content">
-            <div class="flex-between" style="margin-bottom:24px;">
-                <div><h1 style="font-size:24px;">Pengaturan Website</h1><p style="color:var(--text-secondary);">Kelola semua pengaturan website</p></div>
-                <button onclick="refreshData()" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
-            </div>
-
-            <div class="debug-box" id="debugBox">
-                <div class="debug-line debug-info">🔍 Debug Mode Active</div>
-                <div class="debug-line" id="debugLog">Menunggu data...</div>
-            </div>
-            <button class="debug-toggle" onclick="toggleDebug()">
-                <i class="fas fa-bug"></i> Toggle Debug
-            </button>
-
-            <div class="error-box" id="errorBox">
-                <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
-                <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
-            </div>
-
-            <div class="settings-grid" style="margin-top:8px;">
-                <!-- Website Settings -->
-                <div class="card">
-                    <h4 style="margin-bottom:16px;">Pengaturan Website</h4>
-                    <form id="websiteSettingsForm">
-                        <div class="input-group">
-                            <label for="siteName">Nama Website</label>
-                            <input type="text" id="siteName" class="input" placeholder="ProductKuu">
-                        </div>
-                        <div class="input-group">
-                            <label for="siteLogo">Logo URL</label>
-                            <input type="url" id="siteLogo" class="input" placeholder="https://example.com/logo.png">
-                        </div>
-                        <div class="input-group">
-                            <label for="siteFavicon">Favicon URL</label>
-                            <input type="url" id="siteFavicon" class="input" placeholder="https://example.com/favicon.ico">
-                        </div>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                            <div class="input-group"><label for="primaryColor">Primary Color</label><input type="color" id="primaryColor" class="input" style="height:48px;padding:4px;"></div>
-                            <div class="input-group"><label for="secondaryColor">Secondary Color</label><input type="color" id="secondaryColor" class="input" style="height:48px;padding:4px;"></div>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-save"></i> Simpan Website</button>
-                    </form>
-                </div>
-
-                <!-- Marketplace Settings dengan Holding Time -->
-                <div class="card">
-                    <h4 style="margin-bottom:16px;">Pengaturan Marketplace</h4>
-                    <form id="marketplaceSettingsForm">
-                        <div class="input-group">
-                            <label for="commission">Komisi Marketplace (%)</label>
-                            <input type="number" id="commission" class="input" placeholder="10" min="0" max="100">
-                        </div>
-                        <div class="input-group">
-                            <label for="minWithdraw">Minimal Withdraw (Rp)</label>
-                            <input type="number" id="minWithdraw" class="input" placeholder="50000" min="1000">
-                        </div>
-                        <div class="input-group">
-                            <label for="maxWithdraw">Maksimal Withdraw (Rp)</label>
-                            <input type="number" id="maxWithdraw" class="input" placeholder="10000000" min="1000">
-                        </div>
-                        <div class="input-group">
-                            <label for="withdrawMethods">Metode Withdraw</label>
-                            <input type="text" id="withdrawMethods" class="input" placeholder="DANA, OVO, GoPay, Bank BCA">
-                            <span style="font-size:12px;color:var(--text-light);">Pisahkan dengan koma</span>
-                        </div>
-                        
-                        <!-- HOLDING TIME -->
-                        <div style="border-top:1px solid var(--border-color);padding-top:16px;margin-top:8px;">
-                            <label style="font-size:14px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:8px;">Holding Balance Time</label>
-                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-                                <div class="input-group" style="margin-bottom:0;">
-                                    <label for="holdingDays" style="font-size:12px;">Hari</label>
-                                    <input type="number" id="holdingDays" class="input" placeholder="7" min="0" value="7">
-                                </div>
-                                <div class="input-group" style="margin-bottom:0;">
-                                    <label for="holdingHours" style="font-size:12px;">Jam</label>
-                                    <input type="number" id="holdingHours" class="input" placeholder="0" min="0" max="23" value="0">
-                                </div>
-                                <div class="input-group" style="margin-bottom:0;">
-                                    <label for="holdingMinutes" style="font-size:12px;">Menit</label>
-                                    <input type="number" id="holdingMinutes" class="input" placeholder="0" min="0" max="59" value="0">
-                                </div>
-                            </div>
-                            <div class="holding-preview" style="margin-top:8px;">
-                                <i class="fas fa-clock" style="color:var(--warning);"></i>
-                                Total holding: <span id="holdingTotalDisplay">7 hari 0 jam 0 menit</span>
-                            </div>
-                            <span style="font-size:11px;color:var(--text-light);">Saldo akan masuk ke saldo tersedia setelah melewati waktu holding</span>
-                        </div>
-                        
-                        <div style="display:flex;align-items:center;gap:8px;margin-top:12px;">
-                            <input type="checkbox" id="maintenanceMode"> <label for="maintenanceMode" style="font-size:14px;">Mode Maintenance</label>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-block" style="margin-top:12px;"><i class="fas fa-save"></i> Simpan Marketplace</button>
-                    </form>
-                </div>
-
-                <!-- Social Media Settings -->
-                <div class="card">
-                    <h4 style="margin-bottom:16px;">Media Sosial</h4>
-                    <form id="socialSettingsForm">
-                        <div class="input-group">
-                            <label for="socialWhatsapp">WhatsApp</label>
-                            <input type="text" id="socialWhatsapp" class="input" placeholder="08123456789">
-                        </div>
-                        <div class="input-group">
-                            <label for="socialEmail">Email</label>
-                            <input type="email" id="socialEmail" class="input" placeholder="admin@example.com">
-                        </div>
-                        <div class="input-group">
-                            <label for="socialInstagram">Instagram</label>
-                            <input type="text" id="socialInstagram" class="input" placeholder="@productkuu">
-                        </div>
-                        <div class="input-group">
-                            <label for="socialFacebook">Facebook</label>
-                            <input type="text" id="socialFacebook" class="input" placeholder="productkuu">
-                        </div>
-                        <div class="input-group">
-                            <label for="socialTiktok">TikTok</label>
-                            <input type="text" id="socialTiktok" class="input" placeholder="@productkuu">
-                        </div>
-                        <div class="input-group">
-                            <label for="socialYoutube">YouTube</label>
-                            <input type="text" id="socialYoutube" class="input" placeholder="productkuu">
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-save"></i> Simpan Media Sosial</button>
-                    </form>
-                </div>
-
-                <!-- Footer Settings -->
-                <div class="card">
-                    <h4 style="margin-bottom:16px;">Pengaturan Footer</h4>
-                    <form id="footerSettingsForm">
-                        <div class="input-group">
-                            <label for="footerText">Footer Text</label>
-                            <input type="text" id="footerText" class="input" placeholder="&copy; 2026 ProductKuu. All rights reserved.">
-                        </div>
-                        <div class="input-group">
-                            <label for="footerLinks">Footer Links (JSON)</label>
-                            <textarea id="footerLinks" class="input" rows="4" placeholder='[{"label":"Tentang","url":"/tentang"},{"label":"Kontak","url":"/kontak"}]'></textarea>
-                            <span style="font-size:12px;color:var(--text-light);">Format JSON array</span>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-save"></i> Simpan Footer</button>
-                    </form>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <div class="toast-container" id="toastContainer"></div>
-
-    <script type="importmap">
+<body class="min-h-screen">
+<!-- Navbar -->
+<nav class="fixed top-0 left-0 right-0 h-16 bg-surface-container-low/80 backdrop-blur-md border-b border-white/5 z-[1000]">
+<div class="h-full max-w-[1400px] mx-auto px-4 md:px-6 flex items-center justify-between">
+<a class="flex items-center gap-2 text-xl font-bold text-on-surface" href="/">
+<i class="fas fa-cube text-primary-fixed-dim"></i>
+<span>ProductKuu</span>
+</a>
+<div class="flex items-center gap-3">
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed-dim/10 text-primary-fixed-dim text-[11px] font-bold uppercase tracking-wider">Admin</span>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-colors" id="themeToggle">
+<i class="fas fa-moon"></i>
+</button>
+<button class="lg:hidden w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-colors" id="sidebarToggle">
+<i class="fas fa-bars"></i>
+</button>
+</div>
+</div>
+</nav>
+<div class="flex pt-16 min-h-screen">
+<!-- Sidebar -->
+<aside class="fixed lg:sticky top-16 h-[calc(100vh-64px)] w-64 bg-surface-container-lowest border-r border-white/5 overflow-y-auto transition-transform duration-300 -translate-x-full lg:translate-x-0 z-[999]" id="sidebar">
+<div class="p-4">
+<p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.2em] mb-4 px-4">Menu Utama</p>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="/admin/dashboard">
+<i class="fas fa-chart-pie w-5"></i>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="/admin/sellers">
+<i class="fas fa-users w-5"></i>
+<span class="text-sm font-medium">Seller</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="/admin/products">
+<i class="fas fa-box w-5"></i>
+<span class="text-sm font-medium">Produk</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="/admin/orders">
+<i class="fas fa-shopping-cart w-5"></i>
+<span class="text-sm font-medium">Order</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="/admin/banners">
+<i class="fas fa-images w-5"></i>
+<span class="text-sm font-medium">Banner</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="/admin/withdrawals">
+<i class="fas fa-arrow-up w-5"></i>
+<span class="text-sm font-medium">Withdraw</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg sidebar-item-active" href="/admin/settings">
+<i class="fas fa-cog w-5"></i>
+<span class="text-sm font-medium">Pengaturan</span>
+</a>
+<div class="pt-4 mt-4 border-t border-white/5">
+<button class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-error hover:bg-error-container/10 transition-all text-left" id="logoutBtn">
+<i class="fas fa-sign-out-alt w-5"></i>
+<span class="text-sm font-medium">Logout</span>
+</button>
+</div>
+</nav>
+</div>
+</aside>
+<!-- Sidebar Overlay -->
+<div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[998] hidden" id="sidebarOverlay"></div>
+<!-- Main Content -->
+<main class="flex-1 p-4 md:p-8 overflow-x-hidden">
+<div class="max-w-6xl mx-auto">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-on-surface">Pengaturan Website</h1>
+<p class="text-on-surface-variant mt-1">Konfigurasi parameter sistem dan tampilan marketplace</p>
+</div>
+<button class="px-4 py-2 bg-surface-container-highest border border-white/5 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-surface-bright transition-all" onclick="refreshData()">
+<i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+</div>
+<!-- Debug Console -->
+<div class="mb-6">
+<button class="text-xs font-mono text-tertiary-fixed-dim underline opacity-60 hover:opacity-100 flex items-center gap-2" onclick="toggleDebug()">
+<i class="fas fa-bug"></i> Toggle Console Log
+                    </button>
+<div class="hidden mt-3 bg-surface-container-lowest border border-white/5 rounded-xl p-4 font-mono text-[11px] text-on-surface-variant max-h-40 overflow-y-auto" id="debugBox">
+<div class="text-primary-fixed-dim">🔍 Debug Mode Active</div>
+<div class="mt-1" id="debugLog">Menunggu data...</div>
+</div>
+</div>
+<!-- Error Alert -->
+<div class="hidden mb-6 p-4 bg-error-container/20 border border-error/20 rounded-xl flex items-start gap-3" id="errorBox">
+<i class="fas fa-exclamation-triangle text-error mt-1"></i>
+<div>
+<p class="text-sm font-bold text-error" id="errorTitle">Gagal Memuat Data</p>
+<p class="text-xs text-on-surface-variant mt-0.5" id="errorDetail">Terjadi kesalahan saat sinkronisasi.</p>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<!-- Website Settings -->
+<div class="glass-card p-6">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-xl bg-primary-fixed-dim/10 flex items-center justify-center text-primary-fixed-dim">
+<i class="fas fa-globe"></i>
+</div>
+<h2 class="text-lg font-bold">Identitas Website</h2>
+</div>
+<form class="space-y-4" id="websiteSettingsForm">
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="siteName">Nama Website</label>
+<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="siteName" placeholder="ProductKuu" type="text"/>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="siteLogo">Logo URL</label>
+<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="siteLogo" placeholder="https://example.com/logo.png" type="url"/>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="siteFavicon">Favicon URL</label>
+<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="siteFavicon" placeholder="https://example.com/favicon.ico" type="url"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="primaryColor">Primary</label>
+<div class="relative flex items-center">
+<input class="w-full h-11 bg-surface-container-lowest border border-white/5 rounded-xl p-1 cursor-pointer" id="primaryColor" type="color"/>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="secondaryColor">Secondary</label>
+<div class="relative flex items-center">
+<input class="w-full h-11 bg-surface-container-lowest border border-white/5 rounded-xl p-1 cursor-pointer" id="secondaryColor" type="color"/>
+</div>
+</div>
+</div>
+<button class="w-full btn-gradient-primary py-3 rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 text-white" type="submit">
+<i class="fas fa-save"></i> Simpan Identitas
+                            </button>
+</form>
+</div>
+<!-- Marketplace Settings -->
+<div class="glass-card p-6">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-xl bg-secondary-container/10 flex items-center justify-center text-secondary">
+<i class="fas fa-shopping-bag"></i>
+</div>
+<h2 class="text-lg font-bold">Bisnis &amp; Finansial</h2>
+</div>
+<form class="space-y-4" id="marketplaceSettingsForm">
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="commission">Komisi Platform (%)</label>
+<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="commission" placeholder="10" type="number"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="minWithdraw">Min. WD (Rp)</label>
+<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="minWithdraw" placeholder="50000" type="number"/>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="maxWithdraw">Max. WD (Rp)</label>
+<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="maxWithdraw" placeholder="10000000" type="number"/>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="withdrawMethods">Metode Withdraw</label>
+<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="withdrawMethods" placeholder="DANA, OVO, GoPay, Bank BCA" type="text"/>
+<p class="text-[10px] text-on-surface-variant/60 italic">Gunakan koma sebagai pemisah</p>
+</div>
+<div class="pt-4 border-t border-white/5">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider block mb-3">Waktu Penahanan Saldo (Holding)</label>
+<div class="grid grid-cols-3 gap-3">
+<div class="space-y-1">
+<p class="text-[10px] font-mono text-on-surface-variant">HARI</p>
+<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-3 py-2 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow text-center" id="holdingDays" type="number" value="7"/>
+</div>
+<div class="space-y-1">
+<p class="text-[10px] font-mono text-on-surface-variant">JAM</p>
+<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-3 py-2 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow text-center" id="holdingHours" type="number" value="0"/>
+</div>
+<div class="space-y-1">
+<p class="text-[10px] font-mono text-on-surface-variant">MENIT</p>
+<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-3 py-2 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow text-center" id="holdingMinutes" type="number" value="0"/>
+</div>
+</div>
+<div class="mt-4 p-3 bg-surface-container-highest/40 rounded-xl border border-white/5 flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-tertiary-container/10 flex items-center justify-center text-tertiary-fixed-dim">
+<i class="fas fa-clock text-sm"></i>
+</div>
+<div class="text-xs">
+<p class="text-on-surface-variant">Estimasi Total Holding:</p>
+<p class="font-bold text-primary-fixed-dim mt-0.5" id="holdingTotalDisplay">7 hari 0 jam 0 menit</p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 py-2">
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" id="maintenanceMode" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-fixed-dim"></div>
+<span class="ml-3 text-sm font-medium text-on-surface-variant">Mode Maintenance</span>
+</label>
+</div>
+<button class="w-full btn-gradient-primary py-3 rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 text-white" type="submit">
+<i class="fas fa-save"></i> Simpan Marketplace
+                            </button>
+</form>
+</div>
+<!-- Social Media Settings -->
+<div class="glass-card p-6">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-xl bg-tertiary-container/10 flex items-center justify-center text-tertiary-fixed-dim">
+<i class="fas fa-share-alt"></i>
+</div>
+<h2 class="text-lg font-bold">Koneksi Sosial</h2>
+</div>
+<form class="space-y-4" id="socialSettingsForm">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="socialWhatsapp">WhatsApp</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40"><i class="fab fa-whatsapp"></i></span>
+<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl pl-10 pr-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="socialWhatsapp" placeholder="08123456789" type="text"/>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="socialEmail">Email</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40"><i class="far fa-envelope"></i></span>
+<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl pl-10 pr-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="socialEmail" placeholder="admin@example.com" type="email"/>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="socialInstagram">Instagram</label>
+<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="socialInstagram" placeholder="@productkuu" type="text"/>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="socialFacebook">Facebook</label>
+<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="socialFacebook" placeholder="productkuu" type="text"/>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="socialTiktok">TikTok</label>
+<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="socialTiktok" placeholder="@productkuu" type="text"/>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="socialYoutube">YouTube</label>
+<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="socialYoutube" placeholder="productkuu" type="text"/>
+</div>
+</div>
+<button class="w-full bg-surface-container-highest hover:bg-surface-bright border border-white/5 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 text-on-surface mt-2" type="submit">
+<i class="fas fa-save text-primary-fixed-dim"></i> Simpan Media Sosial
+                            </button>
+</form>
+</div>
+<!-- Footer Settings -->
+<div class="glass-card p-6">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-xl bg-on-primary-fixed-variant/10 flex items-center justify-center text-primary-fixed-dim">
+<i class="fas fa-desktop"></i>
+</div>
+<h2 class="text-lg font-bold">Pengaturan Footer</h2>
+</div>
+<form class="space-y-4" id="footerSettingsForm">
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="footerText">Copyright Text</label>
+<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="footerText" placeholder="© 2026 ProductKuu. All rights reserved." type="text"/>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="footerLinks">Footer Links (JSON)</label>
+<textarea class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm font-mono focus:border-primary-fixed-dim outline-none transition-all input-glow h-32" id="footerLinks" placeholder='[{"label":"Tentang","url":"/tentang"}]'></textarea>
+<p class="text-[10px] text-on-surface-variant/60 italic">Gunakan format JSON array objek: {label, url}</p>
+</div>
+<button class="w-full bg-surface-container-highest hover:bg-surface-bright border border-white/5 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 text-on-surface" type="submit">
+<i class="fas fa-code text-secondary"></i> Simpan Footer
+                            </button>
+</form>
+</div>
+</div>
+</div>
+</main>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+<script type="importmap">
         {
             "imports": {
                 "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
@@ -338,8 +405,7 @@
             }
         }
     </script>
-
-    <script type="module">
+<script type="module">
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
@@ -368,11 +434,11 @@
         let debugVisible = false;
 
         function addDebug(message, type = 'info') {
-            const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
+            const colors = { success: 'text-success', error: 'text-error', info: 'text-primary-fixed-dim', warning: 'text-tertiary-fixed-dim' };
             const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
             const log = document.getElementById('debugLog');
             const time = new Date().toLocaleTimeString();
-            log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
+            log.innerHTML += `<br><span class="${colors[type] || 'text-on-surface-variant'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
             console.log(`[ADMIN_SETTINGS_DEBUG] ${message}`);
             const box = document.getElementById('debugBox');
             box.scrollTop = box.scrollHeight;
@@ -381,7 +447,7 @@
         window.toggleDebug = function() {
             const box = document.getElementById('debugBox');
             debugVisible = !debugVisible;
-            box.classList.toggle('show');
+            box.classList.toggle('hidden');
             if (debugVisible) addDebug('Debug mode activated', 'info');
         };
 
@@ -395,38 +461,30 @@
         // THEME & SIDEBAR
         // ============================================
         const themeToggle = document.getElementById('themeToggle');
-        let darkMode = localStorage.getItem('darkMode') === 'true';
-        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
         themeToggle.addEventListener('click', () => {
-            darkMode = !darkMode;
-            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-            localStorage.setItem('darkMode', darkMode);
-            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            localStorage.setItem('darkMode', isDark);
+            themeToggle.querySelector('i').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
         });
 
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const sidebarToggle = document.getElementById('sidebarToggle');
+        
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('open');
-                sidebarOverlay.classList.toggle('open');
+                sidebar.classList.toggle('-translate-x-full');
+                sidebarOverlay.classList.toggle('hidden');
             });
         }
+        
         if (sidebarOverlay) {
             sidebarOverlay.addEventListener('click', () => {
-                sidebar.classList.remove('open');
-                sidebarOverlay.classList.remove('open');
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
             });
         }
-
-        document.querySelectorAll('.sidebar-nav a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const href = this.getAttribute('href');
-                if (href) window.location.href = href;
-            });
-        });
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             try { await signOut(auth); window.location.href = '/'; } 
@@ -438,14 +496,16 @@
         // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
-            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
+            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
+            const borders = { success: '#10b981', error: '#ffb4ab', info: '#00dbe9' };
+            
             const toast = document.createElement('div');
             toast.className = 'toast';
-            toast.style.borderLeftColor = colors[type] || colors.info;
+            toast.style.borderLeftColor = borders[type] || borders.info;
             toast.innerHTML = `
-                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
-                <div class="toast-content"><div class="toast-message">${message}</div></div>
-                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+                <span class="text-lg"><i class="fas ${icons[type] || icons.info}"></i></span>
+                <div class="flex-1"><div class="text-[13px] font-medium text-on-surface">${message}</div></div>
+                <button class="opacity-40 hover:opacity-100 transition-opacity" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
             `;
             container.appendChild(toast);
             setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
@@ -456,8 +516,8 @@
             const box = document.getElementById('errorBox');
             document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
             document.getElementById('errorDetail').textContent = detail || '';
-            box.classList.add('show');
-            setTimeout(() => { box.classList.remove('show'); }, 10000);
+            box.classList.remove('hidden');
+            setTimeout(() => { box.classList.add('hidden'); }, 10000);
         }
 
         // ============================================
@@ -484,11 +544,8 @@
         // ============================================
         // AUTH STATE
         // ============================================
-        addDebug('Setting up auth...', 'info');
-
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
-                addDebug('User not logged in, redirecting...', 'warning');
                 window.location.href = '/admin/login';
                 return;
             }
@@ -499,7 +556,6 @@
                 const userRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userRef);
                 if (!userDoc.exists() || userDoc.data().role !== 'admin') {
-                    addDebug('User is not admin, redirecting...', 'error');
                     window.location.href = '/';
                     return;
                 }
@@ -522,11 +578,10 @@
                 
                 if (docSnap.exists()) {
                     await updateDoc(docRef, { ...data, updatedAt: serverTimestamp() });
-                    addDebug(`Settings ${docId} updated`, 'success');
                 } else {
                     await setDoc(docRef, { ...data, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
-                    addDebug(`Settings ${docId} created`, 'success');
                 }
+                addDebug(`Settings ${docId} saved successfully`, 'success');
                 return true;
             } catch (error) {
                 addDebug(`Error saving ${docId}: ${error.message}`, 'error');
@@ -541,51 +596,33 @@
             addDebug('Loading all settings...', 'info');
             try {
                 // Website
-                const websiteRef = doc(db, 'settings', 'website');
-                const websiteDoc = await getDoc(websiteRef);
+                const websiteDoc = await getDoc(doc(db, 'settings', 'website'));
                 if (websiteDoc.exists()) {
                     const data = websiteDoc.data();
-                    document.getElementById('siteName').value = data.siteName || 'ProductKuu';
+                    document.getElementById('siteName').value = data.siteName || '';
                     document.getElementById('siteLogo').value = data.logo || '';
                     document.getElementById('siteFavicon').value = data.favicon || '';
-                    document.getElementById('primaryColor').value = data.primaryColor || '#4F46E5';
-                    document.getElementById('secondaryColor').value = data.secondaryColor || '#7C3AED';
-                    addDebug('Website settings loaded', 'success');
+                    document.getElementById('primaryColor').value = data.primaryColor || '#00dbe9';
+                    document.getElementById('secondaryColor').value = data.secondaryColor || '#cf5cff';
                 }
 
                 // Marketplace
-                const marketplaceRef = doc(db, 'settings', 'marketplace');
-                const marketplaceDoc = await getDoc(marketplaceRef);
+                const marketplaceDoc = await getDoc(doc(db, 'settings', 'marketplace'));
                 if (marketplaceDoc.exists()) {
                     const data = marketplaceDoc.data();
                     document.getElementById('commission').value = data.commission || 10;
                     document.getElementById('minWithdraw').value = data.minWithdraw || 50000;
                     document.getElementById('maxWithdraw').value = data.maxWithdraw || 10000000;
-                    document.getElementById('withdrawMethods').value = (data.withdrawMethods || ['DANA', 'OVO', 'GoPay']).join(', ');
+                    document.getElementById('withdrawMethods').value = (data.withdrawMethods || []).join(', ');
                     document.getElementById('maintenanceMode').checked = data.maintenanceMode || false;
-                    
-                    // Holding Time
-                    document.getElementById('holdingDays').value = data.holdingDays || 7;
+                    document.getElementById('holdingDays').value = data.holdingDays || 0;
                     document.getElementById('holdingHours').value = data.holdingHours || 0;
                     document.getElementById('holdingMinutes').value = data.holdingMinutes || 0;
                     updateHoldingDisplay();
-                    
-                    addDebug('Marketplace settings loaded', 'success');
-                } else {
-                    document.getElementById('commission').value = 10;
-                    document.getElementById('minWithdraw').value = 50000;
-                    document.getElementById('maxWithdraw').value = 10000000;
-                    document.getElementById('withdrawMethods').value = 'DANA, OVO, GoPay, Bank BCA';
-                    document.getElementById('holdingDays').value = 7;
-                    document.getElementById('holdingHours').value = 0;
-                    document.getElementById('holdingMinutes').value = 0;
-                    updateHoldingDisplay();
-                    addDebug('Marketplace settings not found, using defaults', 'warning');
                 }
 
                 // Social
-                const socialRef = doc(db, 'settings', 'social');
-                const socialDoc = await getDoc(socialRef);
+                const socialDoc = await getDoc(doc(db, 'settings', 'social'));
                 if (socialDoc.exists()) {
                     const data = socialDoc.data();
                     document.getElementById('socialWhatsapp').value = data.whatsapp || '';
@@ -594,37 +631,26 @@
                     document.getElementById('socialFacebook').value = data.facebook || '';
                     document.getElementById('socialTiktok').value = data.tiktok || '';
                     document.getElementById('socialYoutube').value = data.youtube || '';
-                    addDebug('Social settings loaded', 'success');
                 }
 
                 // Footer
-                const footerRef = doc(db, 'settings', 'footer');
-                const footerDoc = await getDoc(footerRef);
+                const footerDoc = await getDoc(doc(db, 'settings', 'footer'));
                 if (footerDoc.exists()) {
                     const data = footerDoc.data();
-                    document.getElementById('footerText').value = data.footerText || '&copy; 2026 ProductKuu. All rights reserved.';
-                    document.getElementById('footerLinks').value = JSON.stringify(data.footerLinks || [
-                        { label: 'Tentang', url: '/tentang' },
-                        { label: 'Kontak', url: '/kontak' },
-                        { label: 'Syarat & Ketentuan', url: '/syarat-ketentuan' }
-                    ], null, 2);
-                    addDebug('Footer settings loaded', 'success');
+                    document.getElementById('footerText').value = data.footerText || '';
+                    document.getElementById('footerLinks').value = JSON.stringify(data.footerLinks || [], null, 2);
                 }
 
                 addDebug('All settings loaded successfully', 'success');
-
             } catch (error) {
                 addDebug(`Error loading settings: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat pengaturan: ' + error.message);
             }
         }
 
-        // ============================================
-        // WEBSITE SETTINGS
-        // ============================================
+        // Form Handlers
         document.getElementById('websiteSettingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            addDebug('Saving website settings...', 'info');
             try {
                 await saveSettings('website', {
                     siteName: document.getElementById('siteName').value,
@@ -634,17 +660,11 @@
                     secondaryColor: document.getElementById('secondaryColor').value
                 });
                 showToast('success', 'Pengaturan website disimpan');
-            } catch (error) {
-                showToast('error', 'Gagal menyimpan pengaturan: ' + error.message);
-            }
+            } catch (error) { showToast('error', error.message); }
         });
 
-        // ============================================
-        // MARKETPLACE SETTINGS - DENGAN HOLDING TIME
-        // ============================================
         document.getElementById('marketplaceSettingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            addDebug('Saving marketplace settings...', 'info');
             try {
                 const methods = document.getElementById('withdrawMethods').value.split(',').map(m => m.trim()).filter(m => m);
                 await saveSettings('marketplace', {
@@ -658,17 +678,11 @@
                     holdingMinutes: parseInt(document.getElementById('holdingMinutes').value) || 0
                 });
                 showToast('success', 'Pengaturan marketplace disimpan');
-            } catch (error) {
-                showToast('error', 'Gagal menyimpan pengaturan: ' + error.message);
-            }
+            } catch (error) { showToast('error', error.message); }
         });
 
-        // ============================================
-        // SOCIAL SETTINGS
-        // ============================================
         document.getElementById('socialSettingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            addDebug('Saving social settings...', 'info');
             try {
                 await saveSettings('social', {
                     whatsapp: document.getElementById('socialWhatsapp').value,
@@ -679,17 +693,11 @@
                     youtube: document.getElementById('socialYoutube').value
                 });
                 showToast('success', 'Media sosial disimpan');
-            } catch (error) {
-                showToast('error', 'Gagal menyimpan pengaturan: ' + error.message);
-            }
+            } catch (error) { showToast('error', error.message); }
         });
 
-        // ============================================
-        // FOOTER SETTINGS
-        // ============================================
         document.getElementById('footerSettingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            addDebug('Saving footer settings...', 'info');
             try {
                 const links = JSON.parse(document.getElementById('footerLinks').value);
                 await saveSettings('footer', {
@@ -697,14 +705,9 @@
                     footerLinks: links
                 });
                 showToast('success', 'Pengaturan footer disimpan');
-            } catch (error) {
-                addDebug(`Error saving footer settings: ${error.message}`, 'error');
-                showToast('error', 'Format JSON tidak valid: ' + error.message);
-            }
+            } catch (error) { showToast('error', 'Format JSON tidak valid'); }
         });
 
         addDebug('Page ready', 'success');
-        console.log('✅ [ADMIN_SETTINGS] Page ready');
     </script>
-</body>
-</html>
+</body></html>

@@ -1,250 +1,379 @@
 <!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - ProductKuu</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="icon" href="/assets/images/favicon.ico">
-    <style>
-        .app-wrapper { display: flex; min-height: calc(100vh - 64px); margin-top: 64px; }
-        .sidebar { width: 260px; background: var(--bg-primary); border-right: 1px solid var(--border-color); padding: 20px 0; position: fixed; top: 64px; bottom: 0; overflow-y: auto; z-index: 100; transition: transform 0.3s ease; }
-        .sidebar-header { padding: 0 16px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px; }
-        .sidebar-header .title { font-weight: 600; font-size: 14px; color: var(--text-secondary); }
-        .sidebar-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
-        .sidebar-nav a, .sidebar-nav button { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius); color: var(--text-secondary); transition: var(--transition); font-size: 14px; font-weight: 500; text-decoration: none; background: none; border: none; width: 100%; cursor: pointer; font-family: var(--font); text-align: left; }
-        .sidebar-nav a:hover, .sidebar-nav button:hover { background: var(--bg-secondary); color: var(--text-primary); }
-        .sidebar-nav a.active { background: rgba(79,70,229,0.1); color: var(--primary); }
-        .sidebar-nav .logout-btn { color: var(--danger); margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 16px; }
-        .sidebar-nav .logout-btn:hover { background: rgba(239,68,68,0.1); color: var(--danger); }
-        .sidebar-overlay { display: none; position: fixed; top: 64px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99; }
-        .sidebar-overlay.open { display: block; }
-        .main-content { margin-left: 260px; padding: 24px; flex: 1; min-height: calc(100vh - 64px); }
-        .mobile-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-primary); cursor: pointer; padding: 8px; }
-        @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); width: 280px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 16px; } .mobile-toggle { display: block !important; } }
-        
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: var(--bg-primary); border-radius: var(--radius); padding: 20px 24px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
-        .stat-card .stat-info { display: flex; flex-direction: column; }
-        .stat-card .stat-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
-        .stat-card .stat-value { font-size: 24px; font-weight: 700; color: var(--text-primary); }
-        .stat-card .stat-icon { width: 48px; height: 48px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 20px; }
-        .stat-card .stat-icon.indigo { background: rgba(79,70,229,0.1); color: var(--primary); }
-        .stat-card .stat-icon.green { background: rgba(16,185,129,0.1); color: var(--success); }
-        .stat-card .stat-icon.yellow { background: rgba(245,158,11,0.1); color: var(--warning); }
-        .stat-card .stat-icon.purple { background: rgba(124,58,237,0.1); color: var(--secondary); }
-        .stat-card .stat-icon.orange { background: rgba(249,115,22,0.1); color: #F97316; }
-        .stat-card .stat-icon.blue { background: rgba(59,130,246,0.1); color: var(--info); }
-        
-        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
-        .chart-box { min-height: 200px; }
-        
-        .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
-        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
-        .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
-        .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
-        .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
-        .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
-        .badge-primary { background: rgba(79,70,229,0.1); color: var(--primary); }
-        
-        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-        .text-center { text-align: center; }
-        .text-secondary { color: var(--text-secondary); }
-        
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
-        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
-        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
-        .btn-sm { padding: 8px 16px; font-size: 12px; }
-        
-        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
-        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
-        .toast-icon { font-size: 20px; }
-        .toast-content { flex: 1; }
-        .toast-message { font-size: 13px; color: var(--text-secondary); }
-        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-        
-        .debug-box {
-            background: #1E1E2E;
-            border-radius: var(--radius);
-            padding: 12px 16px;
-            margin-bottom: 16px;
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            color: #CDD6F4;
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
-            border: 1px solid #313244;
-        }
-        .debug-box.show { display: block; }
-        .debug-box .debug-line { padding: 2px 0; border-bottom: 1px solid #2A2A3E; }
-        .debug-box .debug-line:last-child { border-bottom: none; }
-        .debug-box .debug-success { color: #A6E3A1; }
-        .debug-box .debug-error { color: #F38BA8; }
-        .debug-box .debug-info { color: #89B4FA; }
-        .debug-box .debug-warning { color: #F9E2AF; }
-        
-        .debug-toggle { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 12px; text-decoration: underline; padding: 4px 8px; margin-bottom: 8px; }
-        .debug-toggle:hover { color: var(--text-primary); }
-        
-        .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
-        .error-box.show { display: block; }
-        .error-box .error-title { font-weight: 700; color: var(--danger); }
-        .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
-        
-        .recent-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
-        .recent-item:last-child { border-bottom: none; }
-        .recent-item .seller-name { font-weight: 600; }
-        .recent-item .amount { font-weight: 600; color: var(--primary); }
-        .recent-item .status { font-size: 12px; padding: 2px 10px; border-radius: 9999px; }
-        
-        @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .charts-grid { grid-template-columns: 1fr; } }
-        @media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr; } }
-        
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dashboard Admin - ProductKuu</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
         :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f3f4f6;
-            --bg-tertiary: #e5e7eb;
-            --text-primary: #111827;
-            --text-secondary: #6b7280;
-            --text-light: #9ca3af;
-            --border-color: #e5e7eb;
-            --shadow: 0 1px 3px rgba(0,0,0,0.1);
-            --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
-            --radius: 8px;
-            --radius-lg: 16px;
+            --bg-deep: #0d0d15;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --primary-gradient: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            --ice-blue: #93c5fd;
+            --purple: #a855f7;
+            --orange: #f97316;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --radius: 12px;
+            --radius-lg: 20px;
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
             --info: #3b82f6;
-            --primary: #4F46E5;
-            --secondary: #7C3AED;
-            --transition: all 0.3s ease;
         }
-        [data-theme="dark"] {
-            --bg-primary: #1f2937;
-            --bg-secondary: #374151;
-            --bg-tertiary: #4b5563;
-            --text-primary: #f9fafb;
-            --text-secondary: #9ca3af;
-            --text-light: #6b7280;
-            --border-color: #374151;
+
+        body {
+            font-family: var(--font);
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            margin: 0;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(79, 70, 229, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
+            background-attachment: fixed;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: var(--font); background: var(--bg-secondary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
-        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); height: 64px; }
-        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        .navbar-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
-        .navbar-logo i { color: #4F46E5; }
-        .navbar-actions { display: flex; align-items: center; gap: 8px; }
-        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
-        .btn-icon:hover { background: var(--bg-secondary); }
+
+        /* Glassmorphism Styles */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+        }
+
+        .app-wrapper { display: flex; min-height: calc(100vh - 72px); margin-top: 72px; }
+        
+        .sidebar { 
+            width: 280px; 
+            background: rgba(13, 13, 21, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border); 
+            padding: 24px 0; 
+            position: fixed; 
+            top: 72px; 
+            bottom: 0; 
+            overflow-y: auto; 
+            z-index: 100; 
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+
+        .sidebar-header { padding: 0 24px 16px; margin-bottom: 8px; }
+        .sidebar-header .title { font-weight: 600; font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        .sidebar-nav { display: flex; flex-direction: column; gap: 4px; padding: 0 16px; }
+        .sidebar-nav a, .sidebar-nav button { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 12px 16px; 
+            border-radius: var(--radius); 
+            color: var(--text-secondary); 
+            transition: all 0.2s ease; 
+            font-size: 14px; 
+            font-weight: 500; 
+            text-decoration: none; 
+            background: none; 
+            border: none; 
+            width: 100%; 
+            cursor: pointer; 
+            font-family: var(--font); 
+            text-align: left; 
+        }
+        
+        .sidebar-nav a:hover, .sidebar-nav button:hover { 
+            background: rgba(255, 255, 255, 0.05); 
+            color: var(--text-primary); 
+        }
+        
+        .sidebar-nav a.active { 
+            background: var(--primary-gradient); 
+            color: white; 
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+        }
+        
+        .sidebar-nav .logout-btn { 
+            color: #ff4d4d; 
+            margin-top: 24px; 
+            border-top: 1px solid var(--glass-border); 
+            padding-top: 24px; 
+            border-radius: 0;
+        }
+
+        .main-content { margin-left: 280px; padding: 32px; flex: 1; min-height: calc(100vh - 72px); }
+        
+        .navbar { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            z-index: 1000; 
+            background: rgba(13, 13, 21, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border); 
+            height: 72px; 
+        }
+        
+        .navbar-inner { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            height: 100%; 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            padding: 0 32px; 
+        }
+
+        .navbar-logo { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            font-size: 22px; 
+            font-weight: 800; 
+            color: var(--text-primary); 
+            text-decoration: none; 
+            letter-spacing: -0.02em;
+        }
+        
+        .navbar-logo i { 
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }
+        
+        .stat-card { 
+            padding: 24px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .stat-card .stat-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; margin-bottom: 4px; }
+        .stat-card .stat-value { font-size: 28px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; }
+        
+        .stat-icon { 
+            width: 52px; 
+            height: 52px; 
+            border-radius: 14px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 22px; 
+        }
+        
+        .stat-icon.indigo { background: rgba(79, 70, 229, 0.15); color: #818cf8; }
+        .stat-icon.green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .stat-icon.yellow { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .stat-icon.purple { background: rgba(124, 58, 237, 0.15); color: #a78bfa; }
+
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+        .chart-box { padding: 24px; }
+        
+        .card { 
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+        }
+
+        .badge { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 4px; 
+            padding: 4px 10px; 
+            border-radius: 8px; 
+            font-size: 11px; 
+            font-weight: 700; 
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .badge-primary { background: rgba(79, 70, 229, 0.2); color: #818cf8; border: 1px solid rgba(79, 70, 229, 0.3); }
+        .badge-success { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        
+        .btn { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px; 
+            padding: 10px 20px; 
+            border-radius: 12px; 
+            font-size: 14px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+        }
+        
+        .btn-secondary { 
+            background: rgba(255, 255, 255, 0.05); 
+            color: var(--text-primary); 
+            border: 1px solid var(--glass-border); 
+        }
+        
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
+
+        .recent-item { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 16px 0; 
+            border-bottom: 1px solid var(--glass-border); 
+        }
+        .recent-item:last-child { border-bottom: none; }
+        .recent-item .seller-name { font-weight: 600; font-size: 15px; color: var(--text-primary); }
+        .recent-item .amount { font-weight: 700; color: #818cf8; }
+
+        .debug-box {
+            background: #000;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #89B4FA;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            border: 1px solid var(--glass-border);
+        }
+        .debug-box.show { display: block; }
+        
+        .error-box { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; display: none; }
+        .error-box.show { display: block; }
+
+        .sidebar-overlay { display: none; position: fixed; top: 72px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 99; }
+        
+        @media (max-width: 1024px) { 
+            .sidebar { transform: translateX(-100%); width: 280px; } 
+            .sidebar.open { transform: translateX(0); } 
+            .main-content { margin-left: 0; padding: 20px; } 
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="navbar-inner">
-            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
-            <div class="navbar-actions">
-                <span class="badge badge-primary" style="font-size:11px;">Admin</span>
-                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
-                <button class="mobile-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-            </div>
-        </div>
-    </nav>
-
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header"><div class="title">Menu Admin</div></div>
-        <nav class="sidebar-nav">
-            <a href="/admin/dashboard" class="active"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a href="/admin/sellers"><i class="fas fa-users"></i> Seller</a>
-            <a href="/admin/products"><i class="fas fa-box"></i> Produk</a>
-            <a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Order</a>
-            <a href="/admin/banners"><i class="fas fa-images"></i> Banner</a>
-            <a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Withdraw</a>
-            <a href="/admin/settings"><i class="fas fa-cog"></i> Pengaturan</a>
-            <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </nav>
-    </aside>
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <div class="app-wrapper">
-        <main class="main-content">
-            <div class="flex-between" style="margin-bottom:24px;">
-                <div>
-                    <h1 style="font-size:24px;">Dashboard Admin</h1>
-                    <p style="color:var(--text-secondary);" id="welcomeMessage">Selamat datang, Admin!</p>
-                </div>
-                <button onclick="refreshData()" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-sync-alt"></i> Refresh
+<nav class="navbar">
+<div class="navbar-inner">
+<a class="navbar-logo" href="/"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
+<div class="flex items-center gap-4">
+<span class="badge badge-primary">Administrator</span>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-secondary hover:bg-white/5 transition-colors" id="themeToggle"><i class="fas fa-moon"></i></button>
+<button class="lg:hidden text-2xl text-white p-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+</div>
+</div>
+</nav>
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header"><div class="title">Main Navigation</div></div>
+<nav class="sidebar-nav">
+<a class="active" href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
+<a href="/admin/sellers"><i class="fas fa-users"></i> Sellers</a>
+<a href="/admin/products"><i class="fas fa-box"></i> Products</a>
+<a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Orders</a>
+<a href="/admin/banners"><i class="fas fa-images"></i> Banners</a>
+<a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Withdrawals</a>
+<a href="/admin/settings"><i class="fas fa-cog"></i> Settings</a>
+<button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+</nav>
+</aside>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="app-wrapper">
+<main class="main-content">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h1 class="text-3xl font-extrabold tracking-tight mb-1" style="background: linear-gradient(to right, #fff, #9ca3af); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Dashboard Admin</h1>
+<p class="text-gray-400 font-medium" id="welcomeMessage">Welcome back, Admin!</p>
+</div>
+<button class="btn btn-secondary" onclick="refreshData()">
+<i class="fas fa-sync-alt"></i> Refresh Data
                 </button>
-            </div>
-
-            <div class="debug-box" id="debugBox">
-                <div class="debug-line debug-info">🔍 Debug Mode Active</div>
-                <div class="debug-line" id="debugLog">Menunggu data...</div>
-            </div>
-            <button class="debug-toggle" onclick="toggleDebug()"><i class="fas fa-bug"></i> Toggle Debug</button>
-
-            <div class="error-box" id="errorBox">
-                <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
-                <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
-            </div>
-
-            <!-- Stats 4 Kolom -->
-            <div class="stats-grid" style="margin-top:8px;">
-                <div class="stat-card">
-                    <div class="stat-info"><span class="stat-label">Total Seller</span><span class="stat-value" id="totalSellers">0</span></div>
-                    <div class="stat-icon indigo"><i class="fas fa-users"></i></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-info"><span class="stat-label">Total Produk</span><span class="stat-value" id="totalProducts">0</span></div>
-                    <div class="stat-icon green"><i class="fas fa-box"></i></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-info"><span class="stat-label">Total Pendapatan</span><span class="stat-value" id="totalRevenue" style="color:var(--primary);">Rp0</span></div>
-                    <div class="stat-icon yellow"><i class="fas fa-money-bill-wave"></i></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-info"><span class="stat-label">Total Withdraw</span><span class="stat-value" id="totalWithdraw" style="color:var(--secondary);">Rp0</span></div>
-                    <div class="stat-icon purple"><i class="fas fa-arrow-up"></i></div>
-                </div>
-            </div>
-
-            <!-- Charts -->
-            <div class="charts-grid">
-                <div class="card chart-box">
-                    <h4 style="margin-bottom:12px;">Grafik Penjualan</h4>
-                    <canvas id="salesChart" height="180"></canvas>
-                </div>
-                <div class="card chart-box">
-                    <h4 style="margin-bottom:12px;">Grafik Pendapatan</h4>
-                    <canvas id="revenueChart" height="180"></canvas>
-                </div>
-            </div>
-
-            <!-- Recent Withdraw -->
-            <div class="card">
-                <div class="flex-between" style="margin-bottom:16px;">
-                    <h4>Withdraw Terbaru</h4>
-                    <a href="/admin/withdrawals" style="font-size:14px;color:var(--primary);">Lihat Semua →</a>
-                </div>
-                <div id="recentWithdrawals">
-                    <div class="text-center text-secondary" style="padding:20px 0;">Memuat data...</div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <div class="toast-container" id="toastContainer"></div>
-
-    <script type="importmap">
+</div>
+<div class="debug-box" id="debugBox">
+<div class="text-blue-400 mb-2">🔍 System Monitoring Active</div>
+<div id="debugLog">Initializing...</div>
+</div>
+<button class="text-xs text-gray-500 underline mb-6 block hover:text-white transition-colors" onclick="toggleDebug()"><i class="fas fa-bug mr-1"></i> Toggle Debug Console</button>
+<div class="error-box" id="errorBox">
+<div class="flex items-center gap-2 text-red-500 font-bold mb-1">
+<i class="fas fa-exclamation-circle"></i> <span id="errorTitle">System Error</span>
+</div>
+<div class="text-sm text-gray-400" id="errorDetail">Failed to fetch recent transactions.</div>
+</div>
+<div class="stats-grid">
+<div class="stat-card glass-panel">
+<div>
+<div class="stat-label">Total Sellers</div>
+<div class="stat-value" id="totalSellers">0</div>
+</div>
+<div class="stat-icon indigo"><i class="fas fa-users"></i></div>
+</div>
+<div class="stat-card glass-panel">
+<div>
+<div class="stat-label">Total Products</div>
+<div class="stat-value" id="totalProducts">0</div>
+</div>
+<div class="stat-icon green"><i class="fas fa-box"></i></div>
+</div>
+<div class="stat-card glass-panel">
+<div>
+<div class="stat-label">Total Revenue</div>
+<div class="stat-value" id="totalRevenue">Rp0</div>
+</div>
+<div class="stat-icon yellow"><i class="fas fa-wallet"></i></div>
+</div>
+<div class="stat-card glass-panel">
+<div>
+<div class="stat-label">Withdrawals</div>
+<div class="stat-value" id="totalWithdraw">Rp0</div>
+</div>
+<div class="stat-icon purple"><i class="fas fa-arrow-up-right-from-square"></i></div>
+</div>
+</div>
+<div class="charts-grid">
+<div class="card glass-panel chart-box">
+<h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i class="fas fa-chart-line text-blue-400"></i> Sales Performance</h3>
+<canvas height="200" id="salesChart"></canvas>
+</div>
+<div class="card glass-panel chart-box">
+<h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i class="fas fa-coins text-purple-400"></i> Revenue Analytics</h3>
+<canvas height="200" id="revenueChart"></canvas>
+</div>
+</div>
+<div class="card glass-panel">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-history text-orange-400"></i> Recent Withdrawals</h3>
+<a class="text-sm text-blue-400 font-semibold hover:underline" href="/admin/withdrawals">View All Activities</a>
+</div>
+<div id="recentWithdrawals">
+<div class="py-12 text-center text-gray-500">
+<i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+<p>Syncing data with server...</p>
+</div>
+</div>
+</div>
+</main>
+</div>
+<div class="fixed bottom-8 right-8 z-[3000] flex flex-col gap-3 max-w-sm w-full" id="toastContainer"></div>
+<script type="importmap">
         {
             "imports": {
                 "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
@@ -253,13 +382,10 @@
             }
         }
     </script>
-
-    <script type="module">
+<script type="module">
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit } from "firebase/firestore";
-
-        console.log('📊 [ADMIN_DASHBOARD] Page loaded');
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
@@ -279,356 +405,214 @@
         let debugVisible = false;
 
         function addDebug(message, type = 'info') {
-            const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
-            const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
             const log = document.getElementById('debugLog');
             const time = new Date().toLocaleTimeString();
-            log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
-            console.log(`[ADMIN_DASHBOARD_DEBUG] ${message}`);
+            const colors = { success: 'text-green-400', error: 'text-red-400', info: 'text-blue-400', warning: 'text-yellow-400' };
+            log.innerHTML += `<div class="mb-1"><span class="opacity-50 text-[10px] mr-2">${time}</span> <span class="${colors[type]}">${message}</span></div>`;
             const box = document.getElementById('debugBox');
             box.scrollTop = box.scrollHeight;
         }
 
         window.toggleDebug = function() {
-            const box = document.getElementById('debugBox');
             debugVisible = !debugVisible;
-            box.classList.toggle('show');
-            if (debugVisible) addDebug('Debug mode activated', 'info');
+            document.getElementById('debugBox').classList.toggle('show');
+            if (debugVisible) addDebug('Debug session started', 'info');
         };
 
         window.refreshData = function() {
-            addDebug('Manual refresh triggered', 'info');
-            showToast('info', 'Memperbarui data...');
+            addDebug('Manual database sync triggered', 'info');
+            showToast('info', 'Refreshing dashboard data...');
             loadDashboardData();
         };
 
         const themeToggle = document.getElementById('themeToggle');
-        let darkMode = localStorage.getItem('darkMode') === 'true';
-        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
         themeToggle.addEventListener('click', () => {
-            darkMode = !darkMode;
-            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-            localStorage.setItem('darkMode', darkMode);
-            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+            showToast('info', 'System theme is locked to Premium Dark');
         });
 
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const sidebarToggle = document.getElementById('sidebarToggle');
+        
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', () => {
                 sidebar.classList.toggle('open');
                 sidebarOverlay.classList.toggle('open');
             });
         }
-        if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', () => {
-                sidebar.classList.remove('open');
-                sidebarOverlay.classList.remove('open');
-            });
-        }
-
-        document.querySelectorAll('.sidebar-nav a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const href = this.getAttribute('href');
-                if (href) window.location.href = href;
-            });
+        
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('open');
         });
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             try { await signOut(auth); window.location.href = '/'; } 
-            catch (error) { showToast('error', 'Gagal logout'); }
+            catch (error) { showToast('error', 'Logout failed'); }
         });
 
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
-            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
+            const colors = { success: '#10b981', error: '#ef4444', warning: '#f59e0b', info: '#3b82f6' };
             const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.style.borderLeftColor = colors[type] || colors.info;
+            toast.className = 'glass-panel p-4 flex items-center gap-3 animate-slide-in';
+            toast.style.borderLeft = `4px solid ${colors[type]}`;
             toast.innerHTML = `
-                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
-                <div class="toast-content"><div class="toast-message">${message}</div></div>
-                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+                <div class="w-2 h-2 rounded-full" style="background:${colors[type]}"></div>
+                <div class="flex-1 text-sm font-medium text-white">${message}</div>
+                <button onclick="this.parentElement.remove()" class="text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
             `;
             container.appendChild(toast);
-            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
+            setTimeout(() => toast.remove(), 4000);
         }
         window.showToast = showToast;
 
-        function showError(title, detail) {
-            const box = document.getElementById('errorBox');
-            document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
-            document.getElementById('errorDetail').textContent = detail || '';
-            box.classList.add('show');
-            setTimeout(() => { box.classList.remove('show'); }, 10000);
-        }
-
         function formatPrice(price) {
-            if (!price && price !== 0) return '0';
-            return new Intl.NumberFormat('id-ID').format(price);
+            return new Intl.NumberFormat('id-ID').format(price || 0);
         }
 
         function formatDate(date) {
-            if (!date) return '-';
             const d = date instanceof Date ? date : new Date(date);
-            if (isNaN(d.getTime())) return '-';
-            return d.toLocaleDateString('id-ID', {
-                year: 'numeric', month: 'long', day: 'numeric',
-                hour: '2-digit', minute: '2-digit'
-            });
+            return d.toLocaleDateString('id-ID', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
-
-        // ============================================
-        // AUTH STATE
-        // ============================================
-        addDebug('Setting up auth...', 'info');
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
-                addDebug('User not logged in, redirecting...', 'warning');
                 window.location.href = '/admin/login';
                 return;
             }
             currentUser = user;
-            addDebug(`User logged in: ${user.email}`, 'success');
-
             try {
-                const userRef = doc(db, 'users', user.uid);
-                const userDoc = await getDoc(userRef);
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
                 if (!userDoc.exists() || userDoc.data().role !== 'admin') {
-                    addDebug('User is not admin, redirecting...', 'error');
                     window.location.href = '/';
                     return;
                 }
-                addDebug('Admin verified', 'success');
-                document.getElementById('welcomeMessage').textContent = 
-                    `Selamat datang, ${userDoc.data().displayName || 'Admin'}!`;
+                document.getElementById('welcomeMessage').textContent = `Welcome back, ${userDoc.data().displayName || 'Admin'}!`;
                 await loadDashboardData();
-
             } catch (error) {
-                addDebug(`Error: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat data: ' + error.message);
+                addDebug(error.message, 'error');
             }
         });
 
-        // ============================================
-        // LOAD DASHBOARD DATA
-        // ============================================
         async function loadDashboardData() {
-            addDebug('Loading dashboard data...', 'info');
-
+            addDebug('Fetching collections...', 'info');
             try {
-                // ============================================
-                // TOTAL SELLER
-                // ============================================
-                const sellersSnapshot = await getDocs(
-                    query(collection(db, 'users'), where('role', '==', 'seller'))
-                );
+                const sellersSnapshot = await getDocs(query(collection(db, 'users'), where('role', '==', 'seller')));
                 document.getElementById('totalSellers').textContent = sellersSnapshot.size;
-                addDebug(`Total sellers: ${sellersSnapshot.size}`, 'success');
 
-                // ============================================
-                // TOTAL PRODUK
-                // ============================================
-                const productsSnapshot = await getDocs(
-                    query(collection(db, 'products'), where('status', '==', 'published'))
-                );
+                const productsSnapshot = await getDocs(query(collection(db, 'products'), where('status', '==', 'published')));
                 document.getElementById('totalProducts').textContent = productsSnapshot.size;
-                addDebug(`Total products: ${productsSnapshot.size}`, 'success');
 
-                // ============================================
-                // TOTAL PENDAPATAN
-                // ============================================
-                const ordersSnapshot = await getDocs(
-                    query(
-                        collection(db, 'orders'),
-                        where('paymentStatus', 'in', ['settlement', 'paid'])
-                    )
-                );
-                
+                const ordersSnapshot = await getDocs(query(collection(db, 'orders'), where('paymentStatus', 'in', ['settlement', 'paid'])));
                 let totalRevenue = 0;
                 const chartData = [];
                 ordersSnapshot.forEach(doc => {
                     const order = doc.data();
-                    const amount = order.amount || 0;
-                    totalRevenue += amount;
-                    const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
-                    chartData.push({
-                        date: createdAt,
-                        amount: amount
-                    });
+                    totalRevenue += order.amount || 0;
+                    chartData.push({ date: order.createdAt?.toDate?.() || new Date(order.createdAt), amount: order.amount || 0 });
                 });
                 document.getElementById('totalRevenue').textContent = `Rp${formatPrice(totalRevenue)}`;
-                addDebug(`Total revenue: Rp${formatPrice(totalRevenue)}`, 'success');
 
-                // ============================================
-                // TOTAL WITHDRAW
-                // ============================================
-                const withdrawalsSnapshot = await getDocs(
-                    query(
-                        collection(db, 'withdrawals'),
-                        where('status', '==', 'approved')
-                    )
-                );
+                const withdrawalsSnapshot = await getDocs(query(collection(db, 'withdrawals'), where('status', '==', 'approved')));
                 let totalWithdraw = 0;
                 const withdrawData = [];
                 withdrawalsSnapshot.forEach(doc => {
                     const w = doc.data();
                     totalWithdraw += w.amount || 0;
-                    const createdAt = w.createdAt?.toDate?.() || new Date(w.createdAt);
-                    withdrawData.push({
-                        date: createdAt,
-                        amount: w.amount || 0,
-                        sellerName: w.accountName || 'Unknown',
-                        method: w.method || 'Unknown',
-                        status: w.status || 'approved'
+                    withdrawData.push({ 
+                        date: w.createdAt?.toDate?.() || new Date(w.createdAt), 
+                        amount: w.amount || 0, 
+                        sellerName: w.accountName || 'Seller', 
+                        method: w.method || 'Bank Transfer' 
                     });
                 });
                 document.getElementById('totalWithdraw').textContent = `Rp${formatPrice(totalWithdraw)}`;
-                addDebug(`Total withdraw: Rp${formatPrice(totalWithdraw)}`, 'success');
 
-                // ============================================
-                // RENDER CHARTS
-                // ============================================
                 renderCharts(chartData);
-
-                // ============================================
-                // RENDER RECENT WITHDRAWALS
-                // ============================================
-                const recentWithdrawals = withdrawData
-                    .sort((a, b) => b.date - a.date)
-                    .slice(0, 10);
-
+                const recentW = withdrawData.sort((a, b) => b.date - a.date).slice(0, 8);
                 const container = document.getElementById('recentWithdrawals');
-                if (recentWithdrawals.length === 0) {
-                    container.innerHTML = `
-                        <div class="text-center text-secondary" style="padding:20px 0;">
-                            <i class="fas fa-history" style="font-size:24px;display:block;margin-bottom:8px;"></i>
-                            Belum ada withdraw
-                        </div>
-                    `;
+                
+                if (recentW.length === 0) {
+                    container.innerHTML = '<div class="py-12 text-center text-gray-500">No recent withdrawal history found.</div>';
                 } else {
-                    container.innerHTML = recentWithdrawals.map(w => `
+                    container.innerHTML = recentW.map(w => `
                         <div class="recent-item">
                             <div>
-                                <span class="seller-name">${w.sellerName}</span>
-                                <span style="font-size:13px;color:var(--text-secondary);">${w.method}</span>
-                                <div style="font-size:11px;color:var(--text-light);">${formatDate(w.date)}</div>
+                                <div class="seller-name">${w.sellerName}</div>
+                                <div class="text-[11px] text-gray-500 flex items-center gap-2 mt-0.5">
+                                    <span class="opacity-70">${w.method}</span>
+                                    <span class="w-1 h-1 rounded-full bg-gray-700"></span>
+                                    <span>${formatDate(w.date)}</span>
+                                </div>
                             </div>
-                            <div style="text-align:right;">
-                                <span class="amount">Rp${formatPrice(w.amount)}</span>
-                                <br>
-                                <span class="status badge badge-success">Approved</span>
+                            <div class="text-right">
+                                <div class="amount">Rp${formatPrice(w.amount)}</div>
+                                <span class="badge badge-success mt-1">Approved</span>
                             </div>
                         </div>
                     `).join('');
                 }
-
-                addDebug('Dashboard data loaded successfully', 'success');
-
+                addDebug('Dashboard sync complete', 'success');
             } catch (error) {
-                addDebug(`Error loading dashboard data: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat data: ' + error.message);
+                addDebug(error.message, 'error');
+                showToast('error', 'Sync failed: ' + error.message);
             }
         }
 
-        // ============================================
-        // RENDER CHARTS
-        // ============================================
         function renderCharts(chartData) {
-            addDebug('Rendering charts...', 'info');
-            
-            try {
-                // Sales Chart
-                const salesCtx = document.getElementById('salesChart');
-                if (salesCtx) {
-                    const salesData = chartData.map(() => 1);
-                    const dates = chartData.map(d => d.date);
-                    renderChart(salesCtx, dates, salesData, 'Penjualan');
-                }
-
-                // Revenue Chart
-                const revenueCtx = document.getElementById('revenueChart');
-                if (revenueCtx) {
-                    const revData = chartData.map(d => d.amount);
-                    const dates = chartData.map(d => d.date);
-                    renderChart(revenueCtx, dates, revData, 'Pendapatan');
-                }
-            } catch (error) {
-                addDebug(`Error rendering charts: ${error.message}`, 'error');
+            const salesCtx = document.getElementById('salesChart');
+            const revenueCtx = document.getElementById('revenueChart');
+            if (chartData.length > 0) {
+                renderChart(salesCtx, chartData.map(d => d.date), chartData.map(() => 1), 'Sales', ['#4F46E5', '#818CF8']);
+                renderChart(revenueCtx, chartData.map(d => d.date), chartData.map(d => d.amount), 'Revenue', ['#A855F7', '#C084FC']);
             }
         }
 
-        function renderChart(canvas, dates, data, label) {
+        function renderChart(canvas, dates, data, label, colors) {
             const ctx = canvas.getContext('2d');
-            const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = Math.max(rect.width - 40, 200);
-            canvas.height = 180;
-            
-            const width = canvas.width;
-            const height = canvas.height;
-            const padding = 30;
+            const width = canvas.offsetWidth;
+            const height = 200;
+            canvas.width = width;
+            canvas.height = height;
             
             ctx.clearRect(0, 0, width, height);
+            const padding = 40;
+            const chartW = width - padding * 2;
+            const chartH = height - padding * 2;
+            const maxVal = Math.max(...data, 1) * 1.2;
 
-            if (!data || data.length === 0 || data.every(v => v === 0)) {
-                ctx.fillStyle = '#9CA3AF';
-                ctx.font = '14px Inter, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(`Belum ada data ${label}`, width / 2, height / 2);
-                return;
-            }
-
-            const maxValue = Math.max(...data, 1) * 1.2;
-            
-            ctx.strokeStyle = '#E5E7EB';
+            // Grid
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
             ctx.lineWidth = 1;
-            ctx.setLineDash([3, 3]);
-            for (let i = 0; i <= 4; i++) {
-                const y = padding + (height - padding * 2) - (i / 4) * (height - padding * 2);
-                ctx.beginPath();
-                ctx.moveTo(padding, y);
-                ctx.lineTo(width - padding, y);
-                ctx.stroke();
-                
-                ctx.fillStyle = '#6B7280';
-                ctx.font = '9px Inter, sans-serif';
-                ctx.textAlign = 'right';
-                const value = Math.round(maxValue * i / 4);
-                ctx.fillText(label === 'Pendapatan' ? `Rp${formatPrice(value)}` : value, padding - 5, y + 3);
+            for(let i=0; i<=4; i++) {
+                const y = padding + chartH - (i/4 * chartH);
+                ctx.beginPath(); ctx.moveTo(padding, y); ctx.lineTo(width-padding, y); ctx.stroke();
             }
-            ctx.setLineDash([]);
 
-            const barWidth = Math.min((width - padding * 2) / data.length * 0.6, 40);
-            const spacing = (width - padding * 2) / data.length;
-            const colors = label === 'Pendapatan' ? ['#7C3AED', '#A78BFA'] : ['#4F46E5', '#818CF8'];
-
-            dates.forEach((date, i) => {
-                const x = padding + i * spacing + (spacing - barWidth) / 2;
-                const barHeight = (data[i] / maxValue) * (height - padding * 2);
-                const y = padding + (height - padding * 2) - barHeight;
+            // Bars
+            const barW = Math.min((chartW / data.length) * 0.5, 30);
+            data.forEach((val, i) => {
+                const x = padding + (i * (chartW/data.length)) + (chartW/data.length - barW)/2;
+                const barH = (val / maxVal) * chartH;
+                const y = padding + chartH - barH;
                 
-                const gradient = ctx.createLinearGradient(x, y, x, padding + height - padding * 2);
-                gradient.addColorStop(0, colors[0]);
-                gradient.addColorStop(1, colors[1]);
+                const grad = ctx.createLinearGradient(x, y, x, padding + chartH);
+                grad.addColorStop(0, colors[0]);
+                grad.addColorStop(1, colors[1]);
                 
-                ctx.fillStyle = gradient;
+                ctx.fillStyle = grad;
                 ctx.beginPath();
-                ctx.roundRect(x, y, barWidth, barHeight, 4);
+                ctx.roundRect(x, y, barW, barH, 4);
                 ctx.fill();
 
-                ctx.fillStyle = '#6B7280';
-                ctx.font = '9px Inter, sans-serif';
-                ctx.textAlign = 'center';
-                const labelText = new Date(date).toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric' });
-                ctx.fillText(labelText, x + barWidth / 2, padding + height - padding * 2 + 15);
+                if (i % Math.ceil(data.length/5) === 0) {
+                    ctx.fillStyle = '#6B7280';
+                    ctx.font = '10px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(new Date(dates[i]).toLocaleDateString('id-ID', {day:'numeric', month:'short'}), x + barW/2, height - 10);
+                }
             });
         }
-
-        addDebug('Page ready', 'success');
-        console.log('✅ [ADMIN_DASHBOARD] Page ready');
     </script>
-</body>
-</html>
+</body></html>

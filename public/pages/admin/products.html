@@ -1,334 +1,314 @@
 <!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manajemen Produk - ProductKuu</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="icon" href="/assets/images/favicon.ico">
-    <style>
-        .app-wrapper { display: flex; min-height: calc(100vh - 64px); margin-top: 64px; }
-        .sidebar { width: 260px; background: var(--bg-primary); border-right: 1px solid var(--border-color); padding: 20px 0; position: fixed; top: 64px; bottom: 0; overflow-y: auto; z-index: 100; transition: transform 0.3s ease; }
-        .sidebar-header { padding: 0 16px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px; }
-        .sidebar-header .title { font-weight: 600; font-size: 14px; color: var(--text-secondary); }
-        .sidebar-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
-        .sidebar-nav a, .sidebar-nav button { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius); color: var(--text-secondary); transition: var(--transition); font-size: 14px; font-weight: 500; text-decoration: none; background: none; border: none; width: 100%; cursor: pointer; font-family: var(--font); text-align: left; }
-        .sidebar-nav a:hover, .sidebar-nav button:hover { background: var(--bg-secondary); color: var(--text-primary); }
-        .sidebar-nav a.active { background: rgba(79,70,229,0.1); color: var(--primary); }
-        .sidebar-nav .logout-btn { color: var(--danger); margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 16px; }
-        .sidebar-nav .logout-btn:hover { background: rgba(239,68,68,0.1); color: var(--danger); }
-        .sidebar-overlay { display: none; position: fixed; top: 64px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99; }
-        .sidebar-overlay.open { display: block; }
-        .main-content { margin-left: 260px; padding: 24px; flex: 1; min-height: calc(100vh - 64px); }
-        .mobile-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-primary); cursor: pointer; padding: 8px; }
-        @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); width: 280px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 16px; } .mobile-toggle { display: block !important; } }
-        
-        .table-wrapper { overflow-x: auto; }
-        .table { width: 100%; border-collapse: collapse; }
-        .table th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); border-bottom: 2px solid var(--border-color); background: var(--bg-secondary); }
-        .table td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
-        .table tr:hover td { background: var(--bg-secondary); }
-        
-        .filter-bar { background: var(--bg-primary); border-radius: var(--radius); padding: 16px 20px; border: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 24px; }
-        .filter-bar .filter-group { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
-        .filter-bar .filter-group select, .filter-bar .filter-group input { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 13px; min-width: 120px; }
-        .filter-bar .filter-actions { display: flex; gap: 8px; }
-        
-        .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
-        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
-        .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
-        .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
-        .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
-        .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
-        .badge-primary { background: rgba(79,70,229,0.1); color: var(--primary); }
-        
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
-        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
-        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-danger:hover { transform: translateY(-2px); }
-        .btn-success { background: var(--success); color: white; }
-        .btn-success:hover { transform: translateY(-2px); }
-        .btn-sm { padding: 8px 16px; font-size: 12px; }
-        .btn-xs { padding: 4px 8px; font-size: 11px; }
-        
-        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
-        .modal-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
-        .modal { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 32px; max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; animation: slideUp 0.3s ease; text-align: center; }
-        .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
-        .modal p { color: var(--text-secondary); margin-bottom: 24px; }
-        .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; color: var(--text-secondary); cursor: pointer; transition: all 0.3s; padding: 4px; }
-        .modal-close:hover { color: var(--text-primary); transform: rotate(90deg); }
-        .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; text-align: left; }
-        .input-group label { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
-        .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
-        .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
-        select.input { appearance: auto; }
-        textarea.input { resize: vertical; min-height: 80px; }
-        
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        
-        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-        .text-center { text-align: center; }
-        .text-secondary { color: var(--text-secondary); }
-        
-        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
-        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
-        .toast-icon { font-size: 20px; }
-        .toast-content { flex: 1; }
-        .toast-message { font-size: 13px; color: var(--text-secondary); }
-        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-        
-        /* ============================================
-           DEBUG BOX
-           ============================================ */
-        .debug-box {
-            background: #1E1E2E;
-            border-radius: var(--radius);
-            padding: 12px 16px;
-            margin-bottom: 16px;
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            color: #CDD6F4;
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
-            border: 1px solid #313244;
-        }
-        .debug-box.show { display: block; }
-        .debug-box .debug-line { padding: 2px 0; border-bottom: 1px solid #2A2A3E; }
-        .debug-box .debug-line:last-child { border-bottom: none; }
-        .debug-box .debug-success { color: #A6E3A1; }
-        .debug-box .debug-error { color: #F38BA8; }
-        .debug-box .debug-info { color: #89B4FA; }
-        .debug-box .debug-warning { color: #F9E2AF; }
-        
-        .debug-toggle { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 12px; text-decoration: underline; padding: 4px 8px; margin-bottom: 8px; }
-        .debug-toggle:hover { color: var(--text-primary); }
-        
-        .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
-        .error-box.show { display: block; }
-        .error-box .error-title { font-weight: 700; color: var(--danger); }
-        .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
 
-        /* ============================================
-           ROOT VARIABLES
-           ============================================ */
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Manajemen Produk - ProductKuu</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+<link href="/assets/images/favicon.ico" rel="icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
         :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f3f4f6;
-            --bg-tertiary: #e5e7eb;
-            --text-primary: #111827;
-            --text-secondary: #6b7280;
-            --text-light: #9ca3af;
-            --border-color: #e5e7eb;
-            --shadow: 0 1px 3px rgba(0,0,0,0.1);
-            --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
-            --radius: 8px;
-            --radius-lg: 16px;
-            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --info: #3b82f6;
-            --primary: #4F46E5;
-            --transition: all 0.3s ease;
+            --bg-deep: #0d0d15;
+            --bg-glass: rgba(17, 17, 27, 0.7);
+            --bg-glass-lighter: rgba(30, 30, 46, 0.6);
+            --primary-gradient: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            --accent-ice: #89B4FA;
+            --accent-purple: #CBA6F7;
+            --accent-orange: #FAB387;
+            --text-main: #CDD6F4;
+            --text-dim: #9399B2;
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.15);
+            --font: 'Inter', sans-serif;
+            --success: #A6E3A1;
+            --warning: #F9E2AF;
+            --danger: #F38BA8;
+            --info: #89B4FA;
+            --radius: 12px;
+            --radius-lg: 20px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        [data-theme="dark"] {
-            --bg-primary: #1f2937;
-            --bg-secondary: #374151;
-            --bg-tertiary: #4b5563;
-            --text-primary: #f9fafb;
-            --text-secondary: #9ca3af;
-            --text-light: #6b7280;
-            --border-color: #374151;
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: var(--font); 
+            background: var(--bg-deep); 
+            color: var(--text-main); 
+            min-height: 100vh; 
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(79, 70, 229, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
+            background-attachment: fixed;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: var(--font); background: var(--bg-secondary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
-        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); height: 64px; }
-        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        .navbar-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
-        .navbar-logo i { color: #4F46E5; }
-        .navbar-actions { display: flex; align-items: center; gap: 8px; }
-        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
-        .btn-icon:hover { background: var(--bg-secondary); }
+
+        .app-wrapper { display: flex; min-height: calc(100vh - 72px); margin-top: 72px; }
+        
+        .navbar { 
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
+            background: var(--bg-glass); backdrop-filter: blur(20px); 
+            border-bottom: 1px solid var(--border-glass); height: 72px; 
+        }
+        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1400px; margin: 0 auto; padding: 0 32px; }
+        .navbar-logo { display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 800; color: #fff; text-decoration: none; letter-spacing: -0.02em; }
+        .navbar-logo i { background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .sidebar { 
+            width: 280px; background: rgba(13, 13, 21, 0.8); backdrop-filter: blur(20px); 
+            border-right: 1px solid var(--border-glass); padding: 24px 0; 
+            position: fixed; top: 72px; bottom: 0; overflow-y: auto; z-index: 100; 
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .sidebar-header { padding: 0 24px 16px; margin-bottom: 8px; }
+        .sidebar-header .title { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 4px; padding: 0 16px; }
+        .sidebar-nav a, .sidebar-nav button { 
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px; 
+            border-radius: var(--radius); color: var(--text-dim); transition: var(--transition); 
+            font-size: 14px; font-weight: 500; text-decoration: none; background: none; 
+            border: none; width: 100%; cursor: pointer; text-align: left; font-family: var(--font);
+        }
+        .sidebar-nav a:hover, .sidebar-nav button:hover { background: rgba(255,255,255,0.05); color: #fff; transform: translateX(4px); }
+        .sidebar-nav a.active { background: var(--primary-gradient); color: #fff; box-shadow: var(--shadow-glow); }
+        .sidebar-nav .logout-btn { color: var(--danger); margin-top: 24px; border-top: 1px solid var(--border-glass); padding-top: 24px; border-radius: 0; }
+
+        .main-content { margin-left: 280px; padding: 32px; flex: 1; min-height: calc(100vh - 72px); }
+        .sidebar-overlay { display: none; position: fixed; top: 72px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 99; }
+        
+        @media (max-width: 1024px) { 
+            .sidebar { transform: translateX(-100%); } 
+            .sidebar.open { transform: translateX(0); } 
+            .main-content { margin-left: 0; padding: 20px; } 
+            .sidebar-overlay.open { display: block; }
+        }
+
+        .glass-panel { background: var(--bg-glass-lighter); backdrop-filter: blur(12px); border: 1px solid var(--border-glass); border-radius: var(--radius-lg); }
+        .card { background: var(--bg-glass-lighter); backdrop-filter: blur(8px); border-radius: 20px; padding: 24px; border: 1px solid var(--border-glass); box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+        
+        .filter-bar { background: var(--bg-glass); border-radius: 16px; padding: 20px; border: 1px solid var(--border-glass); display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-bottom: 24px; }
+        .filter-group { display: flex; gap: 12px; flex-wrap: wrap; flex: 1; }
+        .filter-actions { display: flex; gap: 8px; }
+
+        .input { background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); color: #fff; padding: 10px 16px; border-radius: 10px; font-size: 14px; transition: var(--transition); outline: none; width: 100%; }
+        .input:focus { border-color: var(--accent-ice); box-shadow: 0 0 0 3px rgba(137, 180, 250, 0.15); }
+        select.input { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239399B2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 40px; }
+
+        .table-wrapper { overflow-x: auto; border-radius: 12px; }
+        .table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        .table th { text-align: left; padding: 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); border-bottom: 1px solid var(--border-glass); background: rgba(0,0,0,0.2); }
+        .table td { padding: 16px; border-bottom: 1px solid var(--border-glass); font-size: 14px; color: var(--text-main); transition: var(--transition); vertical-align: middle; }
+        .table tr:last-child td { border-bottom: none; }
+        .table tr:hover td { background: rgba(255,255,255,0.03); }
+
+        .badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.1); }
+        .badge-primary { background: rgba(79, 70, 229, 0.2); color: #818cf8; border-color: rgba(79, 70, 229, 0.3); }
+        .badge-success { background: rgba(166, 227, 161, 0.15); color: var(--success); }
+        .badge-warning { background: rgba(249, 226, 175, 0.15); color: var(--warning); }
+        .badge-danger { background: rgba(243, 139, 168, 0.15); color: var(--danger); }
+        .badge-info { background: rgba(137, 180, 250, 0.15); color: var(--info); }
+
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; transition: var(--transition); border: 1px solid transparent; }
+        .btn-primary { background: var(--primary-gradient); color: white; box-shadow: var(--shadow-glow); }
+        .btn-primary:hover { transform: translateY(-2px); opacity: 0.9; }
+        .btn-secondary { background: rgba(255,255,255,0.05); color: var(--text-main); border-color: var(--border-glass); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+        .btn-danger { background: rgba(243, 139, 168, 0.2); color: var(--danger); border-color: rgba(243, 139, 168, 0.3); }
+        .btn-danger:hover { background: var(--danger); color: #fff; }
+        .btn-success { background: rgba(166, 227, 161, 0.2); color: var(--success); border-color: rgba(166, 227, 161, 0.3); }
+        .btn-success:hover { background: var(--success); color: #000; }
+        .btn-sm { padding: 8px 14px; font-size: 12px; }
+        .btn-xs { padding: 5px 10px; font-size: 11px; border-radius: 8px; }
+
+        .modal-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
+        .modal { background: var(--bg-deep); border: 1px solid var(--border-glass); border-radius: 24px; padding: 32px; width: 100%; position: relative; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .modal-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+        .modal-close { position: absolute; top: 24px; right: 24px; color: var(--text-dim); font-size: 20px; cursor: pointer; transition: 0.2s; background: none; border: none; padding: 4px; }
+        .modal-close:hover { color: #fff; transform: rotate(90deg); }
+        
+        .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; text-align: left; }
+        .input-group label { font-size: 12px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .toast-container { position: fixed; bottom: 32px; right: 32px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
+        .toast { background: var(--bg-glass); border: 1px solid var(--border-glass); backdrop-filter: blur(12px); padding: 16px 24px; border-radius: 16px; color: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 16px; animation: slideInRight 0.3s ease; }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+
+        .debug-box { background: #11111b; border-radius: 12px; padding: 16px; margin-bottom: 16px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #a6adc8; max-height: 200px; overflow-y: auto; display: none; border: 1px solid #313244; }
+        .debug-box.show { display: block; }
+        .error-box { background: rgba(243, 139, 168, 0.1); border: 1px solid rgba(243, 139, 168, 0.2); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; display: none; }
+        .error-box.show { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-glass); border-radius: 10px; }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="navbar-inner">
-            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
-            <div class="navbar-actions">
-                <span class="badge badge-primary" style="font-size:11px;">Admin</span>
-                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
-                <button class="mobile-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-            </div>
-        </div>
-    </nav>
-
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header"><div class="title">Menu Admin</div></div>
-        <nav class="sidebar-nav">
-            <a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a href="/admin/sellers"><i class="fas fa-users"></i> Seller</a>
-            <a href="/admin/products" class="active"><i class="fas fa-box"></i> Produk</a>
-            <a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Order</a>
-            <a href="/admin/banners"><i class="fas fa-images"></i> Banner</a>
-            <a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Withdraw</a>
-            <a href="/admin/settings"><i class="fas fa-cog"></i> Pengaturan</a>
-            <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </nav>
-    </aside>
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <div class="app-wrapper">
-        <main class="main-content">
-            <div class="flex-between" style="margin-bottom:24px;">
-                <div><h1 style="font-size:24px;">Manajemen Produk</h1><p style="color:var(--text-secondary);">Kelola semua produk di platform</p></div>
-                <button onclick="refreshData()" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-sync-alt"></i> Refresh
+<nav class="navbar">
+<div class="navbar-inner">
+<a class="navbar-logo" href="/"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
+<div class="flex items-center gap-4">
+<span class="badge badge-primary">Administrator</span>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-white/60 hover:bg-white/5 transition-colors" id="themeToggle"><i class="fas fa-moon"></i></button>
+<button class="lg:hidden text-2xl text-white p-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+</div>
+</div>
+</nav>
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header"><div class="title">Main Navigation</div></div>
+<nav class="sidebar-nav">
+<a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
+<a href="/admin/sellers"><i class="fas fa-users"></i> Sellers Hub</a>
+<a class="active" href="/admin/products"><i class="fas fa-box"></i> Product Inventory</a>
+<a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Order Management</a>
+<a href="/admin/banners"><i class="fas fa-images"></i> Ad Banners</a>
+<a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Payout Requests</a>
+<a href="/admin/settings"><i class="fas fa-cog"></i> Settings</a>
+<button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Terminate Session</button>
+</nav>
+</aside>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="app-wrapper">
+<main class="main-content">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h1 class="text-3xl font-extrabold tracking-tight mb-1" style="background: linear-gradient(to right, #fff, #9ca3af); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Manajemen Produk</h1>
+<p class="text-slate-400 font-medium">Control and moderate the platform's digital catalog</p>
+</div>
+<button class="btn btn-secondary" onclick="refreshData()">
+<i class="fas fa-sync-alt"></i> Sync Data
                 </button>
-            </div>
-
-            <div class="debug-box" id="debugBox">
-                <div class="debug-line debug-info">🔍 Debug Mode Active</div>
-                <div class="debug-line" id="debugLog">Menunggu data...</div>
-            </div>
-            <button class="debug-toggle" onclick="toggleDebug()">
-                <i class="fas fa-bug"></i> Toggle Debug
+</div>
+<div class="debug-box" id="debugBox">
+<div class="text-blue-400 mb-2">🔍 Product Ledger Protocol Active</div>
+<div id="debugLog">Initializing...</div>
+</div>
+<button class="text-[10px] text-slate-500 hover:text-white mb-6 underline underline-offset-4 tracking-widest uppercase" onclick="toggleDebug()">
+<i class="fas fa-terminal mr-1"></i> Access Debug Console
             </button>
-
-            <div class="error-box" id="errorBox">
-                <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
-                <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
-            </div>
-
-            <div class="filter-bar" style="margin-top:8px;">
-                <div class="filter-group">
-                    <input type="text" id="searchProduct" placeholder="Cari produk..." style="min-width:200px;">
-                    <select id="filterStatus">
-                        <option value="all">Semua Status</option>
-                        <option value="published">Published</option>
-                        <option value="draft">Draft</option>
-                        <option value="pending">Pending</option>
-                        <option value="rejected">Rejected</option>
-                    </select>
-                    <select id="filterType">
-                        <option value="all">Semua Type</option>
-                        <option value="digital">Digital</option>
-                        <option value="premium-account">Premium Account</option>
-                    </select>
-                </div>
-                <div class="filter-actions">
-                    <button onclick="applyFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Filter</button>
-                    <button onclick="resetFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-undo"></i></button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="table-wrapper">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Produk</th>
-                                <th>Seller</th>
-                                <th>Harga</th>
-                                <th>Status</th>
-                                <th>Terjual</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="productsTableBody">
-                            <tr><td colspan="6" class="text-center text-secondary" style="padding:40px 0;">
-                                <i class="fas fa-spinner fa-spin" style="font-size:24px;display:block;margin-bottom:8px;"></i>
-                                Memuat produk...
-                            </td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div id="pagination" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;"></div>
-            </div>
-        </main>
-    </div>
-
-    <!-- ACTION MODAL -->
-    <div class="modal-overlay" id="actionModal">
-        <div class="modal">
-            <h3 class="modal-title" id="actionModalTitle">Approve Produk</h3>
-            <p id="actionModalMessage">Apakah Anda yakin ingin menyetujui produk ini?</p>
-            <div style="display:flex;gap:12px;">
-                <button onclick="confirmAction()" class="btn btn-primary" style="flex:1;" id="actionConfirmBtn"><i class="fas fa-check"></i> Ya</button>
-                <button onclick="closeActionModal()" class="btn btn-secondary" style="flex:1;">Batal</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- EDIT PRODUCT MODAL -->
-    <div class="modal-overlay" id="editProductModal">
-        <div class="modal" style="max-width:520px;">
-            <button class="modal-close" onclick="closeEditProductModal()"><i class="fas fa-times"></i></button>
-            <h3 class="modal-title">Edit Produk</h3>
-            <form id="editProductForm">
-                <input type="hidden" id="editProductId">
-                
-                <div class="input-group" style="margin-bottom:12px;">
-                    <label for="editProductName">Nama Produk</label>
-                    <input type="text" id="editProductName" class="input">
-                </div>
-                
-                <div class="input-group" style="margin-bottom:12px;">
-                    <label for="editProductPrice">Harga (Rp)</label>
-                    <input type="number" id="editProductPrice" class="input" min="1000">
-                </div>
-                
-                <div class="input-group" style="margin-bottom:12px;">
-                    <label for="editProductCategory">Kategori</label>
-                    <select id="editProductCategory" class="input">
-                        <option value="Source Code">Source Code</option>
-                        <option value="Preset">Preset</option>
-                        <option value="Plugin">Plugin</option>
-                        <option value="Template">Template</option>
-                        <option value="UI Kit">UI Kit</option>
-                        <option value="Font">Font</option>
-                        <option value="Ebook">Ebook</option>
-                        <option value="Script">Script</option>
-                        <option value="Premium Account">Premium Account</option>
-                        <option value="Lainnya">Lainnya</option>
-                    </select>
-                </div>
-                
-                <div class="input-group" style="margin-bottom:12px;">
-                    <label for="editProductStatus">Status</label>
-                    <select id="editProductStatus" class="input">
-                        <option value="draft">Draft</option>
-                        <option value="pending">Pending</option>
-                        <option value="published">Published</option>
-                        <option value="rejected">Rejected</option>
-                    </select>
-                </div>
-                
-                <div class="input-group" style="margin-bottom:12px;">
-                    <label for="editProductDescription">Deskripsi</label>
-                    <textarea id="editProductDescription" class="input" rows="3"></textarea>
-                </div>
-                
-                <div style="display:flex;gap:12px;margin-top:16px;">
-                    <button type="submit" class="btn btn-primary" style="flex:1;"><i class="fas fa-save"></i> Simpan</button>
-                    <button type="button" onclick="closeEditProductModal()" class="btn btn-secondary" style="flex:1;">Batal</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="toast-container" id="toastContainer"></div>
-
-    <script type="importmap">
+<div class="error-box" id="errorBox">
+<div class="flex items-center gap-2 text-rose-400 font-bold mb-1">
+<i class="fas fa-exclamation-circle"></i> <span id="errorTitle">System Error</span>
+</div>
+<div class="text-sm text-slate-400" id="errorDetail">Failed to fetch product synchronization.</div>
+</div>
+<div class="filter-bar">
+<div class="filter-group">
+<input class="input" id="searchProduct" placeholder="Search by name or category..." style="max-width: 300px;" type="text"/>
+<select class="input" id="filterStatus" style="max-width: 180px;">
+<option value="all">All Statuses</option>
+<option value="published">Published</option>
+<option value="draft">Draft</option>
+<option value="pending">Pending</option>
+<option value="rejected">Rejected</option>
+</select>
+<select class="input" id="filterType" style="max-width: 180px;">
+<option value="all">All Types</option>
+<option value="digital">Digital Assets</option>
+<option value="premium-account">Premium Accounts</option>
+</select>
+</div>
+<div class="filter-actions">
+<button class="btn btn-primary" onclick="applyFilters()"><i class="fas fa-filter"></i> Apply</button>
+<button class="btn btn-secondary" onclick="resetFilters()"><i class="fas fa-undo"></i></button>
+</div>
+</div>
+<div class="card">
+<div class="table-wrapper">
+<table class="table">
+<thead>
+<tr>
+<th>Product Details</th>
+<th>Seller</th>
+<th>Listing Price</th>
+<th>Lifecycle</th>
+<th>Revenue</th>
+<th class="text-right">Action</th>
+</tr>
+</thead>
+<tbody id="productsTableBody">
+<tr><td class="text-center py-20 text-slate-500" colspan="6">
+<i class="fas fa-spinner fa-spin text-2xl mb-4 text-indigo-500"></i>
+<p class="font-medium">Decrypting product ledger...</p>
+</td></tr>
+</tbody>
+</table>
+</div>
+<div class="mt-8 pt-6 border-t border-white/5 flex justify-between items-center" id="pagination"></div>
+</div>
+</main>
+</div>
+<!-- ACTION MODAL -->
+<div class="modal-overlay" id="actionModal">
+<div class="modal max-w-md text-center">
+<h3 class="modal-title justify-center" id="actionModalTitle">Moderate Listing</h3>
+<p class="text-slate-400 mb-8 leading-relaxed" id="actionModalMessage">Are you certain you want to authorize this product for public listing?</p>
+<div style="display:flex;gap:12px;">
+<button class="btn btn-primary flex-1 justify-center py-3" id="actionConfirmBtn" onclick="confirmAction()"><i class="fas fa-check"></i> Authorize</button>
+<button class="btn btn-secondary flex-1 justify-center py-3" onclick="closeActionModal()">Cancel</button>
+</div>
+</div>
+</div>
+<!-- EDIT PRODUCT MODAL -->
+<div class="modal-overlay" id="editProductModal">
+<div class="modal max-w-xl">
+<button class="modal-close" onclick="closeEditProductModal()"><i class="fas fa-times"></i></button>
+<h3 class="modal-title"><i class="fas fa-edit text-indigo-400"></i> Modify Product Data</h3>
+<form id="editProductForm">
+<input id="editProductId" type="hidden"/>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+<div class="input-group">
+<label for="editProductName">Product Name</label>
+<input class="input" id="editProductName" placeholder="Enter listing name" type="text"/>
+</div>
+<div class="input-group">
+<label for="editProductPrice">Price (IDR)</label>
+<input class="input" id="editProductPrice" min="1000" type="number"/>
+</div>
+<div class="input-group">
+<label for="editProductCategory">Category Segment</label>
+<select class="input" id="editProductCategory">
+<option value="Source Code">Source Code</option>
+<option value="Preset">Preset</option>
+<option value="Plugin">Plugin</option>
+<option value="Template">Template</option>
+<option value="UI Kit">UI Kit</option>
+<option value="Font">Font</option>
+<option value="Ebook">Ebook</option>
+<option value="Script">Script</option>
+<option value="Premium Account">Premium Account</option>
+<option value="Lainnya">Lainnya</option>
+</select>
+</div>
+<div class="input-group">
+<label for="editProductStatus">Moderate Status</label>
+<select class="input" id="editProductStatus">
+<option value="draft">Draft</option>
+<option value="pending">Pending Review</option>
+<option value="published">Published</option>
+<option value="rejected">Rejected</option>
+</select>
+</div>
+</div>
+<div class="input-group">
+<label for="editProductDescription">Listing Description</label>
+<textarea class="input" id="editProductDescription" rows="4" style="resize: none;"></textarea>
+</div>
+<div class="flex gap-4 mt-6">
+<button class="btn btn-primary flex-1 justify-center py-3" type="submit"><i class="fas fa-save"></i> Commit Changes</button>
+<button class="btn btn-secondary flex-1 justify-center py-3" onclick="closeEditProductModal()" type="button">Discard</button>
+</div>
+</form>
+</div>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+<script type="importmap">
         {
             "imports": {
                 "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
@@ -337,8 +317,7 @@
             }
         }
     </script>
-
-    <script type="module">
+<script type="module">
         // ============================================
         // IMPORTS
         // ============================================
@@ -384,29 +363,20 @@
 
         async function getSellerName(sellerId) {
             if (!sellerId) return 'Unknown';
-            
-            if (sellerCache.has(sellerId)) {
-                return sellerCache.get(sellerId);
-            }
-            
+            if (sellerCache.has(sellerId)) return sellerCache.get(sellerId);
             try {
                 const sellerRef = doc(db, 'users', sellerId);
                 const sellerDoc = await getDoc(sellerRef);
                 if (sellerDoc.exists()) {
                     const sellerData = sellerDoc.data();
-                    const name = sellerData.storeName || 
-                                sellerData.displayName || 
-                                sellerData.name || 
-                                'Seller';
+                    const name = sellerData.storeName || sellerData.displayName || sellerData.name || 'Seller';
                     sellerCache.set(sellerId, name);
-                    console.log(`✅ Seller loaded: ${name} (${sellerId})`);
                     return name;
                 } else {
                     sellerCache.set(sellerId, 'Unknown');
                     return 'Unknown';
                 }
             } catch (error) {
-                console.warn(`Error fetching seller ${sellerId}:`, error);
                 sellerCache.set(sellerId, 'Unknown');
                 return 'Unknown';
             }
@@ -418,12 +388,11 @@
         let debugVisible = false;
 
         function addDebug(message, type = 'info') {
-            const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
+            const colors = { success: 'text-emerald-400', error: 'text-rose-400', info: 'text-indigo-400', warning: 'text-amber-400' };
             const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
             const log = document.getElementById('debugLog');
             const time = new Date().toLocaleTimeString();
-            log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
-            console.log(`[ADMIN_PRODUCTS_DEBUG] ${message}`);
+            log.innerHTML += `<div class="mb-1"><span class="opacity-50 text-[10px] mr-2">${time}</span> <span class="${colors[type] || 'text-indigo-400'}">${icons[type] || 'ℹ️'} ${message}</span></div>`;
             const box = document.getElementById('debugBox');
             box.scrollTop = box.scrollHeight;
         }
@@ -432,32 +401,14 @@
             const box = document.getElementById('debugBox');
             debugVisible = !debugVisible;
             box.classList.toggle('show');
-            if (debugVisible) {
-                addDebug('Debug mode activated', 'info');
-            }
+            if (debugVisible) addDebug('Debug protocol established', 'info');
         };
 
-        // ============================================
-        // REFRESH DATA
-        // ============================================
         window.refreshData = function() {
-            addDebug('Manual refresh triggered', 'info');
-            showToast('info', 'Memperbarui data...');
+            addDebug('Manual database synchronization triggered', 'info');
+            showToast('info', 'Refreshing product catalog...');
             loadProducts();
         };
-
-        // ============================================
-        // THEME & SIDEBAR
-        // ============================================
-        const themeToggle = document.getElementById('themeToggle');
-        let darkMode = localStorage.getItem('darkMode') === 'true';
-        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
-        themeToggle.addEventListener('click', () => {
-            darkMode = !darkMode;
-            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-            localStorage.setItem('darkMode', darkMode);
-            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
-        });
 
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -475,49 +426,34 @@
             });
         }
 
-        document.querySelectorAll('.sidebar-nav a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const href = this.getAttribute('href');
-                if (href) window.location.href = href;
-            });
-        });
-
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             try { await signOut(auth); window.location.href = '/'; } 
-            catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
+            catch (error) { showToast('error', 'Termination failed: ' + error.message); }
         });
 
-        // ============================================
-        // TOAST & ERROR
-        // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
-            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
+            const icons = { success: 'fa-check-circle text-emerald-400', error: 'fa-exclamation-circle text-rose-400', warning: 'fa-exclamation-triangle text-amber-400', info: 'fa-info-circle text-indigo-400' };
             const toast = document.createElement('div');
             toast.className = 'toast';
-            toast.style.borderLeftColor = colors[type] || colors.info;
             toast.innerHTML = `
-                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
-                <div class="toast-content"><div class="toast-message">${message}</div></div>
-                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+                <i class="fas ${icons[type] || 'fa-info-circle'} text-xl"></i>
+                <div class="flex-1 text-sm font-medium tracking-wide">${message}</div>
+                <button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-white"><i class="fas fa-times"></i></button>
             `;
             container.appendChild(toast);
-            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
+            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 5000);
         }
         window.showToast = showToast;
 
         function showError(title, detail) {
             const box = document.getElementById('errorBox');
-            document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
+            document.getElementById('errorTitle').textContent = title || 'System Error';
             document.getElementById('errorDetail').textContent = detail || '';
             box.classList.add('show');
-            setTimeout(() => { box.classList.remove('show'); }, 10000);
+            setTimeout(() => { box.classList.remove('show'); }, 8000);
         }
 
-        // ============================================
-        // FORMAT FUNCTIONS
-        // ============================================
         function formatPrice(price) {
             if (!price && price !== 0) return '0';
             return new Intl.NumberFormat('id-ID').format(price);
@@ -527,64 +463,29 @@
             if (!date) return '-';
             const d = date instanceof Date ? date : new Date(date);
             if (isNaN(d.getTime())) return '-';
-            return d.toLocaleDateString('id-ID', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+            return d.toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
 
-        // ============================================
-        // AUTH STATE
-        // ============================================
-        addDebug('Setting up auth...', 'info');
-
         onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                addDebug('User not logged in, redirecting...', 'warning');
-                window.location.href = '/admin/login';
-                return;
-            }
+            if (!user) { window.location.href = '/admin/login'; return; }
             currentUser = user;
-            addDebug(`User logged in: ${user.email}`, 'success');
-
             try {
                 const userRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userRef);
-                if (!userDoc.exists() || userDoc.data().role !== 'admin') {
-                    addDebug('User is not admin, redirecting...', 'error');
-                    window.location.href = '/';
-                    return;
-                }
-                addDebug('Admin verified', 'success');
+                if (!userDoc.exists() || userDoc.data().role !== 'admin') { window.location.href = '/'; return; }
+                addDebug('Administrator credentials verified', 'success');
                 await loadProducts();
-
-            } catch (error) {
-                addDebug(`Error: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat data: ' + error.message);
-            }
+            } catch (error) { addDebug(`Security error: ${error.message}`, 'error'); }
         });
 
-        // ============================================
-        // LOAD PRODUCTS - DENGAN NAMA SELLER
-        // ============================================
         async function loadProducts() {
-            addDebug('Loading products...', 'info');
-
+            addDebug('Retrieving product collection...', 'info');
             try {
                 const snapshot = await getDocs(collection(db, 'products'));
-                addDebug(`Fetched ${snapshot.size} products from Firestore`, 'info');
-
                 let products = [];
-                
                 for (const doc of snapshot.docs) {
                     const data = doc.data();
-                    
-                    // Ambil nama seller
                     const sellerName = await getSellerName(data.sellerId);
-                    
                     products.push({
                         id: doc.id,
                         ...data,
@@ -592,134 +493,93 @@
                         createdAtDate: data.createdAt?.toDate?.() || new Date(data.createdAt)
                     });
                 }
-
-                // Apply filters
                 const status = document.getElementById('filterStatus').value;
                 const type = document.getElementById('filterType').value;
                 const search = document.getElementById('searchProduct').value.trim().toLowerCase();
-
-                if (status !== 'all') {
-                    products = products.filter(p => p.status === status);
-                    addDebug(`Filtered by status: ${status} -> ${products.length} products`, 'info');
-                }
-                if (type !== 'all') {
-                    products = products.filter(p => p.type === type);
-                    addDebug(`Filtered by type: ${type} -> ${products.length} products`, 'info');
-                }
-                if (search) {
-                    products = products.filter(p => 
-                        p.name?.toLowerCase().includes(search) ||
-                        p.category?.toLowerCase().includes(search)
-                    );
-                    addDebug(`Filtered by search: "${search}" -> ${products.length} products`, 'info');
-                }
-
-                // Sort di client
+                if (status !== 'all') products = products.filter(p => p.status === status);
+                if (type !== 'all') products = products.filter(p => p.type === type);
+                if (search) products = products.filter(p => p.name?.toLowerCase().includes(search) || p.category?.toLowerCase().includes(search));
                 products.sort((a, b) => b.createdAtDate - a.createdAtDate);
-
                 allProducts = products;
-                addDebug(`Total products after filter: ${allProducts.length}`, 'success');
-
+                addDebug(`Decrypted ${allProducts.length} listings successfully`, 'success');
                 renderProducts();
-
             } catch (error) {
-                addDebug(`Error loading products: ${error.message}`, 'error');
-                console.error('❌ [ADMIN_PRODUCTS] Error:', error);
-                showError('Gagal memuat produk', error.message);
-                showToast('error', 'Gagal memuat produk: ' + error.message);
+                showError('Database Synchronicity Error', error.message);
+                showToast('error', 'Operation failed: ' + error.message);
             }
         }
 
-        // ============================================
-        // RENDER PRODUCTS - DENGAN NAMA SELLER
-        // ============================================
         function renderProducts() {
             const tbody = document.getElementById('productsTableBody');
-
             if (allProducts.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary">Tidak ada produk</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-20 text-slate-500">No product records found in the current segment.</td></tr>';
                 document.getElementById('pagination').innerHTML = '';
                 return;
             }
-
             const totalPages = Math.ceil(allProducts.length / pageSize);
             if (currentPage > totalPages) currentPage = totalPages;
             const start = (currentPage - 1) * pageSize;
             const end = Math.min(start + pageSize, allProducts.length);
             const pageProducts = allProducts.slice(start, end);
 
+            const statusStyles = { 'published': 'badge-success', 'pending': 'badge-warning', 'draft': 'badge-info', 'rejected': 'badge-danger' };
+
             tbody.innerHTML = pageProducts.map(p => `
-                <tr>
+                <tr class="group">
                     <td>
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <div style="width:32px;height:32px;border-radius:var(--radius);background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                <i class="fas fa-${p.type === 'premium-account' ? 'user' : 'box'}"></i>
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:border-white/20 transition-all">
+                                <i class="fas fa-${p.type === 'premium-account' ? 'user-shield' : 'cube'} text-indigo-400"></i>
                             </div>
                             <div>
-                                <strong>${p.name}</strong>
-                                <br><span style="font-size:12px;color:var(--text-secondary);">${p.category || 'Uncategorized'} • ${formatDate(p.createdAtDate)}</span>
+                                <div class="font-bold text-white tracking-tight">${p.name}</div>
+                                <div class="text-[11px] text-slate-500 font-medium uppercase tracking-wider">${p.category || 'Misc'} • ${formatDate(p.createdAtDate)}</div>
                             </div>
                         </div>
                     </td>
                     <td>
-                        <div style="display:flex;align-items:center;gap:6px;">
-                            <i class="fas fa-store" style="font-size:12px;color:var(--primary);"></i>
-                            <span style="font-weight:500;">${p.sellerName}</span>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-store text-[10px] text-slate-500"></i>
+                            <span class="font-semibold text-slate-300 text-sm">${p.sellerName}</span>
                         </div>
                     </td>
-                    <td style="font-weight:600;color:var(--primary);">Rp${formatPrice(p.price)}</td>
-                    <td><span class="badge ${p.status === 'published' ? 'badge-success' : p.status === 'pending' ? 'badge-warning' : p.status === 'draft' ? 'badge-info' : 'badge-danger'}">${p.status || 'draft'}</span></td>
-                    <td style="text-align:center;">${p.sales || 0}</td>
-                    <td>
-                        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                    <td><span class="font-bold text-indigo-400">Rp${formatPrice(p.price)}</span></td>
+                    <td><span class="badge ${statusStyles[p.status] || 'badge-info'}">${p.status || 'draft'}</span></td>
+                    <td class="text-center font-mono text-sm">${p.sales || 0}</td>
+                    <td class="text-right">
+                        <div class="flex justify-end gap-2">
                             ${p.status === 'pending' ? `
-                                <button onclick="approveProduct('${p.id}')" class="btn btn-success btn-xs" title="Approve"><i class="fas fa-check"></i></button>
-                                <button onclick="rejectProduct('${p.id}')" class="btn btn-danger btn-xs" title="Reject"><i class="fas fa-times"></i></button>
+                                <button onclick="approveProduct('${p.id}')" class="btn btn-success btn-xs" title="Approve Listing"><i class="fas fa-check"></i></button>
+                                <button onclick="rejectProduct('${p.id}')" class="btn btn-danger btn-xs" title="Reject Listing"><i class="fas fa-times"></i></button>
                             ` : ''}
-                            <button onclick="editProduct('${p.id}')" class="btn btn-secondary btn-xs" title="Edit"><i class="fas fa-edit"></i></button>
-                            <button onclick="viewProduct('${p.id}')" class="btn btn-secondary btn-xs" title="View"><i class="fas fa-eye"></i></button>
-                            <button onclick="deleteProduct('${p.id}')" class="btn btn-danger btn-xs" title="Delete"><i class="fas fa-trash"></i></button>
+                            <button onclick="editProduct('${p.id}')" class="btn btn-secondary btn-xs" title="Modify Data"><i class="fas fa-edit"></i></button>
+                            <button onclick="viewProduct('${p.id}')" class="btn btn-secondary btn-xs" title="Open Public Link"><i class="fas fa-external-link-alt"></i></button>
+                            <button onclick="deleteProduct('${p.id}')" class="btn btn-danger btn-xs" title="Purge Record"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
             `).join('');
-
             renderPagination(totalPages);
         }
 
-        // ============================================
-        // PAGINATION
-        // ============================================
         function renderPagination(totalPages) {
             const container = document.getElementById('pagination');
             if (totalPages <= 1) {
-                container.innerHTML = `<span style="font-size:14px;color:var(--text-secondary);">${allProducts.length} produk</span>`;
+                container.innerHTML = `<span class="text-xs font-bold text-slate-500 uppercase tracking-widest">${allProducts.length} ITEMS SYNCED</span>`;
                 return;
             }
-
             container.innerHTML = `
-                <span style="font-size:14px;color:var(--text-secondary);">${allProducts.length} produk</span>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    ${currentPage > 1 ? `<button onclick="goToPage(${currentPage - 1})" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}
-                    <span style="font-size:14px;color:var(--text-secondary);">Halaman ${currentPage} dari ${totalPages}</span>
-                    ${currentPage < totalPages ? `<button onclick="goToPage(${currentPage + 1})" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">${allProducts.length} ITEMS SYNCED</span>
+                <div class="flex gap-2">
+                    ${currentPage > 1 ? `<button onclick="goToPage(${currentPage - 1})" class="btn btn-secondary py-1.5 px-3 text-xs"><i class="fas fa-chevron-left mr-1"></i> PREV</button>` : ''}
+                    <span class="text-xs font-bold text-slate-400 self-center mx-2">PAGE ${currentPage} / ${totalPages}</span>
+                    ${currentPage < totalPages ? `<button onclick="goToPage(${currentPage + 1})" class="btn btn-secondary py-1.5 px-3 text-xs">NEXT <i class="fas fa-chevron-right ml-1"></i></button>` : ''}
                 </div>
             `;
         }
 
-        window.goToPage = function(page) {
-            currentPage = page;
-            renderProducts();
-        };
-
-        // ============================================
-        // FILTER FUNCTIONS
-        // ============================================
-        window.applyFilters = function() {
-            currentPage = 1;
-            loadProducts();
-        };
-
+        window.goToPage = function(page) { currentPage = page; renderProducts(); };
+        window.applyFilters = function() { currentPage = 1; loadProducts(); };
         window.resetFilters = function() {
             document.getElementById('searchProduct').value = '';
             document.getElementById('filterStatus').value = 'all';
@@ -727,176 +587,96 @@
             applyFilters();
         };
 
-        // ============================================
-        // SEARCH DEBOUNCE
-        // ============================================
         let searchTimeout;
         document.getElementById('searchProduct').addEventListener('input', () => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(applyFilters, 500);
         });
 
-        // ============================================
-        // APPROVE / REJECT
-        // ============================================
         window.approveProduct = function(id) {
             actionId = id;
             actionType = 'approve';
-            document.getElementById('actionModalTitle').textContent = 'Approve Produk';
-            document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menyetujui produk ini?';
-            document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-check"></i> Approve';
+            document.getElementById('actionModalTitle').innerHTML = '<i class="fas fa-check-circle text-emerald-400"></i> Authorize Product';
+            document.getElementById('actionModalMessage').textContent = 'Confirm authorization of this digital asset for public marketplace availability.';
+            document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-check"></i> Authorize';
             document.getElementById('actionModal').classList.add('open');
-            addDebug(`Approve product: ${id}`, 'info');
         };
 
         window.rejectProduct = function(id) {
             actionId = id;
             actionType = 'reject';
-            document.getElementById('actionModalTitle').textContent = 'Reject Produk';
-            document.getElementById('actionModalMessage').textContent = 'Apakah Anda yakin ingin menolak produk ini?';
+            document.getElementById('actionModalTitle').innerHTML = '<i class="fas fa-times-circle text-rose-400"></i> Deauthorize Product';
+            document.getElementById('actionModalMessage').textContent = 'Confirm deauthorization. This listing will be moved to rejected status and hidden from the catalog.';
             document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-times"></i> Reject';
             document.getElementById('actionModal').classList.add('open');
-            addDebug(`Reject product: ${id}`, 'info');
         };
 
-        window.closeActionModal = function() {
-            document.getElementById('actionModal').classList.remove('open');
-            actionId = null;
-            actionType = null;
-        };
+        window.closeActionModal = function() { document.getElementById('actionModal').classList.remove('open'); actionId = null; actionType = null; };
 
         window.confirmAction = async function() {
             if (!actionId || !actionType) return;
             try {
-                addDebug(`Processing action: ${actionType} for ${actionId}`, 'info');
                 await updateDoc(doc(db, 'products', actionId), {
                     status: actionType === 'approve' ? 'published' : 'rejected',
                     updatedAt: new Date().toISOString()
                 });
-                addDebug(`Product ${actionType}ed successfully`, 'success');
-                showToast('success', `Produk ${actionType === 'approve' ? 'disetujui' : 'ditolak'}`);
+                showToast('success', `Listing successfully ${actionType === 'approve' ? 'authorized' : 'deauthorized'}`);
                 closeActionModal();
                 loadProducts();
-            } catch (error) {
-                addDebug(`Error: ${error.message}`, 'error');
-                showToast('error', 'Gagal memperbarui produk: ' + error.message);
-            }
+            } catch (error) { showToast('error', 'Operation failed: ' + error.message); }
         };
 
-        // ============================================
-        // EDIT PRODUCT
-        // ============================================
         window.editProduct = async function(id) {
-            addDebug(`Editing product: ${id}`, 'info');
             try {
-                const productRef = doc(db, 'products', id);
-                const productDoc = await getDoc(productRef);
-                if (!productDoc.exists()) {
-                    addDebug('Product not found', 'error');
-                    showToast('error', 'Produk tidak ditemukan');
-                    return;
-                }
-
+                const productDoc = await getDoc(doc(db, 'products', id));
+                if (!productDoc.exists()) return;
                 const p = productDoc.data();
-                addDebug(`Product data loaded: ${p.name}`, 'success');
-
                 document.getElementById('editProductId').value = id;
                 document.getElementById('editProductName').value = p.name || '';
                 document.getElementById('editProductPrice').value = p.price || '';
                 document.getElementById('editProductCategory').value = p.category || 'Lainnya';
                 document.getElementById('editProductStatus').value = p.status || 'draft';
                 document.getElementById('editProductDescription').value = p.description || '';
-
                 document.getElementById('editProductModal').classList.add('open');
-                addDebug('Edit modal opened', 'success');
-            } catch (error) {
-                addDebug(`Error loading product: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat produk: ' + error.message);
-            }
+            } catch (error) { showToast('error', 'Load failed: ' + error.message); }
         };
 
-        window.closeEditProductModal = function() {
-            document.getElementById('editProductModal').classList.remove('open');
-            addDebug('Edit modal closed', 'info');
-        };
+        window.closeEditProductModal = function() { document.getElementById('editProductModal').classList.remove('open'); };
 
         document.getElementById('editProductForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            addDebug('Saving edited product...', 'info');
-
             const id = document.getElementById('editProductId').value;
-            const name = document.getElementById('editProductName').value.trim();
-            const price = parseInt(document.getElementById('editProductPrice').value);
-            const category = document.getElementById('editProductCategory').value;
-            const status = document.getElementById('editProductStatus').value;
-            const description = document.getElementById('editProductDescription').value.trim();
-
-            if (!name) {
-                showToast('warning', 'Nama produk wajib diisi');
-                addDebug('Product name is required', 'warning');
-                return;
-            }
-
-            if (!price || price < 1000) {
-                showToast('warning', 'Harga minimal Rp1.000');
-                addDebug('Invalid price', 'warning');
-                return;
-            }
-
+            const updates = {
+                name: document.getElementById('editProductName').value.trim(),
+                price: parseInt(document.getElementById('editProductPrice').value),
+                category: document.getElementById('editProductCategory').value,
+                status: document.getElementById('editProductStatus').value,
+                description: document.getElementById('editProductDescription').value.trim(),
+                updatedAt: new Date().toISOString()
+            };
+            if (!updates.name || isNaN(updates.price)) { showToast('warning', 'Payload validation failed'); return; }
             try {
-                await updateDoc(doc(db, 'products', id), {
-                    name: name,
-                    price: price,
-                    category: category,
-                    status: status,
-                    description: description,
-                    updatedAt: new Date().toISOString()
-                });
-
-                addDebug(`Product ${id} updated successfully`, 'success');
-                showToast('success', 'Produk berhasil diperbarui!');
+                await updateDoc(doc(db, 'products', id), updates);
+                showToast('success', 'Product ledger updated successfully');
                 closeEditProductModal();
                 loadProducts();
-            } catch (error) {
-                addDebug(`Error saving product: ${error.message}`, 'error');
-                showToast('error', 'Gagal menyimpan perubahan: ' + error.message);
-            }
+            } catch (error) { showToast('error', 'Update failed: ' + error.message); }
         });
 
-        // ============================================
-        // VIEW & DELETE
-        // ============================================
-        window.viewProduct = function(id) {
-            window.location.href = `/product/${id}`;
-            addDebug(`View product: ${id}`, 'info');
-        };
+        window.viewProduct = function(id) { window.open(`/product/${id}`, '_blank'); };
 
         window.deleteProduct = async function(id) {
-            if (!confirm('Yakin ingin menghapus produk ini?')) return;
-            addDebug(`Delete product: ${id}`, 'warning');
+            if (!confirm('DANGER: This action will permanently purge the product record. Proceed?')) return;
             try {
                 await deleteDoc(doc(db, 'products', id));
-                addDebug(`Product ${id} deleted`, 'success');
-                showToast('success', 'Produk dihapus');
+                showToast('success', 'Product record purged from database');
                 loadProducts();
-            } catch (error) {
-                addDebug(`Error deleting: ${error.message}`, 'error');
-                showToast('error', 'Gagal menghapus produk: ' + error.message);
-            }
+            } catch (error) { showToast('error', 'Purge failed: ' + error.message); }
         };
 
-        // ============================================
-        // CLOSE MODALS ON OVERLAY CLICK
-        // ============================================
-        document.getElementById('actionModal').addEventListener('click', function(e) {
-            if (e.target === this) closeActionModal();
-        });
-        document.getElementById('editProductModal').addEventListener('click', function(e) {
-            if (e.target === this) closeEditProductModal();
-        });
+        document.getElementById('actionModal').addEventListener('click', function(e) { if (e.target === this) closeActionModal(); });
+        document.getElementById('editProductModal').addEventListener('click', function(e) { if (e.target === this) closeEditProductModal(); });
 
-        addDebug('Page ready', 'success');
-        console.log('✅ [ADMIN_PRODUCTS] Page ready - Seller names displayed');
+        addDebug('System initialized successfully', 'success');
     </script>
-</body>
-</html>
+</body></html>

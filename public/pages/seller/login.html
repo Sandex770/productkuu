@@ -266,6 +266,20 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        
+        try {
+  const messaging = getMessaging(app);
+
+  const token = await getToken(messaging, {
+    vapidKey: "ISI_VAPID_KEY_FIREBASE_DI_SINI"
+  });
+
+  console.log('FCM Token:', token);
+
+  // Simpan token ke Firestore jika diperlukan
+} catch (e) {
+  console.log('FCM tidak aktif:', e);
+}
 
         console.log('✅ [LOGIN] Firebase initialized');
 

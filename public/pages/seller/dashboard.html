@@ -63,6 +63,8 @@
         .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
         .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
         .btn-sm { padding: 8px 16px; font-size: 12px; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { transform: translateY(-2px); }
         
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
         .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
@@ -154,6 +156,7 @@
             --border-color: #e5e7eb;
             --shadow: 0 1px 3px rgba(0,0,0,0.1);
             --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+            --shadow-2xl: 0 25px 50px -12px rgba(0,0,0,0.25);
             --radius: 8px;
             --radius-lg: 16px;
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -311,9 +314,14 @@
                     <h1 style="font-size:24px;">Dashboard</h1>
                     <p style="color:var(--text-secondary);" id="welcomeMessage">Selamat datang, Seller!</p>
                 </div>
-                <button onclick="refreshData()" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button onclick="manualReleaseHolding()" class="btn btn-success btn-sm">
+                        <i class="fas fa-arrow-right"></i> Release Holding
+                    </button>
+                    <button onclick="refreshData()" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
             </div>
 
             <!-- Store Link -->
@@ -412,12 +420,18 @@
     </script>
 
     <script type="module">
+        // ============================================
+        // IMPORTS
+        // ============================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
         import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, updateDoc } from "firebase/firestore";
 
         console.log('📊 [SELLER_DASHBOARD] Page loaded');
 
+        // ============================================
+        // FIREBASE CONFIG
+        // ============================================
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
             authDomain: "productkuu.firebaseapp.com",
@@ -436,6 +450,9 @@
         let userData = null;
         let debugVisible = false;
 
+        // ============================================
+        // DEBUG LOG
+        // ============================================
         function addDebug(message, type = 'info') {
             const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
             const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
@@ -454,12 +471,18 @@
             if (debugVisible) addDebug('Debug mode activated', 'info');
         };
 
+        // ============================================
+        // REFRESH DATA
+        // ============================================
         window.refreshData = function() {
             addDebug('Manual refresh triggered', 'info');
             showToast('info', 'Memperbarui data...');
             loadDashboardData();
         };
 
+        // ============================================
+        // THEME & SIDEBAR
+        // ============================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -499,6 +522,9 @@
             catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
         });
 
+        // ============================================
+        // TOAST & ERROR
+        // ============================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
             const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
@@ -523,6 +549,9 @@
             setTimeout(() => { box.classList.remove('show'); }, 10000);
         }
 
+        // ============================================
+        // FORMAT FUNCTIONS
+        // ============================================
         function formatPrice(price) {
             if (!price && price !== 0) return '0';
             return new Intl.NumberFormat('id-ID').format(price);
@@ -541,6 +570,9 @@
             });
         }
 
+        // ============================================
+        // UPDATE STORE LINK
+        // ============================================
         function updateStoreLink() {
             const storeName = userData?.storeName || userData?.displayName || '';
             if (storeName) {
@@ -575,6 +607,9 @@
             }
         };
 
+        // ============================================
+        // CEK & BUAT WALLET
+        // ============================================
         async function ensureWalletExists(uid) {
             try {
                 const userRef = doc(db, 'users', uid);
@@ -605,6 +640,9 @@
             }
         }
 
+        // ============================================
+        // CHECK SUSPEND STATUS
+        // ============================================
         async function checkSuspendStatus(uid) {
             try {
                 const userRef = doc(db, 'users', uid);
@@ -625,6 +663,145 @@
             }
         }
 
+        // ============================================
+        // ✅ RELEASE HOLDING - BERDASARKAN createdAt ORDER
+        // ============================================
+        async function checkAndReleaseHolding(uid) {
+            addDebug('Checking holding for release...', 'info');
+            
+            try {
+                const userRef = doc(db, 'users', uid);
+                const userDoc = await getDoc(userRef);
+                
+                if (!userDoc.exists()) {
+                    addDebug('User not found', 'error');
+                    return;
+                }
+                
+                const userData = userDoc.data();
+                const wallet = userData.wallet || { available: 0, holding: 0, totalRevenue: 0 };
+                
+                // Jika tidak ada holding, skip
+                if (wallet.holding <= 0) {
+                    addDebug('No holding balance to release', 'info');
+                    return;
+                }
+                
+                // Ambil setting holding time (dalam MENIT)
+                let holdingMinutes = 0;
+                try {
+                    const settingsRef = doc(db, 'settings', 'marketplace');
+                    const settingsDoc = await getDoc(settingsRef);
+                    if (settingsDoc.exists()) {
+                        const settings = settingsDoc.data();
+                        // Prioritas: holdingMinutes > holdingHours > holdingDays
+                        holdingMinutes = settings.holdingMinutes || 
+                                        (settings.holdingHours || 0) * 60 || 
+                                        (settings.holdingDays || 0) * 24 * 60 || 
+                                        0;
+                        addDebug(`Holding time: ${holdingMinutes} minutes`, 'info');
+                    }
+                } catch (e) {
+                    addDebug('Using default holding time (0 minutes)', 'warning');
+                }
+                
+                // Jika holding time 0, langsung pindahkan semua ke available
+                if (holdingMinutes === 0) {
+                    if (wallet.holding > 0) {
+                        await updateDoc(userRef, {
+                            'wallet.available': (wallet.available || 0) + wallet.holding,
+                            'wallet.holding': 0,
+                            updatedAt: new Date().toISOString()
+                        });
+                        addDebug(`💰 Holding moved to available: Rp${formatPrice(wallet.holding)}`, 'success');
+                        showToast('success', `💰 Rp${formatPrice(wallet.holding)} masuk ke saldo tersedia!`);
+                    }
+                    return;
+                }
+                
+                // Cek order yang sudah melewati holding time
+                const ordersSnapshot = await getDocs(
+                    query(
+                        collection(db, 'orders'),
+                        where('sellerId', '==', uid),
+                        where('type', '==', 'product_purchase'),
+                        where('paymentStatus', 'in', ['settlement', 'paid'])
+                    )
+                );
+                
+                const now = new Date();
+                let totalToRelease = 0;
+                let orderIdsToUpdate = [];
+                
+                ordersSnapshot.forEach(doc => {
+                    const order = doc.data();
+                    // ✅ HITUNG DARI createdAt (WAKTU ORDER DIBUAT)
+                    const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
+                    const elapsedMinutes = (now - createdAt) / (1000 * 60);
+                    
+                    // Cek apakah order belum direlease
+                    const isReleased = order.released === true;
+                    
+                    // Jika sudah melewati holding time dan belum direlease
+                    if (elapsedMinutes >= holdingMinutes && !isReleased) {
+                        const amount = order.amount || 0;
+                        if (amount > 0) {
+                            totalToRelease += amount;
+                            orderIdsToUpdate.push(doc.id);
+                            addDebug(`📦 Order ${order.orderId} (${elapsedMinutes.toFixed(0)}m ago) - Rp${formatPrice(amount)} ready to release`, 'info');
+                        }
+                    }
+                });
+                
+                if (totalToRelease > 0 && orderIdsToUpdate.length > 0) {
+                    // Update wallet
+                    const newAvailable = (wallet.available || 0) + totalToRelease;
+                    const newHolding = Math.max(0, (wallet.holding || 0) - totalToRelease);
+                    
+                    await updateDoc(userRef, {
+                        'wallet.available': newAvailable,
+                        'wallet.holding': newHolding,
+                        updatedAt: new Date().toISOString()
+                    });
+                    
+                    // Tandai order sebagai sudah direlease
+                    for (const orderId of orderIdsToUpdate) {
+                        await updateDoc(doc(db, 'orders', orderId), {
+                            released: true,
+                            releasedAt: new Date().toISOString()
+                        });
+                    }
+                    
+                    addDebug(`💰 Released Rp${formatPrice(totalToRelease)} from holding to available`, 'success');
+                    showToast('success', `💰 Rp${formatPrice(totalToRelease)} masuk ke saldo tersedia!`);
+                } else {
+                    addDebug('No orders ready to release', 'info');
+                }
+                
+            } catch (error) {
+                addDebug(`Error checking holding: ${error.message}`, 'error');
+                console.error('Release holding error:', error);
+            }
+        }
+
+        // ============================================
+        // MANUAL RELEASE HOLDING
+        // ============================================
+        window.manualReleaseHolding = async function() {
+            if (!currentUser) {
+                showToast('warning', 'Silakan login terlebih dahulu');
+                return;
+            }
+            addDebug('Manual release holding triggered', 'info');
+            showToast('info', 'Memproses release holding...');
+            await checkAndReleaseHolding(currentUser.uid);
+            await loadDashboardData();
+            showToast('success', '✅ Holding selesai diproses!');
+        };
+
+        // ============================================
+        // AUTH STATE
+        // ============================================
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 addDebug('User not logged in, redirecting...', 'warning');
@@ -658,17 +835,26 @@
             }
         });
 
+        // ============================================
+        // LOAD DASHBOARD DATA
+        // ============================================
         async function loadDashboardData() {
             addDebug('Loading dashboard data...', 'info');
             if (!currentUser) return;
+            
             try {
                 const sellerId = currentUser.uid;
                 addDebug(`Seller ID: ${sellerId}`, 'info');
 
+                // ✅ CEK DAN RELEASE HOLDING TERLEBIH DAHULU
+                await checkAndReleaseHolding(sellerId);
+
+                // Products
                 const productsSnapshot = await getDocs(query(collection(db, 'products'), where('sellerId', '==', sellerId)));
                 document.getElementById('totalProducts').textContent = productsSnapshot.size;
                 addDebug(`Total products: ${productsSnapshot.size}`, 'success');
 
+                // Wallet dari Firestore (sudah terupdate setelah release)
                 const userRef = doc(db, 'users', sellerId);
                 const userDoc = await getDoc(userRef);
                 if (!userDoc.exists()) { addDebug('User not found', 'error'); return; }
@@ -680,11 +866,16 @@
                 document.getElementById('totalRevenue').textContent = `Rp${formatPrice(wallet.totalRevenue || 0)}`;
                 document.getElementById('pendingWithdraw').textContent = `Rp${formatPrice(wallet.pendingWithdraw || 0)}`;
                 
+                addDebug(`Wallet: Available Rp${formatPrice(wallet.available)}, Holding Rp${formatPrice(wallet.holding)}`, 'success');
+
+                // Total Penjualan
                 const orderSnapshot = await getDocs(
                     query(collection(db, 'orders'), where('sellerId', '==', sellerId), where('type', '==', 'product_purchase'), where('paymentStatus', 'in', ['settlement', 'paid']))
                 );
                 document.getElementById('totalSales').textContent = orderSnapshot.size;
+                addDebug(`Total sales: ${orderSnapshot.size}`, 'success');
 
+                // Chart Data
                 const chartData = [];
                 orderSnapshot.forEach(doc => {
                     const order = doc.data();
@@ -703,6 +894,9 @@
             }
         }
 
+        // ============================================
+        // LOAD RECENT PRODUCTS
+        // ============================================
         async function loadRecentProducts(sellerId) {
             addDebug('Loading recent products...', 'info');
             try {
@@ -730,6 +924,9 @@
             }
         }
 
+        // ============================================
+        // RENDER CHARTS
+        // ============================================
         function renderCharts(chartData) {
             addDebug('Rendering charts...', 'info');
             try {
@@ -794,7 +991,7 @@
         }
 
         addDebug('Page ready', 'success');
-        console.log('✅ [SELLER_DASHBOARD] Page ready');
+        console.log('✅ [SELLER_DASHBOARD] Page ready - Auto release holding based on createdAt');
     </script>
 </body>
 </html>

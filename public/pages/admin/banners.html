@@ -1,314 +1,391 @@
 <!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manajemen Banner - ProductKuu Admin</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="icon" href="/assets/images/favicon.ico">
-    <style>
-        .app-wrapper { display: flex; min-height: calc(100vh - 64px); margin-top: 64px; }
-        .sidebar { width: 260px; background: var(--bg-primary); border-right: 1px solid var(--border-color); padding: 20px 0; position: fixed; top: 64px; bottom: 0; overflow-y: auto; z-index: 100; transition: transform 0.3s ease; }
-        .sidebar-header { padding: 0 16px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px; }
-        .sidebar-header .title { font-weight: 600; font-size: 14px; color: var(--text-secondary); }
-        .sidebar-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
-        .sidebar-nav a, .sidebar-nav button { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius); color: var(--text-secondary); transition: var(--transition); font-size: 14px; font-weight: 500; text-decoration: none; background: none; border: none; width: 100%; cursor: pointer; font-family: var(--font); text-align: left; }
-        .sidebar-nav a:hover, .sidebar-nav button:hover { background: var(--bg-secondary); color: var(--text-primary); }
-        .sidebar-nav a.active { background: rgba(79,70,229,0.1); color: var(--primary); }
-        .sidebar-nav .logout-btn { color: var(--danger); margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 16px; }
-        .sidebar-nav .logout-btn:hover { background: rgba(239,68,68,0.1); color: var(--danger); }
-        .sidebar-overlay { display: none; position: fixed; top: 64px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99; }
-        .sidebar-overlay.open { display: block; }
-        .main-content { margin-left: 260px; padding: 24px; flex: 1; min-height: calc(100vh - 64px); }
-        .mobile-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-primary); cursor: pointer; padding: 8px; }
-        @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); width: 280px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 16px; } .mobile-toggle { display: block !important; } }
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Manajemen Banner - ProductKuu Admin</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+<style>
+        /* ===== RESET & VARIABLES ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --font: 'Inter', sans-serif;
+            --bg-deep: #0d0d15;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-card-hover: rgba(255, 255, 255, 0.06);
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-light: #64748b;
+            --primary-gradient: linear-gradient(135deg, #0ea5e9, #8b5cf6);
+            --orange-gradient: linear-gradient(135deg, #f59e0b, #ef4444);
+            --ice-blue: #7dd3fc;
+            --purple: #a78bfa;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --radius: 12px;
+            --radius-lg: 20px;
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.4);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --glass-blur: blur(12px);
+        }
         
-        .banner-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-        .banner-card { background: var(--bg-primary); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border-color); }
-        .banner-card .banner-image { aspect-ratio: 16/9; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; font-size: 48px; color: var(--text-light); overflow: hidden; position: relative; }
-        .banner-card .banner-image img { width: 100%; height: 100%; object-fit: cover; }
-        .banner-card .banner-body { padding: 16px; }
-        .banner-card .banner-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+        body { 
+            font-family: var(--font); 
+            background: var(--bg-deep); 
+            color: var(--text-primary); 
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
         
-        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
-        .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
-        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
-        .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
-        .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
-        .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
-        .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
-        .badge-primary { background: rgba(79,70,229,0.1); color: var(--primary); }
+        /* Background Glows */
+        .glow {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.1) 0%, transparent 70%);
+            filter: blur(60px);
+            z-index: -1;
+        }
+        .glow-1 { top: -100px; right: -100px; background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%); }
+        .glow-2 { bottom: -100px; left: -100px; }
+
+        /* ===== NAVBAR ===== */
+        .navbar { 
+            position: fixed; 
+            top: 0; left: 0; right: 0; 
+            height: 72px; 
+            background: rgba(13, 13, 21, 0.8);
+            backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid var(--border-glass); 
+            z-index: 2000; 
+            display: flex; 
+            align-items: center; 
+            padding: 0 24px; 
+        }
+        .navbar-inner { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1440px; margin: 0 auto; }
+        .navbar-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 800; font-size: 22px; color: var(--text-primary); letter-spacing: -0.5px; }
+        .navbar-logo i { background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .navbar-actions { display: flex; align-items: center; gap: 16px; }
+        .btn-icon { background: var(--bg-card); border: 1px solid var(--border-glass); font-size: 18px; color: var(--text-secondary); cursor: pointer; padding: 10px; border-radius: var(--radius); transition: var(--transition); }
+        .btn-icon:hover { background: var(--bg-card-hover); color: var(--ice-blue); border-color: var(--ice-blue); }
         
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
-        .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
-        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
-        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-danger:hover { transform: translateY(-2px); }
-        .btn-success { background: var(--success); color: white; }
-        .btn-success:hover { transform: translateY(-2px); }
-        .btn-sm { padding: 8px 16px; font-size: 12px; }
+        /* ===== SIDEBAR ===== */
+        .app-wrapper { display: flex; min-height: 100vh; padding-top: 72px; }
+        .sidebar { 
+            width: 280px; 
+            background: rgba(13, 13, 21, 0.5);
+            backdrop-filter: var(--glass-blur);
+            border-right: 1px solid var(--border-glass); 
+            padding: 24px 0; 
+            position: fixed; 
+            top: 72px; 
+            bottom: 0; 
+            overflow-y: auto; 
+            z-index: 1000; 
+            transition: var(--transition); 
+        }
+        .sidebar-header { padding: 0 24px 20px; border-bottom: 1px solid var(--border-glass); margin-bottom: 12px; }
+        .sidebar-header .title { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-light); }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 4px; padding: 0 16px; }
+        .sidebar-nav a, .sidebar-nav button { 
+            display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: var(--radius); 
+            color: var(--text-secondary); transition: var(--transition); font-size: 14px; font-weight: 500; 
+            text-decoration: none; background: none; border: 1px solid transparent; width: 100%; cursor: pointer; 
+            font-family: var(--font); text-align: left; 
+        }
+        .sidebar-nav a:hover, .sidebar-nav button:hover { background: var(--bg-card); color: var(--text-primary); border-color: var(--border-glass); }
+        .sidebar-nav a.active { background: var(--bg-card); color: var(--ice-blue); border-color: rgba(14, 165, 233, 0.3); font-weight: 600; box-shadow: 0 0 20px rgba(14, 165, 233, 0.1); }
+        .sidebar-nav a.active i { color: var(--ice-blue); }
+        .sidebar-nav .logout-btn { color: var(--danger); margin-top: 16px; border-top: 1px solid var(--border-glass); padding-top: 24px; }
+        .sidebar-nav .logout-btn:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: rgba(239, 68, 68, 0.2); }
+        
+        .main-content { margin-left: 280px; padding: 32px; flex: 1; min-height: calc(100vh - 72px); max-width: calc(100% - 280px); }
+        .mobile-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-primary); cursor: pointer; }
+
+        @media (max-width: 1024px) { 
+            .sidebar { transform: translateX(-100%); } 
+            .sidebar.open { transform: translateX(0); } 
+            .main-content { margin-left: 0; padding: 20px; max-width: 100%; } 
+            .mobile-toggle { display: block !important; } 
+        }
+        
+        /* ===== CARDS & BANNERS ===== */
+        .card { 
+            background: var(--bg-card); 
+            backdrop-filter: var(--glass-blur);
+            border-radius: var(--radius-lg); 
+            padding: 28px; 
+            border: 1px solid var(--border-glass); 
+            box-shadow: var(--shadow-lg); 
+            transition: var(--transition);
+        }
+        .card:hover { border-color: rgba(255, 255, 255, 0.15); background: var(--bg-card-hover); }
+
+        .banner-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 28px; }
+        .banner-card { 
+            background: var(--bg-card); 
+            backdrop-filter: var(--glass-blur);
+            border-radius: var(--radius-lg); 
+            overflow: hidden; 
+            border: 1px solid var(--border-glass); 
+            transition: var(--transition);
+        }
+        .banner-card:hover { transform: translateY(-8px); border-color: var(--ice-blue); box-shadow: 0 12px 30px rgba(14, 165, 233, 0.15); }
+        .banner-card .banner-image { aspect-ratio: 16/9; background: #161b22; display: flex; align-items: center; justify-content: center; font-size: 48px; color: var(--text-light); overflow: hidden; position: relative; }
+        .banner-card .banner-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .banner-card:hover .banner-image img { transform: scale(1.05); }
+        .banner-card .banner-body { padding: 20px; }
+        .banner-card h4 { font-size: 18px; margin-bottom: 8px; color: var(--text-primary); }
+        .banner-card p { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+        .banner-card .banner-actions { display: flex; gap: 10px; margin-top: 16px; }
+        
+        /* ===== SETTINGS ===== */
+        .settings-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 28px; margin-bottom: 32px; }
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-success { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .badge-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .badge-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
+        .badge-info { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
+        .badge-primary { background: rgba(14, 165, 233, 0.15); color: var(--ice-blue); border: 1px solid rgba(14, 165, 233, 0.2); }
+        
+        /* ===== BUTTONS ===== */
+        .btn { 
+            display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px; border: none; border-radius: 14px; 
+            font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: var(--transition); 
+            text-decoration: none; position: relative; overflow: hidden;
+        }
+        .btn-primary { background: var(--primary-gradient); color: white; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(139, 92, 246, 0.6); }
+        .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-glass); }
+        .btn-secondary:hover { background: var(--bg-card-hover); border-color: var(--ice-blue); transform: translateY(-2px); }
+        .btn-danger { background: rgba(239, 68, 68, 0.8); color: white; }
+        .btn-danger:hover { background: #ef4444; transform: translateY(-2px); }
+        .btn-sm { padding: 8px 18px; font-size: 13px; border-radius: 10px; }
         .btn-block { width: 100%; justify-content: center; }
         
-        .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
-        .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
-        .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+        /* ===== INPUTS ===== */
+        .input { 
+            width: 100%; padding: 14px 18px; border: 1px solid var(--border-glass); border-radius: var(--radius); 
+            font-family: var(--font); font-size: 15px; transition: var(--transition); background: rgba(255,255,255,0.02); color: var(--text-primary); 
+        }
+        .input:focus { outline: none; border-color: var(--ice-blue); background: rgba(255,255,255,0.05); box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1); }
+        .input-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
         .input-group label { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
         
-        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
-        .modal-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
-        .modal { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 32px; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; animation: slideUp 0.3s ease; }
-        .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; color: var(--text-secondary); cursor: pointer; transition: all 0.3s; padding: 4px; }
-        .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        
-        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-        .text-center { text-align: center; }
-        .text-secondary { color: var(--text-secondary); }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .font-bold { font-weight: 700; }
-        .text-success { color: var(--success); }
-        .text-info { color: var(--info); }
-        .text-primary { color: var(--primary); }
-        
-        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
-        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
-        .toast-icon { font-size: 20px; }
-        .toast-content { flex: 1; }
-        .toast-message { font-size: 13px; color: var(--text-secondary); }
-        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-        
-        .debug-box {
-            background: #1E1E2E;
-            border-radius: var(--radius);
-            padding: 12px 16px;
-            margin-bottom: 16px;
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            color: #CDD6F4;
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
-            border: 1px solid #313244;
+        /* ===== MODAL ===== */
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 3000; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.open { display: flex; }
+        .modal { 
+            background: #12121a; border-radius: var(--radius-lg); padding: 36px; max-width: 540px; width: 100%; 
+            max-height: 90vh; overflow-y: auto; position: relative; border: 1px solid var(--border-glass);
+            animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .debug-box.show { display: block; }
-        .debug-box .debug-line { padding: 2px 0; border-bottom: 1px solid #2A2A3E; }
-        .debug-box .debug-line:last-child { border-bottom: none; }
-        .debug-box .debug-success { color: #A6E3A1; }
-        .debug-box .debug-error { color: #F38BA8; }
-        .debug-box .debug-info { color: #89B4FA; }
-        .debug-box .debug-warning { color: #F9E2AF; }
+        .modal-close { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 24px; color: var(--text-light); cursor: pointer; transition: var(--transition); }
+        .modal-close:hover { color: var(--text-primary); }
+        .modal-title { font-size: 24px; font-weight: 800; margin-bottom: 12px; color: var(--text-primary); }
         
-        .debug-toggle { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 12px; text-decoration: underline; padding: 4px 8px; margin-bottom: 8px; }
-        .debug-toggle:hover { color: var(--text-primary); }
+        @keyframes modalSlideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         
-        .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
-        .error-box.show { display: block; }
-        .error-box .error-title { font-weight: 700; color: var(--danger); }
-        .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+        /* ===== TOAST ===== */
+        .toast-container { position: fixed; bottom: 32px; right: 32px; z-index: 4000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
+        .toast { 
+            padding: 18px 24px; border-radius: var(--radius); background: #1a1a2e; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid var(--border-glass); 
+            border-left: 6px solid var(--ice-blue); animation: toastSlideIn 0.4s ease; display: flex; align-items: center; gap: 16px; 
+        }
+        .toast-icon { font-size: 24px; }
+        .toast-message { font-size: 14px; font-weight: 500; color: var(--text-primary); }
         
+        @keyframes toastSlideIn { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+        
+        /* ===== PRODUCT LIST ===== */
         .product-list-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--border-color);
-            cursor: pointer;
-            transition: all 0.3s;
+            display: flex; align-items: center; justify-content: space-between; padding: 14px; border-bottom: 1px solid var(--border-glass); 
+            cursor: pointer; transition: var(--transition); border-radius: var(--radius); margin-bottom: 4px;
         }
-        .product-list-item:hover {
-            background: var(--bg-secondary);
-        }
-        .product-list-item .product-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .product-list-item .product-info img {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            object-fit: cover;
-            background: var(--bg-secondary);
-        }
-        .product-list-item .product-code {
-            font-family: monospace;
-            font-size: 12px;
-            color: var(--text-secondary);
-            background: var(--bg-tertiary);
-            padding: 2px 8px;
-            border-radius: 4px;
-        }
+        .product-list-item:hover { background: var(--bg-card); transform: translateX(4px); }
+        .product-list-item .product-info { display: flex; align-items: center; gap: 16px; }
+        .product-list-item .product-info img { width: 48px; height: 48px; border-radius: 10px; object-fit: cover; background: #161b22; }
+        .product-list-item .product-code { font-family: monospace; font-size: 13px; color: var(--ice-blue); background: rgba(14, 165, 233, 0.1); padding: 4px 10px; border-radius: 6px; }
         
-        @media (max-width: 1024px) { .banner-grid { grid-template-columns: repeat(2, 1fr); } .settings-grid { grid-template-columns: 1fr; } }
-        @media (max-width: 640px) { .banner-grid { grid-template-columns: 1fr; } .grid-2 { grid-template-columns: 1fr; } }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: var(--border-glass); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-light); }
+
+        /* DEBUG/UTILITY */
+        .debug-box { background: #08080c; border-radius: var(--radius); padding: 16px; margin-bottom: 20px; font-family: monospace; font-size: 12px; color: #89B4FA; border: 1px solid var(--border-glass); display: none; }
+        .debug-box.show { display: block; }
+        .error-box { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: var(--radius); padding: 20px; margin-bottom: 24px; display: none; }
+        .error-box.show { display: block; }
+        .text-ice { color: var(--ice-blue); }
+        .text-purple { color: var(--purple); }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="navbar-inner">
-            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
-            <div class="navbar-actions">
-                <span class="badge badge-primary" style="font-size:11px;">Admin</span>
-                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
-                <button class="mobile-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-            </div>
-        </div>
-    </nav>
-
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header"><div class="title">Menu Admin</div></div>
-        <nav class="sidebar-nav">
-            <a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a href="/admin/sellers"><i class="fas fa-users"></i> Seller</a>
-            <a href="/admin/products"><i class="fas fa-box"></i> Produk</a>
-            <a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Order</a>
-            <a href="/admin/banners" class="active"><i class="fas fa-images"></i> Banner</a>
-            <a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Withdraw</a>
-            <a href="/admin/settings"><i class="fas fa-cog"></i> Pengaturan</a>
-            <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </nav>
-    </aside>
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <div class="app-wrapper">
-        <main class="main-content">
-            <div class="flex-between" style="margin-bottom:24px;">
-                <div>
-                    <h1 style="font-size:24px;">Manajemen Banner</h1>
-                    <p style="color:var(--text-secondary);">Kelola banner homepage & pengaturan harga</p>
-                </div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <button onclick="refreshData()" class="btn btn-secondary btn-sm">
-                        <i class="fas fa-sync-alt"></i> Refresh
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar">
+<div class="navbar-inner">
+<a class="navbar-logo" href="/"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
+<div class="navbar-actions">
+<span class="badge badge-primary">Admin Control</span>
+<button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
+<button class="mobile-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+</div>
+</div>
+</nav>
+<div class="app-wrapper">
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header"><div class="title">Menu Navigasi</div></div>
+<nav class="sidebar-nav">
+<a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
+<a href="/admin/sellers"><i class="fas fa-users"></i> Seller</a>
+<a href="/admin/products"><i class="fas fa-box"></i> Produk</a>
+<a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Order</a>
+<a class="active" href="/admin/banners"><i class="fas fa-images"></i> Banner</a>
+<a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Withdraw</a>
+<a href="/admin/settings"><i class="fas fa-cog"></i> Pengaturan</a>
+<button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+</nav>
+</aside>
+<div class="fixed inset-0 bg-black/60 z-[900] backdrop-blur-sm" id="sidebarOverlay" style="display:none;"></div>
+<!-- ===== MAIN CONTENT ===== -->
+<main class="main-content">
+<!-- Header -->
+<div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:32px; flex-wrap:wrap; gap:20px;">
+<div>
+<h1 style="font-size:32px; font-weight:900; letter-spacing:-1px;">Manajemen Banner</h1>
+<p style="color:var(--text-secondary); margin-top:4px;">Atur promosi visual dan konfigurasi slot banner</p>
+</div>
+<div style="display:flex; gap:12px; flex-wrap:wrap;">
+<button class="btn btn-secondary" onclick="refreshData()">
+<i class="fas fa-sync-alt"></i> Refresh
                     </button>
-                    <button onclick="openAddBanner()" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Tambah Banner
+<button class="btn btn-secondary" onclick="openPricingSettings()">
+<i class="fas fa-sliders-h"></i> Harga Slot
                     </button>
-                    <button onclick="openPricingSettings()" class="btn btn-secondary">
-                        <i class="fas fa-cog"></i> Harga Banner
+<button class="btn btn-primary" onclick="openAddBanner()">
+<i class="fas fa-plus"></i> Buat Banner Baru
                     </button>
-                </div>
-            </div>
-
-            <div class="debug-box" id="debugBox">
-                <div class="debug-line debug-info">🔍 Debug Mode Active</div>
-                <div class="debug-line" id="debugLog">Menunggu data...</div>
-            </div>
-            <button class="debug-toggle" onclick="toggleDebug()">
-                <i class="fas fa-bug"></i> Toggle Debug
+</div>
+</div>
+<!-- Debug & Error -->
+<div class="debug-box" id="debugBox">
+<div id="debugLog">Inisialisasi sistem...</div>
+</div>
+<div class="error-box" id="errorBox">
+<div style="font-weight:700; color:var(--danger); display:flex; align-items:center; gap:8px;">
+<i class="fas fa-exclamation-triangle"></i> <span id="errorTitle">Gagal Memuat</span>
+</div>
+<div id="errorDetail" style="font-size:14px; color:var(--text-secondary); margin-top:6px;"></div>
+</div>
+<!-- Pricing Settings Card -->
+<div class="settings-grid" id="pricingCard" style="display:none;">
+<div class="card">
+<h4 style="margin-bottom:20px; display:flex; align-items:center; gap:10px;">
+<i class="fas fa-tags text-purple"></i> Pengaturan Harga &amp; Slot
+                    </h4>
+<form id="pricingForm">
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+<div class="input-group">
+<label>Harga Flat (Rp)</label>
+<input class="input" id="bannerPrice" placeholder="100000" type="number"/>
+</div>
+<div class="input-group">
+<label>Durasi (Jam)</label>
+<input class="input" id="bannerDuration" placeholder="24" type="number"/>
+</div>
+</div>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+<div class="input-group">
+<label>Maksimal Slot</label>
+<input class="input" id="maxBanners" placeholder="5" type="number"/>
+</div>
+<div class="input-group">
+<label>Auto Slide (Detik)</label>
+<input class="input" id="autoSlideSpeed" placeholder="5" type="number"/>
+</div>
+</div>
+<div style="display:flex; gap:12px; margin-top:10px;">
+<button class="btn btn-primary" style="flex:2;" type="submit">Simpan Perubahan</button>
+<button class="btn btn-secondary" onclick="closePricingSettings()" style="flex:1;" type="button">Batal</button>
+</div>
+</form>
+</div>
+<div class="card">
+<h4 style="margin-bottom:20px;">Iktisar Statistik</h4>
+<div id="bannerStats" style="display:flex; flex-direction:column; gap:16px;">
+<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-glass); padding-bottom:12px;">
+<span class="text-secondary">Total Banner</span>
+<span id="totalBanners" style="font-weight:700;">0</span>
+</div>
+<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-glass); padding-bottom:12px;">
+<span class="text-secondary">Status Aktif</span>
+<span id="activeBanners" style="font-weight:700; color:var(--success);">0</span>
+</div>
+<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-glass); padding-bottom:12px;">
+<span class="text-secondary">Oleh Seller</span>
+<span id="sellerBanners" style="font-weight:700; color:var(--ice-blue);">0</span>
+</div>
+<div style="display:flex; justify-content:space-between;">
+<span class="text-secondary">Oleh Admin</span>
+<span id="adminBanners" style="font-weight:700; color:var(--purple);">0</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Banners Grid -->
+<div class="banner-grid" id="bannersGrid">
+<div style="grid-column:1/-1; padding:100px 0; text-align:center;">
+<i class="fas fa-circle-notch fa-spin" style="font-size:32px; color:var(--ice-blue);"></i>
+<p style="margin-top:16px; color:var(--text-secondary);">Menghubungkan ke database...</p>
+</div>
+</div>
+<button onclick="toggleDebug()" style="background:none; border:none; color:var(--text-light); cursor:pointer; font-size:12px; margin-top:40px; text-decoration:underline;">
+<i class="fas fa-bug"></i> Developer Log
             </button>
-
-            <div class="error-box" id="errorBox">
-                <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
-                <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
-            </div>
-
-            <!-- Pricing Settings Card -->
-            <div class="settings-grid" id="pricingCard" style="margin-top:8px;display:none;">
-                <div class="card">
-                    <h4 style="margin-bottom:16px;">Pengaturan Harga Banner</h4>
-                    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Harga ini adalah harga FLAT (sekali bayar) untuk durasi yang ditentukan.</p>
-                    <form id="pricingForm">
-                        <div class="input-group">
-                            <label for="bannerPrice">Harga Banner (Rp) - FLAT</label>
-                            <input type="number" id="bannerPrice" class="input" placeholder="100000" min="1000">
-                            <span style="font-size:12px;color:var(--text-light);">Harga tetap untuk durasi berapa pun</span>
-                        </div>
-                        <div class="input-group">
-                            <label for="bannerDuration">Durasi Default (Jam)</label>
-                            <input type="number" id="bannerDuration" class="input" placeholder="24" min="1">
-                        </div>
-                        <div class="grid-2">
-                            <div class="input-group">
-                                <label for="maxBanners">Max Slot Banner</label>
-                                <input type="number" id="maxBanners" class="input" placeholder="5" min="1">
-                            </div>
-                            <div class="input-group">
-                                <label for="autoSlideSpeed">Auto Slide (detik)</label>
-                                <input type="number" id="autoSlideSpeed" class="input" placeholder="5" min="1">
-                            </div>
-                        </div>
-                        <div style="display:flex;gap:12px;">
-                            <button type="submit" class="btn btn-primary" style="flex:1;"><i class="fas fa-save"></i> Simpan</button>
-                            <button type="button" onclick="closePricingSettings()" class="btn btn-secondary" style="flex:1;">Tutup</button>
-                        </div>
-                    </form>
-                </div>
-                <div class="card">
-                    <h4 style="margin-bottom:16px;">Statistik Banner</h4>
-                    <div id="bannerStats">
-                        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-color);">
-                            <span>Total Banner</span>
-                            <span class="font-bold" id="totalBanners">0</span>
-                        </div>
-                        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-color);">
-                            <span>Banner Aktif</span>
-                            <span class="font-bold text-success" id="activeBanners">0</span>
-                        </div>
-                        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-color);">
-                            <span>Banner Seller</span>
-                            <span class="font-bold text-info" id="sellerBanners">0</span>
-                        </div>
-                        <div style="display:flex;justify-content:space-between;padding:8px 0;">
-                            <span>Banner Admin</span>
-                            <span class="font-bold text-primary" id="adminBanners">0</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Banners Grid -->
-            <div class="banner-grid" id="bannersGrid" style="margin-top:8px;">
-                <div class="text-center text-secondary" style="grid-column:1/-1;padding:40px 0;">
-                    <i class="fas fa-spinner fa-spin" style="font-size:24px;display:block;margin-bottom:8px;"></i>
-                    Memuat banner...
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Add Banner Modal -->
-    <div class="modal-overlay" id="addBannerModal">
-        <div class="modal">
-            <button class="modal-close" onclick="closeAddBanner()"><i class="fas fa-times"></i></button>
-            <h3 class="modal-title">Tambah Banner</h3>
-            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Masukkan kode produk untuk menambahkan ke banner</p>
-            
-            <div style="margin-bottom:16px;">
-                <div class="input-group">
-                    <label for="productCodeInput">Kode Produk (6 karakter)</label>
-                    <input type="text" id="productCodeInput" class="input" placeholder="Contoh: AB12CD" maxlength="6" style="text-transform:uppercase;font-family:monospace;font-size:18px;letter-spacing:4px;">
-                    <span style="font-size:12px;color:var(--text-light);">Masukkan kode 6 digit yang tertera di produk</span>
-                </div>
-                <div class="input-group">
-                    <label for="bannerDurationInput">Durasi (Jam)</label>
-                    <input type="number" id="bannerDurationInput" class="input" placeholder="24" value="24" min="1">
-                </div>
-                <button onclick="addProductToBanner()" class="btn btn-primary btn-block">
-                    <i class="fas fa-plus"></i> Tambahkan ke Banner
-                </button>
-            </div>
-
-            <hr style="border-color:var(--border-color);margin:16px 0;">
-
-            <h4 style="margin-bottom:12px;">Daftar Produk</h4>
-            <div id="productList" style="max-height:300px;overflow-y:auto;">
-                <div class="text-center text-secondary" style="padding:12px 0;">Memuat produk...</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="toast-container" id="toastContainer"></div>
-
-    <script type="importmap">
+</main>
+</div>
+<!-- ===== ADD BANNER MODAL ===== -->
+<div class="modal-overlay" id="addBannerModal">
+<div class="modal">
+<button class="modal-close" onclick="closeAddBanner()"><i class="fas fa-times"></i></button>
+<h3 class="modal-title">Terbitkan Banner</h3>
+<p style="color:var(--text-secondary); font-size:14px; margin-bottom:24px;">Masukkan kode produk untuk mengambil aset gambar secara otomatis.</p>
+<div class="input-group">
+<label>Kode Produk</label>
+<input class="input" id="productCodeInput" maxlength="6" placeholder="ABC123" style="text-transform:uppercase; font-family:monospace; letter-spacing:4px; font-weight:700;" type="text"/>
+</div>
+<div class="input-group">
+<label>Durasi Tayang (Jam)</label>
+<input class="input" id="bannerDurationInput" type="number" value="24"/>
+</div>
+<button class="btn btn-primary btn-block" onclick="addProductToBanner()" style="margin-top:10px;">
+<i class="fas fa-paper-plane"></i> Publikasikan Banner
+            </button>
+<div style="margin-top:32px;">
+<h4 style="font-size:14px; text-transform:uppercase; letter-spacing:1px; color:var(--text-light); margin-bottom:12px;">Produk Tersedia</h4>
+<div id="productList" style="max-height:240px; overflow-y:auto; padding-right:10px;">
+<div style="text-align:center; padding:20px; color:var(--text-light);">Memuat produk...</div>
+</div>
+</div>
+</div>
+</div>
+<!-- ===== TOAST ===== -->
+<div class="toast-container" id="toastContainer"></div>
+<!-- ===== FIREBASE ===== -->
+<script type="importmap">
         {
             "imports": {
                 "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
@@ -317,14 +394,16 @@
             }
         }
     </script>
-
-    <script type="module">
+<script type="module">
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
+        import { 
+            getFirestore, collection, doc, setDoc, getDoc, getDocs, 
+            addDoc, updateDoc, deleteDoc, query, where, orderBy, 
+            limit, serverTimestamp, Timestamp 
+        } from "firebase/firestore";
 
-        console.log('🖼️ [ADMIN_BANNERS] Page loaded');
-
+        // ===== FIREBASE CONFIG =====
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
             authDomain: "productkuu.firebaseapp.com",
@@ -340,208 +419,143 @@
         const db = getFirestore(app);
 
         let currentUser = null;
-
         let debugVisible = false;
 
+        // ===== SYSTEM LOGS =====
         function addDebug(message, type = 'info') {
-            const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
-            const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
             const log = document.getElementById('debugLog');
             const time = new Date().toLocaleTimeString();
-            log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
-            console.log(`[ADMIN_BANNERS_DEBUG] ${message}`);
+            const colors = { success: '#34d399', error: '#f87171', info: '#60a5fa', warning: '#fbbf24' };
+            log.innerHTML += `<div style="color:${colors[type]}; margin-bottom:4px;">[${time}] ${message}</div>`;
             const box = document.getElementById('debugBox');
-            box.scrollTop = box.scrollHeight;
+            if (box) box.scrollTop = box.scrollHeight;
         }
 
         window.toggleDebug = function() {
             const box = document.getElementById('debugBox');
             debugVisible = !debugVisible;
             box.classList.toggle('show');
-            if (debugVisible) addDebug('Debug mode activated', 'info');
+            if (debugVisible) addDebug('Debug mode active', 'info');
         };
 
         window.refreshData = function() {
-            addDebug('Manual refresh triggered', 'info');
+            addDebug('Refresh manual...', 'info');
             loadBanners();
             loadProducts();
         };
 
-        const themeToggle = document.getElementById('themeToggle');
-        let darkMode = localStorage.getItem('darkMode') === 'true';
-        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
-        themeToggle.addEventListener('click', () => {
-            darkMode = !darkMode;
-            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-            localStorage.setItem('darkMode', darkMode);
-            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
-        });
-
+        // ===== INTERFACE ACTIONS =====
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const sidebarToggle = document.getElementById('sidebarToggle');
+        
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', () => {
                 sidebar.classList.toggle('open');
-                sidebarOverlay.classList.toggle('open');
+                sidebarOverlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
             });
         }
-        if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', () => {
-                sidebar.classList.remove('open');
-                sidebarOverlay.classList.remove('open');
-            });
-        }
-
-        document.querySelectorAll('.sidebar-nav a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const href = this.getAttribute('href');
-                if (href) window.location.href = href;
-            });
-        });
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            try { await signOut(auth); window.location.href = '/'; } 
-            catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
+            try { await signOut(auth); window.location.href = '/admin/login'; } 
+            catch (error) { showToast('error', 'Gagal logout'); }
         });
 
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
-            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
             const toast = document.createElement('div');
             toast.className = 'toast';
-            toast.style.borderLeftColor = colors[type] || colors.info;
+            toast.style.borderLeftColor = type === 'success' ? '#10b981' : (type === 'error' ? '#ef4444' : '#3b82f6');
             toast.innerHTML = `
-                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
-                <div class="toast-content"><div class="toast-message">${message}</div></div>
-                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle text-success' : 'fa-info-circle text-ice'}"></i></span>
+                <div class="toast-message">${message}</div>
             `;
             container.appendChild(toast);
-            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 3000);
         }
         window.showToast = showToast;
 
         function showError(title, detail) {
             const box = document.getElementById('errorBox');
-            document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
-            document.getElementById('errorDetail').textContent = detail || '';
+            document.getElementById('errorTitle').textContent = title;
+            document.getElementById('errorDetail').textContent = detail;
             box.classList.add('show');
-            setTimeout(() => { box.classList.remove('show'); }, 10000);
         }
 
-        function formatPrice(price) {
-            if (!price && price !== 0) return '0';
-            return new Intl.NumberFormat('id-ID').format(price);
-        }
-
+        function formatPrice(price) { return new Intl.NumberFormat('id-ID').format(price || 0); }
         function formatDate(date) {
             if (!date) return '-';
-            const d = date instanceof Date ? date : new Date(date);
-            if (isNaN(d.getTime())) return '-';
-            return d.toLocaleDateString('id-ID', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+            const d = date instanceof Date ? date : (date.toDate ? date.toDate() : new Date(date));
+            return d.toLocaleDateString('id-ID', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
         }
 
+        // ===== AUTH MONITOR =====
         onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                addDebug('User not logged in, redirecting...', 'warning');
-                window.location.href = '/admin/login';
-                return;
-            }
+            if (!user) { window.location.href = '/admin/login'; return; }
             currentUser = user;
-            addDebug(`User logged in: ${user.email}`, 'success');
-
             try {
-                const userRef = doc(db, 'users', user.uid);
-                const userDoc = await getDoc(userRef);
-                if (!userDoc.exists() || userDoc.data().role !== 'admin') {
-                    addDebug('User is not admin, redirecting...', 'error');
-                    window.location.href = '/';
-                    return;
-                }
-                addDebug('Admin verified', 'success');
-                await loadBanners();
-                await loadPricing();
-                await loadProducts();
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (!userDoc.exists() || userDoc.data().role !== 'admin') { window.location.href = '/'; return; }
+                addDebug(`Authenticated: ${user.email}`, 'success');
+                loadBanners();
+                loadPricing();
+                loadProducts();
             } catch (error) {
-                addDebug(`Error: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat data: ' + error.message);
+                showToast('error', 'Sesi tidak valid');
             }
         });
 
-        // ============================================
-        // LOAD BANNERS
-        // ============================================
+        // ===== DATA LOADING =====
         async function loadBanners() {
-            addDebug('Loading banners...', 'info');
+            addDebug('Fetching banners...', 'info');
             try {
-                const response = await fetch('/api/admin/banners-full');
-                if (!response.ok) throw new Error('Failed to fetch banners');
-                
-                const banners = await response.json();
-                addDebug(`Loaded ${banners.length} banners`, 'success');
+                const q = query(collection(db, 'banners'), orderBy('createdAt', 'desc'));
+                const snapshot = await getDocs(q);
+                const banners = [];
+                for (const docSnap of snapshot.docs) {
+                    const data = docSnap.data();
+                    let product = null;
+                    if (data.productId) {
+                        const pSnap = await getDoc(doc(db, 'products', data.productId));
+                        if (pSnap.exists()) product = { id: pSnap.id, ...pSnap.data() };
+                    }
+                    banners.push({ id: docSnap.id, ...data, product });
+                }
                 renderBanners(banners);
                 updateStats(banners);
+                addDebug(`Banners loaded: ${banners.length}`, 'success');
             } catch (error) {
-                addDebug(`Error loading banners: ${error.message}`, 'error');
-                showError('Gagal memuat banner', error.message);
-                showToast('error', 'Gagal memuat banner: ' + error.message);
-                document.getElementById('bannersGrid').innerHTML = `
-                    <div class="text-center text-danger" style="grid-column:1/-1;padding:40px 0;color:var(--danger);">
-                        <i class="fas fa-exclamation-triangle" style="font-size:48px;display:block;margin-bottom:16px;"></i>
-                        Gagal memuat banner: ${error.message}
-                    </div>
-                `;
+                showError('Database Error', error.message);
             }
         }
 
         function renderBanners(banners) {
             const container = document.getElementById('bannersGrid');
-            
-            if (!banners || banners.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center text-secondary" style="grid-column:1/-1;padding:40px 0;">
-                        <i class="fas fa-images" style="font-size:48px;display:block;margin-bottom:16px;"></i>
-                        Belum ada banner
-                    </div>
-                `;
+            if (banners.length === 0) {
+                container.innerHTML = '<div style="grid-column:1/-1; padding:80px; text-align:center; color:var(--text-light);">Tidak ada banner aktif</div>';
                 return;
             }
-
             container.innerHTML = banners.map(b => `
                 <div class="banner-card">
                     <div class="banner-image">
-                        ${b.imageUrl ? `<img src="${b.imageUrl}" alt="${b.title}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-image\\'></i>'">` : '<i class="fas fa-image"></i>'}
-                        <span style="position:absolute;top:12px;left:12px;background:rgba(0,0,0,0.7);color:white;font-size:10px;padding:2px 10px;border-radius:9999px;">
-                            ${b.type === 'seller' ? 'Seller' : 'Admin'}
+                        ${b.imageUrl ? `<img src="${b.imageUrl}" alt="">` : '<i class="fas fa-image"></i>'}
+                        <span style="position:absolute; top:12px; left:12px;" class="badge ${b.type === 'seller' ? 'badge-info' : 'badge-primary'}">
+                            ${b.type === 'seller' ? 'Seller Content' : 'Admin Official'}
                         </span>
-                        ${b.product ? `<span style="position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,0.7);color:white;font-size:10px;padding:2px 10px;border-radius:9999px;font-family:monospace;">${b.product.productCode || ''}</span>` : ''}
                     </div>
                     <div class="banner-body">
-                        <h4>${b.title || 'Banner'}</h4>
-                        <p style="font-size:14px;color:var(--text-secondary);">${b.description || 'Tidak ada deskripsi'}</p>
-                        ${b.product ? `<p style="font-size:12px;color:var(--text-secondary);">Produk: ${b.product.name} (${b.product.productCode || 'No Code'})</p>` : ''}
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap;gap:4px;">
-                            <span class="badge ${b.isActive ? 'badge-success' : 'badge-danger'}">${b.isActive ? 'Active' : 'Inactive'}</span>
-                            ${b.expiresAt ? `<span style="font-size:12px;color:var(--text-light);">Exp: ${formatDate(b.expiresAt)}</span>` : ''}
+                        <h4>${b.title || 'Untitled'}</h4>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <span class="badge ${b.isActive ? 'badge-success' : 'badge-danger'}">${b.isActive ? 'Aktif' : 'Off'}</span>
+                            <span style="font-size:11px; color:var(--text-light);">${b.expiresAt ? 'Sampai ' + formatDate(b.expiresAt) : ''}</span>
                         </div>
-                        ${b.type === 'seller' ? `
-                            <div style="margin-top:8px;font-size:12px;color:var(--text-secondary);">
-                                Seller: ${b.sellerId} • Rp${formatPrice(b.price)} • ${b.duration} jam
-                            </div>
-                        ` : ''}
+                        <p style="font-size:13px; height:40px; overflow:hidden; opacity:0.8;">${b.description || ''}</p>
                         <div class="banner-actions">
                             <button onclick="toggleBanner('${b.id}')" class="btn btn-secondary btn-sm" style="flex:1;">
-                                <i class="fas ${b.isActive ? 'fa-pause' : 'fa-play'}"></i> ${b.isActive ? 'Nonaktifkan' : 'Aktifkan'}
+                                <i class="fas ${b.isActive ? 'fa-pause' : 'fa-play'}"></i> ${b.isActive ? 'Suspend' : 'Resume'}
                             </button>
-                            <button onclick="deleteBanner('${b.id}')" class="btn btn-danger btn-sm" style="flex:1;">
-                                <i class="fas fa-trash"></i> Hapus
+                            <button onclick="deleteBanner('${b.id}')" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i>
                             </button>
                         </div>
                     </div>
@@ -550,249 +564,127 @@
         }
 
         function updateStats(banners) {
-            const total = banners?.length || 0;
-            const active = banners?.filter(b => b.isActive)?.length || 0;
-            const seller = banners?.filter(b => b.type === 'seller')?.length || 0;
-            const admin = banners?.filter(b => b.type === 'admin' || !b.type)?.length || 0;
-
-            document.getElementById('totalBanners').textContent = total;
-            document.getElementById('activeBanners').textContent = active;
-            document.getElementById('sellerBanners').textContent = seller;
-            document.getElementById('adminBanners').textContent = admin;
+            document.getElementById('totalBanners').textContent = banners.length;
+            document.getElementById('activeBanners').textContent = banners.filter(b => b.isActive).length;
+            document.getElementById('sellerBanners').textContent = banners.filter(b => b.type === 'seller').length;
+            document.getElementById('adminBanners').textContent = banners.filter(b => b.type === 'admin').length;
         }
 
-        // ============================================
-        // TOGGLE BANNER
-        // ============================================
+        // ===== BANNER ACTIONS =====
         window.toggleBanner = async function(id) {
-            addDebug(`Toggling banner: ${id}`, 'info');
             try {
-                const response = await fetch(`/api/admin/banners/${id}/toggle`, {
-                    method: 'PATCH'
-                });
-                if (!response.ok) throw new Error('Failed to toggle banner');
-                showToast('success', 'Status banner diubah');
+                const ref = doc(db, 'banners', id);
+                const snap = await getDoc(ref);
+                await updateDoc(ref, { isActive: !snap.data().isActive, updatedAt: serverTimestamp() });
+                showToast('success', 'Status diperbarui');
                 loadBanners();
-            } catch (error) {
-                addDebug(`Error toggling banner: ${error.message}`, 'error');
-                showToast('error', 'Gagal mengubah status: ' + error.message);
-            }
+            } catch (e) { showToast('error', e.message); }
         };
 
-        // ============================================
-        // DELETE BANNER
-        // ============================================
         window.deleteBanner = async function(id) {
-            if (!confirm('Yakin ingin menghapus banner ini?')) return;
-            addDebug(`Deleting banner: ${id}`, 'warning');
+            if (!confirm('Hapus banner ini?')) return;
             try {
-                const response = await fetch(`/api/admin/banners/${id}/remove`, {
-                    method: 'DELETE'
-                });
-                if (!response.ok) throw new Error('Failed to delete banner');
-                showToast('success', 'Banner berhasil dihapus');
+                await deleteDoc(doc(db, 'banners', id));
+                showToast('success', 'Banner dihapus');
                 loadBanners();
-            } catch (error) {
-                addDebug(`Error deleting banner: ${error.message}`, 'error');
-                showToast('error', 'Gagal menghapus banner: ' + error.message);
-            }
+            } catch (e) { showToast('error', e.message); }
         };
 
-        // ============================================
-        // OPEN ADD BANNER MODAL
-        // ============================================
-        window.openAddBanner = function() {
-            document.getElementById('addBannerModal').classList.add('open');
-            document.getElementById('productCodeInput').value = '';
-            document.getElementById('productCodeInput').focus();
-            loadProducts();
-            addDebug('Add banner modal opened', 'info');
-        };
+        // ===== MODAL LOGIC =====
+        window.openAddBanner = () => document.getElementById('addBannerModal').classList.add('open');
+        window.closeAddBanner = () => document.getElementById('addBannerModal').classList.remove('open');
 
-        window.closeAddBanner = function() {
-            document.getElementById('addBannerModal').classList.remove('open');
-        };
-
-        // ============================================
-        // LOAD PRODUCTS FOR BANNER SELECTION
-        // ============================================
         async function loadProducts() {
             try {
-                const response = await fetch('/api/admin/products-with-banner');
-                if (!response.ok) throw new Error('Failed to fetch products');
-                const products = await response.json();
-                renderProductList(products);
-            } catch (error) {
-                addDebug(`Error loading products: ${error.message}`, 'error');
-                document.getElementById('productList').innerHTML = `
-                    <div class="text-center text-danger" style="padding:12px 0;color:var(--danger);">
-                        Gagal memuat produk: ${error.message}
-                    </div>
-                `;
-            }
-        }
-
-        function renderProductList(products) {
-            const container = document.getElementById('productList');
-            
-            if (!products || products.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center text-secondary" style="padding:12px 0;">
-                        Belum ada produk yang dipublish
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = products.map(p => `
-                <div class="product-list-item" onclick="selectProduct('${p.productCode || ''}')">
-                    <div class="product-info">
-                        ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" onerror="this.style.display='none'">` : `<div style="width:40px;height:40px;border-radius:8px;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;"><i class="fas fa-box"></i></div>`}
-                        <div>
-                            <div style="font-weight:500;">${p.name}</div>
-                            <div style="font-size:12px;color:var(--text-secondary);">${p.category || 'Uncategorized'}</div>
+                const q = query(collection(db, 'products'), where('status', '==', 'published'), limit(20));
+                const snap = await getDocs(q);
+                const list = document.getElementById('productList');
+                list.innerHTML = snap.docs.map(doc => {
+                    const p = doc.data();
+                    return `
+                        <div class="product-list-item" onclick="selectProduct('${p.productCode}')">
+                            <div class="product-info">
+                                <img src="${p.imageUrl || ''}" alt="">
+                                <div>
+                                    <div style="font-weight:600; font-size:14px;">${p.name}</div>
+                                    <span class="product-code">${p.productCode}</span>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-light"></i>
                         </div>
-                    </div>
-                    <div style="display:flex;align-items:center;gap:8px;">
-                        <span class="product-code">${p.productCode || 'No Code'}</span>
-                        ${p.hasBanner ? '<span class="badge badge-success" style="font-size:10px;">In Banner</span>' : ''}
-                    </div>
-                </div>
-            `).join('');
+                    `;
+                }).join('') || '<div style="text-align:center; padding:20px;">No product found</div>';
+            } catch (e) { addDebug(e.message, 'error'); }
         }
 
-        window.selectProduct = function(productCode) {
-            if (productCode) {
-                document.getElementById('productCodeInput').value = productCode;
-                document.getElementById('productCodeInput').focus();
-                showToast('info', `Kode produk: ${productCode} dimasukkan`);
-            }
-        };
+        window.selectProduct = (code) => { document.getElementById('productCodeInput').value = code; showToast('info', 'Produk terpilih'); };
 
-        // ============================================
-        // ADD PRODUCT TO BANNER
-        // ============================================
         window.addProductToBanner = async function() {
-            const productCode = document.getElementById('productCodeInput').value.trim().toUpperCase();
-            const duration = parseInt(document.getElementById('bannerDurationInput').value) || 24;
-
-            if (!productCode) {
-                showToast('warning', 'Masukkan kode produk');
-                return;
-            }
-
-            if (productCode.length !== 6) {
-                showToast('warning', 'Kode produk harus 6 karakter');
-                return;
-            }
-
-            addDebug(`Adding product ${productCode} to banner for ${duration} hours`, 'info');
+            const code = document.getElementById('productCodeInput').value.toUpperCase();
+            const dur = parseInt(document.getElementById('bannerDurationInput').value) || 24;
+            if (code.length < 3) { showToast('error', 'Kode produk tidak valid'); return; }
 
             try {
-                const response = await fetch('/api/admin/banners/add-product', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ productCode, duration })
+                const q = query(collection(db, 'products'), where('productCode', '==', code), limit(1));
+                const snap = await getDocs(q);
+                if (snap.empty) throw new Error('Produk tidak ditemukan');
+                
+                const prodDoc = snap.docs[0];
+                const prod = prodDoc.data();
+                const exp = new Date(); exp.setHours(exp.getHours() + dur);
+
+                await addDoc(collection(db, 'banners'), {
+                    title: prod.name,
+                    description: `Dapatkan segera ${prod.name}`,
+                    imageUrl: prod.imageUrl,
+                    linkUrl: `/product/${prodDoc.id}`,
+                    isActive: true,
+                    type: 'admin',
+                    productId: prodDoc.id,
+                    expiresAt: Timestamp.fromDate(exp),
+                    createdAt: serverTimestamp()
                 });
 
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || 'Gagal menambahkan produk ke banner');
-                }
-
-                showToast('success', `✅ ${data.product?.name || 'Produk'} berhasil ditambahkan ke banner!`);
-                document.getElementById('productCodeInput').value = '';
-                loadBanners();
-                loadProducts();
+                showToast('success', 'Banner berhasil diterbitkan');
                 closeAddBanner();
-
-            } catch (error) {
-                addDebug(`Error adding product to banner: ${error.message}`, 'error');
-                showToast('error', '❌ ' + error.message);
-            }
+                loadBanners();
+            } catch (e) { showToast('error', e.message); }
         };
 
-        // Enter key support
-        document.getElementById('productCodeInput').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                window.addProductToBanner();
-            }
-        });
-
-        // ============================================
-        // PRICING SETTINGS
-        // ============================================
+        // ===== PRICING LOGIC =====
         async function loadPricing() {
-            try {
-                const response = await fetch('/api/banner-pricing');
-                if (!response.ok) throw new Error('Failed to load pricing');
-                const data = await response.json();
-                
-                document.getElementById('bannerPrice').value = data.price || 100000;
-                document.getElementById('bannerDuration').value = data.duration || 24;
-                document.getElementById('maxBanners').value = data.maxSlots || 5;
-                document.getElementById('autoSlideSpeed').value = data.autoSlideSpeed || 5;
-                addDebug('Pricing loaded', 'success');
-            } catch (error) {
-                addDebug(`Error loading pricing: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat harga: ' + error.message);
+            const snap = await getDoc(doc(db, 'settings', 'banner'));
+            if (snap.exists()) {
+                const d = snap.data();
+                document.getElementById('bannerPrice').value = d.price || 100000;
+                document.getElementById('bannerDuration').value = d.duration || 24;
+                document.getElementById('maxBanners').value = d.maxSlots || 5;
+                document.getElementById('autoSlideSpeed').value = d.autoSlideSpeed || 5;
             }
         }
 
-        window.openPricingSettings = function() {
-            const card = document.getElementById('pricingCard');
-            card.style.display = card.style.display === 'none' ? 'grid' : 'none';
-            if (card.style.display === 'grid') {
-                loadPricing();
-            }
-            addDebug('Pricing settings toggled', 'info');
+        window.openPricingSettings = () => {
+            const c = document.getElementById('pricingCard');
+            c.style.display = c.style.display === 'none' ? 'grid' : 'none';
         };
 
-        window.closePricingSettings = function() {
-            document.getElementById('pricingCard').style.display = 'none';
-        };
+        window.closePricingSettings = () => document.getElementById('pricingCard').style.display = 'none';
 
         document.getElementById('pricingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            addDebug('Saving pricing...', 'info');
-
-            const price = parseInt(document.getElementById('bannerPrice').value);
-            const duration = parseInt(document.getElementById('bannerDuration').value);
-            const maxSlots = parseInt(document.getElementById('maxBanners').value);
-            const autoSlideSpeed = parseInt(document.getElementById('autoSlideSpeed').value);
-
-            if (!price || price < 1000) {
-                showToast('warning', 'Harga minimal Rp1.000');
-                return;
-            }
-
             try {
-                const response = await fetch('/api/banner-pricing', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        price: price, 
-                        duration: duration, 
-                        maxSlots: maxSlots, 
-                        autoSlideSpeed: autoSlideSpeed 
-                    })
+                await setDoc(doc(db, 'settings', 'banner'), {
+                    price: parseInt(document.getElementById('bannerPrice').value),
+                    duration: parseInt(document.getElementById('bannerDuration').value),
+                    maxSlots: parseInt(document.getElementById('maxBanners').value),
+                    autoSlideSpeed: parseInt(document.getElementById('autoSlideSpeed').value),
+                    updatedAt: serverTimestamp()
                 });
-
-                if (!response.ok) throw new Error('Failed to save pricing');
-
-                showToast('success', 'Pengaturan harga disimpan!');
+                showToast('success', 'Pengaturan disimpan');
                 closePricingSettings();
-                loadPricing();
-            } catch (error) {
-                addDebug(`Error saving pricing: ${error.message}`, 'error');
-                showToast('error', 'Gagal menyimpan: ' + error.message);
-            }
+            } catch (e) { showToast('error', e.message); }
         });
 
-        addDebug('Page ready', 'success');
-        console.log('✅ [ADMIN_BANNERS] Page ready');
+        addDebug('System Core Ready - Premium UI Applied', 'success');
     </script>
-</body>
-</html>
+</body></html>

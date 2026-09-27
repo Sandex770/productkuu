@@ -261,12 +261,31 @@
     </script>
 
     <script type="module">
+        // ================================================
+        // 📦 IMPORT FIREBASE
+        // ================================================
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter } from "firebase/firestore";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            getDoc, 
+            getDocs, 
+            query, 
+            where, 
+            orderBy, 
+            limit, 
+            startAfter, 
+            updateDoc,
+            onSnapshot
+        } from "firebase/firestore";
 
         console.log('📊 [SELLER_TRANSACTIONS] Page loaded');
 
+        // ================================================
+        // 🔧 KONFIGURASI FIREBASE
+        // ================================================
         const firebaseConfig = {
             apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
             authDomain: "productkuu.firebaseapp.com",
@@ -281,10 +300,25 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // ================================================
+        // 🔧 KONFIGURASI API NOTIFIKASI
+        // ⚠️ GANTI DENGAN URL VERCEL ANDA!
+        // ================================================
+        const VERCEL_API_URL = 'https://api-firebase-sigma.vercel.app/api/notify';
+
+        // ================================================
+        // 📦 VARIABLES
+        // ================================================
         let currentUser = null;
         let transactions = [], lastDoc = null, hasMore = true, currentPage = 1, limitPerPage = 20;
         let debugVisible = false;
+        let unsubscribeListener = null;
+        let lastNotifyTime = 0;
+        const MIN_NOTIFY_INTERVAL = 3000; // 3 detik
 
+        // ================================================
+        // 📝 DEBUG FUNCTIONS
+        // ================================================
         function addDebug(message, type = 'info') {
             const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
             const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
@@ -300,15 +334,18 @@
             const box = document.getElementById('debugBox');
             debugVisible = !debugVisible;
             box.classList.toggle('show');
-            if (debugVisible) addDebug('Debug mode activated', 'info');
+            if (debugVisible) addDebug('🔍 Debug mode activated', 'info');
         };
 
         window.refreshData = function() {
-            addDebug('Manual refresh triggered', 'info');
+            addDebug('🔄 Manual refresh triggered', 'info');
             showToast('info', 'Memperbarui data transaksi...');
             loadTransactions(true);
         };
 
+        // ================================================
+        // 🚫 CEK STATUS SUSPEND
+        // ================================================
         async function checkSuspendStatus(uid) {
             try {
                 const userRef = doc(db, 'users', uid);
@@ -324,11 +361,14 @@
                 }
                 return false;
             } catch (error) {
-                addDebug(`Error checking status: ${error.message}`, 'error');
+                addDebug(`❌ Error checking status: ${error.message}`, 'error');
                 return false;
             }
         }
 
+        // ================================================
+        // 🎨 THEME TOGGLE
+        // ================================================
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
@@ -339,6 +379,9 @@
             themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
         });
 
+        // ================================================
+        // 📱 SIDEBAR
+        // ================================================
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const sidebarToggle = document.getElementById('sidebarToggle');
@@ -364,10 +407,17 @@
         });
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            try { await signOut(auth); window.location.href = '/'; } 
+            try { 
+                if (unsubscribeListener) unsubscribeListener();
+                await signOut(auth); 
+                window.location.href = '/'; 
+            } 
             catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
         });
 
+        // ================================================
+        // 🍞 TOAST
+        // ================================================
         function showToast(type, message) {
             const container = document.getElementById('toastContainer');
             const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
@@ -384,6 +434,9 @@
         }
         window.showToast = showToast;
 
+        // ================================================
+        // ❌ ERROR
+        // ================================================
         function showError(title, detail) {
             const box = document.getElementById('errorBox');
             document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
@@ -392,6 +445,9 @@
             setTimeout(() => { box.classList.remove('show'); }, 10000);
         }
 
+        // ================================================
+        // 🔢 FORMAT FUNCTIONS
+        // ================================================
         function formatPrice(price) {
             if (!price && price !== 0) return '0';
             return new Intl.NumberFormat('id-ID').format(price);
@@ -420,10 +476,116 @@
             return diffHours > 24;
         }
 
+        // ================================================
+        // 📨 KIRIM NOTIFIKASI KE ADMIN
+        // ================================================
+        async function sendTransactionNotification(transaction) {
+            try {
+                const formattedAmount = new Intl.NumberFormat('id-ID').format(transaction.amount || 0);
+                
+                addDebug(`📨 Mengirim notifikasi transaksi: ${transaction.orderId}`, 'info');
+                
+                const response = await fetch(VERCEL_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        amount: formattedAmount,
+                        accountName: transaction.buyerName || 'Pelanggan',
+                        method: 'TRANSFER',
+                        type: 'transaction',
+                        orderId: transaction.orderId || '-',
+                        productName: transaction.productName || '-'
+                    })
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    addDebug(`✅ Notifikasi transaksi terkirim!`, 'success');
+                    console.log('📨 Notifikasi response:', result);
+                } else {
+                    addDebug(`⚠️ Notifikasi gagal: ${result.error || 'Unknown error'}`, 'warning');
+                }
+            } catch (apiError) {
+                addDebug(`⚠️ Gagal kirim notifikasi: ${apiError.message}`, 'warning');
+                console.warn('Notifikasi API error:', apiError);
+            }
+        }
+
+        // ================================================
+        // 🔥 REAL-TIME LISTENER UNTUK TRANSAKSI PAID
+        // ================================================
+        function listenTransactions(uid) {
+            addDebug('🔥 Memulai real-time listener...', 'info');
+            
+            const q = query(
+                collection(db, 'orders'),
+                where('sellerId', '==', uid),
+                where('type', '==', 'product_purchase'),
+                where('paymentStatus', 'in', ['paid', 'settlement', 'success']),
+                orderBy('createdAt', 'desc'),
+                limit(20)
+            );
+
+            return onSnapshot(q, async (snapshot) => {
+                addDebug(`📡 Listener menerima ${snapshot.docChanges().length} perubahan`, 'info');
+                
+                const now = Date.now();
+                
+                for (const change of snapshot.docChanges()) {
+                    if (change.type === 'added') {
+                        const data = change.doc.data();
+                        const id = change.doc.id;
+                        
+                        // Cek apakah sudah pernah dikirim
+                        if (data._notified) {
+                            addDebug(`⏩ Transaksi ${data.orderId} sudah dikirim, skip`, 'info');
+                            continue;
+                        }
+                        
+                        // Throttle: minimal 3 detik antar notifikasi
+                        if (now - lastNotifyTime < MIN_NOTIFY_INTERVAL) {
+                            addDebug(`⏳ Throttle: menunggu jeda ${MIN_NOTIFY_INTERVAL/1000} detik`, 'warning');
+                            continue;
+                        }
+                        
+                        addDebug(`🔥 Transaksi PAID baru: ${data.orderId} - Rp${formatPrice(data.amount)} dari ${data.buyerName}`, 'success');
+                        
+                        // Kirim notifikasi
+                        await sendTransactionNotification({ id, ...data });
+                        
+                        // Tandai sudah dikirim
+                        try {
+                            await updateDoc(doc(db, 'orders', id), { _notified: true, _notifiedAt: new Date().toISOString() });
+                            addDebug(`✅ Notifikasi sudah ditandai untuk ${data.orderId}`, 'success');
+                        } catch (updateError) {
+                            addDebug(`⚠️ Gagal update _notified: ${updateError.message}`, 'warning');
+                        }
+                        
+                        lastNotifyTime = now;
+                        
+                        // Refresh data setelah notifikasi
+                        loadTransactions(true);
+                    }
+                }
+            }, (error) => {
+                addDebug(`❌ Listener error: ${error.message}`, 'error');
+                console.error('Listener error:', error);
+            });
+        }
+
+        // ================================================
+        // 🔄 AUTH STATE
+        // ================================================
         onAuthStateChanged(auth, async (user) => {
-            if (!user) { addDebug('User not logged in, redirecting...', 'warning'); window.location.href = '/seller/login'; return; }
+            if (!user) { 
+                addDebug('⚠️ User not logged in, redirecting...', 'warning'); 
+                window.location.href = '/seller/login'; 
+                return; 
+            }
             currentUser = user;
-            addDebug(`User logged in: ${user.email}`, 'success');
+            addDebug(`✅ User logged in: ${user.email}`, 'success');
 
             const isSuspended = await checkSuspendStatus(user.uid);
             if (isSuspended) return;
@@ -431,73 +593,182 @@
             try {
                 const userRef = doc(db, 'users', user.uid);
                 const userDoc = await getDoc(userRef);
-                if (!userDoc.exists() || userDoc.data().role !== 'seller') { addDebug('User is not seller, redirecting...', 'error'); window.location.href = '/'; return; }
-                addDebug('User is seller', 'success');
+                if (!userDoc.exists() || userDoc.data().role !== 'seller') { 
+                    addDebug('❌ User is not seller, redirecting...', 'error'); 
+                    window.location.href = '/'; 
+                    return; 
+                }
+                addDebug('✅ User is seller', 'success');
+                
+                // Load initial data
                 await loadTransactions(true);
+                
+                // Start real-time listener
+                if (unsubscribeListener) unsubscribeListener();
+                unsubscribeListener = listenTransactions(user.uid);
+                addDebug('✅ Real-time listener aktif!', 'success');
+                
             } catch (error) {
-                addDebug(`Error: ${error.message}`, 'error');
+                addDebug(`❌ Error: ${error.message}`, 'error');
                 showToast('error', 'Gagal memuat data: ' + error.message);
             }
         });
 
+        // ================================================
+        // 📊 LOAD TRANSACTIONS
+        // ================================================
         async function loadTransactions(reset = true) {
             if (!currentUser) return;
-            addDebug(`Loading transactions (reset: ${reset})...`, 'info');
+            addDebug(`📥 Loading transactions (reset: ${reset})...`, 'info');
             try {
                 if (reset) { lastDoc = null; hasMore = true; transactions = []; currentPage = 1; }
-                if (!hasMore) { addDebug('No more transactions to load', 'info'); return; }
+                if (!hasMore) { addDebug('ℹ️ No more transactions to load', 'info'); return; }
                 
-                let constraints = [where('sellerId', '==', currentUser.uid), where('type', '==', 'product_purchase'), orderBy('createdAt', 'desc')];
+                let constraints = [
+                    where('sellerId', '==', currentUser.uid), 
+                    where('type', '==', 'product_purchase'), 
+                    orderBy('createdAt', 'desc')
+                ];
+                
                 const status = document.getElementById('filterStatus').value;
-                if (status !== 'all') { constraints.push(where('paymentStatus', '==', status)); addDebug(`Filter by status: ${status}`, 'info'); }
+                if (status !== 'all') { 
+                    constraints.push(where('paymentStatus', '==', status)); 
+                    addDebug(`🔍 Filter by status: ${status}`, 'info'); 
+                }
                 
                 let q = query(collection(db, 'orders'), ...constraints, limit(limitPerPage));
-                if (lastDoc) { q = query(collection(db, 'orders'), ...constraints, startAfter(lastDoc), limit(limitPerPage)); }
+                if (lastDoc) { 
+                    q = query(collection(db, 'orders'), ...constraints, startAfter(lastDoc), limit(limitPerPage)); 
+                }
                 
                 const snapshot = await getDocs(q);
-                addDebug(`Query returned ${snapshot.size} documents`, 'info');
-                if (snapshot.empty) { hasMore = false; if (reset) { document.getElementById('transactionsBody').innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Belum ada transaksi produk</td></tr>'; } return; }
+                addDebug(`📊 Query returned ${snapshot.size} documents`, 'info');
+                
+                if (snapshot.empty) { 
+                    hasMore = false; 
+                    if (reset) { 
+                        document.getElementById('transactionsBody').innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Belum ada transaksi produk</td></tr>'; 
+                    } 
+                    return; 
+                }
                 
                 lastDoc = snapshot.docs[snapshot.docs.length - 1];
                 hasMore = snapshot.docs.length === limitPerPage;
-                const newData = snapshot.docs.map(doc => { const data = doc.data(); return { id: doc.id, ...data, createdAtTimestamp: data.createdAt || null }; });
+                const newData = snapshot.docs.map(doc => { 
+                    const data = doc.data(); 
+                    return { 
+                        id: doc.id, 
+                        ...data, 
+                        createdAtTimestamp: data.createdAt || null 
+                    }; 
+                });
+                
                 transactions = reset ? newData : [...transactions, ...newData];
-                addDebug(`Loaded ${transactions.length} transactions total`, 'success');
+                addDebug(`✅ Loaded ${transactions.length} transactions total`, 'success');
                 renderTransactions();
-            } catch (error) { addDebug(`Error loading transactions: ${error.message}`, 'error'); showToast('error', 'Gagal memuat transaksi: ' + error.message); }
+            } catch (error) { 
+                addDebug(`❌ Error loading transactions: ${error.message}`, 'error'); 
+                showToast('error', 'Gagal memuat transaksi: ' + error.message); 
+            }
         }
 
+        // ================================================
+        // 🖥️ RENDER TRANSACTIONS
+        // ================================================
         function renderTransactions() {
             const tbody = document.getElementById('transactionsBody');
             const filteredTransactions = transactions.filter(t => {
                 if (t.paymentStatus === 'pending') {
                     const isExpired = isPendingExpired(t.createdAtTimestamp);
-                    if (isExpired) { addDebug(`🚫 Hiding expired pending order: ${t.orderId}`, 'warning'); return false; }
+                    if (isExpired) { 
+                        addDebug(`🚫 Hiding expired pending order: ${t.orderId}`, 'warning'); 
+                        return false; 
+                    }
                 }
                 return true;
             });
-            if (filteredTransactions.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Tidak ada transaksi</td></tr>'; document.getElementById('pagination').innerHTML = ''; return; }
             
-            const statusColors = { 'pending': 'badge-warning', 'settlement': 'badge-success', 'failed': 'badge-danger', 'expire': 'badge-danger', 'paid': 'badge-success' };
+            if (filteredTransactions.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary">Tidak ada transaksi</td></tr>'; 
+                document.getElementById('pagination').innerHTML = ''; 
+                return; 
+            }
+            
+            const statusColors = { 
+                'pending': 'badge-warning', 
+                'settlement': 'badge-success', 
+                'paid': 'badge-success',
+                'success': 'badge-success',
+                'failed': 'badge-danger', 
+                'expire': 'badge-danger', 
+                'expired': 'badge-danger'
+            };
+            
             tbody.innerHTML = filteredTransactions.map(t => {
                 const commission = Math.round((t.amount || 0) * 0.1);
-                return `<tr><td style="font-family:monospace;font-size:13px;">${t.orderId || '-'}</td><td>${t.productName || '-'}</td><td>${t.buyerName || '-'}</td><td style="font-weight:600;color:var(--primary);">Rp${formatPrice(t.amount)}</td><td style="color:var(--danger);">Rp${formatPrice(commission)}</td><td><span class="badge ${statusColors[t.paymentStatus] || 'badge-info'}">${t.paymentStatus || t.status || '-'}</span></td><td style="font-size:13px;color:var(--text-secondary);">${formatDate(t.createdAtTimestamp)}</td></tr>`;
+                const status = t.paymentStatus || t.status || '-';
+                return `<tr>
+                    <td style="font-family:monospace;font-size:13px;">${t.orderId || '-'}</td>
+                    <td>${t.productName || '-'}</td>
+                    <td>${t.buyerName || '-'}</td>
+                    <td style="font-weight:600;color:var(--primary);">Rp${formatPrice(t.amount)}</td>
+                    <td style="color:var(--danger);">Rp${formatPrice(commission)}</td>
+                    <td><span class="badge ${statusColors[status] || 'badge-info'}">${status}</span></td>
+                    <td style="font-size:13px;color:var(--text-secondary);">${formatDate(t.createdAtTimestamp)}</td>
+                </tr>`;
             }).join('');
             renderPagination();
         }
 
         function renderPagination() {
             const container = document.getElementById('pagination');
-            if (!hasMore && transactions.length <= limitPerPage) { container.innerHTML = `<span style="font-size:14px;color:var(--text-secondary);">${transactions.length} transaksi</span>`; return; }
-            container.innerHTML = `<span style="font-size:14px;color:var(--text-secondary);">${transactions.length} transaksi</span><div style="display:flex;gap:8px;">${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}</div>`;
+            if (!hasMore && transactions.length <= limitPerPage) { 
+                container.innerHTML = `<span style="font-size:14px;color:var(--text-secondary);">${transactions.length} transaksi</span>`; 
+                return; 
+            }
+            container.innerHTML = `
+                <span style="font-size:14px;color:var(--text-secondary);">${transactions.length} transaksi</span>
+                <div style="display:flex;gap:8px;">
+                    ${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}
+                    ${hasMore ? `<button onclick="loadNextPage()" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}
+                </div>
+            `;
         }
 
-        window.loadNextPage = function() { addDebug('Next page clicked', 'info'); currentPage++; loadTransactions(false); };
-        window.loadPreviousPage = function() { addDebug('Previous page clicked', 'info'); if (currentPage <= 1) return; currentPage--; lastDoc = null; hasMore = true; loadTransactions(true); };
-        window.applyFilters = function() { addDebug('Applying filters', 'info'); lastDoc = null; hasMore = true; loadTransactions(true); };
-        window.resetFilters = function() { addDebug('Resetting filters', 'info'); document.getElementById('filterStatus').value = 'all'; document.getElementById('filterDateFrom').value = ''; document.getElementById('filterDateTo').value = ''; applyFilters(); };
+        window.loadNextPage = function() { 
+            addDebug('📄 Next page clicked', 'info'); 
+            currentPage++; 
+            loadTransactions(false); 
+        };
+        
+        window.loadPreviousPage = function() { 
+            addDebug('📄 Previous page clicked', 'info'); 
+            if (currentPage <= 1) return; 
+            currentPage--; 
+            lastDoc = null; 
+            hasMore = true; 
+            loadTransactions(true); 
+        };
+        
+        window.applyFilters = function() { 
+            addDebug('🔍 Applying filters', 'info'); 
+            lastDoc = null; 
+            hasMore = true; 
+            loadTransactions(true); 
+        };
+        
+        window.resetFilters = function() { 
+            addDebug('🔄 Resetting filters', 'info'); 
+            document.getElementById('filterStatus').value = 'all'; 
+            document.getElementById('filterDateFrom').value = ''; 
+            document.getElementById('filterDateTo').value = ''; 
+            applyFilters(); 
+        };
 
-        addDebug('Page ready', 'success');
+        // ================================================
+        // ✅ READY
+        // ================================================
+        addDebug('✅ Page ready', 'success');
         console.log('✅ [SELLER_TRANSACTIONS] Page ready');
     </script>
 </body>
