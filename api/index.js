@@ -2123,5 +2123,11 @@ app.use((err, req, res, next) => {
     });
 });
 
+const PORT = process.env.PORT;
+app.listen(PORT, () => {
+    console.log(`Server berjalan di port ${PORT}`);
+});
+
+
 // Export for Vercel
 module.exports = app;
