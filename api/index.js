@@ -610,10 +610,6 @@ app.get('/api/seller/:sellerId/orders', async (req, res) => {
 // PAYMENT ENDPOINTS
 // ============================================
 
-// ============================================
-// CREATE MIDTRANS PAYMENT (UNTUK BANNER & PRODUK)
-// ============================================
-
 app.post('/api/payment/create', async (req, res) => {
     try {
         const { 
@@ -633,7 +629,6 @@ app.post('/api/payment/create', async (req, res) => {
             productName 
         });
 
-        // Validasi
         if (!orderId) {
             return res.status(400).json({
                 error: 'Order ID is required'
@@ -646,10 +641,8 @@ app.post('/api/payment/create', async (req, res) => {
             });
         }
 
-        // Base URL untuk callback (opsional, karena kita pakai Snap callback)
         const baseUrl = process.env.APP_URL || 'https://productkuu.vercel.app';
 
-        // Parameter Midtrans
         const parameter = {
             transaction_details: {
                 order_id: orderId,
@@ -671,12 +664,11 @@ app.post('/api/payment/create', async (req, res) => {
             credit_card: {
                 secure: true
             },
-            // Callback tetap disertakan untuk fallback
             callbacks: {
-    finish: `${baseUrl}/success.html?order=${orderId}&status=success`,
-    error: `${baseUrl}/success.html?order=${orderId}&status=error`,
-    pending: `${baseUrl}/success.html?order=${orderId}&status=pending`
-}
+                finish: `${baseUrl}/success.html?order=${orderId}&status=success`,
+                error: `${baseUrl}/success.html?order=${orderId}&status=error`,
+                pending: `${baseUrl}/success.html?order=${orderId}&status=pending`
+            }
         };
 
         console.log('🔐 [PAYMENT CREATE] Creating Midtrans transaction...');
@@ -698,8 +690,6 @@ app.post('/api/payment/create', async (req, res) => {
         });
     }
 });
-
-
 
 // Payment notification webhook (dari Midtrans)
 app.post('/api/payment/notification', async (req, res) => {
@@ -724,7 +714,6 @@ app.post('/api/payment/notification', async (req, res) => {
         let newStatus = 'pending';
         let newPaymentStatus = 'pending';
 
-        // CEK JIKA INI BANNER PURCHASE
         if (orderData.type === 'banner_purchase') {
             if (transaction_status === 'capture' || transaction_status === 'settlement') {
                 if (fraud_status === 'accept') {
@@ -791,7 +780,6 @@ app.post('/api/payment/notification', async (req, res) => {
             return res.status(200).json({ message: 'Banner order updated' });
         }
 
-        // REGULAR PRODUCT ORDER
         if (transaction_status === 'capture' || transaction_status === 'settlement') {
             if (fraud_status === 'accept') {
                 newStatus = 'paid';
@@ -860,7 +848,6 @@ app.post('/api/banners/confirm-payment', async (req, res) => {
             return res.status(400).json({ error: 'Order ID is required' });
         }
 
-        // Cari order di database
         const snapshot = await db.collection('orders')
             .where('orderId', '==', orderId)
             .limit(1)
@@ -880,7 +867,6 @@ app.post('/api/banners/confirm-payment', async (req, res) => {
             paymentStatus: orderData.paymentStatus
         });
 
-        // Jika sudah settlement, skip
         if (orderData.paymentStatus === 'settlement') {
             console.log('✅ [CONFIRM PAYMENT] Order already settled');
             return res.json({ 
@@ -889,11 +875,9 @@ app.post('/api/banners/confirm-payment', async (req, res) => {
             });
         }
 
-        // Cek jika ini banner purchase
         if (orderData.type === 'banner_purchase') {
             console.log('📦 [CONFIRM PAYMENT] Creating banner...');
             
-            // Buat banner
             const bannerData = orderData.bannerData || {};
             const expiresAt = new Date(bannerData.expiresAt) || new Date();
             expiresAt.setHours(expiresAt.getHours() + 24);
@@ -917,7 +901,6 @@ app.post('/api/banners/confirm-payment', async (req, res) => {
 
             console.log('✅ [CONFIRM PAYMENT] Banner created:', docRef.id);
 
-            // Update order
             await orderDoc.ref.update({
                 status: 'paid',
                 paymentStatus: 'settlement',
@@ -928,7 +911,6 @@ app.post('/api/banners/confirm-payment', async (req, res) => {
 
             console.log('✅ [CONFIRM PAYMENT] Order updated');
 
-            // Notification untuk admin
             await db.collection('notifications').add({
                 type: 'banner_purchase_midtrans',
                 title: 'Pembelian Banner (Midtrans) - Confirmed',
@@ -949,7 +931,6 @@ app.post('/api/banners/confirm-payment', async (req, res) => {
             });
         }
 
-        // Untuk order biasa (bukan banner)
         await orderDoc.ref.update({
             status: 'paid',
             paymentStatus: 'settlement',
@@ -1172,7 +1153,6 @@ app.get('/api/seller/:sellerId/withdrawals', async (req, res) => {
 // BANNER ENDPOINTS
 // ============================================
 
-// Get active banners for homepage
 app.get('/api/banners', async (req, res) => {
     try {
         const now = new Date();
@@ -1206,7 +1186,6 @@ app.get('/api/banners', async (req, res) => {
     }
 });
 
-// Get banner pricing
 app.get('/api/banner-pricing', async (req, res) => {
     try {
         const settingsRef = db.collection('settings').doc('banner');
@@ -1228,10 +1207,6 @@ app.get('/api/banner-pricing', async (req, res) => {
     }
 });
 
-// ============================================
-// SELLER PURCHASE BANNER
-// ============================================
-
 app.post('/api/banners/purchase', async (req, res) => {
     try {
         console.log('📦 [BANNER PURCHASE] Request received:', JSON.stringify(req.body, null, 2));
@@ -1248,7 +1223,6 @@ app.post('/api/banners/purchase', async (req, res) => {
             return res.status(400).json({ error: 'Duration is required' });
         }
 
-        // GET PRICING
         const settingsRef = db.collection('settings').doc('banner');
         const settingsDoc = await settingsRef.get();
         let flatPrice = 100000;
@@ -1256,7 +1230,6 @@ app.post('/api/banners/purchase', async (req, res) => {
             flatPrice = settingsDoc.data().price || 100000;
         }
 
-        // GET SELLER DATA
         const sellerRef = db.collection('users').doc(sellerId);
         const sellerDoc = await sellerRef.get();
         if (!sellerDoc.exists) {
@@ -1264,7 +1237,6 @@ app.post('/api/banners/purchase', async (req, res) => {
         }
         const sellerData = sellerDoc.data();
 
-        // GET PRODUCT DATA
         const productRef = db.collection('products').doc(productId);
         const productDoc = await productRef.get();
         if (!productDoc.exists) {
@@ -1275,7 +1247,6 @@ app.post('/api/banners/purchase', async (req, res) => {
         const expiresAt = new Date();
         expiresAt.setHours(expiresAt.getHours() + parseInt(duration));
 
-        // METODE 1: WALLET
         if (paymentMethod === 'wallet' || !paymentMethod) {
             const wallet = sellerData.wallet || { available: 0 };
             
@@ -1328,7 +1299,6 @@ app.post('/api/banners/purchase', async (req, res) => {
             });
         }
 
-        // METODE 2: MIDTRANS
         if (paymentMethod === 'midtrans') {
             const orderId = `BANNER-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
@@ -1376,10 +1346,10 @@ app.post('/api/banners/purchase', async (req, res) => {
                     }
                 ],
                 callbacks: {
-    finish: `${baseUrl}/success.html?order=${orderId}&status=success`,
-    error: `${baseUrl}/success.html?order=${orderId}&status=error`,
-    pending: `${baseUrl}/success.html?order=${orderId}&status=pending`
-}
+                    finish: `${baseUrl}/success.html?order=${orderId}&status=success`,
+                    error: `${baseUrl}/success.html?order=${orderId}&status=error`,
+                    pending: `${baseUrl}/success.html?order=${orderId}&status=pending`
+                }
             };
 
             const transaction = await snap.createTransaction(parameter);
@@ -1408,49 +1378,41 @@ app.post('/api/banners/purchase', async (req, res) => {
     }
 });
 
-
 // ============================================
-// ADMIN STATS - PERBAIKAN
+// ADMIN STATS
 // ============================================
 
 app.get('/api/admin/stats', async (req, res) => {
     try {
-        // Total Sellers
         const sellersSnapshot = await db.collection('users')
             .where('role', '==', 'seller')
             .count()
             .get();
         const totalSellers = sellersSnapshot.data().count;
 
-        // Total Products
         const productsSnapshot = await db.collection('products')
             .where('status', '==', 'published')
             .count()
             .get();
         const totalProducts = productsSnapshot.data().count;
 
-        // Total Orders (semua settlement)
         const ordersSnapshot = await db.collection('orders')
             .where('paymentStatus', '==', 'settlement')
             .get();
         const totalOrders = ordersSnapshot.size;
 
-        // Total Revenue (semua settlement)
         let totalRevenue = 0;
         ordersSnapshot.forEach(doc => {
             totalRevenue += doc.data().amount || 0;
         });
 
-        // Total Komisi (10% dari total revenue)
         const totalCommission = Math.round(totalRevenue * 0.1);
 
-        // Pending Withdrawals
         const pendingWithdrawals = await db.collection('withdrawals')
             .where('status', '==', 'pending')
             .count()
             .get();
 
-        // Active Banners
         const activeBanners = await db.collection('banners')
             .where('isActive', '==', true)
             .count()
@@ -1852,64 +1814,8 @@ app.get('/api/products/:productId/reviews', async (req, res) => {
 });
 
 // ============================================
-// ADMIN ENDPOINTS
+// ADMIN SELLER ENDPOINTS
 // ============================================
-
-app.get('/api/admin/stats', async (req, res) => {
-    try {
-        const sellersSnapshot = await db.collection('users')
-            .where('role', '==', 'seller')
-            .count()
-            .get();
-        const totalSellers = sellersSnapshot.data().count;
-
-        const productsSnapshot = await db.collection('products')
-            .where('status', '==', 'published')
-            .count()
-            .get();
-        const totalProducts = productsSnapshot.data().count;
-
-        const ordersSnapshot = await db.collection('orders')
-            .where('paymentStatus', '==', 'settlement')
-            .count()
-            .get();
-        const totalOrders = ordersSnapshot.data().count;
-
-        const revenueSnapshot = await db.collection('orders')
-            .where('paymentStatus', '==', 'settlement')
-            .get();
-        let totalRevenue = 0;
-        revenueSnapshot.forEach(doc => {
-            totalRevenue += doc.data().amount || 0;
-        });
-
-        const pendingWithdrawals = await db.collection('withdrawals')
-            .where('status', '==', 'pending')
-            .count()
-            .get();
-
-        const activeBanners = await db.collection('banners')
-            .where('isActive', '==', true)
-            .count()
-            .get();
-
-        res.json({
-            totalSellers: totalSellers,
-            totalProducts: totalProducts,
-            totalOrders: totalOrders,
-            totalRevenue: totalRevenue,
-            pendingWithdrawals: pendingWithdrawals.data().count,
-            activeBanners: activeBanners.data().count
-        });
-
-    } catch (error) {
-        console.error('Error fetching admin stats:', error);
-        res.status(500).json({
-            error: 'Failed to fetch stats',
-            details: error.message
-        });
-    }
-});
 
 app.get('/api/admin/sellers', async (req, res) => {
     try {
@@ -2112,6 +2018,92 @@ app.get('/', (req, res) => {
 });
 
 // ============================================
+// ROUTING HTML PAGES (pengganti vercel.json)
+// ============================================
+// PENTING: Blok ini harus diletakkan SETELAH semua endpoint /api
+// dan SEBELUM error handler. Ini menggantikan fungsi vercel.json
+// karena VPS tidak membaca vercel.json.
+
+// Seller pages
+app.get('/seller/login', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/pages/seller/login.html'));
+});
+app.get('/seller/register', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/pages/seller/register.html'));
+});
+app.get('/seller/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/pages/seller/dashboard.html'));
+});
+app.get('/seller/products', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/pages/seller/products.html'));
+});
+app.get('/seller/wallet', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/pages/seller/wallet.html'));
+});
+app.get('/seller/transactions', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/pages/seller/transactions.html'));
+});
+app.get('/seller/withdraw', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/pages/seller/withdraw.html'));
+});
+app.get('/seller/settings', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/pages/seller/settings.html'));
+});
+
+// Admin pages
+app.get('/admin/login', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/pages/admin/login.html'));
+});
+app.get('/admin/register', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/pages/admin/register.html'));
+});
+app.get('/admin/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/pages/admin/dashboard.html'));
+});
+app.get('/admin/sellers', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/pages/admin/sellers.html'));
+});
+app.get('/admin/products', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/pages/admin/products.html'));
+});
+app.get('/admin/orders', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/pages/admin/orders.html'));
+});
+app.get('/admin/banners', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/pages/admin/banners.html'));
+});
+app.get('/admin/settings', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/pages/admin/settings.html'));
+});
+app.get('/admin/withdrawals', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/pages/admin/withdrawals.html'));
+});
+
+// Halaman lain
+app.get('/cek-order', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/cek-order.html'));
+});
+app.get('/product-seller', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/product-seller.html'));
+});
+app.get('/success', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/success.html'));
+});
+app.get('/success.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/success.html'));
+});
+
+// Fallback: layani file statis apa pun di /public
+app.get('*', (req, res) => {
+    const filePath = path.join(__dirname, '../public', req.path);
+    res.sendFile(filePath, (err) => {
+        if (err) {
+            res.status(404).send('Page not found');
+        }
+    });
+});
+
+// ============================================
 // ERROR HANDLING
 // ============================================
 
@@ -2127,7 +2119,6 @@ const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server berjalan di port ${PORT}`);
 });
-
 
 // Export for Vercel
 module.exports = app;
