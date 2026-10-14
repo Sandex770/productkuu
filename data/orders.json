@@ -1,0 +1,426 @@
+[
+  {
+    "id": "6cAccJQ37FkWlAZkNeAf",
+    "items": [
+      {
+        "price": 1000,
+        "imageUrl": "",
+        "type": "digital",
+        "quantity": 2,
+        "id": "rxp55RAF50RznnOosRHe",
+        "name": "tessssssssss"
+      }
+    ],
+    "sellerName": "sanzddeexx",
+    "buyerEmail": "sanzz@gmail.com",
+    "buyerPhone": "417125",
+    "paymentMethod": "midtrans",
+    "orderId": "PK-1784377337358-2MU093",
+    "productId": "rxp55RAF50RznnOosRHe",
+    "productName": "tessssssssss",
+    "type": "product_purchase",
+    "sellerId": "8MpX0p2SxkWKF3AOPYq3CjUMpeV2",
+    "buyerName": "sandex",
+    "amount": 2000,
+    "createdAt": {
+      "_seconds": 1784377337,
+      "_nanoseconds": 747000000
+    },
+    "midtransResult": {
+      "status_code": "200",
+      "status_message": "Success, transaction is found",
+      "gross_amount": "2000.00",
+      "order_id": "PK-1784377337358-2MU093",
+      "payment_type": "qris",
+      "transaction_status": "settlement",
+      "transaction_time": "2026-07-18 19:22:21",
+      "finish_redirect_url": "https://productkuu.vercel.app/public/success.html?order=PK-1784377337358-2MU093&order_id=PK-1784377337358-2MU093&status=success&status_code=200&transaction_status=settlement",
+      "transaction_id": "f0a1f248-6aac-44ac-909c-8b92a65f0638",
+      "fraud_status": "accept"
+    },
+    "paymentStatus": "settlement",
+    "status": "paid",
+    "updatedAt": {
+      "_seconds": 1784377362,
+      "_nanoseconds": 526000000
+    },
+    "releasedAt": "2026-07-18T12:48:09.846Z",
+    "released": true
+  },
+  {
+    "id": "FJGlpI2bE2J58vj5KF1T",
+    "orderId": "PK-1786165853334-CJS1VR",
+    "productId": "gkoOcvhCBUI5AQR39Omi",
+    "productName": "alight motion",
+    "buyerName": "sanzzdex",
+    "buyerEmail": "sanzz@mail.com",
+    "buyerPhone": "0871617167177",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerName": "Seller",
+    "amount": 10000,
+    "status": "pending",
+    "paymentStatus": "pending",
+    "type": "product_purchase",
+    "createdAt": {
+      "_seconds": 1786165855,
+      "_nanoseconds": 380000000
+    },
+    "updatedAt": {
+      "_seconds": 1786165855,
+      "_nanoseconds": 380000000
+    }
+  },
+  {
+    "id": "HWO0r6TGuIPs4iBeCczh",
+    "orderId": "PK-1786165919988-G78D8R",
+    "productId": "gkoOcvhCBUI5AQR39Omi",
+    "productName": "alight motion",
+    "buyerName": "sanzz",
+    "buyerEmail": "sanzz@mail.com",
+    "buyerPhone": "0871617167177",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerName": "Seller",
+    "amount": 10000,
+    "status": "pending",
+    "paymentStatus": "pending",
+    "type": "product_purchase",
+    "createdAt": {
+      "_seconds": 1786165921,
+      "_nanoseconds": 484000000
+    },
+    "updatedAt": {
+      "_seconds": 1786165921,
+      "_nanoseconds": 484000000
+    }
+  },
+  {
+    "id": "Im1wp7BjPs5OXwMQCT6w",
+    "productId": "rxp55RAF50RznnOosRHe",
+    "paymentMethod": "midtrans",
+    "orderId": "PK-1784376905383-DIIKOP",
+    "productName": "tessssssssss",
+    "type": "product_purchase",
+    "items": [
+      {
+        "price": 1000,
+        "imageUrl": "",
+        "type": "digital",
+        "quantity": 1,
+        "id": "rxp55RAF50RznnOosRHe",
+        "name": "tessssssssss"
+      }
+    ],
+    "sellerName": "sanzddeexx",
+    "buyerPhone": "041212",
+    "buyerEmail": "sanzz@gmail.com",
+    "sellerId": "8MpX0p2SxkWKF3AOPYq3CjUMpeV2",
+    "amount": 1000,
+    "buyerName": "sa",
+    "createdAt": {
+      "_seconds": 1784376905,
+      "_nanoseconds": 808000000
+    },
+    "midtransResult": {
+      "transaction_time": "2026-07-18 19:15:09",
+      "finish_redirect_url": "https://productkuu.vercel.app/public/success.html?order=PK-1784376905383-DIIKOP&order_id=PK-1784376905383-DIIKOP&status=success&status_code=200&transaction_status=settlement",
+      "fraud_status": "accept",
+      "transaction_id": "c86633c5-1efb-4b64-b1d6-005b5c9a7e13",
+      "status_message": "Success, transaction is found",
+      "status_code": "200",
+      "transaction_status": "settlement",
+      "payment_type": "qris",
+      "order_id": "PK-1784376905383-DIIKOP",
+      "gross_amount": "1000.00"
+    },
+    "paymentStatus": "settlement",
+    "status": "paid",
+    "updatedAt": {
+      "_seconds": 1784376930,
+      "_nanoseconds": 32000000
+    },
+    "releasedAt": "2026-07-18T12:48:09.921Z",
+    "released": true
+  },
+  {
+    "id": "Jls8L3pxaUohtPJZj2z7",
+    "sellerName": "sanzddeexx",
+    "bannerData": {
+      "duration": 24,
+      "title": "tessssssssss",
+      "description": "Promosi produk oleh sanzddeexx",
+      "imageUrl": "",
+      "expiresAt": "2026-07-19T12:40:55.373Z"
+    },
+    "paymentMethod": "wallet",
+    "status": "paid",
+    "buyerEmail": "ikhsandex01@gmail.com",
+    "adminRevenue": 1000,
+    "productName": "tessssssssss",
+    "type": "banner_purchase",
+    "paymentStatus": "settlement",
+    "amount": 1000,
+    "sellerId": "8MpX0p2SxkWKF3AOPYq3CjUMpeV2",
+    "orderId": "BANNER-1784378455373-HN6JIE",
+    "productId": "rxp55RAF50RznnOosRHe",
+    "buyerName": "sanzddeexx",
+    "createdAt": {
+      "_seconds": 1784378456,
+      "_nanoseconds": 14000000
+    }
+  },
+  {
+    "id": "S4MViPGib2Zbr5DCCUIG",
+    "orderId": "PK-1790573154608-B1LCRP",
+    "productId": "gkoOcvhCBUI5AQR39Omi",
+    "productName": "alight motion",
+    "buyerName": "Sandex Sad",
+    "buyerEmail": "sandexsad@gmail.com",
+    "buyerPhone": "0464046",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerName": "Seller",
+    "amount": 10000,
+    "status": "pending",
+    "paymentStatus": "pending",
+    "type": "product_purchase",
+    "createdAt": {
+      "_seconds": 1790573155,
+      "_nanoseconds": 222000000
+    },
+    "updatedAt": {
+      "_seconds": 1790573155,
+      "_nanoseconds": 222000000
+    }
+  },
+  {
+    "id": "ayushhV8NJ7Y2a76IAGF",
+    "orderId": "PK-1786165908450-DJ4J43",
+    "productId": "gkoOcvhCBUI5AQR39Omi",
+    "productName": "alight motion",
+    "buyerName": "sanzzdex",
+    "buyerEmail": "sanzz@mail.com",
+    "buyerPhone": "0871617167177",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerName": "Seller",
+    "amount": 10000,
+    "status": "pending",
+    "paymentStatus": "pending",
+    "type": "product_purchase",
+    "createdAt": {
+      "_seconds": 1786165910,
+      "_nanoseconds": 210000000
+    },
+    "updatedAt": {
+      "_seconds": 1786165910,
+      "_nanoseconds": 210000000
+    }
+  },
+  {
+    "id": "bL2DcOft42VrEeiicOyw",
+    "orderId": "PK-1786165876246-MCMFJD",
+    "productId": "gkoOcvhCBUI5AQR39Omi",
+    "productName": "alight motion",
+    "buyerName": "sanzzdex",
+    "buyerEmail": "sanzz@mail.com",
+    "buyerPhone": "0871617167177",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerName": "Seller",
+    "amount": 10000,
+    "status": "pending",
+    "paymentStatus": "pending",
+    "type": "product_purchase",
+    "createdAt": {
+      "_seconds": 1786165877,
+      "_nanoseconds": 818000000
+    },
+    "updatedAt": {
+      "_seconds": 1786165877,
+      "_nanoseconds": 818000000
+    }
+  },
+  {
+    "id": "jBgQD5xdEfVOi8he4AxL",
+    "orderId": "PK-1786165589163-M0FPUY",
+    "productId": "gkoOcvhCBUI5AQR39Omi",
+    "productName": "alight motion",
+    "buyerName": "sanzzdex",
+    "buyerEmail": "sanzz@mail.com",
+    "buyerPhone": "0871617167177",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerName": "Seller",
+    "amount": 10000,
+    "status": "pending",
+    "paymentStatus": "pending",
+    "type": "product_purchase",
+    "createdAt": {
+      "_seconds": 1786165591,
+      "_nanoseconds": 392000000
+    },
+    "midtransResult": {
+      "status_code": "201",
+      "status_message": "Transaksi sedang diproses",
+      "transaction_id": "163308f4-7ba5-4ae1-83e8-aa9e4469449c",
+      "order_id": "PK-1786165589163-M0FPUY",
+      "gross_amount": "10000",
+      "payment_type": "qris",
+      "transaction_time": "2026-08-08 12:07:08",
+      "transaction_status": "pending",
+      "fraud_status": "accept",
+      "finish_redirect_url": "https://productkuu.vercel.app/public/success.html?order=PK-1786165589163-M0FPUY&order_id=PK-1786165589163-M0FPUY&status=success&status_code=201&transaction_status=pending"
+    },
+    "updatedAt": {
+      "_seconds": 1786165670,
+      "_nanoseconds": 749000000
+    }
+  },
+  {
+    "id": "qbaUxH1dBpU75Dwc3aus",
+    "orderId": "PK-1786165884338-JFEQ5G",
+    "productId": "gkoOcvhCBUI5AQR39Omi",
+    "productName": "alight motion",
+    "buyerName": "sanzzdex",
+    "buyerEmail": "sanzz@mail.com",
+    "buyerPhone": "0871617167177",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerName": "Seller",
+    "amount": 10000,
+    "status": "pending",
+    "paymentStatus": "pending",
+    "type": "product_purchase",
+    "createdAt": {
+      "_seconds": 1786165885,
+      "_nanoseconds": 928000000
+    },
+    "updatedAt": {
+      "_seconds": 1786165885,
+      "_nanoseconds": 928000000
+    }
+  },
+  {
+    "id": "rHcYBxTnHzYghpZwcdaK",
+    "adminRevenue": 1000,
+    "buyerEmail": "ikhsandex01@gmail.com",
+    "productId": "rxp55RAF50RznnOosRHe",
+    "type": "banner_purchase",
+    "paymentMethod": "midtrans",
+    "sellerName": "sanzddeexx",
+    "amount": 1000,
+    "sellerId": "8MpX0p2SxkWKF3AOPYq3CjUMpeV2",
+    "bannerData": {
+      "description": "",
+      "duration": 24,
+      "expiresAt": "2026-07-19T12:52:34.284Z",
+      "imageUrl": "",
+      "title": "tessssssssss"
+    },
+    "buyerName": "sanzddeexx",
+    "productName": "tessssssssss",
+    "orderId": "BANNER-1784379154284-IUGSQM",
+    "createdAt": {
+      "_seconds": 1784379154,
+      "_nanoseconds": 725000000
+    },
+    "paymentStatus": "settlement",
+    "status": "paid",
+    "updatedAt": {
+      "_seconds": 1784379180,
+      "_nanoseconds": 663000000
+    }
+  },
+  {
+    "id": "skYl3DNY7VoGR5rmVhAW",
+    "orderId": "PK-1786154551128-OX6PYU",
+    "productId": "gkoOcvhCBUI5AQR39Omi",
+    "productName": "alight motion",
+    "buyerName": "ikhsan",
+    "buyerEmail": "sanzz@mail.com",
+    "buyerPhone": "",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerName": "Seller",
+    "amount": 10000,
+    "type": "product_purchase",
+    "createdAt": {
+      "_seconds": 1786154553,
+      "_nanoseconds": 407000000
+    },
+    "midtransResult": {
+      "status_code": "200",
+      "status_message": "Success, transaction is found",
+      "transaction_id": "0bffef2e-6a64-458d-801f-3b842f3a01c9",
+      "order_id": "PK-1786154551128-OX6PYU",
+      "gross_amount": "10000.00",
+      "payment_type": "qris",
+      "transaction_time": "2026-08-08 09:02:42",
+      "transaction_status": "settlement",
+      "fraud_status": "accept",
+      "finish_redirect_url": "https://productkuu.vercel.app/public/success.html?order=PK-1786154551128-OX6PYU&order_id=PK-1786154551128-OX6PYU&status=success&status_code=200&transaction_status=settlement"
+    },
+    "paymentStatus": "settlement",
+    "status": "paid",
+    "updatedAt": {
+      "_seconds": 1786154597,
+      "_nanoseconds": 247000000
+    },
+    "_notified": true,
+    "_notifiedAt": "2026-08-08T02:05:19.488Z"
+  },
+  {
+    "id": "wwEwcLj4EHFxy7PBOV33",
+    "orderId": "PK-1784377963026-XQM656",
+    "amount": 1000,
+    "sellerId": "8MpX0p2SxkWKF3AOPYq3CjUMpeV2",
+    "buyerName": "sanzzde",
+    "productName": "tessssssssss",
+    "buyerEmail": "sanzz@sanzz.com",
+    "type": "product_purchase",
+    "productId": "rxp55RAF50RznnOosRHe",
+    "buyerPhone": "0524505",
+    "sellerName": "Seller",
+    "createdAt": {
+      "_seconds": 1784377963,
+      "_nanoseconds": 428000000
+    },
+    "midtransResult": {
+      "finish_redirect_url": "https://productkuu.vercel.app/public/success.html?order=PK-1784377963026-XQM656&order_id=PK-1784377963026-XQM656&status=success&status_code=200&transaction_status=settlement",
+      "gross_amount": "1000.00",
+      "order_id": "PK-1784377963026-XQM656",
+      "transaction_status": "settlement",
+      "transaction_id": "633e9e1b-8e61-4237-8d38-7af75527de10",
+      "transaction_time": "2026-07-18 19:33:05",
+      "status_message": "Success, transaction is found",
+      "fraud_status": "accept",
+      "payment_type": "qris",
+      "status_code": "200"
+    },
+    "paymentStatus": "settlement",
+    "status": "paid",
+    "updatedAt": {
+      "_seconds": 1784378007,
+      "_nanoseconds": 79000000
+    },
+    "releasedAt": "2026-07-18T12:48:09.982Z",
+    "released": true
+  },
+  {
+    "id": "xi7l7yYWllcHvLtM1T5n",
+    "orderId": "PK-1790564967746-OEQZZA",
+    "productId": "gkoOcvhCBUI5AQR39Omi",
+    "productName": "alight motion",
+    "buyerName": "Sandex Sad",
+    "buyerEmail": "sandexsad@gmail.com",
+    "buyerPhone": "008553888",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerName": "Seller",
+    "amount": 10000,
+    "status": "pending",
+    "paymentStatus": "pending",
+    "type": "product_purchase",
+    "createdAt": {
+      "_seconds": 1790564968,
+      "_nanoseconds": 185000000
+    },
+    "updatedAt": {
+      "_seconds": 1790564968,
+      "_nanoseconds": 185000000
+    }
+  }
+]

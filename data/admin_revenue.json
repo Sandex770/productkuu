@@ -1,0 +1,197 @@
+[
+  {
+    "id": "Dpif5S1dzENcqY0UBrNO",
+    "type": "banner_purchase",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerName": "sanzzdex",
+    "productId": "6hjZWiYDvZWvztGEu8Gg",
+    "productName": "tess payment",
+    "amount": 1000,
+    "duration": 24,
+    "orderId": "BANNER-1784264812963-9GX94H",
+    "status": "paid",
+    "paymentMethod": "wallet",
+    "createdAt": {
+      "_seconds": 1784264813,
+      "_nanoseconds": 803000000
+    }
+  },
+  {
+    "id": "G2YBSkLr93gUT0HEty74",
+    "type": "banner_purchase",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerName": "sanzzdex",
+    "productId": "6hjZWiYDvZWvztGEu8Gg",
+    "productName": "tess payment",
+    "amount": 1000,
+    "duration": 24,
+    "orderId": "BANNER-1784262471711-IXDK79",
+    "status": "paid",
+    "paymentMethod": "wallet",
+    "createdAt": {
+      "_seconds": 1784262472,
+      "_nanoseconds": 297000000
+    },
+    "updatedAt": {
+      "_seconds": 1784262472,
+      "_nanoseconds": 297000000
+    }
+  },
+  {
+    "id": "Hy3DC3GZ7iTD2JBBKDkJ",
+    "type": "banner_purchase",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerName": "sanzzdex",
+    "productId": "6hjZWiYDvZWvztGEu8Gg",
+    "productName": "tess payment",
+    "amount": 1000,
+    "duration": 24,
+    "orderId": "BANNER-1784263747043-C5MGLI",
+    "status": "paid",
+    "paymentMethod": "wallet",
+    "createdAt": {
+      "_seconds": 1784263747,
+      "_nanoseconds": 857000000
+    }
+  },
+  {
+    "id": "KqESiLtbXEedabujP99f",
+    "orderId": "BANNER-1784379154284-IUGSQM",
+    "amount": 1000,
+    "sellerId": "8MpX0p2SxkWKF3AOPYq3CjUMpeV2",
+    "status": "paid",
+    "productName": "tessssssssss",
+    "duration": 24,
+    "productId": null,
+    "type": "banner_purchase",
+    "paymentMethod": "midtrans",
+    "sellerName": "sanzddeexx",
+    "createdAt": {
+      "_seconds": 1784379180,
+      "_nanoseconds": 400000000
+    }
+  },
+  {
+    "id": "PVwUL7iqJ28B3msvky2f",
+    "type": "banner_purchase",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerName": "sanzzdex",
+    "productId": "6hjZWiYDvZWvztGEu8Gg",
+    "productName": "tess payment",
+    "amount": 1000,
+    "duration": 24,
+    "orderId": "BANNER-1784263862306-A00T21",
+    "status": "paid",
+    "paymentMethod": "wallet",
+    "createdAt": {
+      "_seconds": 1784263863,
+      "_nanoseconds": 107000000
+    }
+  },
+  {
+    "id": "TDZQU4MKaGPBXhVFQpvy",
+    "type": "banner_purchase",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerName": "sanzzdex",
+    "productId": "YRsGMe5kLknxKR8UStyF",
+    "productName": "sadexxxx",
+    "amount": 1000,
+    "duration": 24,
+    "orderId": "BANNER-1784262521988-ZCSS6D",
+    "status": "paid",
+    "paymentMethod": "wallet",
+    "createdAt": {
+      "_seconds": 1784262522,
+      "_nanoseconds": 647000000
+    },
+    "updatedAt": {
+      "_seconds": 1784262522,
+      "_nanoseconds": 647000000
+    }
+  },
+  {
+    "id": "esa70WtP8BkNusCaFhDo",
+    "type": "banner_purchase",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerName": "sanzzdex",
+    "productId": "6hjZWiYDvZWvztGEu8Gg",
+    "productName": "tess payment",
+    "amount": 1000,
+    "duration": 24,
+    "orderId": "BANNER-1784263000499-93RS9D",
+    "status": "paid",
+    "paymentMethod": "wallet",
+    "createdAt": {
+      "_seconds": 1784263001,
+      "_nanoseconds": 194000000
+    }
+  },
+  {
+    "id": "oX0OtMYSQhD3xw8RgXtQ",
+    "status": "paid",
+    "productId": "rxp55RAF50RznnOosRHe",
+    "paymentMethod": "wallet",
+    "orderId": "BANNER-1784378455373-HN6JIE",
+    "sellerName": "sanzddeexx",
+    "duration": 24,
+    "sellerId": "8MpX0p2SxkWKF3AOPYq3CjUMpeV2",
+    "amount": 1000,
+    "productName": "tessssssssss",
+    "type": "banner_purchase",
+    "createdAt": {
+      "_seconds": 1784378455,
+      "_nanoseconds": 958000000
+    }
+  },
+  {
+    "id": "pxkkDq242K9hgcSxZggo",
+    "type": "banner_purchase",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerName": "sanzzdex",
+    "productId": "6hjZWiYDvZWvztGEu8Gg",
+    "productName": "tess payment",
+    "amount": 1000,
+    "duration": 24,
+    "orderId": "BANNER-1784264242314-F9HL4N",
+    "status": "paid",
+    "paymentMethod": "wallet",
+    "createdAt": {
+      "_seconds": 1784264243,
+      "_nanoseconds": 211000000
+    }
+  },
+  {
+    "id": "vIflOZn7kWwpQ0sXrehm",
+    "type": "banner_purchase",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerName": "sanzzdex",
+    "productId": "6hjZWiYDvZWvztGEu8Gg",
+    "productName": "tess payment",
+    "amount": 1000,
+    "duration": 24,
+    "orderId": "BANNER-1784265217297-2DDFLT",
+    "status": "paid",
+    "paymentMethod": "wallet",
+    "createdAt": {
+      "_seconds": 1784265218,
+      "_nanoseconds": 141000000
+    }
+  },
+  {
+    "id": "yiA8WrgnYVDWlXHTo3eI",
+    "type": "banner_purchase",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerName": "sanzzdex",
+    "productId": "6hjZWiYDvZWvztGEu8Gg",
+    "productName": "tess payment",
+    "amount": 1000,
+    "duration": 24,
+    "orderId": "BANNER-1784263661255-IE6ZAE",
+    "status": "paid",
+    "paymentMethod": "wallet",
+    "createdAt": {
+      "_seconds": 1784263662,
+      "_nanoseconds": 220000000
+    }
+  }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "gkoOcvhCBUI5AQR39Omi",
+    "isTrending": false,
+    "price": 10000,
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "premiumAccounts": [
+      {
+        "password": "D6x^!htuwZwUW#",
+        "email": "y8yqdgl@web-library.net"
+      },
+      {
+        "email": "f6le71@web-library.net",
+        "password": "TMw#GqP778pLKn"
+      },
+      {
+        "password": "mKKk24S**D6Gnd",
+        "email": "wlvla2@web-library.net"
+      }
+    ],
+    "name": "alight motion",
+    "tags": [
+      "akun premium"
+    ],
+    "unlimited": false,
+    "note": "akun alight motion premium 1 tahun",
+    "views": 0,
+    "isBestSeller": false,
+    "imageUrl": "",
+    "type": "premium-account",
+    "isPremium": false,
+    "isNew": true,
+    "description": "alight motion premium 1 tahun",
+    "category": "Premium Account",
+    "createdAt": {
+      "_seconds": 1784549764,
+      "_nanoseconds": 608000000
+    },
+    "stock": 2,
+    "sales": 1,
+    "status": "published",
+    "updatedAt": "2026-08-07T11:12:16.820Z"
+  }
+]

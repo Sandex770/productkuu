@@ -1,0 +1,324 @@
+[
+  {
+    "id": "58OocYsawjfG4IvyvLGe",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerEmail": "sanzzofficial10@gmail.com",
+    "amount": 1000,
+    "method": "DANA",
+    "accountNumber": "0873637363376",
+    "accountName": "sanzz",
+    "note": "",
+    "createdAt": {
+      "_seconds": 1786088659,
+      "_nanoseconds": 709000000
+    },
+    "adminNote": "Ditolak admin",
+    "status": "rejected",
+    "updatedAt": "2026-08-07T11:10:17.693Z"
+  },
+  {
+    "id": "BWlT5IvnVRwPbxDvIeGx",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerEmail": "sanzzofficial10@gmail.com",
+    "amount": 1000,
+    "method": "DANA",
+    "accountNumber": "0873637363376",
+    "accountName": "sanzz",
+    "note": "",
+    "createdAt": {
+      "_seconds": 1786092023,
+      "_nanoseconds": 959000000
+    },
+    "adminNote": "Ditolak admin",
+    "status": "rejected",
+    "updatedAt": "2026-08-07T11:09:38.835Z"
+  },
+  {
+    "id": "Bmfop77jffJYey3sUUzV",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "amount": 1000,
+    "method": "DANA",
+    "accountNumber": "0873637363376",
+    "accountName": "sanzz",
+    "note": "",
+    "createdAt": {
+      "_seconds": 1786064048,
+      "_nanoseconds": 293000000
+    },
+    "adminNote": "Disetujui admin",
+    "status": "approved",
+    "updatedAt": "2026-08-07T01:02:56.029Z"
+  },
+  {
+    "id": "FZi7GbSNxaDBVaYZXNLK",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerEmail": "sanzzofficial10@gmail.com",
+    "amount": 1000,
+    "method": "OVO",
+    "accountNumber": "0873637363376",
+    "accountName": "sanzz",
+    "note": "",
+    "createdAt": {
+      "_seconds": 1786088590,
+      "_nanoseconds": 145000000
+    },
+    "adminNote": "Ditolak admin",
+    "status": "rejected",
+    "updatedAt": "2026-08-07T11:09:27.224Z"
+  },
+  {
+    "id": "FrOFZ3AP6oXdO6jlOuwW",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerEmail": "sanzzofficial10@gmail.com",
+    "amount": 1000,
+    "method": "DANA",
+    "accountNumber": "0873637363376",
+    "accountName": "sanzz",
+    "note": "",
+    "createdAt": {
+      "_seconds": 1786091597,
+      "_nanoseconds": 136000000
+    },
+    "adminNote": "Ditolak admin",
+    "status": "rejected",
+    "updatedAt": "2026-08-07T11:09:44.795Z"
+  },
+  {
+    "id": "INUitDgAA7o9uOd8tGXE",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerEmail": "sanzzofficial10@gmail.com",
+    "amount": 1000,
+    "method": "DANA",
+    "accountNumber": "0873637363376",
+    "accountName": "p p apaa",
+    "note": "",
+    "status": "pending",
+    "createdAt": {
+      "_seconds": 1786165031,
+      "_nanoseconds": 979000000
+    },
+    "updatedAt": {
+      "_seconds": 1786165031,
+      "_nanoseconds": 979000000
+    }
+  },
+  {
+    "id": "Iw99saIflNPxkqrl86Y1",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "amount": 1000,
+    "method": "DANA",
+    "accountNumber": "0873637363376",
+    "accountName": "sanzz",
+    "note": "",
+    "createdAt": {
+      "_seconds": 1786064215,
+      "_nanoseconds": 635000000
+    },
+    "adminNote": "Disetujui admin",
+    "status": "approved",
+    "updatedAt": "2026-08-07T01:02:52.534Z"
+  },
+  {
+    "id": "Jk8J1OXEejNUxWmvhGPS",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerEmail": "sanzzofficial10@gmail.com",
+    "amount": 1000,
+    "method": "DANA",
+    "accountNumber": "0873637363376",
+    "accountName": "sandex yg ganteng",
+    "note": "",
+    "createdAt": {
+      "_seconds": 1786090695,
+      "_nanoseconds": 449000000
+    },
+    "adminNote": "Ditolak admin",
+    "status": "rejected",
+    "updatedAt": "2026-08-07T11:10:11.028Z"
+  },
+  {
+    "id": "MbIhoBbhNVsm7VeeJBFj",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerEmail": "sanzzofficial10@gmail.com",
+    "amount": 1000,
+    "method": "DANA",
+    "accountNumber": "0873637363376",
+    "accountName": "sanzz",
+    "note": "",
+    "createdAt": {
+      "_seconds": 1786091085,
+      "_nanoseconds": 613000000
+    },
+    "adminNote": "Ditolak admin",
+    "status": "rejected",
+    "updatedAt": "2026-08-07T11:09:50.853Z"
+  },
+  {
+    "id": "PFnS9finH7T1VW7JF0Cb",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerEmail": "sanzzofficial10@gmail.com",
+    "amount": 1000,
+    "method": "DANA",
+    "accountNumber": "0873637363376",
+    "accountName": "sanzz",
+    "note": "",
+    "createdAt": {
+      "_seconds": 1786103113,
+      "_nanoseconds": 39000000
+    },
+    "adminNote": "Disetujui admin",
+    "status": "approved",
+    "updatedAt": "2026-08-07T11:46:25.317Z"
+  },
+  {
+    "id": "VbUQfWLLNDNYaz5dDbZn",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerEmail": "sanzzofficial10@gmail.com",
+    "amount": 1000,
+    "method": "DANA",
+    "accountNumber": "0873637363376",
+    "accountName": "sanzz",
+    "note": "",
+    "createdAt": {
+      "_seconds": 1786088515,
+      "_nanoseconds": 273000000
+    },
+    "adminNote": "Ditolak admin",
+    "status": "rejected",
+    "updatedAt": "2026-08-07T07:42:45.209Z"
+  },
+  {
+    "id": "XsqoW1HFnsKNOTcC7H62",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerEmail": "sanzzofficial10@gmail.com",
+    "amount": 1000,
+    "method": "OVO",
+    "accountNumber": "0873637363376",
+    "accountName": "sanzz",
+    "note": "",
+    "createdAt": {
+      "_seconds": 1786091040,
+      "_nanoseconds": 798000000
+    },
+    "adminNote": "Ditolak admin",
+    "status": "rejected",
+    "updatedAt": "2026-08-07T11:09:57.036Z"
+  },
+  {
+    "id": "ZOX0i9svJmOrOUspUd2B",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerEmail": "sanzzofficial10@gmail.com",
+    "amount": 1000,
+    "method": "DANA",
+    "accountNumber": "0873637363376",
+    "accountName": "sanzz",
+    "note": "",
+    "status": "pending",
+    "createdAt": {
+      "_seconds": 1786156809,
+      "_nanoseconds": 274000000
+    },
+    "updatedAt": {
+      "_seconds": 1786156809,
+      "_nanoseconds": 274000000
+    }
+  },
+  {
+    "id": "adReJgZ8j3Q8mV1ZF2oA",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "amount": 1000,
+    "method": "DANA",
+    "accountNumber": "0873637363376",
+    "accountName": "sanzz",
+    "note": "",
+    "createdAt": {
+      "_seconds": 1786071020,
+      "_nanoseconds": 820000000
+    },
+    "adminNote": "Ditolak admin",
+    "status": "rejected",
+    "updatedAt": "2026-08-07T07:42:37.338Z"
+  },
+  {
+    "id": "bOYcwrENRXXx5Hpy2xmm",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "amount": 1000,
+    "method": "DANA",
+    "accountNumber": "0873637363376",
+    "accountName": "sanzz",
+    "note": "",
+    "createdAt": {
+      "_seconds": 1784253565,
+      "_nanoseconds": 610000000
+    },
+    "adminNote": "Disetujui admin",
+    "status": "approved",
+    "updatedAt": "2026-07-17T02:01:52.850Z"
+  },
+  {
+    "id": "eT0tIu9L7ZnOcEjEJtV4",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerEmail": "sanzzofficial10@gmail.com",
+    "amount": 1000,
+    "method": "DANA",
+    "accountNumber": "0873637363376",
+    "accountName": "sanzz",
+    "note": "",
+    "createdAt": {
+      "_seconds": 1786087105,
+      "_nanoseconds": 719000000
+    },
+    "adminNote": "Ditolak admin",
+    "status": "rejected",
+    "updatedAt": "2026-08-07T07:42:41.370Z"
+  },
+  {
+    "id": "kIoP96ryXbPhdz07ojM5",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerEmail": "sanzzofficial10@gmail.com",
+    "amount": 1000,
+    "method": "DANA",
+    "accountNumber": "0873637363376",
+    "accountName": "sanzz",
+    "note": "",
+    "createdAt": {
+      "_seconds": 1786092680,
+      "_nanoseconds": 402000000
+    },
+    "adminNote": "Ditolak admin",
+    "status": "rejected",
+    "updatedAt": "2026-08-07T11:09:32.784Z"
+  },
+  {
+    "id": "xedU2nfbBSAcVckMdJxx",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "sellerEmail": "sanzzofficial10@gmail.com",
+    "amount": 2000,
+    "method": "DANA",
+    "accountNumber": "0873637363376",
+    "accountName": "sanzz",
+    "note": "",
+    "createdAt": {
+      "_seconds": 1786090761,
+      "_nanoseconds": 475000000
+    },
+    "adminNote": "Ditolak admin",
+    "status": "rejected",
+    "updatedAt": "2026-08-07T11:10:03.179Z"
+  },
+  {
+    "id": "yAjbrbvE96VyUP0U9MMS",
+    "sellerId": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "amount": 1000,
+    "method": "DANA",
+    "accountNumber": "0873637363376",
+    "accountName": "sanzz",
+    "note": "",
+    "createdAt": {
+      "_seconds": 1786064510,
+      "_nanoseconds": 387000000
+    },
+    "adminNote": "berak",
+    "status": "rejected",
+    "updatedAt": "2026-08-07T01:02:46.807Z"
+  }
+]

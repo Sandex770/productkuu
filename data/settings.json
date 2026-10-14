@@ -1,0 +1,53 @@
+[
+  {
+    "id": "banner",
+    "duration": 24,
+    "maxSlots": 5,
+    "autoSlideSpeed": 5,
+    "price": 1000,
+    "updatedAt": "2026-07-15T09:02:14.293Z"
+  },
+  {
+    "id": "footer",
+    "footerText": "&copy; 2026 ProductKuu.Sanzzdex-Store All rights reserved.",
+    "footerLinks": [
+      {
+        "label": "Tentang",
+        "url": "/tentang"
+      },
+      {
+        "label": "Kontak",
+        "url": "/kontak"
+      },
+      {
+        "label": "Syarat & Ketentuan",
+        "url": "/syarat-ketentuan"
+      }
+    ],
+    "createdAt": {
+      "_seconds": 1784202174,
+      "_nanoseconds": 886000000
+    },
+    "updatedAt": {
+      "_seconds": 1784202217,
+      "_nanoseconds": 625000000
+    }
+  },
+  {
+    "id": "marketplace",
+    "siteName": "productkuu",
+    "maxWithdraw": 1000000,
+    "withdrawMethods": [
+      "DANA",
+      "OVO",
+      "GoPay",
+      "Bank BCA"
+    ],
+    "commission": 5,
+    "minWithdraw": 1000,
+    "holdingDays": 0,
+    "holdingHours": 0,
+    "holdingMinutes": 1,
+    "updatedAt": 1785915653108
+  }
+]

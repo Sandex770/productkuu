@@ -1,0 +1,143 @@
+[
+  {
+    "id": "0ydtd6NBqDTPDxgm2d9t7ThDxXB2",
+    "uid": "0ydtd6NBqDTPDxgm2d9t7ThDxXB2",
+    "email": "sanzzpreset001@gmail.com",
+    "displayName": "sanzzpreset001",
+    "role": "seller",
+    "storeName": "sanzzpreset001's Store",
+    "wallet": {
+      "available": 0,
+      "holding": 0,
+      "totalRevenue": 0,
+      "totalWithdraw": 0
+    },
+    "createdAt": "2026-08-04T22:21:09.889Z",
+    "updatedAt": "2026-08-04T22:21:09.889Z",
+    "status": "active"
+  },
+  {
+    "id": "3FewE9cfDhaKJ98z2Mr8UtnKl7B3",
+    "uid": "3FewE9cfDhaKJ98z2Mr8UtnKl7B3",
+    "email": "admin@productkuu.com",
+    "displayName": "Admin ProductKuu",
+    "role": "admin",
+    "status": "active",
+    "createdAt": "2026-07-14T14:13:54.738Z",
+    "updatedAt": "2026-07-14T14:13:54.738Z"
+  },
+  {
+    "id": "8MpX0p2SxkWKF3AOPYq3CjUMpeV2",
+    "createdAt": "2026-07-18T11:41:35.408Z",
+    "uid": "8MpX0p2SxkWKF3AOPYq3CjUMpeV2",
+    "role": "seller",
+    "totalSales": 0,
+    "level": "bronze",
+    "instagram": "",
+    "storeName": "sanzddeexx",
+    "displayName": "sanzzdex-store",
+    "whatsapp": "",
+    "productCount": 0,
+    "storeDescription": "",
+    "email": "ikhsandex01@gmail.com",
+    "verified": true,
+    "wallet": {
+      "totalWithdraw": 0,
+      "pendingWithdraw": 0,
+      "totalRevenue": 4000,
+      "lastReleased": null,
+      "lastHolding": null,
+      "holding": 0,
+      "available": 0
+    },
+    "updatedAt": "2026-07-18T12:50:16.111Z",
+    "status": "active"
+  },
+  {
+    "id": "GQsFN1J5OofLK0vtcBHMdoyzWAg1",
+    "uid": "GQsFN1J5OofLK0vtcBHMdoyzWAg1",
+    "createdAt": 1785904923472,
+    "role": "admin",
+    "displayName": "sanzzdex",
+    "verified": true,
+    "email": "bandunsad@gmail.com",
+    "status": "active"
+  },
+  {
+    "id": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "uid": "nzEWmPvzgNaszj9ZaYH1PQzvfGo2",
+    "email": "sanzzofficial10@gmail.com",
+    "displayName": "sanzzdex",
+    "role": "seller",
+    "storeName": "sanzzdex",
+    "createdAt": "2026-07-15T04:07:26.877Z",
+    "logo": "",
+    "instagram": "",
+    "level": "diamond",
+    "storeDescription": "sanzzdex store",
+    "whatsapp": "0873638373627",
+    "status": "active",
+    "verified": false,
+    "wallet": {
+      "lastReleased": null,
+      "lastHolding": null,
+      "holding": 0,
+      "totalRevenue": 0,
+      "totalWithdraw": 5000,
+      "pendingWithdraw": 7000,
+      "available": 2000
+    },
+    "updatedAt": {
+      "_seconds": 1786165031,
+      "_nanoseconds": 838000000
+    }
+  },
+  {
+    "id": "paDHhh1RYMX10VZQ7OCAxGtJjZK2",
+    "uid": "paDHhh1RYMX10VZQ7OCAxGtJjZK2",
+    "email": "sandexsad@gmail.com",
+    "displayName": "sanzz",
+    "storeName": "sanzz gelek",
+    "storeDescription": "",
+    "whatsapp": "",
+    "instagram": "",
+    "role": "seller",
+    "verified": false,
+    "level": "bronze",
+    "productCount": 0,
+    "totalSales": 0,
+    "wallet": {
+      "available": 0,
+      "holding": 0,
+      "totalRevenue": 0,
+      "totalWithdraw": 0
+    },
+    "createdAt": "2026-07-16T11:06:54.090Z",
+    "status": "active",
+    "updatedAt": "2026-07-18T04:48:19.753Z"
+  },
+  {
+    "id": "xpzxNu0hYVNdqmDE3HH9YkTbrB52",
+    "uid": "xpzxNu0hYVNdqmDE3HH9YkTbrB52",
+    "email": "sanzzofficial10@gmail.com",
+    "displayName": "sanzzdex",
+    "storeName": "sanzzdex",
+    "storeDescription": "",
+    "whatsapp": "",
+    "instagram": "",
+    "role": "seller",
+    "verified": false,
+    "level": "bronze",
+    "productCount": 0,
+    "totalSales": 0,
+    "wallet": {
+      "available": 0,
+      "holding": 0,
+      "totalRevenue": 0,
+      "totalWithdraw": 0
+    },
+    "createdAt": "2026-07-14T14:07:00.953Z",
+    "status": "active",
+    "updatedAt": "2026-07-16T12:17:32.028Z"
+  }
+]

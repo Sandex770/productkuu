@@ -1,0 +1,109 @@
+{
+  "accGroups": [
+    "120363427861413476@g.us"
+  ],
+  "jadwal": {
+    "senin": [
+      {
+        "id": "dasar-pemrograman",
+        "nama": "dasar pemrograman",
+        "jam_masuk": "08:00",
+        "jam_keluar": "09:30",
+        "ruangan": "209",
+        "dosen": "Adek maulidya, S.Kom., M.Kom",
+        "note": ""
+      },
+      {
+        "id": "praktek-dasar-pemrograman",
+        "nama": "praktek dasar pemrograman",
+        "jam_masuk": "09:45",
+        "jam_keluar": "11:15",
+        "ruangan": "LAB.2",
+        "dosen": "Adek maulidya, S.Kom., M.Kom",
+        "note": ""
+      },
+      {
+        "id": "manrantai-pasok",
+        "nama": "Man.Rantai Pasok",
+        "jam_masuk": "12:15",
+        "jam_keluar": "14:45",
+        "ruangan": "204",
+        "dosen": "Suria Alamsyah",
+        "note": ""
+      }
+    ],
+    "selasa": [],
+    "rabu": [
+      {
+        "id": "praktek-pengantar-ti",
+        "nama": "praktek pengantar TI",
+        "jam_masuk": "09:45",
+        "jam_keluar": "11:15",
+        "ruangan": "LAB.1",
+        "dosen": "Suci Ramadani, M.kom",
+        "note": ""
+      },
+      {
+        "id": "pengantar-ti",
+        "nama": "pengantar TI",
+        "jam_masuk": "11:30",
+        "jam_keluar": "13:00",
+        "ruangan": "211",
+        "dosen": "Suci Ramadani, M.kom",
+        "note": ""
+      }
+    ],
+    "kamis": [
+      {
+        "id": "praktek-sbd",
+        "nama": "praktek SBD",
+        "jam_masuk": "08:00",
+        "jam_keluar": "09:30",
+        "ruangan": "LAB.2",
+        "dosen": "Melda Pita Uli Sitompul, M.Kom",
+        "note": ""
+      },
+      {
+        "id": "materi-sbd",
+        "nama": "Materi SBD",
+        "jam_masuk": "09:45",
+        "jam_keluar": "11:15",
+        "ruangan": "209",
+        "dosen": "Melda Pita Uli Sitompul, M.Kom",
+        "note": ""
+      },
+      {
+        "id": "akuntansi-dasar",
+        "nama": "Akuntansi Dasar",
+        "jam_masuk": "12:15",
+        "jam_keluar": "14:00",
+        "ruangan": "202",
+        "dosen": "Lina Arliana Nur Kadim, SE.,MM",
+        "note": ""
+      }
+    ],
+    "jumat": [
+      {
+        "id": "si-manajemen",
+        "nama": "SI Manajemen",
+        "jam_masuk": "08:00",
+        "jam_keluar": "10:15",
+        "ruangan": "206",
+        "dosen": "Raja Nasrul Fuad, S.Kom., M.Kom",
+        "note": ""
+      },
+      {
+        "id": "pimpin-manj-organisasi",
+        "nama": "Pimpin & Manj. Organisasi",
+        "jam_masuk": "10:15",
+        "jam_keluar": "12:30",
+        "ruangan": "Seminar",
+        "dosen": "Muhammad Umar, M.pd",
+        "note": ""
+      }
+    ],
+    "sabtu": [],
+    "minggu": []
+  },
+  "jamPengganti": {}
+}
