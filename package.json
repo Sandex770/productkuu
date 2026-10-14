@@ -9,17 +9,18 @@
     "build": "echo 'Build complete'"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "midtrans-client": "^1.4.3",
-    "firebase-admin": "^11.11.0",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "uuid": "^9.0.1",
     "bcryptjs": "^2.4.3",
-    "nodemailer": "^6.9.7",
+    "better-sqlite3": "^13.0.3",
+    "compression": "^1.7.4",
+    "cors": "^2.8.6",
+    "dotenv": "^16.3.1",
+    "express": "^4.22.3",
     "express-rate-limit": "^7.1.5",
+    "firebase-admin": "^11.11.0",
     "helmet": "^7.1.0",
-    "compression": "^1.7.4"
+    "midtrans-client": "^1.4.3",
+    "nodemailer": "^6.9.7",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
