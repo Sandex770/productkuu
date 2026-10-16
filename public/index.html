@@ -11,9 +11,7 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script data-client-key="Mid-client-OkRCJi3x4-wno9XX" src="https://app.midtrans.com/snap/snap.js"></script>
 <style>
-/* CSS — SAMA SEPERTI ASLINYA, TIDAK DIUBAH */
 :root,[data-theme="light"]{--bg:#F4F1E8;--bg-grid:rgba(0,0,0,.055);--surface:#FFF;--surface-2:#FAF8F0;--ink:#0A0A0A;--ink-muted:#4A4A4A;--ink-soft:#7A7A7A;--lime:#C4F000;--lime-deep:#9BC400;--amber:#FFC400;--amber-deep:#D9A300;--blue:#2B6FFF;--blue-deep:#1E4FCC;--blue-soft:#E6EEFF;--border:#0A0A0A;--border-width:2px;--shadow-color:#0A0A0A;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(0,0,0,.08);--nav-bg:#F4F1E8}
 [data-theme="dark"]{--bg:#0B0B0D;--bg-grid:rgba(255,255,255,.045);--surface:#16161A;--surface-2:#1E1E24;--ink:#F5F3EC;--ink-muted:#B8B8C0;--ink-soft:#8A8A92;--lime:#C4F000;--lime-deep:#A8D400;--amber:#FFC400;--amber-deep:#E0AC00;--blue:#4D8BFF;--blue-deep:#2B6FFF;--blue-soft:#1A2540;--border:#F5F3EC;--border-width:2px;--shadow-color:#F5F3EC;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(255,255,255,.06);--nav-bg:#0B0B0D}
 *{scroll-behavior:smooth;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -130,7 +128,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-
             <span class="material-symbols-outlined icon-sun">light_mode</span>
             <span class="material-symbols-outlined icon-moon">dark_mode</span>
         </button>
-        <button class="btn btn-secondary hidden sm:inline-flex !py-2 !px-3.5" onclick="window.location.href='/pages/seller/login.html'">Masuk</button>
+        <button class="btn btn-secondary hidden sm:inline-flex !py-2 !px-3.5" onclick="window.location.href='/seller/login'">Masuk</button>
         <button class="btn btn-primary !py-2 !px-3.5" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">
             <span class="material-symbols-outlined text-lg">shopping_cart</span> <span class="hidden sm:inline">Keranjang</span>
         </button>
@@ -242,7 +240,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-
         <h2 class="font-display text-3xl sm:text-5xl md:text-6xl text-[var(--bg)] mt-6 mb-5">Siap Menjadi Seller?</h2>
         <p class="max-w-2xl mx-auto text-base sm:text-lg font-semibold mb-10" style="color:#B8B8C0;">Mulai jualan produk digital dan dapatkan penghasilan tambahan.</p>
         <div class="flex flex-col sm:flex-row justify-center gap-4">
-            <a class="btn btn-primary !py-4 !px-8 !text-base" href="/pages/seller/register.html"><span class="material-symbols-outlined">person_add</span> Daftar Seller</a>
+            <a class="btn btn-primary !py-4 !px-8 !text-base" href="/seller/register"><span class="material-symbols-outlined">person_add</span> Daftar Seller</a>
             <a class="btn btn-secondary !py-4 !px-8 !text-base" href="#products"><span class="material-symbols-outlined">shopping_bag</span> Belanja Produk</a>
         </div>
     </div>
@@ -283,10 +281,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-
 </div>
 </div>
 
-<!-- ============================================
-     IMPORTMAP — PENTING!
-     firebase/firestore → diarahkan ke adapter kita
-     ============================================ -->
+<!-- IMPORTMAP -->
 <script type="importmap">
 {
   "imports": {
@@ -311,9 +306,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-
     });
 })();
 
-// ============================================
-// IMPORT — Auth dari Firebase, Data dari adapter
-// ============================================
 import { onAuthStateChanged } from "firebase/auth";
 import {
   db, collection, doc,
@@ -330,7 +322,6 @@ let currentProductId = null;
 let allProducts = [];
 let currentTab = 'new';
 
-// DOM
 const navbar = document.getElementById('navbar');
 const productsGrid = document.getElementById('productsGrid');
 const searchInput = document.getElementById('searchInput');
@@ -380,9 +371,6 @@ function showToast(type, message) {
 }
 window.showToast = showToast;
 
-// ============================================
-// FORMAT
-// ============================================
 function formatPrice(price) {
     if (!price && price !== 0) return '0';
     return new Intl.NumberFormat('id-ID').format(price);
@@ -390,11 +378,10 @@ function formatPrice(price) {
 window.formatPrice = formatPrice;
 
 // ============================================
-// LOAD STATS (READ)
+// LOAD STATS
 // ============================================
 async function loadStats() {
     try {
-        // Ambil semua, filter manual (adapter tidak support where)
         const productsSnap = await getDocs(collection(db, 'products'));
         const products = productsSnap.docs.map(d => d.data());
         document.getElementById('statProducts').textContent = products.filter(p => p.status === 'published').length + '+';
@@ -415,7 +402,7 @@ async function loadStats() {
 }
 
 // ============================================
-// LOAD BANNERS (READ)
+// LOAD BANNERS
 // ============================================
 async function loadBanners() {
     try {
@@ -452,9 +439,6 @@ function showFallbackBanner() {
     document.getElementById('bannerIndicators').innerHTML = '';
 }
 
-// ============================================
-// BANNER CAROUSEL
-// ============================================
 let currentBannerIndex = 0, bannerInterval;
 function setupBannerCarousel() {
     const slides = document.getElementById('bannerSlides');
@@ -477,7 +461,7 @@ function setupBannerCarousel() {
 }
 
 // ============================================
-// SELLER CACHE (READ)
+// SELLER CACHE
 // ============================================
 const sellerCache = new Map();
 async function getSellerName(sellerId) {
@@ -497,7 +481,7 @@ async function getSellerName(sellerId) {
 }
 
 // ============================================
-// LOAD PRODUCTS (READ + FILTER MANUAL)
+// LOAD PRODUCTS
 // ============================================
 async function loadProducts(tab = 'new') {
     currentTab = tab;
@@ -506,7 +490,6 @@ async function loadProducts(tab = 'new') {
         let products = [];
         for (const docSnap of snap.docs) {
             const data = docSnap.data();
-            // Filter published (manual, karena where() diabaikan)
             if (data.status !== 'published') continue;
             const sellerName = await getSellerName(data.sellerId);
             products.push({
@@ -517,12 +500,10 @@ async function loadProducts(tab = 'new') {
             });
         }
 
-        // Filter per tab (manual)
         if (tab === 'trending') products = products.filter(p => p.isTrending);
         else if (tab === 'bestseller') products = products.filter(p => p.isBestSeller);
         else if (tab === 'premium') products = products.filter(p => p.isPremium);
 
-        // Sort manual
         let sortField = 'createdAtDate';
         if (tab === 'trending') sortField = 'views';
         else if (tab === 'bestseller') sortField = 'sales';
@@ -604,61 +585,6 @@ searchInput.addEventListener('input', (e) => {
 });
 
 // ============================================
-// UPDATE ORDER (WRITE)
-// ============================================
-async function updateOrderStatus(orderDocId, status, result) {
-    try {
-        await updateDoc(doc(db, 'orders', orderDocId), {
-            paymentStatus: status,
-            status: status === 'settlement' ? 'paid' : status,
-            midtransResult: result || null,
-            updatedAt: serverTimestamp()
-        });
-        return true;
-    } catch (e) { console.error('Update order error:', e); return false; }
-}
-
-// ============================================
-// UPDATE WALLET (WRITE — partial update manual)
-// ============================================
-async function updateSellerWallet(sellerId, amount) {
-    if (!sellerId) return;
-    try {
-        const snap = await getDoc(doc(db, 'users', sellerId));
-        if (!snap.exists()) return;
-        const sellerData = snap.data();
-        const wallet = sellerData.wallet || { available:0, holding:0, totalRevenue:0 };
-
-        // Ambil setting holding
-        let holdingMs = 0;
-        try {
-            const setSnap = await getDoc(doc(db, 'settings', 'marketplace'));
-            if (setSnap.exists()) {
-                const s = setSnap.data();
-                holdingMs = ((s.holdingDays||0)*86400000) + ((s.holdingHours||0)*3600000) + ((s.holdingMinutes||0)*60000);
-            }
-        } catch(e) {}
-
-        let newAvailable = wallet.available || 0;
-        let newHolding = wallet.holding || 0;
-        if (holdingMs === 0) newAvailable += amount;
-        else newHolding += amount;
-
-        // Update — kirim data lengkap (karena updateDoc = replace)
-        await updateDoc(doc(db, 'users', sellerId), {
-            ...sellerData,
-            wallet: {
-                ...wallet,
-                available: newAvailable,
-                holding: newHolding,
-                totalRevenue: (wallet.totalRevenue || 0) + amount
-            },
-            updatedAt: serverTimestamp()
-        });
-    } catch (e) { console.error('Wallet error:', e); }
-}
-
-// ============================================
 // BUY NOW
 // ============================================
 window.buyNow = async function(productId) {
@@ -684,7 +610,7 @@ checkoutModal.addEventListener('click', (e) => { if (e.target === e.currentTarge
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && checkoutModal.classList.contains('open')) closeCheckoutModal(); });
 
 // ============================================
-// CHECKOUT FORM (CREATE order + Midtrans)
+// CHECKOUT FORM — Redirect ke /payment
 // ============================================
 document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -716,8 +642,9 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e) => 
 
         const orderId = `PK-${Date.now()}-${Math.random().toString(36).substring(2,8).toUpperCase()}`;
 
-        // CREATE order (POST ke API)
-        const orderDoc = await addDoc(collection(db, 'orders'), {
+        // CREATE order di SQLite
+        await addDoc(collection(db, 'orders'), {
+            id: orderId,
             orderId,
             productId: currentProductId,
             productName: product.name || product.nama,
@@ -730,69 +657,16 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e) => 
             status: 'pending',
             paymentStatus: 'pending',
             type: 'product_purchase',
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
         });
-        console.log('✅ Order created:', orderDoc.id);
-
-        // Request Midtrans token
-        const response = await fetch('/api/payment/create', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                orderId,
-                amount: product.price || product.harga,
-                buyerName: name,
-                buyerEmail: email,
-                buyerPhone: phone || '08123456789',
-                productName: product.name || product.nama
-            })
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Gagal membuat pembayaran');
+        console.log('✅ Order created:', orderId);
 
         closeCheckoutModal();
 
-        if (data.token && typeof snap !== 'undefined') {
-            window.snap.pay(data.token, {
-                onSuccess: async function(result) {
-                    showToast('success', '🎉 Pembayaran berhasil!');
-                    await updateOrderStatus(orderDoc.id, 'settlement', result);
-                    // Update stok + sales (kirim data lengkap)
-                    try {
-                        const currentStock = product.stock;
-                        await updateDoc(doc(db, 'products', currentProductId), {
-                            ...product,
-                            stock: currentStock === 'unlimited' ? 'unlimited' : (parseInt(currentStock)||0) - 1,
-                            sales: (product.sales||0) + 1,
-                            updatedAt: serverTimestamp()
-                        });
-                    } catch(e) { console.error('Stock error:', e); }
-                    if (product.sellerId) await updateSellerWallet(product.sellerId, product.price || product.harga);
-                    setTimeout(() => { window.location.href = `/success.html?order=${orderId}&status=success`; }, 1500);
-                },
-                onPending: async function(result) {
-                    showToast('info', '⏳ Menunggu pembayaran...');
-                    await updateOrderStatus(orderDoc.id, 'pending', result);
-                    setTimeout(() => { window.location.href = `/success.html?order=${orderId}&status=pending`; }, 1500);
-                },
-                onError: async function(result) {
-                    showToast('error', '❌ Pembayaran gagal');
-                    await updateOrderStatus(orderDoc.id, 'failed', result);
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
-                },
-                onClose: function() {
-                    showToast('info', 'Pembayaran dibatalkan');
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
-                }
-            });
-        } else if (data.redirect_url) {
-            window.location.href = data.redirect_url;
-        } else {
-            throw new Error('Metode pembayaran tidak tersedia');
-        }
+        // Redirect ke halaman pembayaran QRIS
+        window.location.href = `/payment?order=${orderId}&amount=${product.price || product.harga}`;
+
     } catch (error) {
         console.error('❌ Checkout error:', error);
         errorEl.className = 'error-message show';
