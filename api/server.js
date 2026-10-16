@@ -241,25 +241,74 @@ app.get('/api/payment/health', async (req, res) => {
 });
 
 // ============================================
+// AUTO-CLEANUP: hapus order pending > 30 menit
+// ============================================
+const EXPIRY_MINUTES = 30;
+const CLEANUP_INTERVAL_MS = 60 * 1000; // cek tiap 1 menit
+
+function cleanupExpiredOrders() {
+    try {
+        ensureTable('orders');
+        const cutoff = Date.now() - EXPIRY_MINUTES * 60 * 1000;
+        const rows = db.prepare('SELECT * FROM orders').all();
+        let deleted = 0;
+
+        for (const row of rows) {
+            let obj;
+            try { obj = JSON.parse(row.data || '{}'); } catch(e) { continue; }
+
+            // Hanya hapus order yang masih pending
+            const status = obj.paymentStatus || obj.status;
+            if (status !== 'pending') continue;
+
+            // Waktu dibuat
+            const createdStr = obj.createdAt || obj.created_at || row.created_at;
+            const createdMs = new Date(createdStr).getTime();
+            if (isNaN(createdMs)) continue;
+
+            if (createdMs < cutoff) {
+                db.prepare('DELETE FROM orders WHERE id = ?').run(row.id);
+                deleted++;
+                console.log(`🗑️ Order expired dihapus: ${row.id} (dibuat ${new Date(createdMs).toISOString()})`);
+            }
+        }
+
+        if (deleted > 0) console.log(`✅ Cleanup selesai: ${deleted} order dihapus`);
+    } catch (e) {
+        console.error('Cleanup error:', e);
+    }
+}
+
+// Endpoint manual trigger (opsional, untuk admin/testing)
+app.post('/api/orders/cleanup', (req, res) => {
+    try {
+        cleanupExpiredOrders();
+        res.json({ ok: true, message: 'Cleanup dijalankan' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Jalankan sekali saat start
+cleanupExpiredOrders();
+// Lalu berkala tiap 1 menit
+setInterval(cleanupExpiredOrders, CLEANUP_INTERVAL_MS);
+
+// ============================================
 // HTML ROUTES — CLEAN URL (WAJIB DI ATAS FALLBACK)
 // ============================================
 
-// Root
 app.get('/', (req, res) => res.sendFile(path.join(publicDir, 'index.html')));
 
-// Payment
 app.get('/payment.html', (req, res) => res.redirect(301, '/payment'));
 app.get('/payment', (req, res) => res.sendFile(path.join(publicDir, 'payment.html')));
 
-// Success
 app.get('/success.html', (req, res) => res.redirect(301, '/success'));
 app.get('/success', (req, res) => res.sendFile(path.join(publicDir, 'success.html')));
 
-// Cek order
 app.get('/cek-order.html', (req, res) => res.redirect(301, '/cek-order'));
 app.get('/cek-order', (req, res) => res.sendFile(path.join(publicDir, 'cek-order.html')));
 
-// Product seller
 app.get('/product-seller.html', (req, res) => res.redirect(301, '/product-seller'));
 app.get('/product-seller', (req, res) => res.sendFile(path.join(publicDir, 'product-seller.html')));
 
@@ -287,11 +336,7 @@ app.get('/admin/withdrawals', (req, res) => res.sendFile(path.join(publicDir, 'p
 // ===== GENERIC CLEAN URL — /namafile -> namafile.html =====
 app.get('/:page', (req, res, next) => {
   const page = req.params.page;
-
-  // Skip kalau ada ekstensi (.css, .js, .png, dll)
   if (page.includes('.')) return next();
-
-  // Skip prefix khusus yang sudah di-handle di atas
   if (['seller','admin','api','payment','success','cek-order','product-seller'].includes(page)) return next();
 
   const filePath = path.join(publicDir, page + '.html');
@@ -307,5 +352,9 @@ app.get('*', (req, res) => {
   });
 });
 
-const PORT = 3001;
-app.listen(PORT, () => console.log('API jalan di port ' + PORT));
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log('🚀 API jalan di port ' + PORT);
+  console.log('🔗 Gateway: ' + GATEWAY_URL);
+  console.log('🧹 Cleanup: order pending > ' + EXPIRY_MINUTES + ' menit, cek tiap ' + (CLEANUP_INTERVAL_MS/1000) + ' detik');
+});
