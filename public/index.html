@@ -13,886 +13,95 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script data-client-key="Mid-client-OkRCJi3x4-wno9XX" src="https://app.midtrans.com/snap/snap.js"></script>
 <style>
-    /* =========================================================
-       ENGINEERED BRUTALISM — v2
-       Palet: Hijau (lime), Kuning (amber), Biru (cyan-blue)
-       Filosofi: Tactile, presisi, bukan "AI slop".
-       Setiap elemen punya alasan struktural.
-       ========================================================= */
-
-    /* ---------- LIGHT THEME (default) ---------- */
-    :root,
-    [data-theme="light"] {
-        --bg:           #F4F1E8;   /* kertas koran hangat */
-        --bg-grid:      rgba(0, 0, 0, 0.055);
-        --surface:      #FFFFFF;
-        --surface-2:    #FAF8F0;
-        --ink:          #0A0A0A;   /* hitam tinta */
-        --ink-muted:    #4A4A4A;
-        --ink-soft:     #7A7A7A;
-
-        /* Aksen utama — hijau limau */
-        --lime:         #C4F000;
-        --lime-deep:    #9BC400;
-        --lime-shadow:  #0A0A0A;
-
-        /* Aksen kuning */
-        --amber:        #FFC400;
-        --amber-deep:   #D9A300;
-
-        /* Aksen biru */
-        --blue:         #2B6FFF;
-        --blue-deep:    #1E4FCC;
-        --blue-soft:    #E6EEFF;
-
-        --border:       #0A0A0A;
-        --border-width: 2px;
-        --shadow-color: #0A0A0A;
-        --shadow-x:     4px;
-        --shadow-y:     4px;
-
-        --grid-line:    rgba(0, 0, 0, 0.08);
-        --nav-bg:       #F4F1E8;
-    }
-
-    /* ---------- DARK THEME ---------- */
-    [data-theme="dark"] {
-        --bg:           #0B0B0D;
-        --bg-grid:      rgba(255, 255, 255, 0.045);
-        --surface:      #16161A;
-        --surface-2:    #1E1E24;
-        --ink:          #F5F3EC;
-        --ink-muted:    #B8B8C0;
-        --ink-soft:     #8A8A92;
-
-        --lime:         #C4F000;
-        --lime-deep:    #A8D400;
-        --lime-shadow:  #FFFFFF;
-
-        --amber:        #FFC400;
-        --amber-deep:   #E0AC00;
-
-        --blue:         #4D8BFF;
-        --blue-deep:    #2B6FFF;
-        --blue-soft:    #1A2540;
-
-        --border:       #F5F3EC;
-        --border-width: 2px;
-        --shadow-color: #F5F3EC;
-        --shadow-x:     4px;
-        --shadow-y:     4px;
-
-        --grid-line:    rgba(255, 255, 255, 0.06);
-        --nav-bg:       #0B0B0D;
-    }
-
-    /* ---------- Reset & Base ---------- */
-    * {
-        scroll-behavior: smooth;
-        box-sizing: border-box;
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    html {
-        scroll-padding-top: 100px;
-    }
-
-    body {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        background-color: var(--bg);
-        color: var(--ink);
-        margin: 0;
-        line-height: 1.6;
-        overflow-x: hidden;
-        transition: background-color 0.35s ease, color 0.35s ease;
-        /* Grid teknis — sudut tajam, bukan blob */
-        background-image:
-            linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
-            linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
-        background-size: 28px 28px;
-        background-attachment: fixed;
-        font-feature-settings: "ss01", "cv01", "cv11";
-    }
-
-    /* Tekstur noise halus untuk menghindari flat AI-look */
-    body::before {
-        content: "";
-        position: fixed;
-        inset: 0;
-        pointer-events: none;
-        z-index: 1;
-        opacity: 0.035;
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    }
-
-    .font-mono-tag {
-        font-family: 'Space Mono', monospace, sans-serif;
-    }
-
-    .font-display {
-        font-family: 'Archivo Black', 'Inter', sans-serif;
-        letter-spacing: -0.02em;
-    }
-
-    /* ---------- Neo Tag ---------- */
-    .neo-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: var(--lime);
-        color: #0A0A0A;
-        font-weight: 900;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.9px;
-        padding: 6px 14px;
-        border: var(--border-width) solid var(--border);
-        box-shadow: 3px 3px 0px var(--shadow-color);
-        font-family: 'Space Mono', monospace;
-        transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .neo-tag.amber { background: var(--amber); }
-    .neo-tag.blue  { background: var(--blue); color: #FFFFFF; }
-
-    /* ---------- Navbar ---------- */
-    .navbar {
-        position: fixed;
-        top: 0; left: 0; right: 0;
-        z-index: 1000;
-        height: 76px;
-        background: var(--nav-bg);
-        border-bottom: var(--border-width) solid var(--border);
-        transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.35s, border-color 0.35s;
-    }
-
-    .nav-scrolled {
-        box-shadow: 0 5px 0px var(--lime);
-    }
-
-    .nav-link {
-        position: relative;
-        font-size: 13px;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
-        color: var(--ink);
-        text-decoration: none;
-        padding: 6px 2px;
-        transition: color 0.15s;
-    }
-    .nav-link::after {
-        content: "";
-        position: absolute;
-        left: 0; right: 100%;
-        bottom: 0;
-        height: 3px;
-        background: var(--lime);
-        transition: right 0.22s cubic-bezier(.7,0,.3,1);
-    }
-    .nav-link:hover::after { right: 0; }
-    .nav-link:hover { color: var(--blue); }
-    .nav-link.active { color: var(--blue); }
-    .nav-link.active::after { right: 0; background: var(--blue); }
-
-    /* ---------- Theme Toggle ---------- */
-    .theme-toggle {
-        width: 42px;
-        height: 42px;
-        border: var(--border-width) solid var(--border);
-        background: var(--surface);
-        color: var(--ink);
-        box-shadow: 3px 3px 0px var(--shadow-color);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.1s, box-shadow 0.1s, background 0.2s, color 0.2s, border-color 0.2s;
-        position: relative;
-        overflow: hidden;
-    }
-    .theme-toggle:hover {
-        transform: translate(-2px, -2px);
-        box-shadow: 5px 5px 0px var(--blue);
-        background: var(--blue);
-        color: #FFFFFF;
-        border-color: var(--blue);
-    }
-    .theme-toggle:active {
-        transform: translate(2px, 2px);
-        box-shadow: 1px 1px 0px var(--shadow-color);
-    }
-    .theme-toggle .icon-sun,
-    .theme-toggle .icon-moon {
-        position: absolute;
-        transition: transform 0.35s cubic-bezier(.7,0,.3,1), opacity 0.2s;
-        font-size: 20px;
-    }
-    [data-theme="dark"] .theme-toggle .icon-sun { transform: translateY(0) rotate(0); opacity: 1; }
-    [data-theme="dark"] .theme-toggle .icon-moon { transform: translateY(30px) rotate(90deg); opacity: 0; }
-    [data-theme="light"] .theme-toggle .icon-sun { transform: translateY(-30px) rotate(-90deg); opacity: 0; }
-    [data-theme="light"] .theme-toggle .icon-moon { transform: translateY(0) rotate(0); opacity: 1; }
-
-    /* ---------- Buttons ---------- */
-    .btn {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        font-family: 'Inter', sans-serif;
-        font-weight: 900;
-        font-size: 13px;
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
-        padding: 12px 22px;
-        border: var(--border-width) solid var(--border);
-        border-radius: 0;
-        cursor: pointer;
-        text-decoration: none;
-        transition: transform 0.09s ease, box-shadow 0.09s ease, background 0.15s, color 0.15s, border-color 0.15s;
-        white-space: nowrap;
-    }
-    .btn-primary {
-        background: var(--lime);
-        color: #0A0A0A;
-        box-shadow: var(--shadow-x) var(--shadow-y) 0px var(--shadow-color);
-    }
-    .btn-primary:hover {
-        transform: translate(-3px, -3px);
-        box-shadow: 7px 7px 0px var(--shadow-color);
-        background: var(--amber);
-    }
-    .btn-primary:active {
-        transform: translate(2px, 2px);
-        box-shadow: 1px 1px 0px var(--shadow-color);
-    }
-    .btn-primary:disabled {
-        opacity: 0.55;
-        cursor: not-allowed;
-        transform: none !important;
-        box-shadow: 2px 2px 0px var(--shadow-color);
-    }
-
-    .btn-secondary {
-        background: var(--surface);
-        color: var(--ink);
-        box-shadow: var(--shadow-x) var(--shadow-y) 0px var(--shadow-color);
-    }
-    .btn-secondary:hover {
-        transform: translate(-3px, -3px);
-        box-shadow: 7px 7px 0px var(--blue);
-        border-color: var(--blue);
-        color: var(--blue);
-    }
-    .btn-secondary:active {
-        transform: translate(2px, 2px);
-        box-shadow: 1px 1px 0px var(--blue);
-    }
-
-    .btn-blue {
-        background: var(--blue);
-        color: #FFFFFF;
-        box-shadow: var(--shadow-x) var(--shadow-y) 0px var(--shadow-color);
-    }
-    .btn-blue:hover {
-        transform: translate(-3px, -3px);
-        box-shadow: 7px 7px 0px var(--shadow-color);
-        background: var(--blue-deep);
-    }
-
-    /* ---------- Stat Card ---------- */
-    .stat-card {
-        background: var(--surface);
-        border: var(--border-width) solid var(--border);
-        box-shadow: var(--shadow-x) var(--shadow-y) 0px var(--shadow-color);
-        padding: 22px 16px;
-        text-align: center;
-        position: relative;
-        transition: transform 0.12s, box-shadow 0.12s, background 0.35s, border-color 0.35s;
-    }
-    .stat-card::before {
-        content: "";
-        position: absolute;
-        top: -2px; left: -2px;
-        width: 18px; height: 18px;
-        background: var(--amber);
-        border-right: var(--border-width) solid var(--border);
-        border-bottom: var(--border-width) solid var(--border);
-        transition: background 0.35s, border-color 0.35s;
-    }
-    .stat-card:hover {
-        transform: translate(-3px, -3px);
-        box-shadow: 7px 7px 0px var(--blue);
-        border-color: var(--blue);
-    }
-
-    /* ---------- Feature Box ---------- */
-    .feature-box {
-        background: var(--surface);
-        border: var(--border-width) solid var(--border);
-        box-shadow: var(--shadow-x) var(--shadow-y) 0px var(--shadow-color);
-        padding: 26px;
-        position: relative;
-        transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s, background 0.35s;
-    }
-    .feature-box::after {
-        content: "";
-        position: absolute;
-        bottom: 8px; right: 8px;
-        width: 6px; height: 6px;
-        background: var(--border);
-        box-shadow: -12px 0 0 var(--border), -24px 0 0 var(--border);
-        transition: background 0.35s;
-    }
-    .feature-box:hover { transform: translate(-3px, -3px); }
-    .feature-box.f1:hover { box-shadow: 7px 7px 0px var(--lime);  border-color: var(--lime); }
-    .feature-box.f2:hover { box-shadow: 7px 7px 0px var(--amber); border-color: var(--amber); }
-    .feature-box.f3:hover { box-shadow: 7px 7px 0px var(--blue);  border-color: var(--blue); }
-    .feature-box.f4:hover { box-shadow: 7px 7px 0px var(--lime);  border-color: var(--lime); }
-
-    .feature-icon {
-        width: 52px;
-        height: 52px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: var(--border-width) solid var(--border);
-        box-shadow: 3px 3px 0px var(--shadow-color);
-        margin-bottom: 20px;
-        transition: transform 0.15s, box-shadow 0.15s, background 0.35s, border-color 0.35s;
-    }
-    .feature-box:hover .feature-icon {
-        transform: translate(-2px, -2px) rotate(-4deg);
-        box-shadow: 5px 5px 0px var(--shadow-color);
-    }
-    .feature-icon.lime  { background: var(--lime);  color: #0A0A0A; }
-    .feature-icon.amber { background: var(--amber); color: #0A0A0A; }
-    .feature-icon.blue  { background: var(--blue);  color: #FFFFFF; }
-
-    /* ---------- Product Card ---------- */
-    .product-card {
-        background: var(--surface);
-        border: var(--border-width) solid var(--border);
-        box-shadow: var(--shadow-x) var(--shadow-y) 0px var(--shadow-color);
-        transition: transform 0.14s cubic-bezier(.7,0,.3,1), box-shadow 0.14s, border-color 0.14s, background 0.35s;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        cursor: pointer;
-    }
-    .product-card:hover {
-        transform: translate(-4px, -4px);
-        box-shadow: 9px 9px 0px var(--lime);
-        border-color: var(--lime);
-    }
-    .product-card::before {
-        content: "";
-        position: absolute;
-        top: 8px; left: 8px;
-        width: 8px; height: 8px;
-        border-radius: 50%;
-        background: var(--amber);
-        border: 1.5px solid var(--border);
-        z-index: 5;
-        transition: background 0.35s, border-color 0.35s;
-    }
-
-    .product-image {
-        position: relative;
-        height: 190px;
-        overflow: hidden;
-        background: var(--surface-2);
-        border-bottom: var(--border-width) solid var(--border);
-        transition: border-color 0.35s;
-    }
-    .product-image img {
-        width: 100%; height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s cubic-bezier(.7,0,.3,1), filter 0.3s;
-        filter: contrast(1.03) saturate(1.05);
-    }
-    .product-card:hover .product-image img {
-        transform: scale(1.06);
-    }
-
-    .badge {
-        position: absolute;
-        top: 10px; right: 10px;
-        background: var(--amber);
-        color: #0A0A0A;
-        font-size: 10px;
-        font-weight: 900;
-        text-transform: uppercase;
-        padding: 4px 9px;
-        border: 1.5px solid #0A0A0A;
-        box-shadow: 2px 2px 0px #0A0A0A;
-        letter-spacing: 0.5px;
-        font-family: 'Space Mono', monospace;
-        z-index: 4;
-    }
-    .badge-sold {
-        position: absolute;
-        bottom: 10px; left: 10px;
-        background: var(--ink);
-        border: 1.5px solid var(--bg);
-        color: var(--bg);
-        font-size: 10px;
-        font-weight: 800;
-        padding: 3px 8px;
-        box-shadow: 2px 2px 0px var(--bg);
-        font-family: 'Space Mono', monospace;
-        z-index: 4;
-        transition: background 0.35s, border-color 0.35s, color 0.35s;
-    }
-
-    .product-body {
-        padding: 18px;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-    }
-    .product-name {
-        font-size: 16px;
-        font-weight: 900;
-        color: var(--ink);
-        margin-bottom: 4px;
-        line-height: 1.35;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        transition: color 0.2s;
-    }
-    .product-card:hover .product-name { color: var(--blue); }
-
-    .product-category {
-        font-size: 10px;
-        color: var(--blue);
-        text-transform: uppercase;
-        letter-spacing: 1.2px;
-        font-weight: 800;
-        font-family: 'Space Mono', monospace;
-    }
-    .product-seller {
-        font-size: 12px;
-        color: var(--ink-muted);
-        margin: 8px 0 12px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-weight: 600;
-    }
-    .product-seller i { color: var(--lime-deep); }
-
-    .product-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 14px;
-        padding-top: 12px;
-        border-top: 1.5px dashed var(--ink-soft);
-        margin-top: auto;
-        transition: border-color 0.35s;
-    }
-    .product-price {
-        font-size: 20px;
-        font-weight: 900;
-        color: var(--blue);
-        font-family: 'Space Mono', monospace;
-        letter-spacing: -0.5px;
-    }
-    .product-sales {
-        font-size: 11px;
-        font-weight: 700;
-        color: var(--ink-muted);
-        font-family: 'Space Mono', monospace;
-    }
-
-    .btn-add-cart {
-        width: 100%;
-        background: transparent;
-        color: var(--ink);
-        border: var(--border-width) solid var(--border);
-        padding: 10px;
-        font-weight: 900;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
-        box-shadow: 3px 3px 0px var(--shadow-color);
-        transition: transform 0.08s, box-shadow 0.08s, background 0.15s, color 0.15s, border-color 0.15s;
-        cursor: pointer;
-        font-family: 'Inter', sans-serif;
-    }
-    .btn-add-cart:hover {
-        background: var(--lime);
-        color: #0A0A0A;
-        transform: translate(-2px, -2px);
-        box-shadow: 5px 5px 0px var(--shadow-color);
-    }
-    .btn-add-cart:active {
-        transform: translate(1px, 1px);
-        box-shadow: 1px 1px 0px var(--shadow-color);
-    }
-
-    /* ---------- Tabs ---------- */
-    .tab {
-        padding: 9px 18px;
-        font-size: 12px;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
-        color: var(--ink);
-        background: var(--surface);
-        border: var(--border-width) solid var(--border);
-        box-shadow: 3px 3px 0px var(--shadow-color);
-        cursor: pointer;
-        transition: transform 0.08s, box-shadow 0.08s, background 0.15s, color 0.15s, border-color 0.15s;
-        font-family: 'Inter', sans-serif;
-    }
-    .tab.active {
-        background: var(--blue);
-        color: #FFFFFF;
-        border-color: var(--blue);
-        box-shadow: 4px 4px 0px var(--amber);
-        transform: translate(-2px, -2px);
-    }
-    .tab:hover:not(.active) {
-        background: var(--amber);
-        color: #0A0A0A;
-        transform: translate(-1px, -1px);
-        box-shadow: 4px 4px 0px var(--shadow-color);
-    }
-
-    /* ---------- Modal ---------- */
-    .modal-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.75);
-        backdrop-filter: blur(2px);
-        z-index: 2000;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        animation: fadeIn 0.18s ease-out;
-    }
-    .modal-overlay.open { display: flex; }
-
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    .modal {
-        background: var(--surface);
-        border: 3px solid var(--border);
-        box-shadow: 10px 10px 0px var(--lime);
-        max-width: 480px;
-        width: 100%;
-        padding: 32px;
-        position: relative;
-        animation: modalIn 0.22s cubic-bezier(.7,0,.3,1);
-        transition: background 0.35s, border-color 0.35s;
-    }
-    @keyframes modalIn {
-        from { transform: translate(-6px, -6px); opacity: 0; }
-        to { transform: translate(0, 0); opacity: 1; }
-    }
-
-    .modal-close {
-        position: absolute;
-        top: 12px; right: 12px;
-        background: var(--surface);
-        border: var(--border-width) solid var(--border);
-        color: var(--ink);
-        width: 36px; height: 36px;
-        font-size: 20px;
-        font-weight: 900;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 3px 3px 0px var(--shadow-color);
-        transition: transform 0.08s, box-shadow 0.08s, background 0.15s, color 0.15s;
-        line-height: 1;
-        padding-bottom: 3px;
-    }
-    .modal-close:hover {
-        background: var(--blue);
-        color: #FFFFFF;
-        transform: translate(-2px, -2px);
-        box-shadow: 5px 5px 0px var(--shadow-color);
-    }
-
-    .form-label {
-        display: block;
-        font-size: 11px;
-        font-weight: 900;
-        color: var(--ink);
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        margin-bottom: 6px;
-        font-family: 'Space Mono', monospace;
-    }
-    .form-input {
-        width: 100%;
-        background: var(--bg);
-        border: var(--border-width) solid var(--border);
-        padding: 11px 14px;
-        color: var(--ink);
-        font-weight: 600;
-        font-size: 14px;
-        outline: none;
-        transition: border-color 0.15s, box-shadow 0.15s, background 0.35s;
-        font-family: 'Inter', sans-serif;
-    }
-    .form-input:focus {
-        border-color: var(--blue);
-        box-shadow: 4px 4px 0px var(--blue);
-    }
-    .form-input::placeholder { color: var(--ink-soft); }
-
-    .error-message {
-        display: none;
-        background: #FFE5E5;
-        border: var(--border-width) solid #D40000;
-        color: #8A0000;
-        padding: 10px 14px;
-        font-size: 12px;
-        font-weight: 800;
-        box-shadow: 3px 3px 0px #D40000;
-        margin-top: 4px;
-    }
-    [data-theme="dark"] .error-message {
-        background: #2A0F0F;
-        color: #FFB0B0;
-    }
-    .error-message.show { display: block; }
-
-    /* ---------- Spinner ---------- */
-    .spinner { animation: spin 0.8s linear infinite; display: inline-block; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ---------- Toast ---------- */
-    #toastContainer {
-        position: fixed;
-        bottom: 24px; right: 24px;
-        z-index: 9999;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        max-width: 380px;
-        width: calc(100% - 48px);
-        pointer-events: none;
-    }
-    .toast {
-        pointer-events: auto;
-        background: var(--surface);
-        border: var(--border-width) solid var(--border);
-        box-shadow: 4px 4px 0px var(--shadow-color);
-        padding: 14px 16px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        animation: slideIn 0.22s cubic-bezier(.7,0,.3,1);
-        transition: background 0.35s, border-color 0.35s;
-    }
-    .toast-icon { font-size: 18px; flex-shrink: 0; }
-    .toast-content {
-        flex: 1;
-        font-weight: 700;
-        font-size: 13px;
-        color: var(--ink);
-        line-height: 1.4;
-    }
-    .toast-close {
-        background: none;
-        border: none;
-        color: var(--ink-muted);
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 900;
-        padding: 4px;
-        transition: color 0.15s;
-    }
-    .toast-close:hover { color: var(--blue); }
-
-    @keyframes slideIn {
-        from { transform: translateX(120%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-
-    /* ---------- Banner Carousel ---------- */
-    .banner-carousel {
-        position: relative;
-        border: 3px solid var(--border);
-        box-shadow: 8px 8px 0px var(--amber);
-        overflow: hidden;
-        background: var(--surface);
-        transition: border-color 0.35s, box-shadow 0.35s;
-    }
-    .banner-slides {
-        display: flex;
-        transition: transform 0.5s cubic-bezier(.7,0,.3,1);
-    }
-    .banner-slide {
-        min-width: 100%;
-        position: relative;
-        height: 300px;
-    }
-    .banner-slide img {
-        width: 100%; height: 100%;
-        object-fit: cover;
-    }
-    .banner-slide-content {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        padding: 44px;
-        background: linear-gradient(90deg, rgba(10,10,10,0.94) 0%, rgba(10,10,10,0.72) 55%, rgba(10,10,10,0.25) 100%);
-    }
-    .banner-slide-content h3 {
-        font-family: 'Archivo Black', sans-serif;
-        font-size: 30px;
-        font-weight: 900;
-        color: #FFFFFF;
-        margin-bottom: 8px;
-        letter-spacing: -0.02em;
-        line-height: 1.15;
-    }
-    .banner-slide-content p {
-        color: #D0D0D0;
-        font-size: 15px;
-        font-weight: 600;
-        max-width: 480px;
-    }
-    .banner-slide-content a {
-        display: inline-block;
-        margin-top: 18px;
-        background: var(--lime);
-        color: #0A0A0A;
-        padding: 10px 18px;
-        font-weight: 900;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
-        border: 2px solid #FFFFFF;
-        box-shadow: 3px 3px 0px #FFFFFF;
-        width: fit-content;
-        text-decoration: none;
-        transition: transform 0.1s, box-shadow 0.1s;
-    }
-    .banner-slide-content a:hover {
-        transform: translate(-2px, -2px);
-        box-shadow: 5px 5px 0px #FFFFFF;
-    }
-
-    .banner-btn {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background: var(--surface);
-        border: var(--border-width) solid var(--border);
-        color: var(--ink);
-        width: 42px; height: 42px;
-        box-shadow: 3px 3px 0px var(--shadow-color);
-        font-size: 20px;
-        font-weight: 900;
-        cursor: pointer;
-        transition: transform 0.08s, box-shadow 0.08s, background 0.15s, color 0.15s;
-        z-index: 10;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        line-height: 1;
-        padding-bottom: 4px;
-    }
-    .banner-btn:hover {
-        background: var(--lime);
-        color: #0A0A0A;
-        transform: translateY(-50%) translate(-2px, -2px);
-        box-shadow: 5px 5px 0px var(--shadow-color);
-    }
-    .banner-btn.prev { left: 16px; }
-    .banner-btn.next { right: 16px; }
-
-    .banner-indicators {
-        position: absolute;
-        bottom: 16px; left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        gap: 8px;
-        z-index: 10;
-    }
-    .banner-indicators button {
-        width: 12px; height: 12px;
-        border: 2px solid #FFFFFF;
-        background: rgba(0,0,0,0.5);
-        box-shadow: 2px 2px 0px #FFFFFF;
-        cursor: pointer;
-        transition: width 0.2s, background 0.2s;
-        padding: 0;
-    }
-    .banner-indicators button.active {
-        background: var(--lime);
-        width: 30px;
-    }
-
-    /* ---------- Section Heading Underline ---------- */
-    .wavy-underline {
-        text-decoration: underline;
-        text-decoration-style: wavy;
-        text-decoration-color: var(--amber);
-        text-decoration-thickness: 3px;
-        text-underline-offset: 6px;
-    }
-
-    /* ---------- Marquee strip (detail anti-slop) ---------- */
-    .marquee {
-        overflow: hidden;
-        border-top: var(--border-width) solid var(--border);
-        border-bottom: var(--border-width) solid var(--border);
-        background: var(--lime);
-        padding: 10px 0;
-        white-space: nowrap;
-        transition: background 0.35s, border-color 0.35s;
-    }
-    .marquee-track {
-        display: inline-flex;
-        gap: 40px;
-        animation: marquee 32s linear infinite;
-        font-family: 'Space Mono', monospace;
-        font-weight: 700;
-        font-size: 13px;
-        color: #0A0A0A;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-    }
-    @keyframes marquee {
-        from { transform: translateX(0); }
-        to   { transform: translateX(-50%); }
-    }
-
-    /* ---------- Responsive ---------- */
-    @media (max-width: 768px) {
-        .banner-slide { height: 240px; }
-        .banner-slide-content { padding: 24px; }
-        .banner-slide-content h3 { font-size: 20px; }
-        .banner-slide-content p { font-size: 13px; }
-        .banner-btn { width: 34px; height: 34px; font-size: 16px; }
-        .modal { padding: 22px; }
-        .navbar { height: 68px; }
-        body { background-size: 24px 24px; }
-    }
-
-    /* ---------- Reduced motion ---------- */
-    @media (prefers-reduced-motion: reduce) {
-        *, *::before, *::after {
-            animation-duration: 0.01ms !important;
-            transition-duration: 0.01ms !important;
-        }
-    }
+/* CSS — SAMA SEPERTI ASLINYA, TIDAK DIUBAH */
+:root,[data-theme="light"]{--bg:#F4F1E8;--bg-grid:rgba(0,0,0,.055);--surface:#FFF;--surface-2:#FAF8F0;--ink:#0A0A0A;--ink-muted:#4A4A4A;--ink-soft:#7A7A7A;--lime:#C4F000;--lime-deep:#9BC400;--amber:#FFC400;--amber-deep:#D9A300;--blue:#2B6FFF;--blue-deep:#1E4FCC;--blue-soft:#E6EEFF;--border:#0A0A0A;--border-width:2px;--shadow-color:#0A0A0A;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(0,0,0,.08);--nav-bg:#F4F1E8}
+[data-theme="dark"]{--bg:#0B0B0D;--bg-grid:rgba(255,255,255,.045);--surface:#16161A;--surface-2:#1E1E24;--ink:#F5F3EC;--ink-muted:#B8B8C0;--ink-soft:#8A8A92;--lime:#C4F000;--lime-deep:#A8D400;--amber:#FFC400;--amber-deep:#E0AC00;--blue:#4D8BFF;--blue-deep:#2B6FFF;--blue-soft:#1A2540;--border:#F5F3EC;--border-width:2px;--shadow-color:#F5F3EC;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(255,255,255,.06);--nav-bg:#0B0B0D}
+*{scroll-behavior:smooth;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-padding-top:100px}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-color:var(--bg);color:var(--ink);margin:0;line-height:1.6;overflow-x:hidden;transition:background-color .35s ease,color .35s ease;background-image:linear-gradient(to right,var(--grid-line) 1px,transparent 1px),linear-gradient(to bottom,var(--grid-line) 1px,transparent 1px);background-size:28px 28px;background-attachment:fixed}
+.font-mono-tag{font-family:'Space Mono',monospace,sans-serif}
+.font-display{font-family:'Archivo Black','Inter',sans-serif;letter-spacing:-.02em}
+.neo-tag{display:inline-flex;align-items:center;gap:6px;background:var(--lime);color:#0A0A0A;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:.9px;padding:6px 14px;border:var(--border-width) solid var(--border);box-shadow:3px 3px 0 var(--shadow-color);font-family:'Space Mono',monospace}
+.neo-tag.amber{background:var(--amber)}.neo-tag.blue{background:var(--blue);color:#FFF}
+.navbar{position:fixed;top:0;left:0;right:0;z-index:1000;height:76px;background:var(--nav-bg);border-bottom:var(--border-width) solid var(--border);transition:transform .25s ease,box-shadow .25s ease,background .35s,border-color .35s}
+.nav-scrolled{box-shadow:0 5px 0 var(--lime)}
+.nav-link{position:relative;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--ink);text-decoration:none;padding:6px 2px;transition:color .15s}
+.nav-link::after{content:"";position:absolute;left:0;right:100%;bottom:0;height:3px;background:var(--lime);transition:right .22s cubic-bezier(.7,0,.3,1)}
+.nav-link:hover::after{right:0}.nav-link:hover{color:var(--blue)}
+.nav-link.active{color:var(--blue)}.nav-link.active::after{right:0;background:var(--blue)}
+.theme-toggle{width:42px;height:42px;border:var(--border-width) solid var(--border);background:var(--surface);color:var(--ink);box-shadow:3px 3px 0 var(--shadow-color);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;position:relative;overflow:hidden}
+.theme-toggle:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--blue);background:var(--blue);color:#FFF;border-color:var(--blue)}
+.theme-toggle .icon-sun,.theme-toggle .icon-moon{position:absolute;transition:all .35s;font-size:20px}
+[data-theme="dark"] .theme-toggle .icon-sun{transform:translateY(0) rotate(0);opacity:1}
+[data-theme="dark"] .theme-toggle .icon-moon{transform:translateY(30px) rotate(90deg);opacity:0}
+[data-theme="light"] .theme-toggle .icon-sun{transform:translateY(-30px) rotate(-90deg);opacity:0}
+[data-theme="light"] .theme-toggle .icon-moon{transform:translateY(0) rotate(0);opacity:1}
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.6px;padding:12px 22px;border:var(--border-width) solid var(--border);border-radius:0;cursor:pointer;text-decoration:none;transition:all .09s;white-space:nowrap}
+.btn-primary{background:var(--lime);color:#0A0A0A;box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.btn-primary:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--shadow-color);background:var(--amber)}
+.btn-primary:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--shadow-color)}
+.btn-secondary{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.btn-secondary:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--blue);border-color:var(--blue);color:var(--blue)}
+.stat-card{background:var(--surface);border:var(--border-width) solid var(--border);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color);padding:22px 16px;text-align:center;position:relative;transition:all .12s}
+.stat-card::before{content:"";position:absolute;top:-2px;left:-2px;width:18px;height:18px;background:var(--amber);border-right:var(--border-width) solid var(--border);border-bottom:var(--border-width) solid var(--border)}
+.stat-card:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--blue);border-color:var(--blue)}
+.feature-box{background:var(--surface);border:var(--border-width) solid var(--border);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color);padding:26px;position:relative;transition:all .12s}
+.feature-box:hover{transform:translate(-3px,-3px)}
+.feature-box.f1:hover{box-shadow:7px 7px 0 var(--lime);border-color:var(--lime)}
+.feature-box.f2:hover{box-shadow:7px 7px 0 var(--amber);border-color:var(--amber)}
+.feature-box.f3:hover{box-shadow:7px 7px 0 var(--blue);border-color:var(--blue)}
+.feature-icon{width:52px;height:52px;display:flex;align-items:center;justify-content:center;border:var(--border-width) solid var(--border);box-shadow:3px 3px 0 var(--shadow-color);margin-bottom:20px;transition:all .15s}
+.feature-icon.lime{background:var(--lime);color:#0A0A0A}
+.feature-icon.amber{background:var(--amber);color:#0A0A0A}
+.feature-icon.blue{background:var(--blue);color:#FFF}
+.product-card{background:var(--surface);border:var(--border-width) solid var(--border);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color);transition:all .14s;overflow:hidden;display:flex;flex-direction:column;position:relative;cursor:pointer}
+.product-card:hover{transform:translate(-4px,-4px);box-shadow:9px 9px 0 var(--lime);border-color:var(--lime)}
+.product-image{position:relative;height:190px;overflow:hidden;background:var(--surface-2);border-bottom:var(--border-width) solid var(--border)}
+.product-image img{width:100%;height:100%;object-fit:cover;transition:transform .5s;filter:contrast(1.03) saturate(1.05)}
+.product-card:hover .product-image img{transform:scale(1.06)}
+.badge{position:absolute;top:10px;right:10px;background:var(--amber);color:#0A0A0A;font-size:10px;font-weight:900;text-transform:uppercase;padding:4px 9px;border:1.5px solid #0A0A0A;box-shadow:2px 2px 0 #0A0A0A;letter-spacing:.5px;font-family:'Space Mono',monospace;z-index:4}
+.badge-sold{position:absolute;bottom:10px;left:10px;background:var(--ink);border:1.5px solid var(--bg);color:var(--bg);font-size:10px;font-weight:800;padding:3px 8px;box-shadow:2px 2px 0 var(--bg);font-family:'Space Mono',monospace;z-index:4}
+.product-body{padding:18px;flex:1;display:flex;flex-direction:column}
+.product-name{font-size:16px;font-weight:900;color:var(--ink);margin-bottom:4px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.product-card:hover .product-name{color:var(--blue)}
+.product-category{font-size:10px;color:var(--blue);text-transform:uppercase;letter-spacing:1.2px;font-weight:800;font-family:'Space Mono',monospace}
+.product-seller{font-size:12px;color:var(--ink-muted);margin:8px 0 12px;display:flex;align-items:center;gap:6px;font-weight:600}
+.product-footer{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-top:12px;border-top:1.5px dashed var(--ink-soft);margin-top:auto}
+.product-price{font-size:20px;font-weight:900;color:var(--blue);font-family:'Space Mono',monospace}
+.btn-add-cart{width:100%;background:transparent;color:var(--ink);border:var(--border-width) solid var(--border);padding:10px;font-weight:900;font-size:12px;text-transform:uppercase;letter-spacing:.6px;box-shadow:3px 3px 0 var(--shadow-color);transition:all .08s;cursor:pointer}
+.btn-add-cart:hover{background:var(--lime);color:#0A0A0A;transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--shadow-color)}
+.tab{padding:9px 18px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.6px;color:var(--ink);background:var(--surface);border:var(--border-width) solid var(--border);box-shadow:3px 3px 0 var(--shadow-color);cursor:pointer;transition:all .08s}
+.tab.active{background:var(--blue);color:#FFF;border-color:var(--blue);box-shadow:4px 4px 0 var(--amber);transform:translate(-2px,-2px)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(2px);z-index:2000;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:3px solid var(--border);box-shadow:10px 10px 0 var(--lime);max-width:480px;width:100%;padding:32px;position:relative}
+.modal-close{position:absolute;top:12px;right:12px;background:var(--surface);border:var(--border-width) solid var(--border);color:var(--ink);width:36px;height:36px;font-size:20px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:3px 3px 0 var(--shadow-color)}
+.form-label{display:block;font-size:11px;font-weight:900;color:var(--ink);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;font-family:'Space Mono',monospace}
+.form-input{width:100%;background:var(--bg);border:var(--border-width) solid var(--border);padding:11px 14px;color:var(--ink);font-weight:600;font-size:14px;outline:none}
+.form-input:focus{border-color:var(--blue);box-shadow:4px 4px 0 var(--blue)}
+.error-message{display:none;background:#FFE5E5;border:var(--border-width) solid #D40000;color:#8A0000;padding:10px 14px;font-size:12px;font-weight:800;box-shadow:3px 3px 0 #D40000;margin-top:4px}
+.error-message.show{display:block}
+.spinner{animation:spin .8s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+#toastContainer{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:12px;max-width:380px;width:calc(100% - 48px);pointer-events:none}
+.toast{pointer-events:auto;background:var(--surface);border:var(--border-width) solid var(--border);box-shadow:4px 4px 0 var(--shadow-color);padding:14px 16px;display:flex;align-items:center;gap:12px}
+.toast-icon{font-size:18px;flex-shrink:0}
+.toast-content{flex:1;font-weight:700;font-size:13px;color:var(--ink)}
+.toast-close{background:none;border:none;color:var(--ink-muted);cursor:pointer;font-size:14px;font-weight:900;padding:4px}
+.marquee{overflow:hidden;border-top:var(--border-width) solid var(--border);border-bottom:var(--border-width) solid var(--border);background:var(--lime);padding:10px 0;white-space:nowrap}
+.marquee-track{display:inline-flex;gap:40px;animation:marquee 32s linear infinite;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;color:#0A0A0A;text-transform:uppercase;letter-spacing:1.5px}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.banner-carousel{position:relative;border:3px solid var(--border);box-shadow:8px 8px 0 var(--amber);overflow:hidden;background:var(--surface)}
+.banner-slides{display:flex;transition:transform .5s cubic-bezier(.7,0,.3,1)}
+.banner-slide{min-width:100%;position:relative;height:300px}
+.banner-slide-content{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:44px;background:linear-gradient(90deg,rgba(10,10,10,.94) 0%,rgba(10,10,10,.72) 55%,rgba(10,10,10,.25) 100%)}
+.banner-slide-content h3{font-family:'Archivo Black',sans-serif;font-size:30px;color:#FFF;margin-bottom:8px}
+.banner-slide-content p{color:#D0D0D0;font-size:15px;font-weight:600;max-width:480px}
+.banner-slide-content a{display:inline-block;margin-top:18px;background:var(--lime);color:#0A0A0A;padding:10px 18px;font-weight:900;font-size:12px;text-transform:uppercase;border:2px solid #FFF;box-shadow:3px 3px 0 #FFF;width:fit-content;text-decoration:none}
+.banner-btn{position:absolute;top:50%;transform:translateY(-50%);background:var(--surface);border:var(--border-width) solid var(--border);color:var(--ink);width:42px;height:42px;box-shadow:3px 3px 0 var(--shadow-color);font-size:20px;font-weight:900;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center}
+.banner-btn.prev{left:16px}.banner-btn.next{right:16px}
+.wavy-underline{text-decoration:underline;text-decoration-style:wavy;text-decoration-color:var(--amber);text-decoration-thickness:3px;text-underline-offset:6px}
+@media(max-width:768px){.banner-slide{height:240px}.banner-slide-content{padding:24px}.banner-slide-content h3{font-size:20px}.navbar{height:68px}body{background-size:24px 24px}}
 </style>
 </head>
 <body data-theme="light">
@@ -904,7 +113,6 @@
         <span class="bg-[var(--lime)] text-[#0A0A0A] px-2.5 py-1 border-2 border-[var(--border)] font-black shadow-[2px_2px_0px_var(--shadow-color)]">Product</span>
         <span class="text-[var(--ink)] font-black">Kuu</span>
     </a>
-
     <div class="hidden md:flex items-center gap-5">
         <a class="nav-link active" href="#products">Browse</a>
         <a class="nav-link" href="#products">Trending</a>
@@ -912,22 +120,17 @@
         <a class="nav-link" href="#seller">Jual</a>
         <a class="nav-link" href="#footer">Bantuan</a>
     </div>
-
     <div class="flex items-center gap-2.5">
         <div class="relative hidden lg:block">
             <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--ink)] text-lg pointer-events-none">search</span>
-            <input class="bg-[var(--surface)] border-2 border-[var(--border)] text-[var(--ink)] font-bold placeholder-[var(--ink-soft)] py-2 pl-9 pr-4 text-sm w-52 shadow-[3px_3px_0px_var(--lime)] focus:shadow-[4px_4px_0px_var(--blue)] focus:border-[var(--blue)] outline-none transition-all"
+            <input class="bg-[var(--surface)] border-2 border-[var(--border)] text-[var(--ink)] font-bold placeholder-[var(--ink-soft)] py-2 pl-9 pr-4 text-sm w-52 shadow-[3px_3px_0px_var(--lime)] focus:shadow-[4px_4px_0px_var(--blue)] focus:border-[var(--blue)] outline-none"
                    id="searchInput" placeholder="Cari produk..." type="text"/>
         </div>
-
-        <!-- THEME TOGGLE -->
-        <button class="theme-toggle" id="themeToggle" aria-label="Ganti tema" title="Ganti tema">
+        <button class="theme-toggle" id="themeToggle" aria-label="Ganti tema">
             <span class="material-symbols-outlined icon-sun">light_mode</span>
             <span class="material-symbols-outlined icon-moon">dark_mode</span>
         </button>
-
-        <button class="btn btn-secondary hidden sm:inline-flex !py-2 !px-3.5" onclick="window.location.href='/seller/login'">Masuk</button>
-
+        <button class="btn btn-secondary hidden sm:inline-flex !py-2 !px-3.5" onclick="window.location.href='/pages/seller/login.html'">Masuk</button>
         <button class="btn btn-primary !py-2 !px-3.5" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">
             <span class="material-symbols-outlined text-lg">shopping_cart</span> <span class="hidden sm:inline">Keranjang</span>
         </button>
@@ -940,78 +143,51 @@
 <section class="relative pt-40 pb-20 overflow-hidden" id="home">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center">
     <div class="inline-flex items-center gap-2 mb-8">
-        <span class="neo-tag">
-            <span class="material-symbols-outlined text-sm">bolt</span>
-            PLATFORM MARKETPLACE TERPERCAYA
-        </span>
+        <span class="neo-tag"><span class="material-symbols-outlined text-sm">bolt</span>PLATFORM MARKETPLACE TERPERCAYA</span>
     </div>
-
     <h1 class="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-[var(--ink)] mb-6 leading-[1.05] max-w-5xl mx-auto">
         Marketplace Produk Digital
-        <span class="block mt-3">
-            <span class="relative inline-block">
-                <span class="absolute inset-0 bg-[var(--amber)] border-2 border-[var(--border)] -translate-x-1 translate-y-1"></span>
-                <span class="relative bg-[var(--lime)] text-[#0A0A0A] px-5 py-2 border-2 border-[var(--border)] inline-block" style="transform: rotate(-1deg);">Sanzzdex Store</span>
-            </span>
-        </span>
+        <span class="block mt-3"><span class="relative inline-block">
+            <span class="absolute inset-0 bg-[var(--amber)] border-2 border-[var(--border)] -translate-x-1 translate-y-1"></span>
+            <span class="relative bg-[var(--lime)] text-[#0A0A0A] px-5 py-2 border-2 border-[var(--border)] inline-block" style="transform:rotate(-1deg);">Sanzzdex Store</span>
+        </span></span>
     </h1>
-
     <p class="max-w-2xl mx-auto text-base sm:text-lg text-[var(--ink-muted)] font-medium mb-10 leading-relaxed">
         Temukan dan beli produk digital berkualitas dari seller terbaik di Indonesia.
-        Mulai dari source code, template, hingga aset kreatif profesional.
     </p>
-
     <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-        <a class="btn btn-primary w-full sm:w-auto !py-3.5 !px-7 !text-sm" href="#products">
-            <span class="material-symbols-outlined text-xl">explore</span> Jelajahi Produk
-        </a>
-        <a class="btn btn-secondary w-full sm:w-auto !py-3.5 !px-7 !text-sm" href="#seller">
-            <span class="material-symbols-outlined text-xl">storefront</span> Jadi Seller
-        </a>
+        <a class="btn btn-primary w-full sm:w-auto !py-3.5 !px-7 !text-sm" href="#products"><span class="material-symbols-outlined text-xl">explore</span> Jelajahi Produk</a>
+        <a class="btn btn-secondary w-full sm:w-auto !py-3.5 !px-7 !text-sm" href="#seller"><span class="material-symbols-outlined text-xl">storefront</span> Jadi Seller</a>
     </div>
-
     <div class="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <div class="stat-card">
-            <div class="font-display text-4xl sm:text-5xl text-[var(--blue)] mb-1" id="statProducts">1+</div>
-            <div class="text-[11px] uppercase tracking-[1.5px] font-extrabold text-[var(--ink)] font-mono-tag">Produk Digital</div>
-        </div>
-        <div class="stat-card">
-            <div class="font-display text-4xl sm:text-5xl text-[var(--lime-deep)] mb-1" id="statSellers">0+</div>
-            <div class="text-[11px] uppercase tracking-[1.5px] font-extrabold text-[var(--ink)] font-mono-tag">Seller Aktif</div>
-        </div>
-        <div class="stat-card">
-            <div class="font-display text-4xl sm:text-5xl text-[var(--amber-deep)] mb-1" id="statOrders">0+</div>
-            <div class="text-[11px] uppercase tracking-[1.5px] font-extrabold text-[var(--ink)] font-mono-tag">Transaksi Berhasil</div>
-        </div>
+        <div class="stat-card"><div class="font-display text-4xl sm:text-5xl text-[var(--blue)] mb-1" id="statProducts">-</div><div class="text-[11px] uppercase tracking-[1.5px] font-extrabold text-[var(--ink)] font-mono-tag">Produk Digital</div></div>
+        <div class="stat-card"><div class="font-display text-4xl sm:text-5xl text-[var(--lime-deep)] mb-1" id="statSellers">-</div><div class="text-[11px] uppercase tracking-[1.5px] font-extrabold text-[var(--ink)] font-mono-tag">Seller Aktif</div></div>
+        <div class="stat-card"><div class="font-display text-4xl sm:text-5xl text-[var(--amber-deep)] mb-1" id="statOrders">-</div><div class="text-[11px] uppercase tracking-[1.5px] font-extrabold text-[var(--ink)] font-mono-tag">Transaksi Berhasil</div></div>
     </div>
 </div>
 </section>
 
-<!-- MARQUEE STRIP -->
-<div class="marquee">
-    <div class="marquee-track">
-        <span>★ SOURCE CODE</span><span>◆ TEMPLATE PREMIUM</span><span>● PLUGIN & TOOLS</span>
-        <span>▲ DESIGN ASSETS</span><span>■ COURSE & EBOOK</span><span>✦ PRESET</span>
-        <span>★ SOURCE CODE</span><span>◆ TEMPLATE PREMIUM</span><span>● PLUGIN & TOOLS</span>
-        <span>▲ DESIGN ASSETS</span><span>■ COURSE & EBOOK</span><span>✦ PRESET</span>
-    </div>
-</div>
+<!-- MARQUEE -->
+<div class="marquee"><div class="marquee-track">
+    <span>★ SOURCE CODE</span><span>◆ TEMPLATE PREMIUM</span><span>● PLUGIN & TOOLS</span>
+    <span>▲ DESIGN ASSETS</span><span>■ COURSE & EBOOK</span><span>✦ PRESET</span>
+    <span>★ SOURCE CODE</span><span>◆ TEMPLATE PREMIUM</span><span>● PLUGIN & TOOLS</span>
+    <span>▲ DESIGN ASSETS</span><span>■ COURSE & EBOOK</span><span>✦ PRESET</span>
+</div></div>
 
 <!-- BANNER -->
 <section class="py-16 px-4 sm:px-6">
 <div class="max-w-7xl mx-auto">
     <div class="banner-carousel" id="bannerCarousel">
         <div class="banner-slides" id="bannerSlides">
-            <div class="banner-slide">
-                <div class="banner-slide-content">
-                    <h3>🎉 Selamat Datang di ProductKuu</h3>
-                    <p>Platform marketplace produk digital premium di Indonesia</p>
-                    <a href="#products">Lihat Produk →</a>
-                </div>
-            </div>
+            <div class="banner-slide"><div class="banner-slide-content">
+                <h3>🎉 Selamat Datang di ProductKuu</h3>
+                <p>Platform marketplace produk digital premium di Indonesia</p>
+                <a href="#products">Lihat Produk →</a>
+            </div></div>
         </div>
-        <button class="banner-btn prev" id="prevBanner" aria-label="Previous">‹</button>
-        <button class="banner-btn next" id="nextBanner" aria-label="Next">›</button>
+        <button class="banner-btn prev" id="prevBanner">‹</button>
+        <button class="banner-btn next" id="nextBanner">›</button>
         <div class="banner-indicators" id="bannerIndicators"></div>
     </div>
 </div>
@@ -1022,43 +198,13 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6">
     <div class="text-center mb-14">
         <span class="neo-tag amber mb-4">KENAPA KAMI</span>
-        <h2 class="font-display text-3xl sm:text-5xl text-[var(--ink)] mb-3 mt-3">
-            Kenapa <span class="wavy-underline">ProductKuu</span>?
-        </h2>
-        <p class="text-[var(--ink-muted)] font-semibold max-w-2xl mx-auto">
-            Platform terbaik untuk jual beli produk digital dengan keamanan terjamin.
-        </p>
+        <h2 class="font-display text-3xl sm:text-5xl text-[var(--ink)] mb-3 mt-3">Kenapa <span class="wavy-underline">ProductKuu</span>?</h2>
     </div>
-
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="feature-box f1">
-            <div class="feature-icon lime">
-                <span class="material-symbols-outlined text-2xl">verified_user</span>
-            </div>
-            <h3 class="text-lg font-black text-[var(--ink)] mb-2">Aman & Terpercaya</h3>
-            <p class="text-sm font-medium text-[var(--ink-muted)] leading-relaxed">Setiap transaksi dilindungi sistem keamanan berlapis untuk menjaga privasi Anda.</p>
-        </div>
-        <div class="feature-box f2">
-            <div class="feature-icon amber">
-                <span class="material-symbols-outlined text-2xl">bolt</span>
-            </div>
-            <h3 class="text-lg font-black text-[var(--ink)] mb-2">Proses Cepat</h3>
-            <p class="text-sm font-medium text-[var(--ink-muted)] leading-relaxed">Akses produk langsung melalui dashboard setelah pembayaran dikonfirmasi otomatis.</p>
-        </div>
-        <div class="feature-box f3">
-            <div class="feature-icon blue">
-                <span class="material-symbols-outlined text-2xl">payments</span>
-            </div>
-            <h3 class="text-lg font-black text-[var(--ink)] mb-2">Harga Terjangkau</h3>
-            <p class="text-sm font-medium text-[var(--ink-muted)] leading-relaxed">Dapatkan produk digital berkualitas tinggi dengan harga yang tetap kompetitif.</p>
-        </div>
-        <div class="feature-box f4">
-            <div class="feature-icon lime">
-                <span class="material-symbols-outlined text-2xl">headset_mic</span>
-            </div>
-            <h3 class="text-lg font-black text-[var(--ink)] mb-2">Dukungan 24/7</h3>
-            <p class="text-sm font-medium text-[var(--ink-muted)] leading-relaxed">Tim support profesional kami siap membantu kendala teknis Anda kapan saja.</p>
-        </div>
+        <div class="feature-box f1"><div class="feature-icon lime"><span class="material-symbols-outlined text-2xl">verified_user</span></div><h3 class="text-lg font-black text-[var(--ink)] mb-2">Aman & Terpercaya</h3><p class="text-sm font-medium text-[var(--ink-muted)]">Setiap transaksi dilindungi sistem keamanan berlapis.</p></div>
+        <div class="feature-box f2"><div class="feature-icon amber"><span class="material-symbols-outlined text-2xl">bolt</span></div><h3 class="text-lg font-black text-[var(--ink)] mb-2">Proses Cepat</h3><p class="text-sm font-medium text-[var(--ink-muted)]">Akses produk langsung setelah pembayaran.</p></div>
+        <div class="feature-box f3"><div class="feature-icon blue"><span class="material-symbols-outlined text-2xl">payments</span></div><h3 class="text-lg font-black text-[var(--ink)] mb-2">Harga Terjangkau</h3><p class="text-sm font-medium text-[var(--ink-muted)]">Produk berkualitas dengan harga kompetitif.</p></div>
+        <div class="feature-box f1"><div class="feature-icon lime"><span class="material-symbols-outlined text-2xl">headset_mic</span></div><h3 class="text-lg font-black text-[var(--ink)] mb-2">Dukungan 24/7</h3><p class="text-sm font-medium text-[var(--ink-muted)]">Tim support siap membantu kapan saja.</p></div>
     </div>
 </div>
 </section>
@@ -1070,7 +216,7 @@
         <div>
             <span class="neo-tag blue mb-3">KATALOG PILIHAN</span>
             <h2 class="font-display text-3xl sm:text-5xl text-[var(--ink)] mt-3 mb-2">Produk Terbaru</h2>
-            <p class="text-[var(--ink-muted)] font-semibold">Temukan produk digital terbaik yang baru saja diunggah.</p>
+            <p class="text-[var(--ink-muted)] font-semibold">Temukan produk digital terbaik yang baru diunggah.</p>
         </div>
         <div class="flex flex-wrap gap-3" id="productTabs">
             <button class="tab active" data-tab="new">Terbaru</button>
@@ -1079,9 +225,8 @@
             <button class="tab" data-tab="premium">Premium</button>
         </div>
     </div>
-
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="productsGrid">
-        <div class="col-span-full text-center py-20 border-2 border-dashed border-[var(--ink-soft)] bg-[var(--surface)] shadow-[6px_6px_0px_var(--shadow-color)]">
+        <div class="col-span-full text-center py-20 border-2 border-dashed border-[var(--ink-soft)] bg-[var(--surface)]">
             <span class="material-symbols-outlined spinner text-5xl text-[var(--blue)]">refresh</span>
             <p class="mt-4 font-black text-[var(--ink)] uppercase tracking-wider text-sm">Memuat produk...</p>
         </div>
@@ -1092,20 +237,13 @@
 <!-- SELLER CTA -->
 <section class="py-16 px-4 sm:px-6" id="seller">
 <div class="max-w-7xl mx-auto bg-[var(--ink)] border-4 border-[var(--border)] shadow-[12px_12px_0px_var(--lime)] p-8 sm:p-14 md:p-20 text-center relative overflow-hidden">
-    <div class="absolute inset-0 opacity-[0.06]" style="background-image: repeating-linear-gradient(45deg, #FFF 0, #FFF 1px, transparent 1px, transparent 12px);"></div>
     <div class="relative z-10">
-        <span class="neo-tag" style="background: var(--amber); color:#0A0A0A;">PELUANG BISNIS DIGITAL</span>
+        <span class="neo-tag" style="background:var(--amber);color:#0A0A0A;">PELUANG BISNIS DIGITAL</span>
         <h2 class="font-display text-3xl sm:text-5xl md:text-6xl text-[var(--bg)] mt-6 mb-5">Siap Menjadi Seller?</h2>
-        <p class="max-w-2xl mx-auto text-base sm:text-lg text-[var(--ink-soft)] font-semibold mb-10 leading-relaxed" style="color:#B8B8C0;">
-            Mulai jualan produk digital Anda dan dapatkan penghasilan tambahan dengan jangkauan pasar yang luas di seluruh Indonesia.
-        </p>
+        <p class="max-w-2xl mx-auto text-base sm:text-lg font-semibold mb-10" style="color:#B8B8C0;">Mulai jualan produk digital dan dapatkan penghasilan tambahan.</p>
         <div class="flex flex-col sm:flex-row justify-center gap-4">
-            <a class="btn btn-primary !py-4 !px-8 !text-base" href="/seller/register">
-                <span class="material-symbols-outlined">person_add</span> Daftar Seller
-            </a>
-            <a class="btn btn-secondary !py-4 !px-8 !text-base" href="#products">
-                <span class="material-symbols-outlined">shopping_bag</span> Belanja Produk
-            </a>
+            <a class="btn btn-primary !py-4 !px-8 !text-base" href="/pages/seller/register.html"><span class="material-symbols-outlined">person_add</span> Daftar Seller</a>
+            <a class="btn btn-secondary !py-4 !px-8 !text-base" href="#products"><span class="material-symbols-outlined">shopping_bag</span> Belanja Produk</a>
         </div>
     </div>
 </div>
@@ -1115,160 +253,75 @@
 <!-- FOOTER -->
 <footer class="bg-[var(--ink)] border-t-4 border-[var(--border)] pt-16 pb-10" id="footer">
 <div class="max-w-7xl mx-auto px-4 sm:px-6">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
-        <div class="lg:col-span-2">
-            <h2 class="font-display text-3xl mb-4 flex items-center gap-2">
-                <span class="bg-[var(--lime)] text-[#0A0A0A] px-2.5 py-1 border-2 border-[var(--bg)] shadow-[2px_2px_0px_var(--bg)]">Product</span>
-                <span class="text-[var(--bg)]">Kuu</span>
-            </h2>
-            <p class="font-medium mb-8 max-w-sm text-sm leading-relaxed" style="color:#B8B8C0;">
-                Platform marketplace produk digital premium di Indonesia. Kualitas terjamin untuk kebutuhan digital Anda.
-            </p>
-            <div class="flex gap-3">
-                <a class="w-11 h-11 bg-[var(--lime)] text-[#0A0A0A] border-2 border-[var(--bg)] shadow-[3px_3px_0px_var(--blue)] flex items-center justify-center hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all" href="#" aria-label="Instagram">
-                    <i class="fab fa-instagram text-lg"></i>
-                </a>
-                <a class="w-11 h-11 bg-[var(--amber)] text-[#0A0A0A] border-2 border-[var(--bg)] shadow-[3px_3px_0px_var(--lime)] flex items-center justify-center hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all" href="#" aria-label="Twitter">
-                    <i class="fab fa-twitter text-lg"></i>
-                </a>
-                <a class="w-11 h-11 bg-[var(--blue)] text-[#FFFFFF] border-2 border-[var(--bg)] shadow-[3px_3px_0px_var(--amber)] flex items-center justify-center hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all" href="#" aria-label="Facebook">
-                    <i class="fab fa-facebook text-lg"></i>
-                </a>
-            </div>
-        </div>
-
-        <div>
-            <h4 class="text-[var(--bg)] font-black uppercase tracking-wider text-xs mb-5 border-b-2 border-[var(--lime)] pb-2 inline-block font-mono-tag">Produk</h4>
-            <ul class="space-y-2.5 font-semibold">
-                <li><a class="transition-colors text-sm hover:text-[var(--lime)]" style="color:#B8B8C0;" href="#">Source Code</a></li>
-                <li><a class="transition-colors text-sm hover:text-[var(--lime)]" style="color:#B8B8C0;" href="#">Template</a></li>
-                <li><a class="transition-colors text-sm hover:text-[var(--lime)]" style="color:#B8B8C0;" href="#">Plugin</a></li>
-                <li><a class="transition-colors text-sm hover:text-[var(--lime)]" style="color:#B8B8C0;" href="#">Preset</a></li>
-            </ul>
-        </div>
-        <div>
-            <h4 class="text-[var(--bg)] font-black uppercase tracking-wider text-xs mb-5 border-b-2 border-[var(--amber)] pb-2 inline-block font-mono-tag">Tentang</h4>
-            <ul class="space-y-2.5 font-semibold">
-                <li><a class="transition-colors text-sm hover:text-[var(--amber)]" style="color:#B8B8C0;" href="#">Tentang Kami</a></li>
-                <li><a class="transition-colors text-sm hover:text-[var(--amber)]" style="color:#B8B8C0;" href="#">Kontak</a></li>
-                <li><a class="transition-colors text-sm hover:text-[var(--amber)]" style="color:#B8B8C0;" href="#">Syarat & Ketentuan</a></li>
-                <li><a class="transition-colors text-sm hover:text-[var(--amber)]" style="color:#B8B8C0;" href="#">Kebijakan Privasi</a></li>
-            </ul>
-        </div>
-        <div>
-            <h4 class="text-[var(--bg)] font-black uppercase tracking-wider text-xs mb-5 border-b-2 border-[var(--blue)] pb-2 inline-block font-mono-tag">Bantuan</h4>
-            <ul class="space-y-2.5 font-semibold">
-                <li><a class="transition-colors text-sm hover:text-[var(--blue)]" style="color:#B8B8C0;" href="#">Cek Order</a></li>
-                <li><a class="transition-colors text-sm hover:text-[var(--blue)]" style="color:#B8B8C0;" href="#">FAQ</a></li>
-                <li><a class="transition-colors text-sm hover:text-[var(--blue)]" style="color:#B8B8C0;" href="#">Jadi Seller</a></li>
-                <li><a class="transition-colors text-sm hover:text-[var(--blue)]" style="color:#B8B8C0;" href="#">Help Center</a></li>
-            </ul>
-        </div>
-    </div>
     <div class="pt-6 border-t-2 border-[rgba(184,184,192,0.25)] flex flex-col md:flex-row justify-between items-center gap-4">
         <p class="text-sm font-semibold" style="color:#8A8A92;">© 2026 Sanzzdex Store. All rights reserved.</p>
-        <div class="flex gap-6 font-semibold">
-            <a class="text-xs transition-colors hover:text-[var(--bg)]" style="color:#8A8A92;" href="#">Privacy</a>
-            <a class="text-xs transition-colors hover:text-[var(--bg)]" style="color:#8A8A92;" href="#">Terms</a>
-        </div>
     </div>
 </div>
 </footer>
 
-<!-- TOASTS -->
 <div id="toastContainer"></div>
 
 <!-- CHECKOUT MODAL -->
 <div class="modal-overlay" id="checkoutModal">
 <div class="modal">
-    <button class="modal-close" onclick="closeCheckoutModal()" aria-label="Close">×</button>
+    <button class="modal-close" onclick="closeCheckoutModal()">×</button>
     <span class="neo-tag blue mb-4">CHECKOUT</span>
     <h3 class="font-display text-2xl text-[var(--ink)] mb-5 mt-3">Detail Pembelian</h3>
-
     <div class="bg-[var(--bg)] border-2 border-[var(--border)] p-4 mb-5 shadow-[4px_4px_0px_var(--blue)]">
         <p class="text-[var(--ink)] font-extrabold text-sm mb-1" id="checkoutProductName">-</p>
         <p class="text-2xl font-black text-[var(--blue)] font-mono-tag" id="checkoutProductPrice">Rp0</p>
     </div>
-
     <form id="checkoutForm">
         <div class="space-y-4">
-            <div>
-                <label class="form-label" for="checkoutName">Nama Lengkap *</label>
-                <input class="form-input" id="checkoutName" placeholder="Masukkan nama Anda" required type="text"/>
-            </div>
-            <div>
-                <label class="form-label" for="checkoutEmail">Email Aktif *</label>
-                <input class="form-input" id="checkoutEmail" placeholder="email@contoh.com" required type="email"/>
-            </div>
-            <div>
-                <label class="form-label" for="checkoutPhone">Nomor WhatsApp</label>
-                <input class="form-input" id="checkoutPhone" placeholder="08123456789" type="tel"/>
-            </div>
+            <div><label class="form-label" for="checkoutName">Nama Lengkap *</label><input class="form-input" id="checkoutName" required type="text"/></div>
+            <div><label class="form-label" for="checkoutEmail">Email Aktif *</label><input class="form-input" id="checkoutEmail" required type="email"/></div>
+            <div><label class="form-label" for="checkoutPhone">Nomor WhatsApp</label><input class="form-input" id="checkoutPhone" type="tel"/></div>
             <div class="error-message" id="checkoutError"></div>
-            <button class="btn btn-primary w-full !py-3.5 !text-sm mt-2" id="checkoutBtn" type="submit">
-                <i class="fas fa-credit-card"></i> Bayar Sekarang
-            </button>
+            <button class="btn btn-primary w-full !py-3.5 !text-sm mt-2" id="checkoutBtn" type="submit"><i class="fas fa-credit-card"></i> Bayar Sekarang</button>
         </div>
     </form>
 </div>
 </div>
 
-<!-- SCRIPTS -->
+<!-- ============================================
+     IMPORTMAP — PENTING!
+     firebase/firestore → diarahkan ke adapter kita
+     ============================================ -->
 <script type="importmap">
 {
-    "imports": {
-        "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
-        "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js",
-        "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"
-    }
+  "imports": {
+    "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
+    "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js",
+    "firebase/firestore": "/js/firebase-config.js"
+  }
 }
 </script>
+
 <script type="module">
 // ============================================
-// THEME TOGGLE (dijalankan lebih awal agar tidak flash)
+// THEME
 // ============================================
 (function() {
     const saved = localStorage.getItem('pk-theme');
-    if (saved === 'dark' || saved === 'light') {
-        document.documentElement.setAttribute('data-theme', saved);
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
-        document.documentElement.setAttribute('data-theme', 'light');
-    }
-
-    // Terapkan juga ke body setelah DOM siap
+    if (saved === 'dark' || saved === 'light') document.documentElement.setAttribute('data-theme', saved);
+    else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.setAttribute('data-theme', 'dark');
+    else document.documentElement.setAttribute('data-theme', 'light');
     document.addEventListener('DOMContentLoaded', () => {
-        const theme = document.documentElement.getAttribute('data-theme') || 'light';
-        document.body.setAttribute('data-theme', theme);
+        document.body.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') || 'light');
     });
 })();
 
 // ============================================
-// IMPORTS
+// IMPORT — Auth dari Firebase, Data dari adapter
 // ============================================
-import { initializeApp } from "firebase/app";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, collection, doc, getDoc, getDocs, query, where, addDoc, updateDoc, serverTimestamp, orderBy, limit } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+import {
+  db, collection, doc,
+  getDoc, getDocs, addDoc, updateDoc,
+  query, where, orderBy, limit, serverTimestamp
+} from "firebase/firestore";
 
-console.log('🏠 [HOMEPAGE] Engineered Brutalism v2 loaded');
-
-// ============================================
-// FIREBASE CONFIG
-// ============================================
-const firebaseConfig = {
-    apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
-    authDomain: "productkuu.firebaseapp.com",
-    projectId: "productkuu",
-    storageBucket: "productkuu.firebasestorage.app",
-    messagingSenderId: "6615996108",
-    appId: "1:6615996108:web:daa6e17c1275d3061cd469",
-    measurementId: "G-78ZPLZMFEJ"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+console.log('🏠 [HOMEPAGE] Loaded (DB=SQLite, Auth=Firebase)');
 
 // ============================================
 // STATE
@@ -1277,41 +330,32 @@ let currentProductId = null;
 let allProducts = [];
 let currentTab = 'new';
 
-// ============================================
-// DOM REFS
-// ============================================
+// DOM
 const navbar = document.getElementById('navbar');
 const productsGrid = document.getElementById('productsGrid');
 const searchInput = document.getElementById('searchInput');
-const productTabs = document.getElementById('productTabs');
 const checkoutModal = document.getElementById('checkoutModal');
 const themeToggle = document.getElementById('themeToggle');
 
 // ============================================
-// THEME TOGGLE HANDLER
+// THEME TOGGLE
 // ============================================
 function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     document.body.setAttribute('data-theme', theme);
     localStorage.setItem('pk-theme', theme);
 }
-
 themeToggle?.addEventListener('click', () => {
     const current = document.documentElement.getAttribute('data-theme') || 'light';
-    const next = current === 'dark' ? 'light' : 'dark';
-    applyTheme(next);
-    showToast('info', next === 'dark' ? '🌙 Mode Gelap aktif' : '☀️ Mode Terang aktif');
+    applyTheme(current === 'dark' ? 'light' : 'dark');
 });
 
 // ============================================
 // NAVBAR SCROLL
 // ============================================
-let lastScroll = 0;
 window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset;
-    if (currentScroll > 40) navbar.classList.add('nav-scrolled');
+    if (window.pageYOffset > 40) navbar.classList.add('nav-scrolled');
     else navbar.classList.remove('nav-scrolled');
-    lastScroll = currentScroll;
 });
 
 // ============================================
@@ -1319,37 +363,25 @@ window.addEventListener('scroll', () => {
 // ============================================
 function showToast(type, message) {
     const container = document.getElementById('toastContainer');
-    const icons = {
-        success: 'fa-check-circle',
-        error: 'fa-exclamation-circle',
-        warning: 'fa-exclamation-triangle',
-        info: 'fa-info-circle'
-    };
-    const colors = {
-        success: '#9BC400',
-        error: '#D40000',
-        warning: '#D9A300',
-        info: '#2B6FFF'
-    };
-    const color = colors[type] || '#2B6FFF';
-
+    const icons = { success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
+    const colors = { success:'#9BC400', error:'#D40000', warning:'#D9A300', info:'#2B6FFF' };
+    const color = colors[type] || colors.info;
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.style.borderColor = color;
     toast.style.boxShadow = `4px 4px 0px ${color}`;
     toast.innerHTML = `
-        <span class="toast-icon" style="color:${color}"><i class="fas ${icons[type] || 'fa-info-circle'}"></i></span>
+        <span class="toast-icon" style="color:${color}"><i class="fas ${icons[type]||icons.info}"></i></span>
         <div class="toast-content">${message}</div>
-        <button class="toast-close" aria-label="Close"><i class="fas fa-times"></i></button>
-    `;
+        <button class="toast-close"><i class="fas fa-times"></i></button>`;
     toast.querySelector('.toast-close').addEventListener('click', () => toast.remove());
     container.appendChild(toast);
-    setTimeout(() => { if (toast.parentElement) toast.remove(); }, 5000);
+    setTimeout(() => toast.parentElement && toast.remove(), 5000);
 }
 window.showToast = showToast;
 
 // ============================================
-// FORMAT PRICE
+// FORMAT
 // ============================================
 function formatPrice(price) {
     if (!price && price !== 0) return '0';
@@ -1358,186 +390,153 @@ function formatPrice(price) {
 window.formatPrice = formatPrice;
 
 // ============================================
-// LOAD STATS
+// LOAD STATS (READ)
 // ============================================
 async function loadStats() {
     try {
-        const productsSnapshot = await getDocs(query(collection(db, 'products'), where('status', '==', 'published')));
-        document.getElementById('statProducts').textContent = productsSnapshot.docs.length + '+';
+        // Ambil semua, filter manual (adapter tidak support where)
+        const productsSnap = await getDocs(collection(db, 'products'));
+        const products = productsSnap.docs.map(d => d.data());
+        document.getElementById('statProducts').textContent = products.filter(p => p.status === 'published').length + '+';
 
-        const sellersSnapshot = await getDocs(query(collection(db, 'users'), where('role', '==', 'seller')));
-        document.getElementById('statSellers').textContent = sellersSnapshot.docs.length + '+';
+        const usersSnap = await getDocs(collection(db, 'users'));
+        const users = usersSnap.docs.map(d => d.data());
+        document.getElementById('statSellers').textContent = users.filter(u => u.role === 'seller').length + '+';
 
-        const ordersSnapshot = await getDocs(query(collection(db, 'orders'), where('paymentStatus', '==', 'settlement')));
-        document.getElementById('statOrders').textContent = ordersSnapshot.docs.length + '+';
+        const ordersSnap = await getDocs(collection(db, 'orders'));
+        const orders = ordersSnap.docs.map(d => d.data());
+        document.getElementById('statOrders').textContent = orders.filter(o => o.paymentStatus === 'settlement').length + '+';
     } catch (error) {
         console.error('Stats error:', error);
-        document.getElementById('statProducts').textContent = '6+';
-        document.getElementById('statSellers').textContent = '2+';
-        document.getElementById('statOrders').textContent = '12+';
+        document.getElementById('statProducts').textContent = '-';
+        document.getElementById('statSellers').textContent = '-';
+        document.getElementById('statOrders').textContent = '-';
     }
 }
 
 // ============================================
-// LOAD BANNERS
+// LOAD BANNERS (READ)
 // ============================================
 async function loadBanners() {
     try {
-        const q = query(collection(db, 'banners'), where('active', '==', true), orderBy('order', 'asc'));
-        const snapshot = await getDocs(q);
-        const banners = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-        if (banners.length === 0) { showFallbackBanner(); return; }
+        const snap = await getDocs(collection(db, 'banners'));
+        const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const banners = all.filter(b => b.active === true);
+        if (banners.length === 0) return showFallbackBanner();
 
         const slides = document.getElementById('bannerSlides');
         const indicators = document.getElementById('bannerIndicators');
-
-        slides.innerHTML = banners.map(banner => `
+        slides.innerHTML = banners.map(b => `
             <div class="banner-slide">
-                ${banner.imageUrl ? `<img src="${banner.imageUrl}" alt="${banner.title || 'Banner'}" onerror="this.style.display='none'">` : ''}
+                ${b.imageUrl ? `<img src="${b.imageUrl}" alt="${b.title||''}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">` : ''}
                 <div class="banner-slide-content">
-                    <h3>${banner.title || 'Promo Spesial'}</h3>
-                    ${banner.description ? `<p>${banner.description}</p>` : ''}
-                    ${banner.linkUrl ? `<a href="${banner.linkUrl}">Lihat Detail →</a>` : ''}
+                    <h3>${b.title || 'Promo Spesial'}</h3>
+                    ${b.description ? `<p>${b.description}</p>` : ''}
+                    ${b.linkUrl ? `<a href="${b.linkUrl}">Lihat Detail →</a>` : ''}
                 </div>
-            </div>
-        `).join('');
-
-        indicators.innerHTML = banners.map((_, i) => `<button class="${i === 0 ? 'active' : ''}" data-index="${i}"></button>`).join('');
+            </div>`).join('');
+        indicators.innerHTML = banners.map((_, i) => `<button class="${i===0?'active':''}" data-index="${i}"></button>`).join('');
         setupBannerCarousel();
-    } catch (error) {
-        console.error('Banners error:', error);
+    } catch (e) {
+        console.error('Banners error:', e);
         showFallbackBanner();
     }
 }
-
 function showFallbackBanner() {
-    const slides = document.getElementById('bannerSlides');
-    const indicators = document.getElementById('bannerIndicators');
-    slides.innerHTML = `
-        <div class="banner-slide">
-            <div class="banner-slide-content">
-                <h3>🎉 Selamat Datang di ProductKuu</h3>
-                <p>Platform marketplace produk digital premium di Indonesia</p>
-                <a href="#products">Lihat Produk →</a>
-            </div>
-        </div>
-    `;
-    indicators.innerHTML = '';
+    document.getElementById('bannerSlides').innerHTML = `
+        <div class="banner-slide"><div class="banner-slide-content">
+            <h3>🎉 Selamat Datang di ProductKuu</h3>
+            <p>Platform marketplace produk digital premium di Indonesia</p>
+            <a href="#products">Lihat Produk →</a>
+        </div></div>`;
+    document.getElementById('bannerIndicators').innerHTML = '';
 }
 
 // ============================================
 // BANNER CAROUSEL
 // ============================================
-let currentBannerIndex = 0;
-let bannerInterval;
-
+let currentBannerIndex = 0, bannerInterval;
 function setupBannerCarousel() {
     const slides = document.getElementById('bannerSlides');
     const indicators = document.querySelectorAll('#bannerIndicators button');
-    const prevBtn = document.getElementById('prevBanner');
-    const nextBtn = document.getElementById('nextBanner');
-
     if (!slides || slides.children.length === 0) return;
-    const totalSlides = slides.children.length;
+    const total = slides.children.length;
+    if (total <= 1) return;
 
-    function goToSlide(index) {
-        if (index < 0) index = totalSlides - 1;
-        if (index >= totalSlides) index = 0;
-        currentBannerIndex = index;
-        slides.style.transform = `translateX(-${index * 100}%)`;
-        indicators.forEach((ind, i) => ind.className = i === index ? 'active' : '');
+    function goTo(i) {
+        if (i < 0) i = total - 1;
+        if (i >= total) i = 0;
+        currentBannerIndex = i;
+        slides.style.transform = `translateX(-${i*100}%)`;
+        indicators.forEach((ind, idx) => ind.className = idx === i ? 'active' : '');
     }
-    function nextSlide() { goToSlide(currentBannerIndex + 1); }
-    function prevSlide() { goToSlide(currentBannerIndex - 1); }
-
-    prevBtn?.addEventListener('click', () => { prevSlide(); resetInterval(); });
-    nextBtn?.addEventListener('click', () => { nextSlide(); resetInterval(); });
-    indicators.forEach((ind, i) => ind.addEventListener('click', () => { goToSlide(i); resetInterval(); }));
-
-    function startInterval() {
-        if (totalSlides > 1) bannerInterval = setInterval(nextSlide, 5000);
-    }
-    function resetInterval() { clearInterval(bannerInterval); startInterval(); }
-
-    const carousel = document.getElementById('bannerCarousel');
-    carousel?.addEventListener('mouseenter', () => clearInterval(bannerInterval));
-    carousel?.addEventListener('mouseleave', startInterval);
-
-    startInterval();
+    document.getElementById('prevBanner')?.addEventListener('click', () => goTo(currentBannerIndex-1));
+    document.getElementById('nextBanner')?.addEventListener('click', () => goTo(currentBannerIndex+1));
+    indicators.forEach((ind, i) => ind.addEventListener('click', () => goTo(i)));
+    bannerInterval = setInterval(() => goTo(currentBannerIndex+1), 5000);
 }
 
 // ============================================
-// SELLER NAME CACHE
+// SELLER CACHE (READ)
 // ============================================
 const sellerCache = new Map();
-
 async function getSellerName(sellerId) {
     if (!sellerId) return 'Seller';
     if (sellerCache.has(sellerId)) return sellerCache.get(sellerId);
     try {
-        const sellerDoc = await getDoc(doc(db, 'users', sellerId));
-        if (sellerDoc.exists()) {
-            const d = sellerDoc.data();
+        const snap = await getDoc(doc(db, 'users', sellerId));
+        if (snap.exists()) {
+            const d = snap.data();
             const name = d.storeName || d.displayName || d.name || 'Seller';
             sellerCache.set(sellerId, name);
             return name;
         }
-        sellerCache.set(sellerId, 'Seller');
-        return 'Seller';
-    } catch (e) {
-        sellerCache.set(sellerId, 'Seller');
-        return 'Seller';
-    }
+    } catch (e) {}
+    sellerCache.set(sellerId, 'Seller');
+    return 'Seller';
 }
 
 // ============================================
-// LOAD PRODUCTS
+// LOAD PRODUCTS (READ + FILTER MANUAL)
 // ============================================
 async function loadProducts(tab = 'new') {
     currentTab = tab;
     try {
-        let productsQuery = query(collection(db, 'products'), where('status', '==', 'published'));
-
-        if (tab === 'trending') {
-            productsQuery = query(collection(db, 'products'), where('status', '==', 'published'), where('isTrending', '==', true));
-        } else if (tab === 'bestseller') {
-            productsQuery = query(collection(db, 'products'), where('status', '==', 'published'), where('isBestSeller', '==', true));
-        } else if (tab === 'premium') {
-            productsQuery = query(collection(db, 'products'), where('status', '==', 'published'), where('isPremium', '==', true));
-        }
-
-        const snapshot = await getDocs(productsQuery);
+        const snap = await getDocs(collection(db, 'products'));
         let products = [];
-
-        for (const docSnap of snapshot.docs) {
+        for (const docSnap of snap.docs) {
             const data = docSnap.data();
+            // Filter published (manual, karena where() diabaikan)
+            if (data.status !== 'published') continue;
             const sellerName = await getSellerName(data.sellerId);
             products.push({
                 id: docSnap.id,
                 ...data,
                 sellerName,
-                createdAtDate: data.createdAt?.toDate?.() || new Date(data.createdAt)
+                createdAtDate: data.createdAt ? new Date(data.createdAt) : new Date()
             });
         }
 
+        // Filter per tab (manual)
+        if (tab === 'trending') products = products.filter(p => p.isTrending);
+        else if (tab === 'bestseller') products = products.filter(p => p.isBestSeller);
+        else if (tab === 'premium') products = products.filter(p => p.isPremium);
+
+        // Sort manual
         let sortField = 'createdAtDate';
         if (tab === 'trending') sortField = 'views';
         else if (tab === 'bestseller') sortField = 'sales';
-
         products.sort((a, b) => (b[sortField] || 0) - (a[sortField] || 0));
 
         allProducts = products.slice(0, 8);
         renderProducts();
     } catch (error) {
         console.error('Products error:', error);
-        productsGrid.innerHTML = `
-            <div class="col-span-full text-center py-20 border-2 border-dashed border-[var(--ink-soft)] bg-[var(--surface)] shadow-[6px_6px_0px_var(--shadow-color)]">
-                <span class="material-symbols-outlined text-5xl" style="color:#D40000;">error</span>
-                <p class="mt-4 font-black text-[var(--ink)]">Gagal memuat produk: ${error.message}</p>
-                <button onclick="loadProducts('${currentTab}')" class="btn btn-primary mt-4">Coba Lagi</button>
-            </div>
-        `;
+        productsGrid.innerHTML = `<div class="col-span-full text-center py-20 border-2 border-dashed border-[var(--ink-soft)] bg-[var(--surface)]">
+            <span class="material-symbols-outlined text-5xl" style="color:#D40000;">error</span>
+            <p class="mt-4 font-black text-[var(--ink)]">Gagal memuat produk: ${error.message}</p>
+            <button onclick="loadProducts('${currentTab}')" class="btn btn-primary mt-4">Coba Lagi</button>
+        </div>`;
     }
 }
 
@@ -1546,41 +545,32 @@ async function loadProducts(tab = 'new') {
 // ============================================
 function renderProducts() {
     if (!allProducts || allProducts.length === 0) {
-        productsGrid.innerHTML = `
-            <div class="col-span-full text-center py-20 border-2 border-dashed border-[var(--ink-soft)] bg-[var(--surface)] shadow-[6px_6px_0px_var(--shadow-color)]">
-                <span class="material-symbols-outlined text-5xl text-[var(--ink-soft)]">inbox</span>
-                <p class="mt-4 font-black text-[var(--ink)]">Belum ada produk</p>
-            </div>
-        `;
+        productsGrid.innerHTML = `<div class="col-span-full text-center py-20 border-2 border-dashed border-[var(--ink-soft)] bg-[var(--surface)]">
+            <span class="material-symbols-outlined text-5xl text-[var(--ink-soft)]">inbox</span>
+            <p class="mt-4 font-black text-[var(--ink)]">Belum ada produk</p>
+        </div>`;
         return;
     }
-
-    productsGrid.innerHTML = allProducts.map(product => `
-        <div class="product-card" onclick="window.buyNow('${product.id}')">
+    productsGrid.innerHTML = allProducts.map(p => `
+        <div class="product-card" onclick="window.buyNow('${p.id}')">
             <div class="product-image">
-                ${product.imageUrl
-                    ? `<img src="${product.imageUrl}" alt="${product.name}" onerror="this.src='https://placehold.co/400x300/1E1E24/C4F000?text=Product'">`
-                    : `<img src="https://placehold.co/400x300/1E1E24/C4F000?text=Product" alt="${product.name}">`
-                }
-                ${product.isPremium ? '<span class="badge">★ PREMIUM</span>' : ''}
-                ${product.sales > 0 ? `<span class="badge-sold">${product.sales} terjual</span>` : ''}
+                ${p.imageUrl
+                    ? `<img src="${p.imageUrl}" alt="${p.name||p.nama}" onerror="this.src='https://placehold.co/400x300/1E1E24/C4F000?text=Product'">`
+                    : `<img src="https://placehold.co/400x300/1E1E24/C4F000?text=Product" alt="product">`}
+                ${p.isPremium ? '<span class="badge">★ PREMIUM</span>' : ''}
+                ${p.sales > 0 ? `<span class="badge-sold">${p.sales} terjual</span>` : ''}
             </div>
             <div class="product-body">
-                <div class="product-name">${product.name}</div>
-                <div class="product-category">${product.category || 'UNCATEGORIZED'}</div>
-                <div class="product-seller">
-                    <i class="fas fa-store"></i> ${product.sellerName || 'Seller'}
-                </div>
+                <div class="product-name">${p.name || p.nama || '-'}</div>
+                <div class="product-category">${p.category || 'UNCATEGORIZED'}</div>
+                <div class="product-seller"><i class="fas fa-store"></i> ${p.sellerName || 'Seller'}</div>
                 <div class="product-footer">
-                    <span class="product-price">Rp${formatPrice(product.price)}</span>
-                    <span class="product-sales">${product.sales || 0} sold</span>
+                    <span class="product-price">Rp${formatPrice(p.price || p.harga)}</span>
+                    <span class="product-sales">${p.sales || 0} sold</span>
                 </div>
-                <button onclick="event.stopPropagation();window.buyNow('${product.id}')" class="btn-add-cart">
-                    <i class="fas fa-bolt"></i> Beli Sekarang
-                </button>
+                <button onclick="event.stopPropagation();window.buyNow('${p.id}')" class="btn-add-cart"><i class="fas fa-bolt"></i> Beli Sekarang</button>
             </div>
-        </div>
-    `).join('');
+        </div>`).join('');
 }
 
 // ============================================
@@ -1598,82 +588,23 @@ document.querySelectorAll('#productTabs .tab').forEach(tab => {
 // SEARCH
 // ============================================
 let searchTimeout;
-
-function handleSearch(query) {
+searchInput.addEventListener('input', (e) => {
     clearTimeout(searchTimeout);
-    query = query.trim();
-    if (query.length > 2) {
+    const q = e.target.value.trim().toLowerCase();
+    if (q.length > 2) {
         searchTimeout = setTimeout(() => {
             const filtered = allProducts.filter(p =>
-                p.name.toLowerCase().includes(query.toLowerCase()) ||
-                (p.category || '').toLowerCase().includes(query.toLowerCase()) ||
-                (p.sellerName || '').toLowerCase().includes(query.toLowerCase())
-            );
-            if (filtered.length > 0) {
-                allProducts = filtered;
-                renderProducts();
-                showToast('info', `Menampilkan ${filtered.length} produk untuk "${query}"`);
-            } else {
-                showToast('warning', 'Produk tidak ditemukan');
-                loadProducts(currentTab);
-            }
+                (p.name||p.nama||'').toLowerCase().includes(q) ||
+                (p.category||'').toLowerCase().includes(q) ||
+                (p.sellerName||'').toLowerCase().includes(q));
+            if (filtered.length > 0) { allProducts = filtered; renderProducts(); }
+            else { showToast('warning', 'Produk tidak ditemukan'); loadProducts(currentTab); }
         }, 500);
-    } else if (query.length === 0) {
-        loadProducts(currentTab);
-    }
-}
-
-searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
+    } else if (q.length === 0) loadProducts(currentTab);
+});
 
 // ============================================
-// UPDATE SELLER WALLET
-// ============================================
-async function updateSellerWallet(sellerId, amount, orderCreatedAt) {
-    if (!sellerId) return;
-    try {
-        const sellerRef = doc(db, 'users', sellerId);
-        const sellerDoc = await getDoc(sellerRef);
-        if (!sellerDoc.exists()) return;
-
-        const sellerData = sellerDoc.data();
-        const wallet = sellerData.wallet || { available: 0, holding: 0, totalRevenue: 0 };
-
-        let holdingDays = 0, holdingHours = 0, holdingMinutes = 0;
-        try {
-            const settingsDoc = await getDoc(doc(db, 'settings', 'marketplace'));
-            if (settingsDoc.exists()) {
-                const s = settingsDoc.data();
-                holdingDays = s.holdingDays || 0;
-                holdingHours = s.holdingHours || 0;
-                holdingMinutes = s.holdingMinutes || 0;
-            }
-        } catch (e) {}
-
-        const holdingMs = (holdingDays * 86400000) + (holdingHours * 3600000) + (holdingMinutes * 60000);
-        const createdAt = orderCreatedAt instanceof Date ? orderCreatedAt : new Date(orderCreatedAt);
-        const elapsed = Date.now() - createdAt.getTime();
-
-        let newAvailable = wallet.available || 0;
-        let newHolding = wallet.holding || 0;
-
-        if (elapsed >= holdingMs || holdingMs === 0) newAvailable += amount;
-        else newHolding += amount;
-
-        await updateDoc(sellerRef, {
-            'wallet.available': newAvailable,
-            'wallet.holding': newHolding,
-            'wallet.totalRevenue': (wallet.totalRevenue || 0) + amount,
-            updatedAt: serverTimestamp()
-        });
-        console.log(`✅ Wallet updated: +Rp${formatPrice(amount)}`);
-    } catch (error) {
-        console.error('Error updating seller wallet:', error);
-        throw error;
-    }
-}
-
-// ============================================
-// UPDATE ORDER STATUS
+// UPDATE ORDER (WRITE)
 // ============================================
 async function updateOrderStatus(orderDocId, status, result) {
     try {
@@ -1684,10 +615,47 @@ async function updateOrderStatus(orderDocId, status, result) {
             updatedAt: serverTimestamp()
         });
         return true;
-    } catch (error) {
-        console.error('Error updating order:', error);
-        return false;
-    }
+    } catch (e) { console.error('Update order error:', e); return false; }
+}
+
+// ============================================
+// UPDATE WALLET (WRITE — partial update manual)
+// ============================================
+async function updateSellerWallet(sellerId, amount) {
+    if (!sellerId) return;
+    try {
+        const snap = await getDoc(doc(db, 'users', sellerId));
+        if (!snap.exists()) return;
+        const sellerData = snap.data();
+        const wallet = sellerData.wallet || { available:0, holding:0, totalRevenue:0 };
+
+        // Ambil setting holding
+        let holdingMs = 0;
+        try {
+            const setSnap = await getDoc(doc(db, 'settings', 'marketplace'));
+            if (setSnap.exists()) {
+                const s = setSnap.data();
+                holdingMs = ((s.holdingDays||0)*86400000) + ((s.holdingHours||0)*3600000) + ((s.holdingMinutes||0)*60000);
+            }
+        } catch(e) {}
+
+        let newAvailable = wallet.available || 0;
+        let newHolding = wallet.holding || 0;
+        if (holdingMs === 0) newAvailable += amount;
+        else newHolding += amount;
+
+        // Update — kirim data lengkap (karena updateDoc = replace)
+        await updateDoc(doc(db, 'users', sellerId), {
+            ...sellerData,
+            wallet: {
+                ...wallet,
+                available: newAvailable,
+                holding: newHolding,
+                totalRevenue: (wallet.totalRevenue || 0) + amount
+            },
+            updatedAt: serverTimestamp()
+        });
+    } catch (e) { console.error('Wallet error:', e); }
 }
 
 // ============================================
@@ -1695,48 +663,31 @@ async function updateOrderStatus(orderDocId, status, result) {
 // ============================================
 window.buyNow = async function(productId) {
     try {
-        const productDoc = await getDoc(doc(db, 'products', productId));
-        if (!productDoc.exists()) { showToast('error', 'Produk tidak ditemukan'); return; }
-
-        const product = productDoc.data();
-        if (product.stock === 0 || product.stock === '0') {
-            showToast('error', 'Maaf, produk ini sedang habis');
-            return;
-        }
+        const snap = await getDoc(doc(db, 'products', productId));
+        if (!snap.exists()) return showToast('error', 'Produk tidak ditemukan');
+        const product = snap.data();
+        if (product.stock === 0 || product.stock === '0') return showToast('error', 'Produk habis');
 
         currentProductId = productId;
-        document.getElementById('checkoutProductName').textContent = product.name;
-        document.getElementById('checkoutProductPrice').textContent = `Rp${formatPrice(product.price)}`;
+        document.getElementById('checkoutProductName').textContent = product.name || product.nama;
+        document.getElementById('checkoutProductPrice').textContent = `Rp${formatPrice(product.price || product.harga)}`;
         document.getElementById('checkoutError').className = 'error-message';
         document.getElementById('checkoutForm').reset();
-
         checkoutModal.classList.add('open');
-    } catch (error) {
-        console.error('Buy Now error:', error);
-        showToast('error', 'Gagal memuat produk: ' + error.message);
-    }
+    } catch (e) { showToast('error', 'Gagal memuat produk: ' + e.message); }
 };
-
 window.closeCheckoutModal = function() {
     checkoutModal.classList.remove('open');
     currentProductId = null;
 };
-
-checkoutModal.addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) closeCheckoutModal();
-});
-
-// ESC key closes modal
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && checkoutModal.classList.contains('open')) closeCheckoutModal();
-});
+checkoutModal.addEventListener('click', (e) => { if (e.target === e.currentTarget) closeCheckoutModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && checkoutModal.classList.contains('open')) closeCheckoutModal(); });
 
 // ============================================
-// CHECKOUT FORM
+// CHECKOUT FORM (CREATE order + Midtrans)
 // ============================================
 document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-
     const name = document.getElementById('checkoutName').value.trim();
     const email = document.getElementById('checkoutEmail').value.trim();
     const phone = document.getElementById('checkoutPhone').value.trim();
@@ -1759,47 +710,44 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e) => 
     btn.innerHTML = '<span class="material-symbols-outlined spinner text-base">refresh</span> Memproses...';
 
     try {
-        const productRef = doc(db, 'products', currentProductId);
-        const productDoc = await getDoc(productRef);
-        if (!productDoc.exists()) throw new Error('Produk tidak ditemukan');
-        const product = productDoc.data();
-        if (product.stock === 0 || product.stock === '0') throw new Error('Produk sedang habis');
+        const pSnap = await getDoc(doc(db, 'products', currentProductId));
+        if (!pSnap.exists()) throw new Error('Produk tidak ditemukan');
+        const product = pSnap.data();
 
-        const orderId = `PK-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+        const orderId = `PK-${Date.now()}-${Math.random().toString(36).substring(2,8).toUpperCase()}`;
 
-        const orderData = {
+        // CREATE order (POST ke API)
+        const orderDoc = await addDoc(collection(db, 'orders'), {
             orderId,
             productId: currentProductId,
-            productName: product.name,
+            productName: product.name || product.nama,
             buyerName: name,
             buyerEmail: email,
             buyerPhone: phone || '',
             sellerId: product.sellerId || '',
             sellerName: product.sellerName || 'Seller',
-            amount: product.price,
+            amount: product.price || product.harga,
             status: 'pending',
             paymentStatus: 'pending',
             type: 'product_purchase',
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp()
-        };
-
-        const orderDoc = await addDoc(collection(db, 'orders'), orderData);
+        });
         console.log('✅ Order created:', orderDoc.id);
 
+        // Request Midtrans token
         const response = await fetch('/api/payment/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 orderId,
-                amount: product.price,
+                amount: product.price || product.harga,
                 buyerName: name,
                 buyerEmail: email,
                 buyerPhone: phone || '08123456789',
-                productName: product.name
+                productName: product.name || product.nama
             })
         });
-
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Gagal membuat pembayaran');
 
@@ -1810,18 +758,17 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e) => 
                 onSuccess: async function(result) {
                     showToast('success', '🎉 Pembayaran berhasil!');
                     await updateOrderStatus(orderDoc.id, 'settlement', result);
+                    // Update stok + sales (kirim data lengkap)
                     try {
                         const currentStock = product.stock;
-                        await updateDoc(productRef, {
-                            stock: currentStock === 'unlimited' ? 'unlimited' : (parseInt(currentStock) || 0) - 1,
-                            sales: (product.sales || 0) + 1,
+                        await updateDoc(doc(db, 'products', currentProductId), {
+                            ...product,
+                            stock: currentStock === 'unlimited' ? 'unlimited' : (parseInt(currentStock)||0) - 1,
+                            sales: (product.sales||0) + 1,
                             updatedAt: serverTimestamp()
                         });
-                    } catch (e) { console.error('Stock update error:', e); }
-                    if (product.sellerId) {
-                        try { await updateSellerWallet(product.sellerId, product.price, new Date()); }
-                        catch (e) { console.error('Wallet error:', e); }
-                    }
+                    } catch(e) { console.error('Stock error:', e); }
+                    if (product.sellerId) await updateSellerWallet(product.sellerId, product.price || product.harga);
                     setTimeout(() => { window.location.href = `/success.html?order=${orderId}&status=success`; }, 1500);
                 },
                 onPending: async function(result) {
@@ -1830,7 +777,7 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e) => 
                     setTimeout(() => { window.location.href = `/success.html?order=${orderId}&status=pending`; }, 1500);
                 },
                 onError: async function(result) {
-                    showToast('error', '❌ Pembayaran gagal: ' + (result.status_message || 'Silakan coba lagi'));
+                    showToast('error', '❌ Pembayaran gagal');
                     await updateOrderStatus(orderDoc.id, 'failed', result);
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
@@ -1846,12 +793,11 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e) => 
         } else {
             throw new Error('Metode pembayaran tidak tersedia');
         }
-
     } catch (error) {
         console.error('❌ Checkout error:', error);
         errorEl.className = 'error-message show';
         errorEl.textContent = '❌ ' + error.message;
-        showToast('error', 'Gagal memproses checkout: ' + error.message);
+        showToast('error', 'Gagal: ' + error.message);
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
     }
@@ -1860,11 +806,11 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e) => 
 // ============================================
 // INIT
 // ============================================
-console.log('🚀 [HOMEPAGE] Initializing...');
+console.log('🚀 Initializing...');
 await loadStats();
 await loadBanners();
 await loadProducts('new');
-console.log('✅ [HOMEPAGE] Ready');
+console.log('✅ Ready');
 </script>
 </body>
 </html>
