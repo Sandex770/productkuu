@@ -151,7 +151,6 @@ app.post('/api/payment/create-qris', async (req, res) => {
       return res.status(400).json({ error: 'Amount tidak valid' });
     }
 
-    // Kode unik Rp1-99 (anti kolisi nominal kembar)
     const uniqueAmount = parseInt(amount) + Math.floor(Math.random() * 99) + 1;
 
     const { ok, status, data } = await gatewayFetch('/create-qris', {
@@ -163,7 +162,6 @@ app.post('/api/payment/create-qris', async (req, res) => {
 
     const qrId = data.id || data.qrId || data.qrisId;
 
-    // Simpan uniqueAmount & qrId ke order
     if (orderId) {
       ensureTable('orders');
       const row = db.prepare('SELECT * FROM orders WHERE id = ?').get(orderId);
@@ -242,26 +240,30 @@ app.get('/api/payment/health', async (req, res) => {
   }
 });
 
-// Handle /namafile → namafile.html (sebelum route * fallback)
-app.get('/:page', (req, res, next) => {
-    const page = req.params.page;
-    // Skip kalau ada ekstensi (mis. .css, .js, .png)
-    if (page.includes('.')) return next();
-    // Skip kalau sudah route khusus (seller, admin, dll)
-    if (['seller','admin','api'].includes(page)) return next();
+// ============================================
+// HTML ROUTES (clean URL — tanpa .html)
+// ============================================
 
-    const filePath = path.join(publicDir, page + '.html');
-    res.sendFile(filePath, (err) => {
-        if (err) next();
-    });
-});
-
-// ===== HTML ROUTES =====
+// Root
 app.get('/', (req, res) => res.sendFile(path.join(publicDir, 'index.html')));
 
-app.get('/payment.html', (req, res) => res.sendFile(path.join(publicDir, 'payment.html')));
+// Payment
+app.get('/payment.html', (req, res) => res.redirect(301, '/payment'));
 app.get('/payment', (req, res) => res.sendFile(path.join(publicDir, 'payment.html')));
 
+// Success
+app.get('/success.html', (req, res) => res.redirect(301, '/success'));
+app.get('/success', (req, res) => res.sendFile(path.join(publicDir, 'success.html')));
+
+// Cek order
+app.get('/cek-order.html', (req, res) => res.redirect(301, '/cek-order'));
+app.get('/cek-order', (req, res) => res.sendFile(path.join(publicDir, 'cek-order.html')));
+
+// Product seller
+app.get('/product-seller.html', (req, res) => res.redirect(301, '/product-seller'));
+app.get('/product-seller', (req, res) => res.sendFile(path.join(publicDir, 'product-seller.html')));
+
+// ===== SELLER =====
 app.get('/seller/login', (req, res) => res.sendFile(path.join(publicDir, 'pages/seller/login.html')));
 app.get('/seller/register', (req, res) => res.sendFile(path.join(publicDir, 'pages/seller/register.html')));
 app.get('/seller/dashboard', (req, res) => res.sendFile(path.join(publicDir, 'pages/seller/dashboard.html')));
@@ -271,6 +273,7 @@ app.get('/seller/transactions', (req, res) => res.sendFile(path.join(publicDir, 
 app.get('/seller/withdraw', (req, res) => res.sendFile(path.join(publicDir, 'pages/seller/withdraw.html')));
 app.get('/seller/settings', (req, res) => res.sendFile(path.join(publicDir, 'pages/seller/settings.html')));
 
+// ===== ADMIN =====
 app.get('/admin/login', (req, res) => res.sendFile(path.join(publicDir, 'pages/admin/login.html')));
 app.get('/admin/register', (req, res) => res.sendFile(path.join(publicDir, 'pages/admin/register.html')));
 app.get('/admin/dashboard', (req, res) => res.sendFile(path.join(publicDir, 'pages/admin/dashboard.html')));
@@ -281,10 +284,22 @@ app.get('/admin/banners', (req, res) => res.sendFile(path.join(publicDir, 'pages
 app.get('/admin/settings', (req, res) => res.sendFile(path.join(publicDir, 'pages/admin/settings.html')));
 app.get('/admin/withdrawals', (req, res) => res.sendFile(path.join(publicDir, 'pages/admin/withdrawals.html')));
 
-app.get('/cek-order', (req, res) => res.sendFile(path.join(publicDir, 'cek-order.html')));
-app.get('/product-seller', (req, res) => res.sendFile(path.join(publicDir, 'product-seller.html')));
-app.get('/success', (req, res) => res.sendFile(path.join(publicDir, 'success.html')));
-app.get('/success.html', (req, res) => res.sendFile(path.join(publicDir, 'success.html')));
+// ===== GENERIC CLEAN URL — /namafile → namafile.html =====
+// Taruh SETELAH route khusus, SEBELUM fallback *
+app.get('/:page', (req, res, next) => {
+  const page = req.params.page;
+
+  // Skip kalau ada ekstensi (.css, .js, .png, dll)
+  if (page.includes('.')) return next();
+
+  // Skip prefix khusus (sudah ditangani di atas)
+  if (['seller','admin','api','payment','success','cek-order','product-seller'].includes(page)) return next();
+
+  const filePath = path.join(publicDir, page + '.html');
+  res.sendFile(filePath, (err) => {
+    if (err) next();
+  });
+});
 
 // Fallback
 app.get('*', (req, res) => {
