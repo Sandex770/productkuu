@@ -242,6 +242,20 @@ app.get('/api/payment/health', async (req, res) => {
   }
 });
 
+// Handle /namafile → namafile.html (sebelum route * fallback)
+app.get('/:page', (req, res, next) => {
+    const page = req.params.page;
+    // Skip kalau ada ekstensi (mis. .css, .js, .png)
+    if (page.includes('.')) return next();
+    // Skip kalau sudah route khusus (seller, admin, dll)
+    if (['seller','admin','api'].includes(page)) return next();
+
+    const filePath = path.join(publicDir, page + '.html');
+    res.sendFile(filePath, (err) => {
+        if (err) next();
+    });
+});
+
 // ===== HTML ROUTES =====
 app.get('/', (req, res) => res.sendFile(path.join(publicDir, 'index.html')));
 
