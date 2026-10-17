@@ -32,7 +32,7 @@ app.post('/api/auth/register', async (req, res) => {
             return res.status(400).json({ error: 'Email, password, dan nama wajib diisi' });
         }
 
-        // Cek apakah email sudah terdaftar (Prepared Statement)
+        // Cek apakah email sudah terdaftar
         const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
         if (existing) return res.status(400).json({ error: 'Email sudah terdaftar' });
 
@@ -51,16 +51,9 @@ app.post('/api/auth/register', async (req, res) => {
         `);
         
         stmt.run(
-            id, 
-            email, 
-            hashedPassword, 
-            whatsapp || '', 
-            displayName, 
-            finalRole, 
-            storeName || (displayName + "'s Store"), 
-            'active', 
-            now,
-            JSON.stringify({ available: 0, holding: 0, totalRevenue: 0, totalWithdraw: 0 })
+            id, email, hashedPassword, whatsapp || '', displayName, 
+            finalRole, storeName || (displayName + "'s Store"), 'active', 
+            now, JSON.stringify({ available: 0, holding: 0, totalRevenue: 0, totalWithdraw: 0 })
         );
 
         res.json({ success: true, message: 'Registrasi berhasil, silakan login.' });
@@ -74,22 +67,18 @@ app.post('/api/auth/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Cari user
         const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
         if (!user) return res.status(401).json({ error: 'Email atau password salah' });
 
-        // Cek password
         const isValid = await bcrypt.compare(password, user.password);
         if (!isValid) return res.status(401).json({ error: 'Email atau password salah' });
 
-        // Buat JWT Token (berlaku 7 hari)
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role }, 
             JWT_SECRET, 
             { expiresIn: '7d' }
         );
 
-        // Bersihkan data sensitif sebelum dikirim ke frontend
         delete user.password;
         if (user.wallet) {
             try { user.wallet = JSON.parse(user.wallet); } catch(e) {}
@@ -102,18 +91,29 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 // ============================================
-// HELPER: map DB row -> format Firebase-style
+// HELPER: MAP DB ROW
 // ============================================
 function toProduct(row) {
   if (!row) return null;
+  // Gabungkan data kolom dasar dengan kolom 'data' (JSON)
+  let detail = {};
+  if (row.data) {
+    try { detail = JSON.parse(row.data); } catch(e) {}
+  }
+  
+  // Buang data sensitif (password akun premium)
+  if (detail.premiumAccounts) delete detail.premiumAccounts;
+
   return {
     id: row.id,
     name: row.nama,
     price: row.harga,
     description: row.deskripsi || '',
     imageUrl: row.gambar || '',
-    status: 'published',
-    createdAt: row.created_at
+    sales: row.terjual || 0,
+    status: detail.status || 'published',
+    createdAt: row.created_at,
+    ...detail // Gabungkan sisa data (type, kategori, dll)
   };
 }
 
@@ -138,9 +138,18 @@ app.post('/api/products', (req, res) => {
   const harga = parseInt(b.price || b.harga || 0);
   const deskripsi = b.description || b.deskripsi || '';
   const gambar = b.imageUrl || b.gambar || '';
+  const terjual = parseInt(b.sales || b.terjual || 0);
+  
+  // Simpan sisa data ke JSON (type, premiumAccounts, dll)
+  const detailData = { ...b };
+  delete detailData.id; delete detailData.nama; delete detailData.harga; 
+  delete detailData.deskripsi; delete detailData.gambar; delete detailData.terjual;
+  delete detailData.name; delete detailData.price; delete detailData.description; 
+  delete detailData.imageUrl; delete detailData.sales; delete detailData.createdAt;
+  delete detailData.created_at;
 
-  db.prepare('INSERT OR REPLACE INTO products (id, nama, harga, deskripsi, gambar) VALUES (?, ?, ?, ?, ?)')
-    .run(id, nama, harga, deskripsi, gambar);
+  db.prepare('INSERT OR REPLACE INTO products (id, nama, harga, deskripsi, gambar, terjual, data) VALUES (?, ?, ?, ?, ?, ?, ?)')
+    .run(id, nama, harga, deskripsi, gambar, terjual, JSON.stringify(detailData));
   res.json({ ok: true, id });
 });
 
@@ -153,15 +162,109 @@ app.put('/api/products/:id', (req, res) => {
   const harga = parseInt(b.price || b.harga || existing.harga);
   const deskripsi = b.description || b.deskripsi || existing.deskripsi;
   const gambar = b.imageUrl || b.gambar || existing.gambar;
+  const terjual = parseInt(b.sales || b.terjual || existing.terjual || 0);
 
-  db.prepare('UPDATE products SET nama=?, harga=?, deskripsi=?, gambar=? WHERE id=?')
-    .run(nama, harga, deskripsi, gambar, req.params.id);
+  // Gabungkan data lama dengan data baru (JSON)
+  let oldDetail = {};
+  try { oldDetail = JSON.parse(existing.data || '{}'); } catch(e) {}
+  
+  const detailData = { ...oldDetail, ...b };
+  delete detailData.id; delete detailData.nama; delete detailData.harga; 
+  delete detailData.deskripsi; delete detailData.gambar; delete detailData.terjual;
+  delete detailData.name; delete detailData.price; delete detailData.description; 
+  delete detailData.imageUrl; delete detailData.sales; delete detailData.createdAt;
+  delete detailData.created_at;
+
+  db.prepare('UPDATE products SET nama=?, harga=?, deskripsi=?, gambar=?, terjual=?, data=? WHERE id=?')
+    .run(nama, harga, deskripsi, gambar, terjual, JSON.stringify(detailData), req.params.id);
   res.json({ ok: true });
 });
 
 app.delete('/api/products/:id', (req, res) => {
   db.prepare('DELETE FROM products WHERE id = ?').run(req.params.id);
   res.json({ ok: true });
+});
+
+// ============================================
+// DELIVERY (PENGIRIMAN AKUN & POTONG STOK)
+// ============================================
+app.get('/api/orders/:orderId/delivery', (req, res) => {
+    const orderId = req.params.orderId;
+    
+    // 1. Cek order
+    const orderRow = db.prepare('SELECT * FROM orders WHERE id = ?').get(orderId);
+    if (!orderRow) return res.status(404).json({ error: 'Order tidak ditemukan' });
+
+    let orderData;
+    try { orderData = JSON.parse(orderRow.data || '{}'); } catch(e) { return res.status(500).json({error: 'Format order rusak'}); }
+    
+    // 2. Pastikan sudah dibayar
+    if (orderData.paymentStatus !== 'settlement' && orderData.paymentStatus !== 'paid') {
+        return res.status(403).json({ error: 'Pembayaran belum diselesaikan' });
+    }
+
+    // 3. Jika sudah pernah diambil, kirim data yang tersimpan (Anti Double Claim)
+    if (orderData.delivered && orderData.deliveryResult) {
+        return res.json({
+            success: true,
+            order: { id: orderId, ...orderData },
+            delivery: orderData.deliveryResult
+        });
+    }
+
+    // 4. Proses pengiriman (jika belum)
+    let deliveryResult = [];
+    let items = orderData.items || [];
+
+    for (const item of items) {
+        const productRow = db.prepare('SELECT * FROM products WHERE id = ?').get(item.id);
+        if (!productRow) continue;
+
+        let productData = JSON.parse(productRow.data || '{}');
+        let qty = item.qty || 1;
+        let deliveredItem = { ...item, accounts: [], downloadLink: null };
+
+        // Jika Akun Premium (Potong Stok)
+        if (productData.type === 'premium-account' || productData.premiumAccounts) {
+            let accounts = productData.premiumAccounts || [];
+            
+            if (accounts.length < qty) {
+                qty = accounts.length; // Jika stok kurang, ambil sisa
+            }
+
+            // Ambil akun sebanyak Qty
+            deliveredItem.accounts = accounts.slice(0, qty);
+            
+            // Simpan sisa stok
+            productData.premiumAccounts = accounts.slice(qty);
+            productData.stock = productData.premiumAccounts.length;
+            
+            // Update produk di DB
+            db.prepare('UPDATE products SET data = ? WHERE id = ?').run(JSON.stringify(productData), item.id);
+        } 
+        // Jika Produk Digital (Link)
+        else {
+            deliveredItem.downloadLink = productData.downloadLink || null;
+        }
+
+        // Update jumlah terjual (sales)
+        const currentSales = parseInt(productRow.terjual) || 0;
+        db.prepare('UPDATE products SET terjual = ? WHERE id = ?').run(currentSales + qty, item.id);
+
+        deliveryResult.push(deliveredItem);
+    }
+
+    // 5. Simpan hasil delivery ke order (agar tidak bisa di-refresh berkali-kali)
+    orderData.delivered = true;
+    orderData.deliveryResult = deliveryResult;
+    
+    db.prepare('UPDATE orders SET data = ? WHERE id = ?').run(JSON.stringify(orderData), orderId);
+
+    res.json({
+        success: true,
+        order: { id: orderId, ...orderData },
+        delivery: deliveryResult
+    });
 });
 
 // ============================================
@@ -286,13 +389,6 @@ app.post('/api/payment/check', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.get('/api/payment/health', async (req, res) => {
-  try {
-    const { ok, data } = await gatewayFetch('/api/health');
-    res.json({ server: 'ok', gateway: ok ? 'ok' : 'down', gatewayResponse: data });
-  } catch (e) { res.json({ server: 'ok', gateway: 'down', error: e.message }); }
-});
-
 // ============================================
 // AUTO-CLEANUP: hapus order pending > 30 menit
 // ============================================
@@ -335,9 +431,6 @@ app.get('/success', (req, res) => res.sendFile(path.join(publicDir, 'success.htm
 
 app.get('/cek-order.html', (req, res) => res.redirect(301, '/cek-order'));
 app.get('/cek-order', (req, res) => res.sendFile(path.join(publicDir, 'cek-order.html')));
-
-app.get('/product-seller.html', (req, res) => res.redirect(301, '/product-seller'));
-app.get('/product-seller', (req, res) => res.sendFile(path.join(publicDir, 'product-seller.html')));
 
 // ===== SELLER =====
 app.get('/seller/login', (req, res) => res.sendFile(path.join(publicDir, 'pages/seller/login.html')));
