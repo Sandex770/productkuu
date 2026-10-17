@@ -1,770 +1,156 @@
 <!DOCTYPE html>
-
-<html class="dark" lang="id"><head>
+<html lang="id">
+<head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Manajemen Withdraw - ProductKuu Admin</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<title>Manajemen Withdraw - ProductKuu</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@700&family=Archivo+Black&display=swap" rel="stylesheet"/>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                "tertiary-fixed-dim": "#ffb77f",
-                "on-primary": "#00363a",
-                "inverse-surface": "#e4e1ed",
-                "inverse-primary": "#006970",
-                "outline-variant": "#3b494b",
-                "surface-tint": "#00dbe9",
-                "surface": "#13131b",
-                "on-surface-variant": "#b9cacb",
-                "primary-fixed": "#7df4ff",
-                "on-tertiary-fixed-variant": "#6f3900",
-                "secondary-fixed": "#f8d8ff",
-                "on-tertiary-container": "#924c00",
-                "on-surface": "#e4e1ed",
-                "background": "#0d0d15",
-                "on-primary-container": "#006970",
-                "surface-container": "#1f1f27",
-                "on-error": "#690005",
-                "surface-container-low": "#1b1b23",
-                "primary": "#00f0ff",
-                "outline": "#849495",
-                "on-secondary-fixed": "#320047",
-                "primary-container": "#00f0ff",
-                "on-background": "#e4e1ed",
-                "tertiary-fixed": "#ffdcc4",
-                "on-tertiary-fixed": "#2f1500",
-                "on-secondary-container": "#480063",
-                "surface-dim": "#13131b",
-                "tertiary": "#fff3ed",
-                "secondary": "#ecb2ff",
-                "error": "#ffb4ab",
-                "on-primary-fixed-variant": "#004f54",
-                "surface-variant": "#34343d",
-                "tertiary-container": "#ffd0ae",
-                "primary-fixed-dim": "#00dbe9",
-                "surface-container-high": "#292932",
-                "secondary-container": "#cf5cff",
-                "on-secondary": "#520071",
-                "on-error-container": "#ffdad6",
-                "surface-container-highest": "#34343d",
-                "on-tertiary": "#4e2600",
-                "on-secondary-fixed-variant": "#74009f",
-                "surface-container-lowest": "#0d0d15",
-                "inverse-on-surface": "#302f39",
-                "secondary-fixed-dim": "#ecb2ff",
-                "error-container": "#93000a",
-                "on-primary-fixed": "#002022",
-                "surface-bright": "#393842"
-            },
-            "fontFamily": {
-                "sans": ["Inter", "sans-serif"],
-                "mono": ["JetBrains Mono", "monospace"]
-            }
-          }
-        }
-      }
-    </script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0d0d15; color: #e4e1ed; }
-        .glass-card { background: rgba(31, 31, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .sidebar-item-active { background: linear-gradient(90deg, rgba(0, 240, 255, 0.1) 0%, rgba(0, 240, 255, 0) 100%); border-left: 3px solid #00f0ff; color: #00f0ff; }
-        
-        /* Table Styles */
-        .admin-table th { background: rgba(31, 31, 39, 0.9); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; color: #849495; }
-        .admin-table td { border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
-        .admin-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #34343d; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #4a4a55; }
-
-        /* Badges */
-        .badge-warning { background: rgba(255, 183, 127, 0.1); color: #ffb77f; border: 1px solid rgba(255, 183, 127, 0.2); }
-        .badge-success { background: rgba(0, 240, 255, 0.1); color: #00f0ff; border: 1px solid rgba(0, 240, 255, 0.2); }
-        .badge-danger { background: rgba(255, 180, 171, 0.1); color: #ffb4ab; border: 1px solid rgba(255, 180, 171, 0.2); }
-        .badge-info { background: rgba(236, 178, 255, 0.1); color: #ecb2ff; border: 1px solid rgba(236, 178, 255, 0.2); }
-
-        .btn-gradient { background: linear-gradient(135deg, #00f0ff 0%, #00dbe9 100%); color: #00363a; }
-        .btn-gradient:hover { filter: brightness(1.1); }
-    </style>
+:root,[data-theme="light"]{--bg:#F4F1E8;--bg-grid:rgba(0,0,0,.055);--surface:#FFF;--surface-2:#FAF8F0;--ink:#0A0A0A;--ink-muted:#4A4A4A;--ink-soft:#7A7A7A;--lime:#C4F000;--lime-deep:#9BC400;--amber:#FFC400;--amber-deep:#D9A300;--blue:#2B6FFF;--blue-deep:#1E4FCC;--blue-soft:#E6EEFF;--border:#0A0A0A;--border-width:2px;--shadow-color:#0A0A0A;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(0,0,0,.08);--nav-bg:#F4F1E8}
+[data-theme="dark"]{--bg:#0B0B0D;--bg-grid:rgba(255,255,255,.045);--surface:#16161A;--surface-2:#1E1E24;--ink:#F5F3EC;--ink-muted:#B8B8C0;--ink-soft:#8A8A92;--lime:#C4F000;--lime-deep:#A8D400;--amber:#FFC400;--amber-deep:#E0AC00;--blue:#4D8BFF;--blue-deep:#2B6FFF;--blue-soft:#1A2540;--border:#F5F3EC;--border-width:2px;--shadow-color:#F5F3EC;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(255,255,255,.06);--nav-bg:#0B0B0D}
+*{scroll-behavior:smooth;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);margin:0;line-height:1.6;overflow-x:hidden;transition:background-color .35s ease,color .35s ease;background-image:linear-gradient(to right,var(--grid-line) 1px,transparent 1px),linear-gradient(to bottom,var(--grid-line) 1px,transparent 1px);background-size:28px 28px;background-attachment:fixed}
+.font-mono-tag{font-family:'Space Mono',monospace}
+.font-display{font-family:'Archivo Black',sans-serif;letter-spacing:-.02em}
+.neo-tag{display:inline-flex;align-items:center;gap:6px;background:var(--lime);color:#0A0A0A;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:.9px;padding:6px 14px;border:var(--border-width) solid var(--border);box-shadow:3px 3px 0 var(--shadow-color);font-family:'Space Mono',monospace}
+.neo-tag.amber{background:var(--amber)}.neo-tag.blue{background:var(--blue);color:#FFF}
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.6px;padding:10px 20px;border:var(--border-width) solid var(--border);border-radius:0;cursor:pointer;text-decoration:none;transition:all .09s;white-space:nowrap}
+.btn-primary{background:var(--lime);color:#0A0A0A;box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.btn-primary:hover:not(:disabled){transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--shadow-color);background:var(--amber)}
+.btn-secondary{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.btn-secondary:hover:not(:disabled){transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--blue);border-color:var(--blue);color:var(--blue)}
+.btn-danger{background:#FF4444;color:#FFF;box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.table-wrapper{overflow-x:auto;border:var(--border-width) solid var(--border);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color);background:var(--surface)}
+.table{width:100%;border-collapse:collapse}
+.table th{background:var(--bg);padding:16px;font-size:12px;font-weight:900;text-transform:uppercase;text-align:left;border-bottom:var(--border-width) solid var(--border)}
+.table td{padding:16px;font-size:14px;font-weight:600;border-bottom:1.5px dashed var(--ink-soft)}
+.badge{padding:4px 10px;border:1.5px solid var(--border);font-size:10px;font-weight:900;text-transform:uppercase;font-family:'Space Mono',monospace;box-shadow:2px 2px 0 var(--shadow-color);display:inline-block}
+.badge-success{background:var(--lime);color:#0A0A0A}
+.badge-warning{background:var(--amber);color:#0A0A0A}
+.badge-danger{background:#FF4444;color:#FFF}
+</style>
 </head>
-<body class="min-h-screen">
-<!-- Navbar -->
-<nav class="fixed top-0 left-0 right-0 h-16 glass-card border-b border-white/5 z-50 px-4 md:px-8 flex items-center justify-between">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center text-primary border border-primary/30">
-<i class="fas fa-cube text-xl"></i>
-</div>
-<span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">ProductKuu</span>
-</div>
-<div class="flex items-center gap-4">
-<span class="hidden md:inline-block px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold tracking-widest uppercase">Admin Panel</span>
-<button class="w-10 h-10 rounded-xl hover:bg-white/5 flex items-center justify-center transition-all text-on-surface-variant" id="themeToggle">
-<i class="fas fa-moon"></i>
-</button>
-<button class="md:hidden w-10 h-10 rounded-xl hover:bg-white/5 flex items-center justify-center transition-all text-on-surface-variant" id="sidebarToggle">
-<i class="fas fa-bars"></i>
-</button>
+<body data-theme="light">
+
+<script>
+    const token = localStorage.getItem('pk_token');
+    const userStr = localStorage.getItem('pk_user');
+    if (!token || !userStr) { window.location.replace('/admin/login'); } 
+    else { try { const u = JSON.parse(userStr); if (u.role !== 'admin') window.location.replace('/'); } catch(e) { window.location.replace('/admin/login'); } }
+</script>
+
+<nav class="fixed top-0 left-0 right-0 z-[1000] h-[76px] bg-[var(--nav-bg)] border-b-[2px] border-[var(--border)]">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-3">
+    <a class="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-2 shrink-0" href="/admin/dashboard"><span class="bg-[var(--lime)] text-[#0A0A0A] px-2.5 py-1 border-2 border-[var(--border)] font-black shadow-[2px_2px_0px_var(--shadow-color)]">Admin</span><span class="text-[var(--ink)] font-black">Panel</span></a>
+    <div class="flex items-center gap-2.5">
+        <button class="btn btn-secondary !py-2 !px-3.5" id="themeToggle"><span class="material-symbols-outlined text-lg">dark_mode</span></button>
+        <button class="lg:hidden btn btn-secondary !py-2 !px-3.5" id="sidebarToggle"><span class="material-symbols-outlined text-lg">menu</span></button>
+        <button class="btn btn-danger !py-2 !px-3.5" id="logoutBtn">Logout</button>
+    </div>
 </div>
 </nav>
-<!-- Sidebar Overlay -->
-<div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden transition-opacity duration-300" id="sidebarOverlay"></div>
-<!-- Sidebar -->
-<aside class="fixed top-16 left-0 bottom-0 w-64 glass-card border-r border-white/5 z-40 transition-transform duration-300 -translate-x-full md:translate-x-0" id="sidebar">
-<div class="p-6">
-<p class="text-[10px] font-bold text-outline uppercase tracking-[0.2em] mb-4">Navigation</p>
-<nav class="space-y-1">
-<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all text-on-surface-variant group" href="/admin/dashboard">
-<i class="fas fa-chart-pie w-5 text-lg group-hover:text-primary transition-colors"></i>
-<span class="font-medium text-sm">Dashboard</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all text-on-surface-variant group" href="/admin/sellers">
-<i class="fas fa-users w-5 text-lg group-hover:text-primary transition-colors"></i>
-<span class="font-medium text-sm">Seller</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all text-on-surface-variant group" href="/admin/products">
-<i class="fas fa-box w-5 text-lg group-hover:text-primary transition-colors"></i>
-<span class="font-medium text-sm">Produk</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all text-on-surface-variant group" href="/admin/orders">
-<i class="fas fa-shopping-cart w-5 text-lg group-hover:text-primary transition-colors"></i>
-<span class="font-medium text-sm">Order</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all text-on-surface-variant group" href="/admin/banners">
-<i class="fas fa-images w-5 text-lg group-hover:text-primary transition-colors"></i>
-<span class="font-medium text-sm">Banner</span>
-</a>
-<a class="sidebar-item-active flex items-center gap-3 px-4 py-3 rounded-xl transition-all group" href="/admin/withdrawals">
-<i class="fas fa-arrow-up w-5 text-lg transition-colors"></i>
-<span class="font-medium text-sm">Withdraw</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all text-on-surface-variant group" href="/admin/settings">
-<i class="fas fa-cog w-5 text-lg group-hover:text-primary transition-colors"></i>
-<span class="font-medium text-sm">Pengaturan</span>
-</a>
-</nav>
-<div class="mt-8 pt-8 border-t border-white/5">
-<button class="flex items-center gap-3 px-4 py-3 rounded-xl w-full hover:bg-error/10 text-error/80 transition-all group" id="logoutBtn">
-<i class="fas fa-sign-out-alt w-5 text-lg"></i>
-<span class="font-medium text-sm">Logout Admin</span>
-</button>
-</div>
-</div>
+<div class="fixed inset-0 bg-black/50 z-[800] hidden transition-opacity" id="sidebarOverlay"></div>
+<aside class="fixed top-[76px] left-0 bottom-0 w-[260px] bg-[var(--surface)] border-r-[2px] border-[var(--border)] z-[900] flex flex-col -translate-x-full lg:translate-x-0 transition-transform duration-300" id="sidebar">
+    <div class="p-4 border-b-2 border-[var(--border)] bg-[var(--bg)]"><p class="text-[10px] font-black text-[var(--ink-muted)] uppercase tracking-widest font-mono-tag">Main Menu</p></div>
+    <nav class="p-4 flex flex-col gap-2 flex-1 overflow-y-auto">
+        <a href="/admin/dashboard" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+        <a href="/admin/sellers" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">storefront</span> Sellers</a>
+        <a href="/admin/products" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">inventory_2</span> Produk</a>
+        <a href="/admin/orders" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">shopping_cart</span> Order</a>
+        <a href="/admin/banners" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">ad_units</span> Banner</a>
+        <a href="/admin/withdrawals" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-[var(--border)] bg-[var(--lime)] text-[#0A0A0A] shadow-[3px_3px_0px_var(--shadow-color)]"><span class="material-symbols-outlined">account_balance_wallet</span> Withdraw</a>
+        <a href="/admin/settings" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">settings</span> Pengaturan</a>
+    </nav>
 </aside>
-<!-- Main Content -->
-<main class="md:ml-64 pt-24 p-4 md:p-8 min-h-screen">
-<div class="max-w-7xl mx-auto space-y-6">
-<!-- Header Section -->
-<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
-<div>
-<h1 class="text-3xl font-extrabold text-white tracking-tight">Manajemen Withdraw</h1>
-<p class="text-on-surface-variant mt-1">Pantau dan kelola permintaan pencairan dana dari seller.</p>
-</div>
-<button class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-medium border border-white/10 transition-all" onclick="refreshData()">
-<i class="fas fa-sync-alt text-sm"></i>
-<span>Refresh Data</span>
-</button>
-</div>
-<!-- Debug and Error Boxes -->
-<div class="hidden overflow-hidden rounded-xl bg-slate-900 border border-slate-700/50 font-mono text-[11px] text-slate-300" id="debugBox">
-<div class="bg-slate-800 px-4 py-2 border-b border-slate-700/50 flex items-center justify-between">
-<span class="flex items-center gap-2 text-primary"><i class="fas fa-bug"></i> SYSTEM DEBUG LOG</span>
-<button class="hover:text-white" onclick="toggleDebug()"><i class="fas fa-times"></i></button>
-</div>
-<div class="p-4 max-h-48 overflow-y-auto space-y-1" id="debugLog">
-<div class="text-slate-500 italic">Menunggu log data...</div>
-</div>
-</div>
-<button class="text-xs text-on-surface-variant hover:text-primary flex items-center gap-1 ml-1 opacity-50 hover:opacity-100 transition-all" onclick="toggleDebug()">
-<i class="fas fa-terminal"></i> <u>Toggle Admin Debug Mode</u>
-</button>
-<div class="hidden p-4 rounded-xl bg-error/10 border border-error/20 flex items-start gap-3" id="errorBox">
-<i class="fas fa-exclamation-circle text-error mt-1"></i>
-<div>
-<h4 class="font-bold text-error" id="errorTitle">Terjadi Kesalahan</h4>
-<p class="text-sm text-on-surface-variant" id="errorDetail">Detail error akan muncul di sini.</p>
-</div>
-</div>
-<!-- Filter Bar -->
-<div class="glass-card rounded-2xl p-4 flex flex-wrap items-center gap-4">
-<div class="flex-1 min-w-[200px] flex items-center gap-2">
-<div class="relative flex-1">
-<i class="fas fa-filter absolute left-4 top-1/2 -translate-y-1/2 text-outline text-sm"></i>
-<select class="w-full pl-10 pr-4 py-2.5 bg-background border border-white/5 rounded-xl text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all" id="filterStatus">
-<option value="all">Semua Status</option>
-<option value="pending">Pending</option>
-<option value="approved">Approved</option>
-<option value="rejected">Rejected</option>
-<option value="processing">Processing</option>
-</select>
-</div>
-<div class="flex items-center gap-2">
-<input class="px-4 py-2.5 bg-background border border-white/5 rounded-xl text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all" id="filterDateFrom" type="date"/>
-<span class="text-outline">s/d</span>
-<input class="px-4 py-2.5 bg-background border border-white/5 rounded-xl text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all" id="filterDateTo" type="date"/>
-</div>
-</div>
-<div class="flex items-center gap-2">
-<button class="px-6 py-2.5 rounded-xl bg-primary text-on-primary font-bold text-sm hover:brightness-110 transition-all" onclick="applyFilters()">
-<i class="fas fa-search mr-2"></i>Terapkan
-                    </button>
-<button class="w-11 h-11 rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/10 flex items-center justify-center transition-all" onclick="resetFilters()" title="Reset Filters">
-<i class="fas fa-undo"></i>
-</button>
-</div>
-</div>
-<!-- Main Data Table -->
-<div class="glass-card rounded-2xl overflow-hidden">
-<div class="overflow-x-auto">
-<table class="admin-table w-full text-left border-collapse">
-<thead>
-<tr>
-<th class="px-6 py-4 font-bold">Seller</th>
-<th class="px-6 py-4 font-bold">Metode</th>
-<th class="px-6 py-4 font-bold">Tujuan</th>
-<th class="px-6 py-4 font-bold text-right">Nominal</th>
-<th class="px-6 py-4 font-bold text-center">Status</th>
-<th class="px-6 py-4 font-bold">Tanggal</th>
-<th class="px-6 py-4 font-bold text-center">Aksi</th>
-</tr>
-</thead>
-<tbody id="withdrawalsTableBody">
-<tr>
-<td class="px-6 py-20 text-center" colspan="7">
-<div class="flex flex-col items-center gap-3">
-<div class="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-<p class="text-on-surface-variant font-medium">Menarik data withdraw...</p>
-</div>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<!-- Pagination -->
-<div class="px-6 py-6 border-t border-white/5 flex items-center justify-between" id="pagination"></div>
-</div>
-</div>
+
+<main class="pt-[100px] pb-10 px-4 lg:ml-[260px] transition-all">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-10">
+            <div><span class="neo-tag amber mb-3">PENARIKAN DANA</span><h1 class="font-display text-3xl sm:text-5xl text-[var(--ink)] mt-3">Manajemen Withdraw</h1></div>
+            <div class="w-full md:w-auto">
+                <button class="btn btn-primary w-full md:w-auto" onclick="loadWithdrawals()"><span class="material-symbols-outlined">sync</span> Refresh Data</button>
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Seller</th>
+                        <th>Metode</th>
+                        <th>Nominal</th>
+                        <th>Status</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="wdTableBody">
+                    <tr><td colspan="5" class="text-center py-10 font-bold">Memuat data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </main>
-<!-- Action Modal -->
-<div class="modal-overlay fixed inset-0 z-[100] bg-black/80 backdrop-blur-md hidden items-center justify-center p-4" id="actionModal">
-<div class="bg-surface-container rounded-3xl p-8 max-w-md w-full border border-white/10 shadow-2xl scale-95 transition-transform duration-300">
-<div class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mx-auto mb-6">
-<i class="fas fa-question-circle text-3xl"></i>
-</div>
-<h3 class="text-2xl font-bold text-white text-center mb-2" id="actionModalTitle">Konfirmasi Tindakan</h3>
-<p class="text-on-surface-variant text-center mb-8" id="actionModalMessage">Apakah Anda yakin ingin memproses permintaan withdraw ini?</p>
-<div class="grid grid-cols-2 gap-4">
-<button class="py-3.5 rounded-2xl bg-primary text-on-primary font-bold hover:brightness-110 transition-all flex items-center justify-center gap-2" id="actionConfirmBtn" onclick="confirmWithdrawAction()">
-<i class="fas fa-check"></i> <span>Konfirmasi</span>
-</button>
-<button class="py-3.5 rounded-2xl bg-white/5 text-white font-bold hover:bg-white/10 transition-all border border-white/10" onclick="closeActionModal()">
-                    Batal
-                </button>
-</div>
-</div>
-</div>
-<!-- Toasts Container -->
-<div class="fixed bottom-8 right-8 z-[200] flex flex-col gap-3 pointer-events-none" id="toastContainer"></div>
-<script type="importmap">
-        {
-            "imports": {
-                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
-                "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js",
-                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"
-            }
-        }
-    </script>
-<script type="module">
-        import { initializeApp } from "firebase/app";
-        import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, updateDoc } from "firebase/firestore";
 
-        console.log('💰 [ADMIN_WITHDRAWALS] Page loaded');
+<script>
+(function() { const saved = localStorage.getItem('pk-theme'); if (saved) document.documentElement.setAttribute('data-theme', saved); })();
+document.getElementById('themeToggle').addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next); document.body.setAttribute('data-theme', next); localStorage.setItem('pk-theme', next);
+    document.getElementById('themeToggle').innerHTML = `<span class="material-symbols-outlined text-lg">${next === 'dark' ? 'light_mode' : 'dark_mode'}</span>`;
+});
+const sidebar = document.getElementById('sidebar'); const sidebarOverlay = document.getElementById('sidebarOverlay');
+document.getElementById('sidebarToggle').addEventListener('click', () => { sidebar.classList.toggle('-translate-x-full'); sidebarOverlay.classList.toggle('hidden'); });
+sidebarOverlay.addEventListener('click', () => { sidebar.classList.add('-translate-x-full'); sidebarOverlay.classList.add('hidden'); });
+document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.clear(); window.location.href = '/admin/login'; });
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
-            authDomain: "productkuu.firebaseapp.com",
-            projectId: "productkuu",
-            storageBucket: "productkuu.firebasestorage.app",
-            messagingSenderId: "6615996108",
-            appId: "1:6615996108:web:daa6e17c1275d3061cd469",
-            measurementId: "G-78ZPLZMFEJ"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        let currentUser = null;
-        let withdrawals = [], lastDoc = null, hasMore = true, currentPage = 1, actionId = null, actionType = null, limitPerPage = 20;
-        let debugVisible = false;
-
-        function addDebug(message, type = 'info') {
-            const colors = { success: 'text-green-400', error: 'text-red-400', info: 'text-blue-400', warning: 'text-yellow-400' };
-            const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
-            const log = document.getElementById('debugLog');
-            const time = new Date().toLocaleTimeString();
-            
-            const line = document.createElement('div');
-            line.className = `border-b border-white/5 pb-1 mb-1 ${colors[type] || 'text-slate-300'}`;
-            line.innerHTML = `<span class="opacity-50">[${time}]</span> ${icons[type] || 'ℹ️'} ${message}`;
-            log.appendChild(line);
-            
-            console.log(`[ADMIN_WITHDRAWALS_DEBUG] ${message}`);
-            log.scrollTop = log.scrollHeight;
-        }
-
-        window.toggleDebug = function() {
-            const box = document.getElementById('debugBox');
-            debugVisible = !debugVisible;
-            if (debugVisible) {
-                box.classList.remove('hidden');
-                addDebug('Debug mode activated', 'info');
-            } else {
-                box.classList.add('hidden');
-            }
-        };
-
-        window.refreshData = function() {
-            addDebug('Manual refresh triggered', 'info');
-            showToast('info', 'Memperbarui data withdraw...');
-            loadWithdrawals(true);
-        };
-
-        // Theme Toggle Persistence
-        const themeToggle = document.getElementById('themeToggle');
-        let darkMode = localStorage.getItem('darkMode') !== 'false'; // Default true for admin
-        document.documentElement.classList.toggle('dark', darkMode);
+async function loadWithdrawals() {
+    const tbody = document.getElementById('wdTableBody');
+    try {
+        const res = await fetch('/api/withdrawals');
+        const data = await res.json();
         
-        themeToggle.addEventListener('click', () => {
-            darkMode = !darkMode;
-            document.documentElement.classList.toggle('dark', darkMode);
-            localStorage.setItem('darkMode', darkMode);
-            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+        if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 font-bold">Belum ada penarikan.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = data.map(w => `
+            <tr>
+                <td class="font-black">${w.accountName || 'Seller'}</td>
+                <td class="font-mono-tag text-xs">${w.method || 'Bank'}</td>
+                <td class="font-mono-tag text-[var(--blue)] font-bold">Rp${new Intl.NumberFormat('id-ID').format(w.amount || 0)}</td>
+                <td><span class="badge ${w.status === 'approved' ? 'badge-success' : (w.status === 'pending' ? 'badge-warning' : 'badge-danger')}">${w.status || 'pending'}</span></td>
+                <td class="text-center">
+                    ${w.status === 'pending' ? `
+                        <button class="btn btn-primary !py-1 !px-3 text-xs" onclick="updateStatus('${w.id}', 'approved')">Setujui</button>
+                        <button class="btn btn-danger !py-1 !px-3 text-xs" onclick="updateStatus('${w.id}', 'rejected')">Tolak</button>
+                    ` : '<span class="text-xs opacity-50 font-mono-tag">Selesai</span>'}
+                </td>
+            </tr>
+        `).join('');
+    } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-red-500 font-bold py-10">Gagal memuat: ${e.message}</td></tr>`;
+    }
+}
+
+window.updateStatus = async (id, status) => {
+    if(!confirm(`Ubah status menjadi ${status}?`)) return;
+    try {
+        const res = await fetch('/api/withdrawals/' + id);
+        const w = await res.json();
+        await fetch('/api/withdrawals', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...w, id, status, updatedAt: new Date().toISOString() })
         });
+        loadWithdrawals();
+    } catch(e) { alert('Gagal update status'); }
+};
 
-        // Sidebar Management
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('-translate-x-full');
-                sidebarOverlay.classList.toggle('hidden');
-            });
-        }
-        
-        if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', () => {
-                sidebar.classList.add('-translate-x-full');
-                sidebarOverlay.classList.add('hidden');
-            });
-        }
-
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            if (confirm('Yakin ingin keluar?')) {
-                try { await signOut(auth); window.location.href = '/'; } 
-                catch (error) { showToast('error', 'Gagal logout'); }
-            }
-        });
-
-        function showToast(type, message) {
-            const container = document.getElementById('toastContainer');
-            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
-            const colors = { success: 'border-primary text-primary bg-primary/10', error: 'border-error text-error bg-error/10', warning: 'border-tertiary-fixed-dim text-tertiary-fixed-dim bg-tertiary-fixed-dim/10', info: 'border-secondary text-secondary bg-secondary/10' };
-            
-            const toast = document.createElement('div');
-            toast.className = `pointer-events-auto px-6 py-4 rounded-2xl border backdrop-blur-md shadow-2xl flex items-center gap-4 animate-slide-in-right ${colors[type] || colors.info}`;
-            toast.style.animation = 'slideInRight 0.3s ease-out forwards';
-            toast.innerHTML = `
-                <i class="fas ${icons[type]} text-xl"></i>
-                <div class="font-bold text-sm text-white">${message}</div>
-                <button onclick="this.parentElement.remove()" class="ml-auto opacity-50 hover:opacity-100"><i class="fas fa-times"></i></button>
-            `;
-            container.appendChild(toast);
-            setTimeout(() => { 
-                toast.style.animation = 'slideInRight 0.3s ease-in reverse forwards';
-                setTimeout(() => { if (toast.parentElement) toast.remove(); }, 300);
-            }, 5000);
-        }
-        window.showToast = showToast;
-
-        function showError(title, detail) {
-            const box = document.getElementById('errorBox');
-            document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
-            document.getElementById('errorDetail').textContent = detail || '';
-            box.classList.remove('hidden');
-            setTimeout(() => { box.classList.add('hidden'); }, 10000);
-        }
-
-        function formatPrice(price) {
-            if (!price && price !== 0) return '0';
-            return new Intl.NumberFormat('id-ID').format(price);
-        }
-
-        function formatDate(date) {
-            if (!date) return '-';
-            const d = date instanceof Date ? date : new Date(date);
-            if (isNaN(d.getTime())) return '-';
-            return d.toLocaleDateString('id-ID', {
-                year: 'numeric', month: 'short', day: 'numeric',
-                hour: '2-digit', minute: '2-digit'
-            });
-        }
-
-        // ============================================
-        // AUTH STATE
-        // ============================================
-        addDebug('Setting up auth...', 'info');
-
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                addDebug('User not logged in, redirecting...', 'warning');
-                window.location.href = '/admin/login';
-                return;
-            }
-            currentUser = user;
-            addDebug(`User logged in: ${user.email}`, 'success');
-
-            try {
-                const userRef = doc(db, 'users', user.uid);
-                const userDoc = await getDoc(userRef);
-                if (!userDoc.exists() || userDoc.data().role !== 'admin') {
-                    addDebug('User is not admin, redirecting...', 'error');
-                    window.location.href = '/';
-                    return;
-                }
-                addDebug('Admin verified', 'success');
-                await loadWithdrawals(true);
-
-            } catch (error) {
-                addDebug(`Error: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat data: ' + error.message);
-            }
-        });
-
-        // ============================================
-        // LOAD WITHDRAWALS
-        // ============================================
-        async function loadWithdrawals(reset = true) {
-            addDebug(`Loading withdrawals (reset: ${reset})...`, 'info');
-            try {
-                const tbody = document.getElementById('withdrawalsTableBody');
-                if (reset) { 
-                    lastDoc = null; 
-                    hasMore = true; 
-                    withdrawals = []; 
-                    currentPage = 1;
-                    tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-20 text-center"><div class="flex flex-col items-center gap-3"><div class="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div><p class="text-on-surface-variant">Memuat data...</p></div></td></tr>';
-                }
-                
-                if (!hasMore && !reset) {
-                    addDebug('No more withdrawals to load', 'info');
-                    return;
-                }
-                
-                let constraints = [orderBy('createdAt', 'desc')];
-                const status = document.getElementById('filterStatus').value;
-                if (status !== 'all') {
-                    constraints.push(where('status', '==', status));
-                    addDebug(`Filter by status: ${status}`, 'info');
-                }
-                
-                let q = query(collection(db, 'withdrawals'), ...constraints, limit(limitPerPage));
-                if (lastDoc) q = query(collection(db, 'withdrawals'), ...constraints, startAfter(lastDoc), limit(limitPerPage));
-                
-                const snapshot = await getDocs(q);
-                addDebug(`Query returned ${snapshot.size} documents`, 'info');
-                
-                if (snapshot.empty) { 
-                    hasMore = false; 
-                    if (reset) {
-                        tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-20 text-center text-on-surface-variant font-medium">Tidak ada data withdraw yang ditemukan</td></tr>';
-                    }
-                    return; 
-                }
-                
-                lastDoc = snapshot.docs[snapshot.docs.length - 1];
-                hasMore = snapshot.docs.length === limitPerPage;
-                
-                const newData = [];
-                for (const docSnapshot of snapshot.docs) {
-                    const data = docSnapshot.data();
-                    let sellerName = 'Unknown';
-                    if (data.sellerId) {
-                        try {
-                            const sellerRef = doc(db, 'users', data.sellerId);
-                            const sellerDoc = await getDoc(sellerRef);
-                            if (sellerDoc.exists()) {
-                                sellerName = sellerDoc.data().storeName || 
-                                            sellerDoc.data().displayName || 
-                                            sellerDoc.data().name || 
-                                            'Seller';
-                            }
-                        } catch (sellerError) {
-                            addDebug(`Error getting seller ${data.sellerId}: ${sellerError.message}`, 'warning');
-                        }
-                    }
-                    newData.push({ id: docSnapshot.id, ...data, sellerName });
-                }
-                withdrawals = reset ? newData : [...withdrawals, ...newData];
-                addDebug(`Loaded ${withdrawals.length} withdrawals total`, 'success');
-                renderWithdrawals();
-            } catch (error) { 
-                addDebug(`Error loading withdrawals: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat withdraw: ' + error.message); 
-            }
-        }
-
-        // ============================================
-        // RENDER WITHDRAWALS
-        // ============================================
-        function renderWithdrawals() {
-            const tbody = document.getElementById('withdrawalsTableBody');
-            if (withdrawals.length === 0) { 
-                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-20 text-center text-on-surface-variant">Tidak ada withdraw ditemukan.</td></tr>'; 
-                document.getElementById('pagination').innerHTML = ''; 
-                return; 
-            }
-            
-            const statusColors = { 
-                'pending': 'badge-warning', 
-                'approved': 'badge-success', 
-                'rejected': 'badge-danger', 
-                'processing': 'badge-info' 
-            };
-
-            tbody.innerHTML = withdrawals.map(w => `
-                <tr class="group transition-colors">
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[10px] font-bold text-primary border border-white/5">
-                                ${w.sellerName.substring(0,2).toUpperCase()}
-                            </div>
-                            <span class="font-semibold text-white truncate max-w-[150px]">${w.sellerName}</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="text-xs font-bold text-on-surface-variant bg-white/5 px-2 py-1 rounded-md border border-white/5">${w.method}</span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="flex flex-col">
-                            <span class="text-sm text-white font-medium font-mono">${w.accountNumber}</span>
-                            <span class="text-[10px] text-on-surface-variant uppercase tracking-wider">${w.accountName}</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                        <span class="text-primary font-bold font-mono">Rp${formatPrice(w.amount)}</span>
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                        <span class="badge ${statusColors[w.status] || 'badge-info'} text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest inline-block">
-                            ${w.status}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="text-xs text-on-surface-variant">${formatDate(w.createdAt)}</span>
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                        <div class="flex items-center justify-center gap-2">
-                            ${w.status === 'pending' ? `
-                                <button onclick="approveWithdraw('${w.id}')" class="w-8 h-8 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-on-primary transition-all flex items-center justify-center" title="Approve">
-                                    <i class="fas fa-check text-xs"></i>
-                                </button>
-                                <button onclick="rejectWithdraw('${w.id}')" class="w-8 h-8 rounded-lg bg-error/10 text-error hover:bg-error hover:text-on-error transition-all flex items-center justify-center" title="Reject">
-                                    <i class="fas fa-times text-xs"></i>
-                                </button>
-                            ` : `
-                                <span class="text-[10px] text-outline italic">Processed</span>
-                            `}
-                        </div>
-                        ${w.adminNote ? `<div class="mt-1 text-[9px] text-outline truncate max-w-[100px] mx-auto" title="${w.adminNote}">${w.adminNote}</div>` : ''}
-                    </td>
-                </tr>
-            `).join('');
-            
-            renderPagination();
-        }
-
-        function renderPagination() {
-            const container = document.getElementById('pagination');
-            if (!hasMore && withdrawals.length <= limitPerPage && currentPage === 1) { 
-                container.innerHTML = `<span class="text-sm text-outline">Menampilkan semua ${withdrawals.length} data</span>`; 
-                return; 
-            }
-            container.innerHTML = `
-                <span class="text-sm text-outline">Hal. ${currentPage} &bull; ${withdrawals.length} entri dimuat</span>
-                <div class="flex items-center gap-2">
-                    <button onclick="loadPreviousPage()" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold hover:bg-white/10 transition-all ${currentPage <= 1 ? 'opacity-30 cursor-not-allowed' : ''}" ${currentPage <= 1 ? 'disabled' : ''}>
-                        <i class="fas fa-chevron-left mr-2"></i>Sebelumnya
-                    </button>
-                    <button onclick="loadNextPage()" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold hover:bg-white/10 transition-all ${!hasMore ? 'opacity-30 cursor-not-allowed' : ''}" ${!hasMore ? 'disabled' : ''}>
-                        Selanjutnya<i class="fas fa-chevron-right ml-2"></i>
-                    </button>
-                </div>
-            `;
-        }
-
-        window.loadNextPage = function() { 
-            addDebug('Next page clicked', 'info');
-            currentPage++; 
-            loadWithdrawals(false); 
-        };
-
-        window.loadPreviousPage = function() { 
-            addDebug('Previous page clicked', 'info');
-            if (currentPage <= 1) return; 
-            currentPage--; 
-            lastDoc = null; 
-            hasMore = true; 
-            loadWithdrawals(true); 
-        };
-
-        window.applyFilters = function() { 
-            addDebug('Applying filters', 'info');
-            lastDoc = null; 
-            hasMore = true; 
-            loadWithdrawals(true); 
-        };
-
-        window.resetFilters = function() { 
-            addDebug('Resetting filters', 'info');
-            document.getElementById('filterStatus').value = 'all'; 
-            document.getElementById('filterDateFrom').value = ''; 
-            document.getElementById('filterDateTo').value = ''; 
-            applyFilters(); 
-        };
-
-        // ============================================
-        // WITHDRAWAL ACTIONS
-        // ============================================
-        window.approveWithdraw = function(id) {
-            addDebug(`Approve withdraw: ${id}`, 'info');
-            actionId = id;
-            actionType = 'approve';
-            document.getElementById('actionModalTitle').textContent = 'Approve Withdraw';
-            document.getElementById('actionModalMessage').textContent = 'Konfirmasi penyetujuan pencairan dana ini? Dana akan dianggap sudah terkirim.';
-            
-            const confirmBtn = document.getElementById('actionConfirmBtn');
-            confirmBtn.className = 'py-3.5 rounded-2xl bg-primary text-on-primary font-bold hover:brightness-110 transition-all flex items-center justify-center gap-2';
-            confirmBtn.innerHTML = '<i class="fas fa-check"></i> <span>Ya, Approve</span>';
-            
-            document.getElementById('actionModal').classList.remove('hidden');
-            document.getElementById('actionModal').classList.add('flex');
-            setTimeout(() => { document.getElementById('actionModal').querySelector('.scale-95').classList.replace('scale-95', 'scale-100'); }, 10);
-        };
-
-        window.rejectWithdraw = function(id) {
-            addDebug(`Reject withdraw: ${id}`, 'warning');
-            const note = prompt('Tuliskan alasan penolakan (opsional):');
-            if (note === null) return;
-            
-            actionId = id;
-            actionType = 'reject';
-            document.getElementById('actionModalTitle').textContent = 'Reject Withdraw';
-            document.getElementById('actionModalMessage').textContent = 'Konfirmasi penolakan withdraw? Saldo akan dikembalikan ke seller.';
-            
-            const confirmBtn = document.getElementById('actionConfirmBtn');
-            confirmBtn.className = 'py-3.5 rounded-2xl bg-error text-on-error font-bold hover:brightness-110 transition-all flex items-center justify-center gap-2';
-            confirmBtn.innerHTML = '<i class="fas fa-times"></i> <span>Ya, Tolak</span>';
-            
-            document.getElementById('actionModal').classList.remove('hidden');
-            document.getElementById('actionModal').classList.add('flex');
-            document.getElementById('actionModal').dataset.note = note;
-            setTimeout(() => { document.getElementById('actionModal').querySelector('.scale-95').classList.replace('scale-95', 'scale-100'); }, 10);
-        };
-
-        window.closeActionModal = function() { 
-            const modal = document.getElementById('actionModal');
-            modal.querySelector('.scale-100').classList.replace('scale-100', 'scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                actionId = null; 
-                actionType = null; 
-                delete modal.dataset.note;
-            }, 300);
-        };
-
-        window.confirmWithdrawAction = async function() {
-            if (!actionId || !actionType) return;
-            addDebug(`Confirming ${actionType} for ${actionId}`, 'info');
-            
-            const confirmBtn = document.getElementById('actionConfirmBtn');
-            const originalContent = confirmBtn.innerHTML;
-            confirmBtn.disabled = true;
-            confirmBtn.innerHTML = '<i class="fas fa-circle-notch animate-spin"></i> Memproses...';
-
-            try {
-                const note = document.getElementById('actionModal').dataset.note || (actionType === 'approve' ? 'Disetujui admin' : 'Ditolak admin');
-                
-                const withdrawRef = doc(db, 'withdrawals', actionId);
-                const withdrawDoc = await getDoc(withdrawRef);
-                
-                if (!withdrawDoc.exists()) {
-                    throw new Error('Data withdraw tidak ditemukan');
-                }
-                
-                const withdrawData = withdrawDoc.data();
-                const sellerId = withdrawData.sellerId;
-                const amount = withdrawData.amount;
-                
-                // UPDATE STATUS WITHDRAW
-                await updateDoc(withdrawRef, {
-                    status: actionType === 'approve' ? 'approved' : 'rejected',
-                    adminNote: note,
-                    updatedAt: new Date().toISOString()
-                });
-
-                // UPDATE WALLET SELLER
-                const userRef = doc(db, 'users', sellerId);
-                const userDoc = await getDoc(userRef);
-                
-                if (userDoc.exists()) {
-                    const wallet = userDoc.data().wallet || {};
-                    
-                    if (actionType === 'approve') {
-                        // APPROVE: Kurangi pendingWithdraw, tambah totalWithdraw
-                        await updateDoc(userRef, {
-                            'wallet.pendingWithdraw': Math.max(0, (wallet.pendingWithdraw || 0) - amount),
-                            'wallet.totalWithdraw': (wallet.totalWithdraw || 0) + amount,
-                            updatedAt: new Date().toISOString()
-                        });
-                        addDebug(`✅ Approved withdraw for seller ${sellerId}`, 'success');
-                    } else {
-                        // REJECT: Kurangi pendingWithdraw, KEMBALIKAN ke available
-                        await updateDoc(userRef, {
-                            'wallet.pendingWithdraw': Math.max(0, (wallet.pendingWithdraw || 0) - amount),
-                            'wallet.available': (wallet.available || 0) + amount,
-                            updatedAt: new Date().toISOString()
-                        });
-                        addDebug(`❌ Rejected withdraw for seller ${sellerId}, saldo dikembalikan`, 'success');
-                    }
-                }
-
-                showToast('success', `Withdraw berhasil ${actionType === 'approve' ? 'disetujui' : 'ditolak'}`);
-                closeActionModal();
-                loadWithdrawals(true);
-                
-            } catch (error) {
-                addDebug(`Error processing withdrawal: ${error.message}`, 'error');
-                showToast('error', error.message);
-            } finally {
-                confirmBtn.disabled = false;
-                confirmBtn.innerHTML = originalContent;
-            }
-        };
-
-        addDebug('Page ready', 'success');
-        console.log('✅ [ADMIN_WITHDRAWALS] Page ready');
-    </script>
-</body></html>
+document.addEventListener('DOMContentLoaded', loadWithdrawals);
+</script>
+</body>
+</html>

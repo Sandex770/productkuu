@@ -1,713 +1,198 @@
 <!DOCTYPE html>
-
-<html class="dark" lang="id"><head>
+<html lang="id">
+<head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pengaturan - ProductKuu Admin</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<title>Pengaturan - ProductKuu</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@700&family=Archivo+Black&display=swap" rel="stylesheet"/>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "surface-container": "#1f1f27",
-                    "on-primary-container": "#006970",
-                    "secondary-fixed-dim": "#ecb2ff",
-                    "tertiary-fixed-dim": "#ffb77f",
-                    "primary-fixed-dim": "#00dbe9",
-                    "inverse-surface": "#e4e1ed",
-                    "outline-variant": "#3b494b",
-                    "surface-container-highest": "#34343d",
-                    "tertiary": "#fff3ed",
-                    "surface-container-high": "#292932",
-                    "on-secondary-container": "#480063",
-                    "tertiary-container": "#ffd0ae",
-                    "on-secondary-fixed": "#320047",
-                    "on-error": "#690005",
-                    "primary-fixed": "#7df4ff",
-                    "surface-bright": "#393842",
-                    "primary-container": "#00f0ff",
-                    "secondary-container": "#cf5cff",
-                    "on-error-container": "#ffdad6",
-                    "surface-dim": "#13131b",
-                    "secondary": "#ecb2ff",
-                    "on-tertiary-fixed": "#2f1500",
-                    "on-tertiary": "#4e2600",
-                    "error": "#ffb4ab",
-                    "background": "#13131b",
-                    "tertiary-fixed": "#ffdcc4",
-                    "outline": "#849495",
-                    "secondary-fixed": "#f8d8ff",
-                    "on-primary-fixed": "#002022",
-                    "on-surface-variant": "#b9cacb",
-                    "surface-variant": "#34343d",
-                    "on-tertiary-container": "#924c00",
-                    "error-container": "#93000a",
-                    "primary": "#dbfcff",
-                    "on-secondary": "#520071",
-                    "on-primary-fixed-variant": "#004f54",
-                    "on-primary": "#00363a",
-                    "inverse-primary": "#006970",
-                    "inverse-on-surface": "#302f39",
-                    "surface-container-lowest": "#0d0d15",
-                    "surface": "#13131b",
-                    "on-tertiary-fixed-variant": "#6f3900",
-                    "on-background": "#e4e1ed",
-                    "surface-container-low": "#1b1b23",
-                    "on-secondary-fixed-variant": "#74009f",
-                    "surface-tint": "#00dbe9",
-                    "on-surface": "#e4e1ed"
-            },
-            "borderRadius": {
-                    "DEFAULT": "0.25rem",
-                    "lg": "0.5rem",
-                    "xl": "0.75rem",
-                    "full": "9999px"
-            },
-            "fontFamily": {
-                    "label-md": ["JetBrains Mono"],
-                    "body-md": ["Inter"],
-                    "label-sm": ["JetBrains Mono"],
-                    "body-lg": ["Inter"],
-                    "headline-md": ["Inter"],
-                    "headline-lg": ["Inter"],
-                    "display-lg": ["Inter"]
-            }
-          }
-        }
-      }
-    </script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #13131b;
-            color: #e4e1ed;
-        }
-        .glass-card {
-            background: rgba(31, 31, 39, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 1rem;
-        }
-        .sidebar-item-active {
-            background: rgba(0, 219, 233, 0.1);
-            color: #00dbe9;
-            border-right: 2px solid #00dbe9;
-        }
-        .input-glow:focus {
-            box-shadow: 0 0 15px rgba(0, 219, 233, 0.15);
-        }
-        .btn-gradient-primary {
-            background: linear-gradient(135deg, #00dbe9, #cf5cff);
-            transition: all 0.3s ease;
-        }
-        .btn-gradient-primary:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0d0d15; }
-        ::-webkit-scrollbar-thumb { background: #34343d; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #484852; }
-
-        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
-        .toast { padding: 16px 20px; border-radius: 0.75rem; background: #1f1f27; box-shadow: 0 10px 40px rgba(0,0,0,0.5); border-left: 4px solid #00dbe9; animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-    </style>
+:root,[data-theme="light"]{--bg:#F4F1E8;--bg-grid:rgba(0,0,0,.055);--surface:#FFF;--surface-2:#FAF8F0;--ink:#0A0A0A;--ink-muted:#4A4A4A;--ink-soft:#7A7A7A;--lime:#C4F000;--lime-deep:#9BC400;--amber:#FFC400;--amber-deep:#D9A300;--blue:#2B6FFF;--blue-deep:#1E4FCC;--blue-soft:#E6EEFF;--border:#0A0A0A;--border-width:2px;--shadow-color:#0A0A0A;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(0,0,0,.08);--nav-bg:#F4F1E8}
+[data-theme="dark"]{--bg:#0B0B0D;--bg-grid:rgba(255,255,255,.045);--surface:#16161A;--surface-2:#1E1E24;--ink:#F5F3EC;--ink-muted:#B8B8C0;--ink-soft:#8A8A92;--lime:#C4F000;--lime-deep:#A8D400;--amber:#FFC400;--amber-deep:#E0AC00;--blue:#4D8BFF;--blue-deep:#2B6FFF;--blue-soft:#1A2540;--border:#F5F3EC;--border-width:2px;--shadow-color:#F5F3EC;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(255,255,255,.06);--nav-bg:#0B0B0D}
+*{scroll-behavior:smooth;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);margin:0;line-height:1.6;overflow-x:hidden;transition:background-color .35s ease,color .35s ease;background-image:linear-gradient(to right,var(--grid-line) 1px,transparent 1px),linear-gradient(to bottom,var(--grid-line) 1px,transparent 1px);background-size:28px 28px;background-attachment:fixed}
+.font-mono-tag{font-family:'Space Mono',monospace}
+.font-display{font-family:'Archivo Black',sans-serif;letter-spacing:-.02em}
+.neo-tag{display:inline-flex;align-items:center;gap:6px;background:var(--lime);color:#0A0A0A;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:.9px;padding:6px 14px;border:var(--border-width) solid var(--border);box-shadow:3px 3px 0 var(--shadow-color);font-family:'Space Mono',monospace}
+.neo-tag.blue{background:var(--blue);color:#FFF}
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.6px;padding:10px 20px;border:var(--border-width) solid var(--border);border-radius:0;cursor:pointer;text-decoration:none;transition:all .09s;white-space:nowrap}
+.btn-primary{background:var(--lime);color:#0A0A0A;box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.btn-primary:hover:not(:disabled){transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--shadow-color);background:var(--amber)}
+.btn-secondary{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.btn-secondary:hover:not(:disabled){transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--blue);border-color:var(--blue);color:var(--blue)}
+.btn-danger{background:#FF4444;color:#FFF;box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.form-input{width:100%;background:var(--bg);border:var(--border-width) solid var(--border);padding:11px 14px;color:var(--ink);font-weight:600;font-size:14px;outline:none}
+.form-input:focus{border-color:var(--blue);box-shadow:4px 4px 0 var(--blue)}
+.card{background:var(--surface);border:var(--border-width) solid var(--border);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color);padding:24px}
+</style>
 </head>
-<body class="min-h-screen">
-<!-- Navbar -->
-<nav class="fixed top-0 left-0 right-0 h-16 bg-surface-container-low/80 backdrop-blur-md border-b border-white/5 z-[1000]">
-<div class="h-full max-w-[1400px] mx-auto px-4 md:px-6 flex items-center justify-between">
-<a class="flex items-center gap-2 text-xl font-bold text-on-surface" href="/">
-<i class="fas fa-cube text-primary-fixed-dim"></i>
-<span>ProductKuu</span>
-</a>
-<div class="flex items-center gap-3">
-<span class="px-2 py-0.5 rounded-full bg-primary-fixed-dim/10 text-primary-fixed-dim text-[11px] font-bold uppercase tracking-wider">Admin</span>
-<button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-colors" id="themeToggle">
-<i class="fas fa-moon"></i>
-</button>
-<button class="lg:hidden w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-colors" id="sidebarToggle">
-<i class="fas fa-bars"></i>
-</button>
-</div>
-</div>
-</nav>
-<div class="flex pt-16 min-h-screen">
-<!-- Sidebar -->
-<aside class="fixed lg:sticky top-16 h-[calc(100vh-64px)] w-64 bg-surface-container-lowest border-r border-white/5 overflow-y-auto transition-transform duration-300 -translate-x-full lg:translate-x-0 z-[999]" id="sidebar">
-<div class="p-4">
-<p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.2em] mb-4 px-4">Menu Utama</p>
-<nav class="space-y-1">
-<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="/admin/dashboard">
-<i class="fas fa-chart-pie w-5"></i>
-<span class="text-sm font-medium">Dashboard</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="/admin/sellers">
-<i class="fas fa-users w-5"></i>
-<span class="text-sm font-medium">Seller</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="/admin/products">
-<i class="fas fa-box w-5"></i>
-<span class="text-sm font-medium">Produk</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="/admin/orders">
-<i class="fas fa-shopping-cart w-5"></i>
-<span class="text-sm font-medium">Order</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="/admin/banners">
-<i class="fas fa-images w-5"></i>
-<span class="text-sm font-medium">Banner</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="/admin/withdrawals">
-<i class="fas fa-arrow-up w-5"></i>
-<span class="text-sm font-medium">Withdraw</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-lg sidebar-item-active" href="/admin/settings">
-<i class="fas fa-cog w-5"></i>
-<span class="text-sm font-medium">Pengaturan</span>
-</a>
-<div class="pt-4 mt-4 border-t border-white/5">
-<button class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-error hover:bg-error-container/10 transition-all text-left" id="logoutBtn">
-<i class="fas fa-sign-out-alt w-5"></i>
-<span class="text-sm font-medium">Logout</span>
-</button>
+<body data-theme="light">
+
+<script>
+    const token = localStorage.getItem('pk_token');
+    const userStr = localStorage.getItem('pk_user');
+    if (!token || !userStr) { window.location.replace('/admin/login'); } 
+    else { try { const u = JSON.parse(userStr); if (u.role !== 'admin') window.location.replace('/'); } catch(e) { window.location.replace('/admin/login'); } }
+</script>
+
+<nav class="fixed top-0 left-0 right-0 z-[1000] h-[76px] bg-[var(--nav-bg)] border-b-[2px] border-[var(--border)]">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-3">
+    <a class="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-2 shrink-0" href="/admin/dashboard">
+        <span class="bg-[var(--lime)] text-[#0A0A0A] px-2.5 py-1 border-2 border-[var(--border)] font-black shadow-[2px_2px_0px_var(--shadow-color)]">Admin</span>
+        <span class="text-[var(--ink)] font-black">Panel</span>
+    </a>
+    <div class="flex items-center gap-2.5">
+        <button class="btn btn-secondary !py-2 !px-3.5" id="themeToggle"><span class="material-symbols-outlined text-lg">dark_mode</span></button>
+        <button class="lg:hidden btn btn-secondary !py-2 !px-3.5" id="sidebarToggle"><span class="material-symbols-outlined text-lg">menu</span></button>
+        <button class="btn btn-danger !py-2 !px-3.5" id="logoutBtn">Logout</button>
+    </div>
 </div>
 </nav>
-</div>
+<div class="fixed inset-0 bg-black/50 z-[800] hidden transition-opacity" id="sidebarOverlay"></div>
+<aside class="fixed top-[76px] left-0 bottom-0 w-[260px] bg-[var(--surface)] border-r-[2px] border-[var(--border)] z-[900] flex flex-col -translate-x-full lg:translate-x-0 transition-transform duration-300" id="sidebar">
+    <div class="p-4 border-b-2 border-[var(--border)] bg-[var(--bg)]"><p class="text-[10px] font-black text-[var(--ink-muted)] uppercase tracking-widest font-mono-tag">Main Menu</p></div>
+    <nav class="p-4 flex flex-col gap-2 flex-1 overflow-y-auto">
+        <a href="/admin/dashboard" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+        <a href="/admin/sellers" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">storefront</span> Sellers</a>
+        <a href="/admin/products" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">inventory_2</span> Produk</a>
+        <a href="/admin/orders" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">shopping_cart</span> Order</a>
+        <a href="/admin/banners" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">ad_units</span> Banner</a>
+        <a href="/admin/withdrawals" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">account_balance_wallet</span> Withdraw</a>
+        <a href="/admin/settings" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-[var(--border)] bg-[var(--lime)] text-[#0A0A0A] shadow-[3px_3px_0px_var(--shadow-color)]"><span class="material-symbols-outlined">settings</span> Pengaturan</a>
+    </nav>
 </aside>
-<!-- Sidebar Overlay -->
-<div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[998] hidden" id="sidebarOverlay"></div>
-<!-- Main Content -->
-<main class="flex-1 p-4 md:p-8 overflow-x-hidden">
-<div class="max-w-6xl mx-auto">
-<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-<div>
-<h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-on-surface">Pengaturan Website</h1>
-<p class="text-on-surface-variant mt-1">Konfigurasi parameter sistem dan tampilan marketplace</p>
-</div>
-<button class="px-4 py-2 bg-surface-container-highest border border-white/5 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-surface-bright transition-all" onclick="refreshData()">
-<i class="fas fa-sync-alt"></i> Refresh
-                    </button>
-</div>
-<!-- Debug Console -->
-<div class="mb-6">
-<button class="text-xs font-mono text-tertiary-fixed-dim underline opacity-60 hover:opacity-100 flex items-center gap-2" onclick="toggleDebug()">
-<i class="fas fa-bug"></i> Toggle Console Log
-                    </button>
-<div class="hidden mt-3 bg-surface-container-lowest border border-white/5 rounded-xl p-4 font-mono text-[11px] text-on-surface-variant max-h-40 overflow-y-auto" id="debugBox">
-<div class="text-primary-fixed-dim">🔍 Debug Mode Active</div>
-<div class="mt-1" id="debugLog">Menunggu data...</div>
-</div>
-</div>
-<!-- Error Alert -->
-<div class="hidden mb-6 p-4 bg-error-container/20 border border-error/20 rounded-xl flex items-start gap-3" id="errorBox">
-<i class="fas fa-exclamation-triangle text-error mt-1"></i>
-<div>
-<p class="text-sm font-bold text-error" id="errorTitle">Gagal Memuat Data</p>
-<p class="text-xs text-on-surface-variant mt-0.5" id="errorDetail">Terjadi kesalahan saat sinkronisasi.</p>
-</div>
-</div>
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-<!-- Website Settings -->
-<div class="glass-card p-6">
-<div class="flex items-center gap-3 mb-6">
-<div class="w-10 h-10 rounded-xl bg-primary-fixed-dim/10 flex items-center justify-center text-primary-fixed-dim">
-<i class="fas fa-globe"></i>
-</div>
-<h2 class="text-lg font-bold">Identitas Website</h2>
-</div>
-<form class="space-y-4" id="websiteSettingsForm">
-<div class="space-y-1.5">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="siteName">Nama Website</label>
-<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="siteName" placeholder="ProductKuu" type="text"/>
-</div>
-<div class="space-y-1.5">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="siteLogo">Logo URL</label>
-<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="siteLogo" placeholder="https://example.com/logo.png" type="url"/>
-</div>
-<div class="space-y-1.5">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="siteFavicon">Favicon URL</label>
-<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="siteFavicon" placeholder="https://example.com/favicon.ico" type="url"/>
-</div>
-<div class="grid grid-cols-2 gap-4">
-<div class="space-y-1.5">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="primaryColor">Primary</label>
-<div class="relative flex items-center">
-<input class="w-full h-11 bg-surface-container-lowest border border-white/5 rounded-xl p-1 cursor-pointer" id="primaryColor" type="color"/>
-</div>
-</div>
-<div class="space-y-1.5">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="secondaryColor">Secondary</label>
-<div class="relative flex items-center">
-<input class="w-full h-11 bg-surface-container-lowest border border-white/5 rounded-xl p-1 cursor-pointer" id="secondaryColor" type="color"/>
-</div>
-</div>
-</div>
-<button class="w-full btn-gradient-primary py-3 rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 text-white" type="submit">
-<i class="fas fa-save"></i> Simpan Identitas
-                            </button>
-</form>
-</div>
-<!-- Marketplace Settings -->
-<div class="glass-card p-6">
-<div class="flex items-center gap-3 mb-6">
-<div class="w-10 h-10 rounded-xl bg-secondary-container/10 flex items-center justify-center text-secondary">
-<i class="fas fa-shopping-bag"></i>
-</div>
-<h2 class="text-lg font-bold">Bisnis &amp; Finansial</h2>
-</div>
-<form class="space-y-4" id="marketplaceSettingsForm">
-<div class="space-y-1.5">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="commission">Komisi Platform (%)</label>
-<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="commission" placeholder="10" type="number"/>
-</div>
-<div class="grid grid-cols-2 gap-4">
-<div class="space-y-1.5">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="minWithdraw">Min. WD (Rp)</label>
-<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="minWithdraw" placeholder="50000" type="number"/>
-</div>
-<div class="space-y-1.5">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="maxWithdraw">Max. WD (Rp)</label>
-<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="maxWithdraw" placeholder="10000000" type="number"/>
-</div>
-</div>
-<div class="space-y-1.5">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="withdrawMethods">Metode Withdraw</label>
-<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="withdrawMethods" placeholder="DANA, OVO, GoPay, Bank BCA" type="text"/>
-<p class="text-[10px] text-on-surface-variant/60 italic">Gunakan koma sebagai pemisah</p>
-</div>
-<div class="pt-4 border-t border-white/5">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider block mb-3">Waktu Penahanan Saldo (Holding)</label>
-<div class="grid grid-cols-3 gap-3">
-<div class="space-y-1">
-<p class="text-[10px] font-mono text-on-surface-variant">HARI</p>
-<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-3 py-2 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow text-center" id="holdingDays" type="number" value="7"/>
-</div>
-<div class="space-y-1">
-<p class="text-[10px] font-mono text-on-surface-variant">JAM</p>
-<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-3 py-2 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow text-center" id="holdingHours" type="number" value="0"/>
-</div>
-<div class="space-y-1">
-<p class="text-[10px] font-mono text-on-surface-variant">MENIT</p>
-<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-3 py-2 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow text-center" id="holdingMinutes" type="number" value="0"/>
-</div>
-</div>
-<div class="mt-4 p-3 bg-surface-container-highest/40 rounded-xl border border-white/5 flex items-center gap-3">
-<div class="w-8 h-8 rounded-lg bg-tertiary-container/10 flex items-center justify-center text-tertiary-fixed-dim">
-<i class="fas fa-clock text-sm"></i>
-</div>
-<div class="text-xs">
-<p class="text-on-surface-variant">Estimasi Total Holding:</p>
-<p class="font-bold text-primary-fixed-dim mt-0.5" id="holdingTotalDisplay">7 hari 0 jam 0 menit</p>
-</div>
-</div>
-</div>
-<div class="flex items-center gap-3 py-2">
-<label class="relative inline-flex items-center cursor-pointer">
-<input class="sr-only peer" id="maintenanceMode" type="checkbox"/>
-<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-fixed-dim"></div>
-<span class="ml-3 text-sm font-medium text-on-surface-variant">Mode Maintenance</span>
-</label>
-</div>
-<button class="w-full btn-gradient-primary py-3 rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 text-white" type="submit">
-<i class="fas fa-save"></i> Simpan Marketplace
-                            </button>
-</form>
-</div>
-<!-- Social Media Settings -->
-<div class="glass-card p-6">
-<div class="flex items-center gap-3 mb-6">
-<div class="w-10 h-10 rounded-xl bg-tertiary-container/10 flex items-center justify-center text-tertiary-fixed-dim">
-<i class="fas fa-share-alt"></i>
-</div>
-<h2 class="text-lg font-bold">Koneksi Sosial</h2>
-</div>
-<form class="space-y-4" id="socialSettingsForm">
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-<div class="space-y-1.5">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="socialWhatsapp">WhatsApp</label>
-<div class="relative">
-<span class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40"><i class="fab fa-whatsapp"></i></span>
-<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl pl-10 pr-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="socialWhatsapp" placeholder="08123456789" type="text"/>
-</div>
-</div>
-<div class="space-y-1.5">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="socialEmail">Email</label>
-<div class="relative">
-<span class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40"><i class="far fa-envelope"></i></span>
-<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl pl-10 pr-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="socialEmail" placeholder="admin@example.com" type="email"/>
-</div>
-</div>
-<div class="space-y-1.5">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="socialInstagram">Instagram</label>
-<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="socialInstagram" placeholder="@productkuu" type="text"/>
-</div>
-<div class="space-y-1.5">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="socialFacebook">Facebook</label>
-<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="socialFacebook" placeholder="productkuu" type="text"/>
-</div>
-<div class="space-y-1.5">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="socialTiktok">TikTok</label>
-<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="socialTiktok" placeholder="@productkuu" type="text"/>
-</div>
-<div class="space-y-1.5">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="socialYoutube">YouTube</label>
-<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="socialYoutube" placeholder="productkuu" type="text"/>
-</div>
-</div>
-<button class="w-full bg-surface-container-highest hover:bg-surface-bright border border-white/5 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 text-on-surface mt-2" type="submit">
-<i class="fas fa-save text-primary-fixed-dim"></i> Simpan Media Sosial
-                            </button>
-</form>
-</div>
-<!-- Footer Settings -->
-<div class="glass-card p-6">
-<div class="flex items-center gap-3 mb-6">
-<div class="w-10 h-10 rounded-xl bg-on-primary-fixed-variant/10 flex items-center justify-center text-primary-fixed-dim">
-<i class="fas fa-desktop"></i>
-</div>
-<h2 class="text-lg font-bold">Pengaturan Footer</h2>
-</div>
-<form class="space-y-4" id="footerSettingsForm">
-<div class="space-y-1.5">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="footerText">Copyright Text</label>
-<input class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary-fixed-dim outline-none transition-all input-glow" id="footerText" placeholder="© 2026 ProductKuu. All rights reserved." type="text"/>
-</div>
-<div class="space-y-1.5">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="footerLinks">Footer Links (JSON)</label>
-<textarea class="w-full bg-surface-container-lowest border border-white/5 rounded-xl px-4 py-3 text-sm font-mono focus:border-primary-fixed-dim outline-none transition-all input-glow h-32" id="footerLinks" placeholder='[{"label":"Tentang","url":"/tentang"}]'></textarea>
-<p class="text-[10px] text-on-surface-variant/60 italic">Gunakan format JSON array objek: {label, url}</p>
-</div>
-<button class="w-full bg-surface-container-highest hover:bg-surface-bright border border-white/5 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 text-on-surface" type="submit">
-<i class="fas fa-code text-secondary"></i> Simpan Footer
-                            </button>
-</form>
-</div>
-</div>
-</div>
+
+<main class="pt-[100px] pb-10 px-4 lg:ml-[260px] transition-all">
+    <div class="max-w-4xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-10">
+            <div>
+                <span class="neo-tag blue mb-3">SISTEM</span>
+                <h1 class="font-display text-3xl sm:text-5xl text-[var(--ink)] mt-3">Pengaturan</h1>
+            </div>
+            <div class="w-full md:w-auto">
+                <button class="btn btn-primary w-full md:w-auto" onclick="loadSettings()"><span class="material-symbols-outlined">sync</span> Refresh</button>
+            </div>
+        </div>
+
+        <div class="space-y-8">
+            <div class="card">
+                <h3 class="font-display text-xl mb-6 flex items-center gap-2"><span class="material-symbols-outlined text-[var(--blue)]">storefront</span> Identitas Website</h3>
+                <form id="formWebsite" class="space-y-4">
+                    <div><label class="block text-xs font-black uppercase mb-1">Nama Website</label><input class="form-input" id="siteName" required/></div>
+                    <div><label class="block text-xs font-black uppercase mb-1">Logo URL</label><input class="form-input" id="siteLogo" type="url"/></div>
+                    <button class="btn btn-primary w-full md:w-auto mt-4" type="submit">Simpan Identitas</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3 class="font-display text-xl mb-6 flex items-center gap-2"><span class="material-symbols-outlined text-[var(--lime-deep)]">payments</span> Pengaturan Finansial</h3>
+                <form id="formMarketplace" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label class="block text-xs font-black uppercase mb-1">Komisi Platform (%)</label><input class="form-input" id="commission" type="number" required/></div>
+                        <div><label class="block text-xs font-black uppercase mb-1">Minimal Withdraw (Rp)</label><input class="form-input" id="minWithdraw" type="number" required/></div>
+                    </div>
+                    <button class="btn btn-primary w-full md:w-auto mt-4" type="submit">Simpan Finansial</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3 class="font-display text-xl mb-6 flex items-center gap-2"><span class="material-symbols-outlined text-[var(--amber-deep)]">share</span> Media Sosial</h3>
+                <form id="formSocial" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label class="block text-xs font-black uppercase mb-1">WhatsApp</label><input class="form-input" id="socialWhatsapp"/></div>
+                        <div><label class="block text-xs font-black uppercase mb-1">Email</label><input class="form-input" id="socialEmail" type="email"/></div>
+                        <div><label class="block text-xs font-black uppercase mb-1">Instagram</label><input class="form-input" id="socialInstagram"/></div>
+                    </div>
+                    <button class="btn btn-primary w-full md:w-auto mt-4" type="submit">Simpan Sosial Media</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </main>
-</div>
-<div class="toast-container" id="toastContainer"></div>
-<script type="importmap">
-        {
-            "imports": {
-                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
-                "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js",
-                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"
-            }
-        }
-    </script>
-<script type="module">
-        import { initializeApp } from "firebase/app";
-        import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 
-        console.log('⚙️ [ADMIN_SETTINGS] Page loaded');
+<script>
+(function() { const saved = localStorage.getItem('pk-theme'); if (saved) document.documentElement.setAttribute('data-theme', saved); })();
+document.getElementById('themeToggle').addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next); document.body.setAttribute('data-theme', next); localStorage.setItem('pk-theme', next);
+    document.getElementById('themeToggle').innerHTML = `<span class="material-symbols-outlined text-lg">${next === 'dark' ? 'light_mode' : 'dark_mode'}</span>`;
+});
+const sidebar = document.getElementById('sidebar'); const sidebarOverlay = document.getElementById('sidebarOverlay');
+document.getElementById('sidebarToggle').addEventListener('click', () => { sidebar.classList.toggle('-translate-x-full'); sidebarOverlay.classList.toggle('hidden'); });
+sidebarOverlay.addEventListener('click', () => { sidebar.classList.add('-translate-x-full'); sidebarOverlay.classList.add('hidden'); });
+document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.clear(); window.location.href = '/admin/login'; });
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
-            authDomain: "productkuu.firebaseapp.com",
-            projectId: "productkuu",
-            storageBucket: "productkuu.firebasestorage.app",
-            messagingSenderId: "6615996108",
-            appId: "1:6615996108:web:daa6e17c1275d3061cd469",
-            measurementId: "G-78ZPLZMFEJ"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        let currentUser = null;
-
-        // ============================================
-        // DEBUG LOG
-        // ============================================
-        let debugVisible = false;
-
-        function addDebug(message, type = 'info') {
-            const colors = { success: 'text-success', error: 'text-error', info: 'text-primary-fixed-dim', warning: 'text-tertiary-fixed-dim' };
-            const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
-            const log = document.getElementById('debugLog');
-            const time = new Date().toLocaleTimeString();
-            log.innerHTML += `<br><span class="${colors[type] || 'text-on-surface-variant'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
-            console.log(`[ADMIN_SETTINGS_DEBUG] ${message}`);
-            const box = document.getElementById('debugBox');
-            box.scrollTop = box.scrollHeight;
-        }
-
-        window.toggleDebug = function() {
-            const box = document.getElementById('debugBox');
-            debugVisible = !debugVisible;
-            box.classList.toggle('hidden');
-            if (debugVisible) addDebug('Debug mode activated', 'info');
-        };
-
-        window.refreshData = function() {
-            addDebug('Manual refresh triggered', 'info');
-            showToast('info', 'Memperbarui data pengaturan...');
-            loadAllSettings();
-        };
-
-        // ============================================
-        // THEME & SIDEBAR
-        // ============================================
-        const themeToggle = document.getElementById('themeToggle');
-        themeToggle.addEventListener('click', () => {
-            document.documentElement.classList.toggle('dark');
-            const isDark = document.documentElement.classList.contains('dark');
-            localStorage.setItem('darkMode', isDark);
-            themeToggle.querySelector('i').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-        });
-
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const sidebarToggle = document.getElementById('sidebarToggle');
+async function loadSettings() {
+    try {
+        const res = await fetch('/api/settings');
+        const settings = await res.json();
         
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('-translate-x-full');
-                sidebarOverlay.classList.toggle('hidden');
-            });
-        }
-        
-        if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', () => {
-                sidebar.classList.add('-translate-x-full');
-                sidebarOverlay.classList.add('hidden');
-            });
-        }
+        // Cari data berdasarkan ID (karena format rowToObj mengembalikan {id, ...data})
+        const web = settings.find(s => s.id === 'website') || {};
+        const market = settings.find(s => s.id === 'marketplace') || {};
+        const social = settings.find(s => s.id === 'social') || {};
 
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            try { await signOut(auth); window.location.href = '/'; } 
-            catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
+        // Isi Form Website
+        document.getElementById('siteName').value = web.siteName || '';
+        document.getElementById('siteLogo').value = web.logo || '';
+
+        // Isi Form Marketplace
+        document.getElementById('commission').value = market.commission || 10;
+        document.getElementById('minWithdraw').value = market.minWithdraw || 50000;
+
+        // Isi Form Sosial
+        document.getElementById('socialWhatsapp').value = social.whatsapp || '';
+        document.getElementById('socialEmail').value = social.email || '';
+        document.getElementById('socialInstagram').value = social.instagram || '';
+
+    } catch (e) {
+        console.error('Gagal load settings:', e);
+    }
+}
+
+// Helper untuk menyimpan
+async function saveSetting(id, data) {
+    try {
+        await fetch('/api/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, ...data, updatedAt: new Date().toISOString() })
         });
+        alert('Pengaturan berhasil disimpan!');
+    } catch (e) {
+        alert('Gagal menyimpan: ' + e.message);
+    }
+}
 
-        // ============================================
-        // TOAST & ERROR
-        // ============================================
-        function showToast(type, message) {
-            const container = document.getElementById('toastContainer');
-            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
-            const borders = { success: '#10b981', error: '#ffb4ab', info: '#00dbe9' };
-            
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.style.borderLeftColor = borders[type] || borders.info;
-            toast.innerHTML = `
-                <span class="text-lg"><i class="fas ${icons[type] || icons.info}"></i></span>
-                <div class="flex-1"><div class="text-[13px] font-medium text-on-surface">${message}</div></div>
-                <button class="opacity-40 hover:opacity-100 transition-opacity" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
-            `;
-            container.appendChild(toast);
-            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
-        }
-        window.showToast = showToast;
+document.getElementById('formWebsite').addEventListener('submit', (e) => {
+    e.preventDefault();
+    saveSetting('website', {
+        siteName: document.getElementById('siteName').value,
+        logo: document.getElementById('siteLogo').value
+    });
+});
 
-        function showError(title, detail) {
-            const box = document.getElementById('errorBox');
-            document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
-            document.getElementById('errorDetail').textContent = detail || '';
-            box.classList.remove('hidden');
-            setTimeout(() => { box.classList.add('hidden'); }, 10000);
-        }
+document.getElementById('formMarketplace').addEventListener('submit', (e) => {
+    e.preventDefault();
+    saveSetting('marketplace', {
+        commission: parseInt(document.getElementById('commission').value),
+        minWithdraw: parseInt(document.getElementById('minWithdraw').value)
+    });
+});
 
-        // ============================================
-        // HOLDING TIME DISPLAY
-        // ============================================
-        function updateHoldingDisplay() {
-            const days = parseInt(document.getElementById('holdingDays').value) || 0;
-            const hours = parseInt(document.getElementById('holdingHours').value) || 0;
-            const minutes = parseInt(document.getElementById('holdingMinutes').value) || 0;
-            
-            let parts = [];
-            if (days > 0) parts.push(`${days} hari`);
-            if (hours > 0) parts.push(`${hours} jam`);
-            if (minutes > 0) parts.push(`${minutes} menit`);
-            if (parts.length === 0) parts.push('0 menit');
-            
-            document.getElementById('holdingTotalDisplay').textContent = parts.join(' ');
-        }
+document.getElementById('formSocial').addEventListener('submit', (e) => {
+    e.preventDefault();
+    saveSetting('social', {
+        whatsapp: document.getElementById('socialWhatsapp').value,
+        email: document.getElementById('socialEmail').value,
+        instagram: document.getElementById('socialInstagram').value
+    });
+});
 
-        document.getElementById('holdingDays').addEventListener('input', updateHoldingDisplay);
-        document.getElementById('holdingHours').addEventListener('input', updateHoldingDisplay);
-        document.getElementById('holdingMinutes').addEventListener('input', updateHoldingDisplay);
-
-        // ============================================
-        // AUTH STATE
-        // ============================================
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.href = '/admin/login';
-                return;
-            }
-            currentUser = user;
-            addDebug(`User logged in: ${user.email}`, 'success');
-
-            try {
-                const userRef = doc(db, 'users', user.uid);
-                const userDoc = await getDoc(userRef);
-                if (!userDoc.exists() || userDoc.data().role !== 'admin') {
-                    window.location.href = '/';
-                    return;
-                }
-                addDebug('Admin verified', 'success');
-                await loadAllSettings();
-
-            } catch (error) {
-                addDebug(`Error: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat data: ' + error.message);
-            }
-        });
-
-        // ============================================
-        // SAVE SETTINGS HELPER
-        // ============================================
-        async function saveSettings(docId, data) {
-            try {
-                const docRef = doc(db, 'settings', docId);
-                const docSnap = await getDoc(docRef);
-                
-                if (docSnap.exists()) {
-                    await updateDoc(docRef, { ...data, updatedAt: serverTimestamp() });
-                } else {
-                    await setDoc(docRef, { ...data, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
-                }
-                addDebug(`Settings ${docId} saved successfully`, 'success');
-                return true;
-            } catch (error) {
-                addDebug(`Error saving ${docId}: ${error.message}`, 'error');
-                throw error;
-            }
-        }
-
-        // ============================================
-        // LOAD ALL SETTINGS
-        // ============================================
-        async function loadAllSettings() {
-            addDebug('Loading all settings...', 'info');
-            try {
-                // Website
-                const websiteDoc = await getDoc(doc(db, 'settings', 'website'));
-                if (websiteDoc.exists()) {
-                    const data = websiteDoc.data();
-                    document.getElementById('siteName').value = data.siteName || '';
-                    document.getElementById('siteLogo').value = data.logo || '';
-                    document.getElementById('siteFavicon').value = data.favicon || '';
-                    document.getElementById('primaryColor').value = data.primaryColor || '#00dbe9';
-                    document.getElementById('secondaryColor').value = data.secondaryColor || '#cf5cff';
-                }
-
-                // Marketplace
-                const marketplaceDoc = await getDoc(doc(db, 'settings', 'marketplace'));
-                if (marketplaceDoc.exists()) {
-                    const data = marketplaceDoc.data();
-                    document.getElementById('commission').value = data.commission || 10;
-                    document.getElementById('minWithdraw').value = data.minWithdraw || 50000;
-                    document.getElementById('maxWithdraw').value = data.maxWithdraw || 10000000;
-                    document.getElementById('withdrawMethods').value = (data.withdrawMethods || []).join(', ');
-                    document.getElementById('maintenanceMode').checked = data.maintenanceMode || false;
-                    document.getElementById('holdingDays').value = data.holdingDays || 0;
-                    document.getElementById('holdingHours').value = data.holdingHours || 0;
-                    document.getElementById('holdingMinutes').value = data.holdingMinutes || 0;
-                    updateHoldingDisplay();
-                }
-
-                // Social
-                const socialDoc = await getDoc(doc(db, 'settings', 'social'));
-                if (socialDoc.exists()) {
-                    const data = socialDoc.data();
-                    document.getElementById('socialWhatsapp').value = data.whatsapp || '';
-                    document.getElementById('socialEmail').value = data.email || '';
-                    document.getElementById('socialInstagram').value = data.instagram || '';
-                    document.getElementById('socialFacebook').value = data.facebook || '';
-                    document.getElementById('socialTiktok').value = data.tiktok || '';
-                    document.getElementById('socialYoutube').value = data.youtube || '';
-                }
-
-                // Footer
-                const footerDoc = await getDoc(doc(db, 'settings', 'footer'));
-                if (footerDoc.exists()) {
-                    const data = footerDoc.data();
-                    document.getElementById('footerText').value = data.footerText || '';
-                    document.getElementById('footerLinks').value = JSON.stringify(data.footerLinks || [], null, 2);
-                }
-
-                addDebug('All settings loaded successfully', 'success');
-            } catch (error) {
-                addDebug(`Error loading settings: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat pengaturan: ' + error.message);
-            }
-        }
-
-        // Form Handlers
-        document.getElementById('websiteSettingsForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            try {
-                await saveSettings('website', {
-                    siteName: document.getElementById('siteName').value,
-                    logo: document.getElementById('siteLogo').value,
-                    favicon: document.getElementById('siteFavicon').value,
-                    primaryColor: document.getElementById('primaryColor').value,
-                    secondaryColor: document.getElementById('secondaryColor').value
-                });
-                showToast('success', 'Pengaturan website disimpan');
-            } catch (error) { showToast('error', error.message); }
-        });
-
-        document.getElementById('marketplaceSettingsForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            try {
-                const methods = document.getElementById('withdrawMethods').value.split(',').map(m => m.trim()).filter(m => m);
-                await saveSettings('marketplace', {
-                    commission: parseInt(document.getElementById('commission').value) || 10,
-                    minWithdraw: parseInt(document.getElementById('minWithdraw').value) || 50000,
-                    maxWithdraw: parseInt(document.getElementById('maxWithdraw').value) || 10000000,
-                    withdrawMethods: methods,
-                    maintenanceMode: document.getElementById('maintenanceMode').checked,
-                    holdingDays: parseInt(document.getElementById('holdingDays').value) || 0,
-                    holdingHours: parseInt(document.getElementById('holdingHours').value) || 0,
-                    holdingMinutes: parseInt(document.getElementById('holdingMinutes').value) || 0
-                });
-                showToast('success', 'Pengaturan marketplace disimpan');
-            } catch (error) { showToast('error', error.message); }
-        });
-
-        document.getElementById('socialSettingsForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            try {
-                await saveSettings('social', {
-                    whatsapp: document.getElementById('socialWhatsapp').value,
-                    email: document.getElementById('socialEmail').value,
-                    instagram: document.getElementById('socialInstagram').value,
-                    facebook: document.getElementById('socialFacebook').value,
-                    tiktok: document.getElementById('socialTiktok').value,
-                    youtube: document.getElementById('socialYoutube').value
-                });
-                showToast('success', 'Media sosial disimpan');
-            } catch (error) { showToast('error', error.message); }
-        });
-
-        document.getElementById('footerSettingsForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            try {
-                const links = JSON.parse(document.getElementById('footerLinks').value);
-                await saveSettings('footer', {
-                    footerText: document.getElementById('footerText').value,
-                    footerLinks: links
-                });
-                showToast('success', 'Pengaturan footer disimpan');
-            } catch (error) { showToast('error', 'Format JSON tidak valid'); }
-        });
-
-        addDebug('Page ready', 'success');
-    </script>
-</body></html>
+document.addEventListener('DOMContentLoaded', loadSettings);
+</script>
+</body>
+</html>

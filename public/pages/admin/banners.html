@@ -1,690 +1,209 @@
 <!DOCTYPE html>
-
-<html lang="id"><head>
+<html lang="id">
+<head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Manajemen Banner - ProductKuu Admin</title>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<title>Manajemen Banner - ProductKuu</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@700&family=Archivo+Black&display=swap" rel="stylesheet"/>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <style>
-        /* ===== RESET & VARIABLES ===== */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --font: 'Inter', sans-serif;
-            --bg-deep: #0d0d15;
-            --bg-card: rgba(255, 255, 255, 0.03);
-            --bg-card-hover: rgba(255, 255, 255, 0.06);
-            --border-glass: rgba(255, 255, 255, 0.1);
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --text-light: #64748b;
-            --primary-gradient: linear-gradient(135deg, #0ea5e9, #8b5cf6);
-            --orange-gradient: linear-gradient(135deg, #f59e0b, #ef4444);
-            --ice-blue: #7dd3fc;
-            --purple: #a78bfa;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --info: #3b82f6;
-            --radius: 12px;
-            --radius-lg: 20px;
-            --shadow-lg: 0 10px 40px rgba(0,0,0,0.4);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --glass-blur: blur(12px);
-        }
-        
-        body { 
-            font-family: var(--font); 
-            background: var(--bg-deep); 
-            color: var(--text-primary); 
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        
-        /* Background Glows */
-        .glow {
-            position: fixed;
-            width: 400px;
-            height: 400px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(14, 165, 233, 0.1) 0%, transparent 70%);
-            filter: blur(60px);
-            z-index: -1;
-        }
-        .glow-1 { top: -100px; right: -100px; background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%); }
-        .glow-2 { bottom: -100px; left: -100px; }
-
-        /* ===== NAVBAR ===== */
-        .navbar { 
-            position: fixed; 
-            top: 0; left: 0; right: 0; 
-            height: 72px; 
-            background: rgba(13, 13, 21, 0.8);
-            backdrop-filter: var(--glass-blur);
-            border-bottom: 1px solid var(--border-glass); 
-            z-index: 2000; 
-            display: flex; 
-            align-items: center; 
-            padding: 0 24px; 
-        }
-        .navbar-inner { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1440px; margin: 0 auto; }
-        .navbar-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 800; font-size: 22px; color: var(--text-primary); letter-spacing: -0.5px; }
-        .navbar-logo i { background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .navbar-actions { display: flex; align-items: center; gap: 16px; }
-        .btn-icon { background: var(--bg-card); border: 1px solid var(--border-glass); font-size: 18px; color: var(--text-secondary); cursor: pointer; padding: 10px; border-radius: var(--radius); transition: var(--transition); }
-        .btn-icon:hover { background: var(--bg-card-hover); color: var(--ice-blue); border-color: var(--ice-blue); }
-        
-        /* ===== SIDEBAR ===== */
-        .app-wrapper { display: flex; min-height: 100vh; padding-top: 72px; }
-        .sidebar { 
-            width: 280px; 
-            background: rgba(13, 13, 21, 0.5);
-            backdrop-filter: var(--glass-blur);
-            border-right: 1px solid var(--border-glass); 
-            padding: 24px 0; 
-            position: fixed; 
-            top: 72px; 
-            bottom: 0; 
-            overflow-y: auto; 
-            z-index: 1000; 
-            transition: var(--transition); 
-        }
-        .sidebar-header { padding: 0 24px 20px; border-bottom: 1px solid var(--border-glass); margin-bottom: 12px; }
-        .sidebar-header .title { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-light); }
-        .sidebar-nav { display: flex; flex-direction: column; gap: 4px; padding: 0 16px; }
-        .sidebar-nav a, .sidebar-nav button { 
-            display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: var(--radius); 
-            color: var(--text-secondary); transition: var(--transition); font-size: 14px; font-weight: 500; 
-            text-decoration: none; background: none; border: 1px solid transparent; width: 100%; cursor: pointer; 
-            font-family: var(--font); text-align: left; 
-        }
-        .sidebar-nav a:hover, .sidebar-nav button:hover { background: var(--bg-card); color: var(--text-primary); border-color: var(--border-glass); }
-        .sidebar-nav a.active { background: var(--bg-card); color: var(--ice-blue); border-color: rgba(14, 165, 233, 0.3); font-weight: 600; box-shadow: 0 0 20px rgba(14, 165, 233, 0.1); }
-        .sidebar-nav a.active i { color: var(--ice-blue); }
-        .sidebar-nav .logout-btn { color: var(--danger); margin-top: 16px; border-top: 1px solid var(--border-glass); padding-top: 24px; }
-        .sidebar-nav .logout-btn:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: rgba(239, 68, 68, 0.2); }
-        
-        .main-content { margin-left: 280px; padding: 32px; flex: 1; min-height: calc(100vh - 72px); max-width: calc(100% - 280px); }
-        .mobile-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-primary); cursor: pointer; }
-
-        @media (max-width: 1024px) { 
-            .sidebar { transform: translateX(-100%); } 
-            .sidebar.open { transform: translateX(0); } 
-            .main-content { margin-left: 0; padding: 20px; max-width: 100%; } 
-            .mobile-toggle { display: block !important; } 
-        }
-        
-        /* ===== CARDS & BANNERS ===== */
-        .card { 
-            background: var(--bg-card); 
-            backdrop-filter: var(--glass-blur);
-            border-radius: var(--radius-lg); 
-            padding: 28px; 
-            border: 1px solid var(--border-glass); 
-            box-shadow: var(--shadow-lg); 
-            transition: var(--transition);
-        }
-        .card:hover { border-color: rgba(255, 255, 255, 0.15); background: var(--bg-card-hover); }
-
-        .banner-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 28px; }
-        .banner-card { 
-            background: var(--bg-card); 
-            backdrop-filter: var(--glass-blur);
-            border-radius: var(--radius-lg); 
-            overflow: hidden; 
-            border: 1px solid var(--border-glass); 
-            transition: var(--transition);
-        }
-        .banner-card:hover { transform: translateY(-8px); border-color: var(--ice-blue); box-shadow: 0 12px 30px rgba(14, 165, 233, 0.15); }
-        .banner-card .banner-image { aspect-ratio: 16/9; background: #161b22; display: flex; align-items: center; justify-content: center; font-size: 48px; color: var(--text-light); overflow: hidden; position: relative; }
-        .banner-card .banner-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
-        .banner-card:hover .banner-image img { transform: scale(1.05); }
-        .banner-card .banner-body { padding: 20px; }
-        .banner-card h4 { font-size: 18px; margin-bottom: 8px; color: var(--text-primary); }
-        .banner-card p { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
-        .banner-card .banner-actions { display: flex; gap: 10px; margin-top: 16px; }
-        
-        /* ===== SETTINGS ===== */
-        .settings-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 28px; margin-bottom: 32px; }
-        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .badge-success { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
-        .badge-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
-        .badge-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
-        .badge-info { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
-        .badge-primary { background: rgba(14, 165, 233, 0.15); color: var(--ice-blue); border: 1px solid rgba(14, 165, 233, 0.2); }
-        
-        /* ===== BUTTONS ===== */
-        .btn { 
-            display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px; border: none; border-radius: 14px; 
-            font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: var(--transition); 
-            text-decoration: none; position: relative; overflow: hidden;
-        }
-        .btn-primary { background: var(--primary-gradient); color: white; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(139, 92, 246, 0.6); }
-        .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-glass); }
-        .btn-secondary:hover { background: var(--bg-card-hover); border-color: var(--ice-blue); transform: translateY(-2px); }
-        .btn-danger { background: rgba(239, 68, 68, 0.8); color: white; }
-        .btn-danger:hover { background: #ef4444; transform: translateY(-2px); }
-        .btn-sm { padding: 8px 18px; font-size: 13px; border-radius: 10px; }
-        .btn-block { width: 100%; justify-content: center; }
-        
-        /* ===== INPUTS ===== */
-        .input { 
-            width: 100%; padding: 14px 18px; border: 1px solid var(--border-glass); border-radius: var(--radius); 
-            font-family: var(--font); font-size: 15px; transition: var(--transition); background: rgba(255,255,255,0.02); color: var(--text-primary); 
-        }
-        .input:focus { outline: none; border-color: var(--ice-blue); background: rgba(255,255,255,0.05); box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1); }
-        .input-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
-        .input-group label { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
-        
-        /* ===== MODAL ===== */
-        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 3000; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; }
-        .modal-overlay.open { display: flex; }
-        .modal { 
-            background: #12121a; border-radius: var(--radius-lg); padding: 36px; max-width: 540px; width: 100%; 
-            max-height: 90vh; overflow-y: auto; position: relative; border: 1px solid var(--border-glass);
-            animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .modal-close { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 24px; color: var(--text-light); cursor: pointer; transition: var(--transition); }
-        .modal-close:hover { color: var(--text-primary); }
-        .modal-title { font-size: 24px; font-weight: 800; margin-bottom: 12px; color: var(--text-primary); }
-        
-        @keyframes modalSlideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* ===== TOAST ===== */
-        .toast-container { position: fixed; bottom: 32px; right: 32px; z-index: 4000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
-        .toast { 
-            padding: 18px 24px; border-radius: var(--radius); background: #1a1a2e; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid var(--border-glass); 
-            border-left: 6px solid var(--ice-blue); animation: toastSlideIn 0.4s ease; display: flex; align-items: center; gap: 16px; 
-        }
-        .toast-icon { font-size: 24px; }
-        .toast-message { font-size: 14px; font-weight: 500; color: var(--text-primary); }
-        
-        @keyframes toastSlideIn { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
-        
-        /* ===== PRODUCT LIST ===== */
-        .product-list-item {
-            display: flex; align-items: center; justify-content: space-between; padding: 14px; border-bottom: 1px solid var(--border-glass); 
-            cursor: pointer; transition: var(--transition); border-radius: var(--radius); margin-bottom: 4px;
-        }
-        .product-list-item:hover { background: var(--bg-card); transform: translateX(4px); }
-        .product-list-item .product-info { display: flex; align-items: center; gap: 16px; }
-        .product-list-item .product-info img { width: 48px; height: 48px; border-radius: 10px; object-fit: cover; background: #161b22; }
-        .product-list-item .product-code { font-family: monospace; font-size: 13px; color: var(--ice-blue); background: rgba(14, 165, 233, 0.1); padding: 4px 10px; border-radius: 6px; }
-        
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-deep); }
-        ::-webkit-scrollbar-thumb { background: var(--border-glass); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-light); }
-
-        /* DEBUG/UTILITY */
-        .debug-box { background: #08080c; border-radius: var(--radius); padding: 16px; margin-bottom: 20px; font-family: monospace; font-size: 12px; color: #89B4FA; border: 1px solid var(--border-glass); display: none; }
-        .debug-box.show { display: block; }
-        .error-box { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: var(--radius); padding: 20px; margin-bottom: 24px; display: none; }
-        .error-box.show { display: block; }
-        .text-ice { color: var(--ice-blue); }
-        .text-purple { color: var(--purple); }
-    </style>
+:root,[data-theme="light"]{--bg:#F4F1E8;--bg-grid:rgba(0,0,0,.055);--surface:#FFF;--surface-2:#FAF8F0;--ink:#0A0A0A;--ink-muted:#4A4A4A;--ink-soft:#7A7A7A;--lime:#C4F000;--lime-deep:#9BC400;--amber:#FFC400;--amber-deep:#D9A300;--blue:#2B6FFF;--blue-deep:#1E4FCC;--blue-soft:#E6EEFF;--border:#0A0A0A;--border-width:2px;--shadow-color:#0A0A0A;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(0,0,0,.08);--nav-bg:#F4F1E8}
+[data-theme="dark"]{--bg:#0B0B0D;--bg-grid:rgba(255,255,255,.045);--surface:#16161A;--surface-2:#1E1E24;--ink:#F5F3EC;--ink-muted:#B8B8C0;--ink-soft:#8A8A92;--lime:#C4F000;--lime-deep:#A8D400;--amber:#FFC400;--amber-deep:#E0AC00;--blue:#4D8BFF;--blue-deep:#2B6FFF;--blue-soft:#1A2540;--border:#F5F3EC;--border-width:2px;--shadow-color:#F5F3EC;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(255,255,255,.06);--nav-bg:#0B0B0D}
+*{scroll-behavior:smooth;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);margin:0;line-height:1.6;overflow-x:hidden;transition:background-color .35s ease,color .35s ease;background-image:linear-gradient(to right,var(--grid-line) 1px,transparent 1px),linear-gradient(to bottom,var(--grid-line) 1px,transparent 1px);background-size:28px 28px;background-attachment:fixed}
+.font-mono-tag{font-family:'Space Mono',monospace}
+.font-display{font-family:'Archivo Black',sans-serif;letter-spacing:-.02em}
+.neo-tag{display:inline-flex;align-items:center;gap:6px;background:var(--lime);color:#0A0A0A;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:.9px;padding:6px 14px;border:var(--border-width) solid var(--border);box-shadow:3px 3px 0 var(--shadow-color);font-family:'Space Mono',monospace}
+.neo-tag.blue{background:var(--blue);color:#FFF}
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.6px;padding:10px 20px;border:var(--border-width) solid var(--border);border-radius:0;cursor:pointer;text-decoration:none;transition:all .09s;white-space:nowrap}
+.btn-primary{background:var(--lime);color:#0A0A0A;box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.btn-primary:hover:not(:disabled){transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--shadow-color);background:var(--amber)}
+.btn-secondary{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.btn-secondary:hover:not(:disabled){transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--blue);border-color:var(--blue);color:var(--blue)}
+.btn-danger{background:#FF4444;color:#FFF;box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.form-input{width:100%;background:var(--bg);border:var(--border-width) solid var(--border);padding:11px 14px;color:var(--ink);font-weight:600;font-size:14px;outline:none}
+.form-input:focus{border-color:var(--blue);box-shadow:4px 4px 0 var(--blue)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(2px);z-index:2000;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:3px solid var(--border);box-shadow:10px 10px 0 var(--lime);max-width:540px;width:100%;padding:32px;position:relative}
+.banner-card{background:var(--surface);border:var(--border-width) solid var(--border);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color);overflow:hidden;transition:all .14s}
+.banner-card:hover{transform:translate(-4px,-4px);box-shadow:9px 9px 0 var(--lime);border-color:var(--lime)}
+.banner-img{height:180px;background:var(--surface-2);border-bottom:var(--border-width) solid var(--border);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.banner-img img{width:100%;height:100%;object-fit:cover}
+.badge{padding:4px 10px;border:1.5px solid var(--border);font-size:10px;font-weight:900;text-transform:uppercase;font-family:'Space Mono',monospace;box-shadow:2px 2px 0 var(--shadow-color);display:inline-block}
+.badge-success{background:var(--lime);color:#0A0A0A}
+.badge-danger{background:#FF4444;color:#FFF}
+</style>
 </head>
-<body>
-<div class="glow glow-1"></div>
-<div class="glow glow-2"></div>
-<!-- ===== NAVBAR ===== -->
-<nav class="navbar">
-<div class="navbar-inner">
-<a class="navbar-logo" href="/"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
-<div class="navbar-actions">
-<span class="badge badge-primary">Admin Control</span>
-<button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
-<button class="mobile-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-</div>
+<body data-theme="light">
+
+<script>
+    const token = localStorage.getItem('pk_token');
+    const userStr = localStorage.getItem('pk_user');
+    if (!token || !userStr) { window.location.replace('/admin/login'); } 
+    else { try { const u = JSON.parse(userStr); if (u.role !== 'admin') window.location.replace('/'); } catch(e) { window.location.replace('/admin/login'); } }
+</script>
+
+<nav class="fixed top-0 left-0 right-0 z-[1000] h-[76px] bg-[var(--nav-bg)] border-b-[2px] border-[var(--border)]">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-3">
+    <a class="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-2 shrink-0" href="/admin/dashboard">
+        <span class="bg-[var(--lime)] text-[#0A0A0A] px-2.5 py-1 border-2 border-[var(--border)] font-black shadow-[2px_2px_0px_var(--shadow-color)]">Admin</span>
+        <span class="text-[var(--ink)] font-black">Panel</span>
+    </a>
+    <div class="flex items-center gap-2.5">
+        <button class="btn btn-secondary !py-2 !px-3.5" id="themeToggle"><span class="material-symbols-outlined text-lg">dark_mode</span></button>
+        <button class="lg:hidden btn btn-secondary !py-2 !px-3.5" id="sidebarToggle"><span class="material-symbols-outlined text-lg">menu</span></button>
+        <button class="btn btn-danger !py-2 !px-3.5" id="logoutBtn">Logout</button>
+    </div>
 </div>
 </nav>
-<div class="app-wrapper">
-<!-- ===== SIDEBAR ===== -->
-<aside class="sidebar" id="sidebar">
-<div class="sidebar-header"><div class="title">Menu Navigasi</div></div>
-<nav class="sidebar-nav">
-<a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
-<a href="/admin/sellers"><i class="fas fa-users"></i> Seller</a>
-<a href="/admin/products"><i class="fas fa-box"></i> Produk</a>
-<a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Order</a>
-<a class="active" href="/admin/banners"><i class="fas fa-images"></i> Banner</a>
-<a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Withdraw</a>
-<a href="/admin/settings"><i class="fas fa-cog"></i> Pengaturan</a>
-<button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Keluar</button>
-</nav>
+<div class="fixed inset-0 bg-black/50 z-[800] hidden transition-opacity" id="sidebarOverlay"></div>
+<aside class="fixed top-[76px] left-0 bottom-0 w-[260px] bg-[var(--surface)] border-r-[2px] border-[var(--border)] z-[900] flex flex-col -translate-x-full lg:translate-x-0 transition-transform duration-300" id="sidebar">
+    <div class="p-4 border-b-2 border-[var(--border)] bg-[var(--bg)]"><p class="text-[10px] font-black text-[var(--ink-muted)] uppercase tracking-widest font-mono-tag">Main Menu</p></div>
+    <nav class="p-4 flex flex-col gap-2 flex-1 overflow-y-auto">
+        <a href="/admin/dashboard" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+        <a href="/admin/sellers" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">storefront</span> Sellers</a>
+        <a href="/admin/products" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">inventory_2</span> Produk</a>
+        <a href="/admin/orders" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">shopping_cart</span> Order</a>
+        <a href="/admin/banners" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-[var(--border)] bg-[var(--lime)] text-[#0A0A0A] shadow-[3px_3px_0px_var(--shadow-color)]"><span class="material-symbols-outlined">ad_units</span> Banner</a>
+        <a href="/admin/withdrawals" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">account_balance_wallet</span> Withdraw</a>
+        <a href="/admin/settings" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">settings</span> Pengaturan</a>
+    </nav>
 </aside>
-<div class="fixed inset-0 bg-black/60 z-[900] backdrop-blur-sm" id="sidebarOverlay" style="display:none;"></div>
-<!-- ===== MAIN CONTENT ===== -->
-<main class="main-content">
-<!-- Header -->
-<div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:32px; flex-wrap:wrap; gap:20px;">
-<div>
-<h1 style="font-size:32px; font-weight:900; letter-spacing:-1px;">Manajemen Banner</h1>
-<p style="color:var(--text-secondary); margin-top:4px;">Atur promosi visual dan konfigurasi slot banner</p>
-</div>
-<div style="display:flex; gap:12px; flex-wrap:wrap;">
-<button class="btn btn-secondary" onclick="refreshData()">
-<i class="fas fa-sync-alt"></i> Refresh
-                    </button>
-<button class="btn btn-secondary" onclick="openPricingSettings()">
-<i class="fas fa-sliders-h"></i> Harga Slot
-                    </button>
-<button class="btn btn-primary" onclick="openAddBanner()">
-<i class="fas fa-plus"></i> Buat Banner Baru
-                    </button>
-</div>
-</div>
-<!-- Debug & Error -->
-<div class="debug-box" id="debugBox">
-<div id="debugLog">Inisialisasi sistem...</div>
-</div>
-<div class="error-box" id="errorBox">
-<div style="font-weight:700; color:var(--danger); display:flex; align-items:center; gap:8px;">
-<i class="fas fa-exclamation-triangle"></i> <span id="errorTitle">Gagal Memuat</span>
-</div>
-<div id="errorDetail" style="font-size:14px; color:var(--text-secondary); margin-top:6px;"></div>
-</div>
-<!-- Pricing Settings Card -->
-<div class="settings-grid" id="pricingCard" style="display:none;">
-<div class="card">
-<h4 style="margin-bottom:20px; display:flex; align-items:center; gap:10px;">
-<i class="fas fa-tags text-purple"></i> Pengaturan Harga &amp; Slot
-                    </h4>
-<form id="pricingForm">
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-<div class="input-group">
-<label>Harga Flat (Rp)</label>
-<input class="input" id="bannerPrice" placeholder="100000" type="number"/>
-</div>
-<div class="input-group">
-<label>Durasi (Jam)</label>
-<input class="input" id="bannerDuration" placeholder="24" type="number"/>
-</div>
-</div>
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-<div class="input-group">
-<label>Maksimal Slot</label>
-<input class="input" id="maxBanners" placeholder="5" type="number"/>
-</div>
-<div class="input-group">
-<label>Auto Slide (Detik)</label>
-<input class="input" id="autoSlideSpeed" placeholder="5" type="number"/>
-</div>
-</div>
-<div style="display:flex; gap:12px; margin-top:10px;">
-<button class="btn btn-primary" style="flex:2;" type="submit">Simpan Perubahan</button>
-<button class="btn btn-secondary" onclick="closePricingSettings()" style="flex:1;" type="button">Batal</button>
-</div>
-</form>
-</div>
-<div class="card">
-<h4 style="margin-bottom:20px;">Iktisar Statistik</h4>
-<div id="bannerStats" style="display:flex; flex-direction:column; gap:16px;">
-<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-glass); padding-bottom:12px;">
-<span class="text-secondary">Total Banner</span>
-<span id="totalBanners" style="font-weight:700;">0</span>
-</div>
-<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-glass); padding-bottom:12px;">
-<span class="text-secondary">Status Aktif</span>
-<span id="activeBanners" style="font-weight:700; color:var(--success);">0</span>
-</div>
-<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-glass); padding-bottom:12px;">
-<span class="text-secondary">Oleh Seller</span>
-<span id="sellerBanners" style="font-weight:700; color:var(--ice-blue);">0</span>
-</div>
-<div style="display:flex; justify-content:space-between;">
-<span class="text-secondary">Oleh Admin</span>
-<span id="adminBanners" style="font-weight:700; color:var(--purple);">0</span>
-</div>
-</div>
-</div>
-</div>
-<!-- Banners Grid -->
-<div class="banner-grid" id="bannersGrid">
-<div style="grid-column:1/-1; padding:100px 0; text-align:center;">
-<i class="fas fa-circle-notch fa-spin" style="font-size:32px; color:var(--ice-blue);"></i>
-<p style="margin-top:16px; color:var(--text-secondary);">Menghubungkan ke database...</p>
-</div>
-</div>
-<button onclick="toggleDebug()" style="background:none; border:none; color:var(--text-light); cursor:pointer; font-size:12px; margin-top:40px; text-decoration:underline;">
-<i class="fas fa-bug"></i> Developer Log
-            </button>
+
+<main class="pt-[100px] pb-10 px-4 lg:ml-[260px] transition-all">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-10">
+            <div>
+                <span class="neo-tag amber mb-3">PROMOSI</span>
+                <h1 class="font-display text-3xl sm:text-5xl text-[var(--ink)] mt-3">Manajemen Banner</h1>
+            </div>
+            <div class="flex flex-wrap gap-3 w-full md:w-auto">
+                <button class="btn btn-secondary flex-1 md:flex-none" onclick="loadBanners()"><span class="material-symbols-outlined">sync</span> Refresh</button>
+                <button class="btn btn-primary flex-1 md:flex-none" onclick="openAddModal()"><span class="material-symbols-outlined">add</span> Tambah Banner</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="bannersGrid">
+            <div class="col-span-full text-center py-20 font-bold text-[var(--ink-muted)]">Memuat data...</div>
+        </div>
+    </div>
 </main>
-</div>
-<!-- ===== ADD BANNER MODAL ===== -->
-<div class="modal-overlay" id="addBannerModal">
+
+<div class="modal-overlay" id="bannerModal">
 <div class="modal">
-<button class="modal-close" onclick="closeAddBanner()"><i class="fas fa-times"></i></button>
-<h3 class="modal-title">Terbitkan Banner</h3>
-<p style="color:var(--text-secondary); font-size:14px; margin-bottom:24px;">Masukkan kode produk untuk mengambil aset gambar secara otomatis.</p>
-<div class="input-group">
-<label>Kode Produk</label>
-<input class="input" id="productCodeInput" maxlength="6" placeholder="ABC123" style="text-transform:uppercase; font-family:monospace; letter-spacing:4px; font-weight:700;" type="text"/>
-</div>
-<div class="input-group">
-<label>Durasi Tayang (Jam)</label>
-<input class="input" id="bannerDurationInput" type="number" value="24"/>
-</div>
-<button class="btn btn-primary btn-block" onclick="addProductToBanner()" style="margin-top:10px;">
-<i class="fas fa-paper-plane"></i> Publikasikan Banner
-            </button>
-<div style="margin-top:32px;">
-<h4 style="font-size:14px; text-transform:uppercase; letter-spacing:1px; color:var(--text-light); margin-bottom:12px;">Produk Tersedia</h4>
-<div id="productList" style="max-height:240px; overflow-y:auto; padding-right:10px;">
-<div style="text-align:center; padding:20px; color:var(--text-light);">Memuat produk...</div>
+    <button class="absolute top-4 right-4 font-black text-2xl hover:text-[#FF4444]" onclick="closeAddModal()">×</button>
+    <h3 class="font-display text-2xl mb-6">Tambah Banner</h3>
+    <form id="bannerForm">
+        <div class="space-y-4">
+            <div><label class="block text-xs font-black uppercase mb-1">Judul Banner</label><input class="form-input" id="bannerTitle" required/></div>
+            <div><label class="block text-xs font-black uppercase mb-1">URL Gambar</label><input class="form-input" id="bannerImage" type="url" required/></div>
+            <div><label class="block text-xs font-black uppercase mb-1">Link Tujuan (Opsional)</label><input class="form-input" id="bannerLink" type="text"/></div>
+            <div><label class="block text-xs font-black uppercase mb-1">Deskripsi Singkat</label><textarea class="form-input" id="bannerDesc" rows="2"></textarea></div>
+            <div class="pt-4 flex gap-3">
+                <button class="btn btn-primary flex-1" type="submit">Simpan Banner</button>
+                <button class="btn btn-secondary flex-1" type="button" onclick="closeAddModal()">Batal</button>
+            </div>
+        </div>
+    </form>
 </div>
 </div>
-</div>
-</div>
-<!-- ===== TOAST ===== -->
-<div class="toast-container" id="toastContainer"></div>
-<!-- ===== FIREBASE ===== -->
-<script type="importmap">
-        {
-            "imports": {
-                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
-                "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js",
-                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"
-            }
-        }
-    </script>
-<script type="module">
-        import { initializeApp } from "firebase/app";
-        import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { 
-            getFirestore, collection, doc, setDoc, getDoc, getDocs, 
-            addDoc, updateDoc, deleteDoc, query, where, orderBy, 
-            limit, serverTimestamp, Timestamp 
-        } from "firebase/firestore";
 
-        // ===== FIREBASE CONFIG =====
-        const firebaseConfig = {
-            apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
-            authDomain: "productkuu.firebaseapp.com",
-            projectId: "productkuu",
-            storageBucket: "productkuu.firebasestorage.app",
-            messagingSenderId: "6615996108",
-            appId: "1:6615996108:web:daa6e17c1275d3061cd469",
-            measurementId: "G-78ZPLZMFEJ"
-        };
+<script>
+(function() { const saved = localStorage.getItem('pk-theme'); if (saved) document.documentElement.setAttribute('data-theme', saved); })();
+document.getElementById('themeToggle').addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next); document.body.setAttribute('data-theme', next); localStorage.setItem('pk-theme', next);
+    document.getElementById('themeToggle').innerHTML = `<span class="material-symbols-outlined text-lg">${next === 'dark' ? 'light_mode' : 'dark_mode'}</span>`;
+});
+const sidebar = document.getElementById('sidebar'); const sidebarOverlay = document.getElementById('sidebarOverlay');
+document.getElementById('sidebarToggle').addEventListener('click', () => { sidebar.classList.toggle('-translate-x-full'); sidebarOverlay.classList.toggle('hidden'); });
+sidebarOverlay.addEventListener('click', () => { sidebar.classList.add('-translate-x-full'); sidebarOverlay.classList.add('hidden'); });
+document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.clear(); window.location.href = '/admin/login'; });
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        let currentUser = null;
-        let debugVisible = false;
-
-        // ===== SYSTEM LOGS =====
-        function addDebug(message, type = 'info') {
-            const log = document.getElementById('debugLog');
-            const time = new Date().toLocaleTimeString();
-            const colors = { success: '#34d399', error: '#f87171', info: '#60a5fa', warning: '#fbbf24' };
-            log.innerHTML += `<div style="color:${colors[type]}; margin-bottom:4px;">[${time}] ${message}</div>`;
-            const box = document.getElementById('debugBox');
-            if (box) box.scrollTop = box.scrollHeight;
-        }
-
-        window.toggleDebug = function() {
-            const box = document.getElementById('debugBox');
-            debugVisible = !debugVisible;
-            box.classList.toggle('show');
-            if (debugVisible) addDebug('Debug mode active', 'info');
-        };
-
-        window.refreshData = function() {
-            addDebug('Refresh manual...', 'info');
-            loadBanners();
-            loadProducts();
-        };
-
-        // ===== INTERFACE ACTIONS =====
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const sidebarToggle = document.getElementById('sidebarToggle');
+async function loadBanners() {
+    const grid = document.getElementById('bannersGrid');
+    try {
+        const res = await fetch('/api/banners');
+        const banners = await res.json();
         
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('open');
-                sidebarOverlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
-            });
+        if (!banners || banners.length === 0) {
+            grid.innerHTML = '<div class="col-span-full text-center py-20 font-bold text-[var(--ink-muted)]">Belum ada banner aktif.</div>';
+            return;
         }
 
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            try { await signOut(auth); window.location.href = '/admin/login'; } 
-            catch (error) { showToast('error', 'Gagal logout'); }
-        });
-
-        function showToast(type, message) {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.style.borderLeftColor = type === 'success' ? '#10b981' : (type === 'error' ? '#ef4444' : '#3b82f6');
-            toast.innerHTML = `
-                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle text-success' : 'fa-info-circle text-ice'}"></i></span>
-                <div class="toast-message">${message}</div>
-            `;
-            container.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 3000);
-        }
-        window.showToast = showToast;
-
-        function showError(title, detail) {
-            const box = document.getElementById('errorBox');
-            document.getElementById('errorTitle').textContent = title;
-            document.getElementById('errorDetail').textContent = detail;
-            box.classList.add('show');
-        }
-
-        function formatPrice(price) { return new Intl.NumberFormat('id-ID').format(price || 0); }
-        function formatDate(date) {
-            if (!date) return '-';
-            const d = date instanceof Date ? date : (date.toDate ? date.toDate() : new Date(date));
-            return d.toLocaleDateString('id-ID', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
-        }
-
-        // ===== AUTH MONITOR =====
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) { window.location.href = '/admin/login'; return; }
-            currentUser = user;
-            try {
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                if (!userDoc.exists() || userDoc.data().role !== 'admin') { window.location.href = '/'; return; }
-                addDebug(`Authenticated: ${user.email}`, 'success');
-                loadBanners();
-                loadPricing();
-                loadProducts();
-            } catch (error) {
-                showToast('error', 'Sesi tidak valid');
-            }
-        });
-
-        // ===== DATA LOADING =====
-        async function loadBanners() {
-            addDebug('Fetching banners...', 'info');
-            try {
-                const q = query(collection(db, 'banners'), orderBy('createdAt', 'desc'));
-                const snapshot = await getDocs(q);
-                const banners = [];
-                for (const docSnap of snapshot.docs) {
-                    const data = docSnap.data();
-                    let product = null;
-                    if (data.productId) {
-                        const pSnap = await getDoc(doc(db, 'products', data.productId));
-                        if (pSnap.exists()) product = { id: pSnap.id, ...pSnap.data() };
-                    }
-                    banners.push({ id: docSnap.id, ...data, product });
-                }
-                renderBanners(banners);
-                updateStats(banners);
-                addDebug(`Banners loaded: ${banners.length}`, 'success');
-            } catch (error) {
-                showError('Database Error', error.message);
-            }
-        }
-
-        function renderBanners(banners) {
-            const container = document.getElementById('bannersGrid');
-            if (banners.length === 0) {
-                container.innerHTML = '<div style="grid-column:1/-1; padding:80px; text-align:center; color:var(--text-light);">Tidak ada banner aktif</div>';
-                return;
-            }
-            container.innerHTML = banners.map(b => `
-                <div class="banner-card">
-                    <div class="banner-image">
-                        ${b.imageUrl ? `<img src="${b.imageUrl}" alt="">` : '<i class="fas fa-image"></i>'}
-                        <span style="position:absolute; top:12px; left:12px;" class="badge ${b.type === 'seller' ? 'badge-info' : 'badge-primary'}">
-                            ${b.type === 'seller' ? 'Seller Content' : 'Admin Official'}
-                        </span>
-                    </div>
-                    <div class="banner-body">
-                        <h4>${b.title || 'Untitled'}</h4>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                            <span class="badge ${b.isActive ? 'badge-success' : 'badge-danger'}">${b.isActive ? 'Aktif' : 'Off'}</span>
-                            <span style="font-size:11px; color:var(--text-light);">${b.expiresAt ? 'Sampai ' + formatDate(b.expiresAt) : ''}</span>
-                        </div>
-                        <p style="font-size:13px; height:40px; overflow:hidden; opacity:0.8;">${b.description || ''}</p>
-                        <div class="banner-actions">
-                            <button onclick="toggleBanner('${b.id}')" class="btn btn-secondary btn-sm" style="flex:1;">
-                                <i class="fas ${b.isActive ? 'fa-pause' : 'fa-play'}"></i> ${b.isActive ? 'Suspend' : 'Resume'}
-                            </button>
-                            <button onclick="deleteBanner('${b.id}')" class="btn btn-danger btn-sm">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
+        grid.innerHTML = banners.map(b => `
+            <div class="banner-card">
+                <div class="banner-img">
+                    ${b.imageUrl ? `<img src="${b.imageUrl}" onerror="this.src='https://placehold.co/600x300/1E1E24/C4F000?text=No+Image'">` : '<span class="material-symbols-outlined text-6xl text-[var(--ink-soft)]">image</span>'}
+                </div>
+                <div class="p-5">
+                    <h3 class="font-black text-lg mb-1 truncate">${b.title || 'Tanpa Judul'}</h3>
+                    <p class="text-xs text-[var(--ink-muted)] font-mono-tag mb-4 truncate">${b.linkUrl || 'Tidak ada link'}</p>
+                    <div class="flex gap-2">
+                        <button class="btn btn-secondary flex-1 !py-2 !px-3 text-xs" onclick="toggleStatus('${b.id}', ${b.active})">
+                            <span class="material-symbols-outlined text-sm">${b.active ? 'visibility_off' : 'visibility'}</span>
+                            ${b.active ? 'Nonaktifkan' : 'Aktifkan'}
+                        </button>
+                        <button class="btn btn-danger !p-2" onclick="deleteBanner('${b.id}')"><span class="material-symbols-outlined text-sm">delete</span></button>
                     </div>
                 </div>
-            `).join('');
-        }
+            </div>
+        `).join('');
+    } catch (e) {
+        grid.innerHTML = `<div class="col-span-full text-center text-red-500 font-bold py-10">Gagal memuat: ${e.message}</div>`;
+    }
+}
 
-        function updateStats(banners) {
-            document.getElementById('totalBanners').textContent = banners.length;
-            document.getElementById('activeBanners').textContent = banners.filter(b => b.isActive).length;
-            document.getElementById('sellerBanners').textContent = banners.filter(b => b.type === 'seller').length;
-            document.getElementById('adminBanners').textContent = banners.filter(b => b.type === 'admin').length;
-        }
-
-        // ===== BANNER ACTIONS =====
-        window.toggleBanner = async function(id) {
-            try {
-                const ref = doc(db, 'banners', id);
-                const snap = await getDoc(ref);
-                await updateDoc(ref, { isActive: !snap.data().isActive, updatedAt: serverTimestamp() });
-                showToast('success', 'Status diperbarui');
-                loadBanners();
-            } catch (e) { showToast('error', e.message); }
-        };
-
-        window.deleteBanner = async function(id) {
-            if (!confirm('Hapus banner ini?')) return;
-            try {
-                await deleteDoc(doc(db, 'banners', id));
-                showToast('success', 'Banner dihapus');
-                loadBanners();
-            } catch (e) { showToast('error', e.message); }
-        };
-
-        // ===== MODAL LOGIC =====
-        window.openAddBanner = () => document.getElementById('addBannerModal').classList.add('open');
-        window.closeAddBanner = () => document.getElementById('addBannerModal').classList.remove('open');
-
-        async function loadProducts() {
-            try {
-                const q = query(collection(db, 'products'), where('status', '==', 'published'), limit(20));
-                const snap = await getDocs(q);
-                const list = document.getElementById('productList');
-                list.innerHTML = snap.docs.map(doc => {
-                    const p = doc.data();
-                    return `
-                        <div class="product-list-item" onclick="selectProduct('${p.productCode}')">
-                            <div class="product-info">
-                                <img src="${p.imageUrl || ''}" alt="">
-                                <div>
-                                    <div style="font-weight:600; font-size:14px;">${p.name}</div>
-                                    <span class="product-code">${p.productCode}</span>
-                                </div>
-                            </div>
-                            <i class="fas fa-chevron-right text-light"></i>
-                        </div>
-                    `;
-                }).join('') || '<div style="text-align:center; padding:20px;">No product found</div>';
-            } catch (e) { addDebug(e.message, 'error'); }
-        }
-
-        window.selectProduct = (code) => { document.getElementById('productCodeInput').value = code; showToast('info', 'Produk terpilih'); };
-
-        window.addProductToBanner = async function() {
-            const code = document.getElementById('productCodeInput').value.toUpperCase();
-            const dur = parseInt(document.getElementById('bannerDurationInput').value) || 24;
-            if (code.length < 3) { showToast('error', 'Kode produk tidak valid'); return; }
-
-            try {
-                const q = query(collection(db, 'products'), where('productCode', '==', code), limit(1));
-                const snap = await getDocs(q);
-                if (snap.empty) throw new Error('Produk tidak ditemukan');
-                
-                const prodDoc = snap.docs[0];
-                const prod = prodDoc.data();
-                const exp = new Date(); exp.setHours(exp.getHours() + dur);
-
-                await addDoc(collection(db, 'banners'), {
-                    title: prod.name,
-                    description: `Dapatkan segera ${prod.name}`,
-                    imageUrl: prod.imageUrl,
-                    linkUrl: `/product/${prodDoc.id}`,
-                    isActive: true,
-                    type: 'admin',
-                    productId: prodDoc.id,
-                    expiresAt: Timestamp.fromDate(exp),
-                    createdAt: serverTimestamp()
-                });
-
-                showToast('success', 'Banner berhasil diterbitkan');
-                closeAddBanner();
-                loadBanners();
-            } catch (e) { showToast('error', e.message); }
-        };
-
-        // ===== PRICING LOGIC =====
-        async function loadPricing() {
-            const snap = await getDoc(doc(db, 'settings', 'banner'));
-            if (snap.exists()) {
-                const d = snap.data();
-                document.getElementById('bannerPrice').value = d.price || 100000;
-                document.getElementById('bannerDuration').value = d.duration || 24;
-                document.getElementById('maxBanners').value = d.maxSlots || 5;
-                document.getElementById('autoSlideSpeed').value = d.autoSlideSpeed || 5;
-            }
-        }
-
-        window.openPricingSettings = () => {
-            const c = document.getElementById('pricingCard');
-            c.style.display = c.style.display === 'none' ? 'grid' : 'none';
-        };
-
-        window.closePricingSettings = () => document.getElementById('pricingCard').style.display = 'none';
-
-        document.getElementById('pricingForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            try {
-                await setDoc(doc(db, 'settings', 'banner'), {
-                    price: parseInt(document.getElementById('bannerPrice').value),
-                    duration: parseInt(document.getElementById('bannerDuration').value),
-                    maxSlots: parseInt(document.getElementById('maxBanners').value),
-                    autoSlideSpeed: parseInt(document.getElementById('autoSlideSpeed').value),
-                    updatedAt: serverTimestamp()
-                });
-                showToast('success', 'Pengaturan disimpan');
-                closePricingSettings();
-            } catch (e) { showToast('error', e.message); }
+window.toggleStatus = async (id, currentStatus) => {
+    try {
+        const res = await fetch('/api/banners/' + id);
+        const b = await res.json();
+        await fetch('/api/banners', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...b, id: id, active: !currentStatus, updatedAt: new Date().toISOString() })
         });
+        loadBanners();
+    } catch (e) { alert('Gagal ubah status'); }
+};
 
-        addDebug('System Core Ready - Premium UI Applied', 'success');
-    </script>
-</body></html>
+window.deleteBanner = async (id) => {
+    if (!confirm('Hapus banner ini?')) return;
+    try {
+        await fetch('/api/banners/' + id, { method: 'DELETE' });
+        loadBanners();
+    } catch (e) { alert('Gagal hapus banner'); }
+};
+
+window.openAddModal = () => document.getElementById('bannerModal').classList.add('open');
+window.closeAddModal = () => document.getElementById('bannerModal').classList.remove('open');
+
+document.getElementById('bannerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true; btn.innerText = 'Menyimpan...';
+    
+    const payload = {
+        id: Date.now().toString(),
+        title: document.getElementById('bannerTitle').value.trim(),
+        imageUrl: document.getElementById('bannerImage').value.trim(),
+        linkUrl: document.getElementById('bannerLink').value.trim(),
+        description: document.getElementById('bannerDesc').value.trim(),
+        active: true,
+        createdAt: new Date().toISOString()
+    };
+
+    try {
+        await fetch('/api/banners', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        closeAddModal(); loadBanners();
+    } catch (error) { alert('Gagal menyimpan: ' + error.message); }
+    finally { btn.disabled = false; btn.innerText = 'Simpan Banner'; }
+});
+
+document.addEventListener('DOMContentLoaded', loadBanners);
+</script>
+</body>
+</html>

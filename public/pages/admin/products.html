@@ -1,682 +1,220 @@
 <!DOCTYPE html>
-
-<html lang="id"><head>
+<html lang="id">
+<head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Manajemen Produk - ProductKuu</title>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<title>Manajemen Produk - ProductKuu Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@700&family=Archivo+Black&display=swap" rel="stylesheet"/>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
-<link href="/assets/images/favicon.ico" rel="icon"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <style>
-        :root {
-            --bg-deep: #0d0d15;
-            --bg-glass: rgba(17, 17, 27, 0.7);
-            --bg-glass-lighter: rgba(30, 30, 46, 0.6);
-            --primary-gradient: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-            --accent-ice: #89B4FA;
-            --accent-purple: #CBA6F7;
-            --accent-orange: #FAB387;
-            --text-main: #CDD6F4;
-            --text-dim: #9399B2;
-            --border-glass: rgba(255, 255, 255, 0.08);
-            --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.15);
-            --font: 'Inter', sans-serif;
-            --success: #A6E3A1;
-            --warning: #F9E2AF;
-            --danger: #F38BA8;
-            --info: #89B4FA;
-            --radius: 12px;
-            --radius-lg: 20px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: var(--font); 
-            background: var(--bg-deep); 
-            color: var(--text-main); 
-            min-height: 100vh; 
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 0% 0%, rgba(79, 70, 229, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 100% 100%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
-            background-attachment: fixed;
-        }
-
-        .app-wrapper { display: flex; min-height: calc(100vh - 72px); margin-top: 72px; }
-        
-        .navbar { 
-            position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
-            background: var(--bg-glass); backdrop-filter: blur(20px); 
-            border-bottom: 1px solid var(--border-glass); height: 72px; 
-        }
-        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1400px; margin: 0 auto; padding: 0 32px; }
-        .navbar-logo { display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 800; color: #fff; text-decoration: none; letter-spacing: -0.02em; }
-        .navbar-logo i { background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
-        .sidebar { 
-            width: 280px; background: rgba(13, 13, 21, 0.8); backdrop-filter: blur(20px); 
-            border-right: 1px solid var(--border-glass); padding: 24px 0; 
-            position: fixed; top: 72px; bottom: 0; overflow-y: auto; z-index: 100; 
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-        }
-        .sidebar-header { padding: 0 24px 16px; margin-bottom: 8px; }
-        .sidebar-header .title { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); }
-        .sidebar-nav { display: flex; flex-direction: column; gap: 4px; padding: 0 16px; }
-        .sidebar-nav a, .sidebar-nav button { 
-            display: flex; align-items: center; gap: 12px; padding: 12px 16px; 
-            border-radius: var(--radius); color: var(--text-dim); transition: var(--transition); 
-            font-size: 14px; font-weight: 500; text-decoration: none; background: none; 
-            border: none; width: 100%; cursor: pointer; text-align: left; font-family: var(--font);
-        }
-        .sidebar-nav a:hover, .sidebar-nav button:hover { background: rgba(255,255,255,0.05); color: #fff; transform: translateX(4px); }
-        .sidebar-nav a.active { background: var(--primary-gradient); color: #fff; box-shadow: var(--shadow-glow); }
-        .sidebar-nav .logout-btn { color: var(--danger); margin-top: 24px; border-top: 1px solid var(--border-glass); padding-top: 24px; border-radius: 0; }
-
-        .main-content { margin-left: 280px; padding: 32px; flex: 1; min-height: calc(100vh - 72px); }
-        .sidebar-overlay { display: none; position: fixed; top: 72px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 99; }
-        
-        @media (max-width: 1024px) { 
-            .sidebar { transform: translateX(-100%); } 
-            .sidebar.open { transform: translateX(0); } 
-            .main-content { margin-left: 0; padding: 20px; } 
-            .sidebar-overlay.open { display: block; }
-        }
-
-        .glass-panel { background: var(--bg-glass-lighter); backdrop-filter: blur(12px); border: 1px solid var(--border-glass); border-radius: var(--radius-lg); }
-        .card { background: var(--bg-glass-lighter); backdrop-filter: blur(8px); border-radius: 20px; padding: 24px; border: 1px solid var(--border-glass); box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
-        
-        .filter-bar { background: var(--bg-glass); border-radius: 16px; padding: 20px; border: 1px solid var(--border-glass); display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-bottom: 24px; }
-        .filter-group { display: flex; gap: 12px; flex-wrap: wrap; flex: 1; }
-        .filter-actions { display: flex; gap: 8px; }
-
-        .input { background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); color: #fff; padding: 10px 16px; border-radius: 10px; font-size: 14px; transition: var(--transition); outline: none; width: 100%; }
-        .input:focus { border-color: var(--accent-ice); box-shadow: 0 0 0 3px rgba(137, 180, 250, 0.15); }
-        select.input { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239399B2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 40px; }
-
-        .table-wrapper { overflow-x: auto; border-radius: 12px; }
-        .table { width: 100%; border-collapse: separate; border-spacing: 0; }
-        .table th { text-align: left; padding: 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); border-bottom: 1px solid var(--border-glass); background: rgba(0,0,0,0.2); }
-        .table td { padding: 16px; border-bottom: 1px solid var(--border-glass); font-size: 14px; color: var(--text-main); transition: var(--transition); vertical-align: middle; }
-        .table tr:last-child td { border-bottom: none; }
-        .table tr:hover td { background: rgba(255,255,255,0.03); }
-
-        .badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.1); }
-        .badge-primary { background: rgba(79, 70, 229, 0.2); color: #818cf8; border-color: rgba(79, 70, 229, 0.3); }
-        .badge-success { background: rgba(166, 227, 161, 0.15); color: var(--success); }
-        .badge-warning { background: rgba(249, 226, 175, 0.15); color: var(--warning); }
-        .badge-danger { background: rgba(243, 139, 168, 0.15); color: var(--danger); }
-        .badge-info { background: rgba(137, 180, 250, 0.15); color: var(--info); }
-
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; transition: var(--transition); border: 1px solid transparent; }
-        .btn-primary { background: var(--primary-gradient); color: white; box-shadow: var(--shadow-glow); }
-        .btn-primary:hover { transform: translateY(-2px); opacity: 0.9; }
-        .btn-secondary { background: rgba(255,255,255,0.05); color: var(--text-main); border-color: var(--border-glass); }
-        .btn-secondary:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
-        .btn-danger { background: rgba(243, 139, 168, 0.2); color: var(--danger); border-color: rgba(243, 139, 168, 0.3); }
-        .btn-danger:hover { background: var(--danger); color: #fff; }
-        .btn-success { background: rgba(166, 227, 161, 0.2); color: var(--success); border-color: rgba(166, 227, 161, 0.3); }
-        .btn-success:hover { background: var(--success); color: #000; }
-        .btn-sm { padding: 8px 14px; font-size: 12px; }
-        .btn-xs { padding: 5px 10px; font-size: 11px; border-radius: 8px; }
-
-        .modal-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
-        .modal { background: var(--bg-deep); border: 1px solid var(--border-glass); border-radius: 24px; padding: 32px; width: 100%; position: relative; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .modal-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
-        .modal-close { position: absolute; top: 24px; right: 24px; color: var(--text-dim); font-size: 20px; cursor: pointer; transition: 0.2s; background: none; border: none; padding: 4px; }
-        .modal-close:hover { color: #fff; transform: rotate(90deg); }
-        
-        .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; text-align: left; }
-        .input-group label { font-size: 12px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
-
-        .toast-container { position: fixed; bottom: 32px; right: 32px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
-        .toast { background: var(--bg-glass); border: 1px solid var(--border-glass); backdrop-filter: blur(12px); padding: 16px 24px; border-radius: 16px; color: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 16px; animation: slideInRight 0.3s ease; }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-
-        .debug-box { background: #11111b; border-radius: 12px; padding: 16px; margin-bottom: 16px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #a6adc8; max-height: 200px; overflow-y: auto; display: none; border: 1px solid #313244; }
-        .debug-box.show { display: block; }
-        .error-box { background: rgba(243, 139, 168, 0.1); border: 1px solid rgba(243, 139, 168, 0.2); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; display: none; }
-        .error-box.show { display: block; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border-glass); border-radius: 10px; }
-    </style>
+:root,[data-theme="light"]{--bg:#F4F1E8;--bg-grid:rgba(0,0,0,.055);--surface:#FFF;--surface-2:#FAF8F0;--ink:#0A0A0A;--ink-muted:#4A4A4A;--ink-soft:#7A7A7A;--lime:#C4F000;--lime-deep:#9BC400;--amber:#FFC400;--amber-deep:#D9A300;--blue:#2B6FFF;--blue-deep:#1E4FCC;--blue-soft:#E6EEFF;--border:#0A0A0A;--border-width:2px;--shadow-color:#0A0A0A;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(0,0,0,.08);--nav-bg:#F4F1E8}
+[data-theme="dark"]{--bg:#0B0B0D;--bg-grid:rgba(255,255,255,.045);--surface:#16161A;--surface-2:#1E1E24;--ink:#F5F3EC;--ink-muted:#B8B8C0;--ink-soft:#8A8A92;--lime:#C4F000;--lime-deep:#A8D400;--amber:#FFC400;--amber-deep:#E0AC00;--blue:#4D8BFF;--blue-deep:#2B6FFF;--blue-soft:#1A2540;--border:#F5F3EC;--border-width:2px;--shadow-color:#F5F3EC;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(255,255,255,.06);--nav-bg:#0B0B0D}
+*{scroll-behavior:smooth;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);margin:0;line-height:1.6;overflow-x:hidden;transition:background-color .35s ease,color .35s ease;background-image:linear-gradient(to right,var(--grid-line) 1px,transparent 1px),linear-gradient(to bottom,var(--grid-line) 1px,transparent 1px);background-size:28px 28px;background-attachment:fixed}
+.font-mono-tag{font-family:'Space Mono',monospace}
+.font-display{font-family:'Archivo Black',sans-serif;letter-spacing:-.02em}
+.neo-tag{display:inline-flex;align-items:center;gap:6px;background:var(--lime);color:#0A0A0A;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:.9px;padding:6px 14px;border:var(--border-width) solid var(--border);box-shadow:3px 3px 0 var(--shadow-color);font-family:'Space Mono',monospace}
+.neo-tag.blue{background:var(--blue);color:#FFF}
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.6px;padding:10px 20px;border:var(--border-width) solid var(--border);border-radius:0;cursor:pointer;text-decoration:none;transition:all .09s;white-space:nowrap}
+.btn-primary{background:var(--lime);color:#0A0A0A;box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.btn-primary:hover:not(:disabled){transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--shadow-color);background:var(--amber)}
+.btn-secondary{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.btn-secondary:hover:not(:disabled){transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--blue);border-color:var(--blue);color:var(--blue)}
+.btn-danger{background:#FF4444;color:#FFF;box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.table-wrapper{overflow-x:auto;border:var(--border-width) solid var(--border);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color);background:var(--surface)}
+.table{width:100%;border-collapse:collapse}
+.table th{background:var(--bg);padding:16px;font-size:12px;font-weight:900;text-transform:uppercase;text-align:left;border-bottom:var(--border-width) solid var(--border)}
+.table td{padding:16px;font-size:14px;font-weight:600;border-bottom:1.5px dashed var(--ink-soft)}
+.badge{padding:4px 10px;border:1.5px solid var(--border);font-size:10px;font-weight:900;text-transform:uppercase;font-family:'Space Mono',monospace;box-shadow:2px 2px 0 var(--shadow-color);display:inline-block}
+.badge-success{background:var(--lime);color:#0A0A0A}
+.badge-warning{background:var(--amber);color:#0A0A0A}
+.badge-danger{background:#FF4444;color:#FFF}
+.form-input{width:100%;background:var(--bg);border:var(--border-width) solid var(--border);padding:11px 14px;color:var(--ink);font-weight:600;font-size:14px;outline:none}
+.form-input:focus{border-color:var(--blue);box-shadow:4px 4px 0 var(--blue)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(2px);z-index:2000;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:3px solid var(--border);box-shadow:10px 10px 0 var(--lime);max-width:540px;width:100%;padding:32px;position:relative}
+</style>
 </head>
-<body>
-<nav class="navbar">
-<div class="navbar-inner">
-<a class="navbar-logo" href="/"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
-<div class="flex items-center gap-4">
-<span class="badge badge-primary">Administrator</span>
-<button class="w-10 h-10 flex items-center justify-center rounded-full text-white/60 hover:bg-white/5 transition-colors" id="themeToggle"><i class="fas fa-moon"></i></button>
-<button class="lg:hidden text-2xl text-white p-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-</div>
+<body data-theme="light">
+
+<script>
+    const token = localStorage.getItem('pk_token');
+    const userStr = localStorage.getItem('pk_user');
+    if (!token || !userStr) { window.location.replace('/admin/login'); } 
+    else { try { const u = JSON.parse(userStr); if (u.role !== 'admin') window.location.replace('/'); } catch(e) { window.location.replace('/admin/login'); } }
+</script>
+
+<nav class="fixed top-0 left-0 right-0 z-[1000] h-[76px] bg-[var(--nav-bg)] border-b-[2px] border-[var(--border)]">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-3">
+    <a class="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-2 shrink-0" href="/admin/dashboard">
+        <span class="bg-[var(--lime)] text-[#0A0A0A] px-2.5 py-1 border-2 border-[var(--border)] font-black shadow-[2px_2px_0px_var(--shadow-color)]">Admin</span>
+        <span class="text-[var(--ink)] font-black">Panel</span>
+    </a>
+    <div class="flex items-center gap-2.5">
+        <button class="btn btn-secondary !py-2 !px-3.5" id="themeToggle"><span class="material-symbols-outlined text-lg">dark_mode</span></button>
+        <button class="lg:hidden btn btn-secondary !py-2 !px-3.5" id="sidebarToggle"><span class="material-symbols-outlined text-lg">menu</span></button>
+        <button class="btn btn-danger !py-2 !px-3.5" id="logoutBtn">Logout</button>
+    </div>
 </div>
 </nav>
-<aside class="sidebar" id="sidebar">
-<div class="sidebar-header"><div class="title">Main Navigation</div></div>
-<nav class="sidebar-nav">
-<a href="/admin/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
-<a href="/admin/sellers"><i class="fas fa-users"></i> Sellers Hub</a>
-<a class="active" href="/admin/products"><i class="fas fa-box"></i> Product Inventory</a>
-<a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Order Management</a>
-<a href="/admin/banners"><i class="fas fa-images"></i> Ad Banners</a>
-<a href="/admin/withdrawals"><i class="fas fa-arrow-up"></i> Payout Requests</a>
-<a href="/admin/settings"><i class="fas fa-cog"></i> Settings</a>
-<button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Terminate Session</button>
-</nav>
+<div class="fixed inset-0 bg-black/50 z-[800] hidden transition-opacity" id="sidebarOverlay"></div>
+<aside class="fixed top-[76px] left-0 bottom-0 w-[260px] bg-[var(--surface)] border-r-[2px] border-[var(--border)] z-[900] flex flex-col -translate-x-full lg:translate-x-0 transition-transform duration-300" id="sidebar">
+    <div class="p-4 border-b-2 border-[var(--border)] bg-[var(--bg)]"><p class="text-[10px] font-black text-[var(--ink-muted)] uppercase tracking-widest font-mono-tag">Main Menu</p></div>
+    <nav class="p-4 flex flex-col gap-2 flex-1 overflow-y-auto">
+        <a href="/admin/dashboard" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+        <a href="/admin/sellers" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">storefront</span> Sellers</a>
+        <a href="/admin/products" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-[var(--border)] bg-[var(--lime)] text-[#0A0A0A] shadow-[3px_3px_0px_var(--shadow-color)]"><span class="material-symbols-outlined">inventory_2</span> Produk</a>
+        <a href="/admin/orders" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">shopping_cart</span> Order</a>
+        <a href="/admin/banners" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">ad_units</span> Banner</a>
+        <a href="/admin/withdrawals" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">account_balance_wallet</span> Withdraw</a>
+        <a href="/admin/settings" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">settings</span> Pengaturan</a>
+    </nav>
 </aside>
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-<div class="app-wrapper">
-<main class="main-content">
-<div class="flex justify-between items-end mb-8">
-<div>
-<h1 class="text-3xl font-extrabold tracking-tight mb-1" style="background: linear-gradient(to right, #fff, #9ca3af); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Manajemen Produk</h1>
-<p class="text-slate-400 font-medium">Control and moderate the platform's digital catalog</p>
-</div>
-<button class="btn btn-secondary" onclick="refreshData()">
-<i class="fas fa-sync-alt"></i> Sync Data
-                </button>
-</div>
-<div class="debug-box" id="debugBox">
-<div class="text-blue-400 mb-2">🔍 Product Ledger Protocol Active</div>
-<div id="debugLog">Initializing...</div>
-</div>
-<button class="text-[10px] text-slate-500 hover:text-white mb-6 underline underline-offset-4 tracking-widest uppercase" onclick="toggleDebug()">
-<i class="fas fa-terminal mr-1"></i> Access Debug Console
-            </button>
-<div class="error-box" id="errorBox">
-<div class="flex items-center gap-2 text-rose-400 font-bold mb-1">
-<i class="fas fa-exclamation-circle"></i> <span id="errorTitle">System Error</span>
-</div>
-<div class="text-sm text-slate-400" id="errorDetail">Failed to fetch product synchronization.</div>
-</div>
-<div class="filter-bar">
-<div class="filter-group">
-<input class="input" id="searchProduct" placeholder="Search by name or category..." style="max-width: 300px;" type="text"/>
-<select class="input" id="filterStatus" style="max-width: 180px;">
-<option value="all">All Statuses</option>
-<option value="published">Published</option>
-<option value="draft">Draft</option>
-<option value="pending">Pending</option>
-<option value="rejected">Rejected</option>
-</select>
-<select class="input" id="filterType" style="max-width: 180px;">
-<option value="all">All Types</option>
-<option value="digital">Digital Assets</option>
-<option value="premium-account">Premium Accounts</option>
-</select>
-</div>
-<div class="filter-actions">
-<button class="btn btn-primary" onclick="applyFilters()"><i class="fas fa-filter"></i> Apply</button>
-<button class="btn btn-secondary" onclick="resetFilters()"><i class="fas fa-undo"></i></button>
-</div>
-</div>
-<div class="card">
-<div class="table-wrapper">
-<table class="table">
-<thead>
-<tr>
-<th>Product Details</th>
-<th>Seller</th>
-<th>Listing Price</th>
-<th>Lifecycle</th>
-<th>Revenue</th>
-<th class="text-right">Action</th>
-</tr>
-</thead>
-<tbody id="productsTableBody">
-<tr><td class="text-center py-20 text-slate-500" colspan="6">
-<i class="fas fa-spinner fa-spin text-2xl mb-4 text-indigo-500"></i>
-<p class="font-medium">Decrypting product ledger...</p>
-</td></tr>
-</tbody>
-</table>
-</div>
-<div class="mt-8 pt-6 border-t border-white/5 flex justify-between items-center" id="pagination"></div>
-</div>
+
+<main class="pt-[100px] pb-10 px-4 lg:ml-[260px] transition-all">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-10">
+            <div>
+                <span class="neo-tag blue mb-3">KATALOG PRODUK</span>
+                <h1 class="font-display text-3xl sm:text-5xl text-[var(--ink)] mt-3">Manajemen Produk</h1>
+            </div>
+            <div class="w-full md:w-auto">
+                <button class="btn btn-primary w-full md:w-auto" onclick="loadProducts()"><span class="material-symbols-outlined">sync</span> Refresh Data</button>
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nama Produk</th>
+                        <th>Harga</th>
+                        <th class="text-center">Terjual</th>
+                        <th>Status</th>
+                        <th class="text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTableBody">
+                    <tr><td colspan="5" class="text-center py-10 font-bold">Memuat data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </main>
-</div>
-<!-- ACTION MODAL -->
-<div class="modal-overlay" id="actionModal">
-<div class="modal max-w-md text-center">
-<h3 class="modal-title justify-center" id="actionModalTitle">Moderate Listing</h3>
-<p class="text-slate-400 mb-8 leading-relaxed" id="actionModalMessage">Are you certain you want to authorize this product for public listing?</p>
-<div style="display:flex;gap:12px;">
-<button class="btn btn-primary flex-1 justify-center py-3" id="actionConfirmBtn" onclick="confirmAction()"><i class="fas fa-check"></i> Authorize</button>
-<button class="btn btn-secondary flex-1 justify-center py-3" onclick="closeActionModal()">Cancel</button>
-</div>
-</div>
-</div>
-<!-- EDIT PRODUCT MODAL -->
+
 <div class="modal-overlay" id="editProductModal">
-<div class="modal max-w-xl">
-<button class="modal-close" onclick="closeEditProductModal()"><i class="fas fa-times"></i></button>
-<h3 class="modal-title"><i class="fas fa-edit text-indigo-400"></i> Modify Product Data</h3>
-<form id="editProductForm">
-<input id="editProductId" type="hidden"/>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-<div class="input-group">
-<label for="editProductName">Product Name</label>
-<input class="input" id="editProductName" placeholder="Enter listing name" type="text"/>
-</div>
-<div class="input-group">
-<label for="editProductPrice">Price (IDR)</label>
-<input class="input" id="editProductPrice" min="1000" type="number"/>
-</div>
-<div class="input-group">
-<label for="editProductCategory">Category Segment</label>
-<select class="input" id="editProductCategory">
-<option value="Source Code">Source Code</option>
-<option value="Preset">Preset</option>
-<option value="Plugin">Plugin</option>
-<option value="Template">Template</option>
-<option value="UI Kit">UI Kit</option>
-<option value="Font">Font</option>
-<option value="Ebook">Ebook</option>
-<option value="Script">Script</option>
-<option value="Premium Account">Premium Account</option>
-<option value="Lainnya">Lainnya</option>
-</select>
-</div>
-<div class="input-group">
-<label for="editProductStatus">Moderate Status</label>
-<select class="input" id="editProductStatus">
-<option value="draft">Draft</option>
-<option value="pending">Pending Review</option>
-<option value="published">Published</option>
-<option value="rejected">Rejected</option>
-</select>
+<div class="modal">
+    <button class="absolute top-4 right-4 font-black text-2xl hover:text-[#FF4444]" onclick="closeEditProductModal()">×</button>
+    <h3 class="font-display text-2xl mb-6">Edit Produk</h3>
+    <form id="editProductForm">
+        <input id="editProductId" type="hidden"/>
+        <div class="space-y-4">
+            <div><label class="block text-xs font-black uppercase mb-1">Nama Produk</label><input class="form-input" id="editProductName" required/></div>
+            <div><label class="block text-xs font-black uppercase mb-1">Harga (Rp)</label><input class="form-input" id="editProductPrice" type="number" required/></div>
+            <div>
+                <label class="block text-xs font-black uppercase mb-1">Status</label>
+                <select class="form-input" id="editProductStatus">
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </div>
+            <div><label class="block text-xs font-black uppercase mb-1">Deskripsi</label><textarea class="form-input" id="editProductDescription" rows="3"></textarea></div>
+            <div class="pt-4 flex gap-3">
+                <button class="btn btn-primary flex-1" type="submit">Simpan</button>
+                <button class="btn btn-secondary flex-1" type="button" onclick="closeEditProductModal()">Batal</button>
+            </div>
+        </div>
+    </form>
 </div>
 </div>
-<div class="input-group">
-<label for="editProductDescription">Listing Description</label>
-<textarea class="input" id="editProductDescription" rows="4" style="resize: none;"></textarea>
-</div>
-<div class="flex gap-4 mt-6">
-<button class="btn btn-primary flex-1 justify-center py-3" type="submit"><i class="fas fa-save"></i> Commit Changes</button>
-<button class="btn btn-secondary flex-1 justify-center py-3" onclick="closeEditProductModal()" type="button">Discard</button>
-</div>
-</form>
-</div>
-</div>
-<div class="toast-container" id="toastContainer"></div>
-<script type="importmap">
-        {
-            "imports": {
-                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
-                "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js",
-                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"
-            }
-        }
-    </script>
-<script type="module">
-        // ============================================
-        // IMPORTS
-        // ============================================
-        import { initializeApp } from "firebase/app";
-        import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { 
-            getFirestore, 
-            collection, 
-            doc, 
-            getDoc, 
-            getDocs, 
-            updateDoc, 
-            deleteDoc 
-        } from "firebase/firestore";
 
-        console.log('📦 [ADMIN_PRODUCTS] Page loaded');
+<script>
+(function() { const saved = localStorage.getItem('pk-theme'); if (saved) document.documentElement.setAttribute('data-theme', saved); })();
+document.getElementById('themeToggle').addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next); document.body.setAttribute('data-theme', next); localStorage.setItem('pk-theme', next);
+    document.getElementById('themeToggle').innerHTML = `<span class="material-symbols-outlined text-lg">${next === 'dark' ? 'light_mode' : 'dark_mode'}</span>`;
+});
+const sidebar = document.getElementById('sidebar'); const sidebarOverlay = document.getElementById('sidebarOverlay');
+document.getElementById('sidebarToggle').addEventListener('click', () => { sidebar.classList.toggle('-translate-x-full'); sidebarOverlay.classList.toggle('hidden'); });
+sidebarOverlay.addEventListener('click', () => { sidebar.classList.add('-translate-x-full'); sidebarOverlay.classList.add('hidden'); });
+document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.clear(); window.location.href = '/admin/login'; });
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
-            authDomain: "productkuu.firebaseapp.com",
-            projectId: "productkuu",
-            storageBucket: "productkuu.firebasestorage.app",
-            messagingSenderId: "6615996108",
-            appId: "1:6615996108:web:daa6e17c1275d3061cd469",
-            measurementId: "G-78ZPLZMFEJ"
-        };
+let allProducts = [];
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+async function loadProducts() {
+    const tbody = document.getElementById('productsTableBody');
+    try {
+        const res = await fetch('/api/products');
+        const data = await res.json();
+        allProducts = data.products || data || [];
+        renderProducts();
+    } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-[#FF4444] font-bold py-10">Gagal memuat: ${e.message}</td></tr>`;
+    }
+}
 
-        let currentUser = null;
-        let allProducts = [];
-        let currentPage = 1;
-        const pageSize = 10;
-        let actionId = null;
-        let actionType = null;
+function renderProducts() {
+    const tbody = document.getElementById('productsTableBody');
+    if (allProducts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 font-bold">Belum ada produk.</td></tr>';
+        return;
+    }
+    tbody.innerHTML = allProducts.map(p => `
+        <tr>
+            <td>
+                <div class="font-black text-lg">${p.name || p.nama}</div>
+                <div class="text-xs text-[var(--ink-muted)] uppercase tracking-wider font-mono-tag">${p.category || 'Uncategorized'}</div>
+            </td>
+            <td class="font-mono-tag text-[var(--blue)] font-bold">Rp${new Intl.NumberFormat('id-ID').format(p.price || p.harga)}</td>
+            <td class="text-center"><span class="badge badge-warning">${p.sales || 0} Terjual</span></td>
+            <td><span class="badge ${p.status === 'published' ? 'badge-success' : 'badge-danger'}">${p.status || 'draft'}</span></td>
+            <td class="text-right">
+                <button class="btn btn-secondary !p-2" onclick="editProduct('${p.id}')"><span class="material-symbols-outlined text-lg">edit</span></button>
+            </td>
+        </tr>
+    `).join('');
+}
 
-        // ============================================
-        // SELLER CACHE
-        // ============================================
-        const sellerCache = new Map();
+window.editProduct = function(id) {
+    const p = allProducts.find(x => x.id === id);
+    if(!p) return;
+    document.getElementById('editProductId').value = id;
+    document.getElementById('editProductName').value = p.name || p.nama || '';
+    document.getElementById('editProductPrice').value = p.price || p.harga || 0;
+    document.getElementById('editProductStatus').value = p.status || 'draft';
+    document.getElementById('editProductDescription').value = p.description || p.deskripsi || '';
+    document.getElementById('editProductModal').classList.add('open');
+};
+window.closeEditProductModal = () => document.getElementById('editProductModal').classList.remove('open');
 
-        async function getSellerName(sellerId) {
-            if (!sellerId) return 'Unknown';
-            if (sellerCache.has(sellerId)) return sellerCache.get(sellerId);
-            try {
-                const sellerRef = doc(db, 'users', sellerId);
-                const sellerDoc = await getDoc(sellerRef);
-                if (sellerDoc.exists()) {
-                    const sellerData = sellerDoc.data();
-                    const name = sellerData.storeName || sellerData.displayName || sellerData.name || 'Seller';
-                    sellerCache.set(sellerId, name);
-                    return name;
-                } else {
-                    sellerCache.set(sellerId, 'Unknown');
-                    return 'Unknown';
-                }
-            } catch (error) {
-                sellerCache.set(sellerId, 'Unknown');
-                return 'Unknown';
-            }
-        }
+document.getElementById('editProductForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('editProductId').value;
+    const oldP = allProducts.find(x => x.id === id);
+    const btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true; btn.innerText = 'Menyimpan...';
 
-        // ============================================
-        // DEBUG LOG
-        // ============================================
-        let debugVisible = false;
+    const payload = {
+        ...oldP,
+        name: document.getElementById('editProductName').value.trim(),
+        price: parseInt(document.getElementById('editProductPrice').value),
+        status: document.getElementById('editProductStatus').value,
+        description: document.getElementById('editProductDescription').value.trim(),
+        updatedAt: new Date().toISOString()
+    };
 
-        function addDebug(message, type = 'info') {
-            const colors = { success: 'text-emerald-400', error: 'text-rose-400', info: 'text-indigo-400', warning: 'text-amber-400' };
-            const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
-            const log = document.getElementById('debugLog');
-            const time = new Date().toLocaleTimeString();
-            log.innerHTML += `<div class="mb-1"><span class="opacity-50 text-[10px] mr-2">${time}</span> <span class="${colors[type] || 'text-indigo-400'}">${icons[type] || 'ℹ️'} ${message}</span></div>`;
-            const box = document.getElementById('debugBox');
-            box.scrollTop = box.scrollHeight;
-        }
+    try {
+        await fetch('/api/products/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        closeEditProductModal(); loadProducts();
+    } catch (error) { alert('Gagal menyimpan: ' + error.message); }
+    finally { btn.disabled = false; btn.innerText = 'Simpan'; }
+});
 
-        window.toggleDebug = function() {
-            const box = document.getElementById('debugBox');
-            debugVisible = !debugVisible;
-            box.classList.toggle('show');
-            if (debugVisible) addDebug('Debug protocol established', 'info');
-        };
-
-        window.refreshData = function() {
-            addDebug('Manual database synchronization triggered', 'info');
-            showToast('info', 'Refreshing product catalog...');
-            loadProducts();
-        };
-
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('open');
-                sidebarOverlay.classList.toggle('open');
-            });
-        }
-        if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', () => {
-                sidebar.classList.remove('open');
-                sidebarOverlay.classList.remove('open');
-            });
-        }
-
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            try { await signOut(auth); window.location.href = '/'; } 
-            catch (error) { showToast('error', 'Termination failed: ' + error.message); }
-        });
-
-        function showToast(type, message) {
-            const container = document.getElementById('toastContainer');
-            const icons = { success: 'fa-check-circle text-emerald-400', error: 'fa-exclamation-circle text-rose-400', warning: 'fa-exclamation-triangle text-amber-400', info: 'fa-info-circle text-indigo-400' };
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerHTML = `
-                <i class="fas ${icons[type] || 'fa-info-circle'} text-xl"></i>
-                <div class="flex-1 text-sm font-medium tracking-wide">${message}</div>
-                <button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-white"><i class="fas fa-times"></i></button>
-            `;
-            container.appendChild(toast);
-            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 5000);
-        }
-        window.showToast = showToast;
-
-        function showError(title, detail) {
-            const box = document.getElementById('errorBox');
-            document.getElementById('errorTitle').textContent = title || 'System Error';
-            document.getElementById('errorDetail').textContent = detail || '';
-            box.classList.add('show');
-            setTimeout(() => { box.classList.remove('show'); }, 8000);
-        }
-
-        function formatPrice(price) {
-            if (!price && price !== 0) return '0';
-            return new Intl.NumberFormat('id-ID').format(price);
-        }
-
-        function formatDate(date) {
-            if (!date) return '-';
-            const d = date instanceof Date ? date : new Date(date);
-            if (isNaN(d.getTime())) return '-';
-            return d.toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        }
-
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) { window.location.href = '/admin/login'; return; }
-            currentUser = user;
-            try {
-                const userRef = doc(db, 'users', user.uid);
-                const userDoc = await getDoc(userRef);
-                if (!userDoc.exists() || userDoc.data().role !== 'admin') { window.location.href = '/'; return; }
-                addDebug('Administrator credentials verified', 'success');
-                await loadProducts();
-            } catch (error) { addDebug(`Security error: ${error.message}`, 'error'); }
-        });
-
-        async function loadProducts() {
-            addDebug('Retrieving product collection...', 'info');
-            try {
-                const snapshot = await getDocs(collection(db, 'products'));
-                let products = [];
-                for (const doc of snapshot.docs) {
-                    const data = doc.data();
-                    const sellerName = await getSellerName(data.sellerId);
-                    products.push({
-                        id: doc.id,
-                        ...data,
-                        sellerName: sellerName,
-                        createdAtDate: data.createdAt?.toDate?.() || new Date(data.createdAt)
-                    });
-                }
-                const status = document.getElementById('filterStatus').value;
-                const type = document.getElementById('filterType').value;
-                const search = document.getElementById('searchProduct').value.trim().toLowerCase();
-                if (status !== 'all') products = products.filter(p => p.status === status);
-                if (type !== 'all') products = products.filter(p => p.type === type);
-                if (search) products = products.filter(p => p.name?.toLowerCase().includes(search) || p.category?.toLowerCase().includes(search));
-                products.sort((a, b) => b.createdAtDate - a.createdAtDate);
-                allProducts = products;
-                addDebug(`Decrypted ${allProducts.length} listings successfully`, 'success');
-                renderProducts();
-            } catch (error) {
-                showError('Database Synchronicity Error', error.message);
-                showToast('error', 'Operation failed: ' + error.message);
-            }
-        }
-
-        function renderProducts() {
-            const tbody = document.getElementById('productsTableBody');
-            if (allProducts.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-20 text-slate-500">No product records found in the current segment.</td></tr>';
-                document.getElementById('pagination').innerHTML = '';
-                return;
-            }
-            const totalPages = Math.ceil(allProducts.length / pageSize);
-            if (currentPage > totalPages) currentPage = totalPages;
-            const start = (currentPage - 1) * pageSize;
-            const end = Math.min(start + pageSize, allProducts.length);
-            const pageProducts = allProducts.slice(start, end);
-
-            const statusStyles = { 'published': 'badge-success', 'pending': 'badge-warning', 'draft': 'badge-info', 'rejected': 'badge-danger' };
-
-            tbody.innerHTML = pageProducts.map(p => `
-                <tr class="group">
-                    <td>
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:border-white/20 transition-all">
-                                <i class="fas fa-${p.type === 'premium-account' ? 'user-shield' : 'cube'} text-indigo-400"></i>
-                            </div>
-                            <div>
-                                <div class="font-bold text-white tracking-tight">${p.name}</div>
-                                <div class="text-[11px] text-slate-500 font-medium uppercase tracking-wider">${p.category || 'Misc'} • ${formatDate(p.createdAtDate)}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-store text-[10px] text-slate-500"></i>
-                            <span class="font-semibold text-slate-300 text-sm">${p.sellerName}</span>
-                        </div>
-                    </td>
-                    <td><span class="font-bold text-indigo-400">Rp${formatPrice(p.price)}</span></td>
-                    <td><span class="badge ${statusStyles[p.status] || 'badge-info'}">${p.status || 'draft'}</span></td>
-                    <td class="text-center font-mono text-sm">${p.sales || 0}</td>
-                    <td class="text-right">
-                        <div class="flex justify-end gap-2">
-                            ${p.status === 'pending' ? `
-                                <button onclick="approveProduct('${p.id}')" class="btn btn-success btn-xs" title="Approve Listing"><i class="fas fa-check"></i></button>
-                                <button onclick="rejectProduct('${p.id}')" class="btn btn-danger btn-xs" title="Reject Listing"><i class="fas fa-times"></i></button>
-                            ` : ''}
-                            <button onclick="editProduct('${p.id}')" class="btn btn-secondary btn-xs" title="Modify Data"><i class="fas fa-edit"></i></button>
-                            <button onclick="viewProduct('${p.id}')" class="btn btn-secondary btn-xs" title="Open Public Link"><i class="fas fa-external-link-alt"></i></button>
-                            <button onclick="deleteProduct('${p.id}')" class="btn btn-danger btn-xs" title="Purge Record"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-            renderPagination(totalPages);
-        }
-
-        function renderPagination(totalPages) {
-            const container = document.getElementById('pagination');
-            if (totalPages <= 1) {
-                container.innerHTML = `<span class="text-xs font-bold text-slate-500 uppercase tracking-widest">${allProducts.length} ITEMS SYNCED</span>`;
-                return;
-            }
-            container.innerHTML = `
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">${allProducts.length} ITEMS SYNCED</span>
-                <div class="flex gap-2">
-                    ${currentPage > 1 ? `<button onclick="goToPage(${currentPage - 1})" class="btn btn-secondary py-1.5 px-3 text-xs"><i class="fas fa-chevron-left mr-1"></i> PREV</button>` : ''}
-                    <span class="text-xs font-bold text-slate-400 self-center mx-2">PAGE ${currentPage} / ${totalPages}</span>
-                    ${currentPage < totalPages ? `<button onclick="goToPage(${currentPage + 1})" class="btn btn-secondary py-1.5 px-3 text-xs">NEXT <i class="fas fa-chevron-right ml-1"></i></button>` : ''}
-                </div>
-            `;
-        }
-
-        window.goToPage = function(page) { currentPage = page; renderProducts(); };
-        window.applyFilters = function() { currentPage = 1; loadProducts(); };
-        window.resetFilters = function() {
-            document.getElementById('searchProduct').value = '';
-            document.getElementById('filterStatus').value = 'all';
-            document.getElementById('filterType').value = 'all';
-            applyFilters();
-        };
-
-        let searchTimeout;
-        document.getElementById('searchProduct').addEventListener('input', () => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(applyFilters, 500);
-        });
-
-        window.approveProduct = function(id) {
-            actionId = id;
-            actionType = 'approve';
-            document.getElementById('actionModalTitle').innerHTML = '<i class="fas fa-check-circle text-emerald-400"></i> Authorize Product';
-            document.getElementById('actionModalMessage').textContent = 'Confirm authorization of this digital asset for public marketplace availability.';
-            document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-check"></i> Authorize';
-            document.getElementById('actionModal').classList.add('open');
-        };
-
-        window.rejectProduct = function(id) {
-            actionId = id;
-            actionType = 'reject';
-            document.getElementById('actionModalTitle').innerHTML = '<i class="fas fa-times-circle text-rose-400"></i> Deauthorize Product';
-            document.getElementById('actionModalMessage').textContent = 'Confirm deauthorization. This listing will be moved to rejected status and hidden from the catalog.';
-            document.getElementById('actionConfirmBtn').innerHTML = '<i class="fas fa-times"></i> Reject';
-            document.getElementById('actionModal').classList.add('open');
-        };
-
-        window.closeActionModal = function() { document.getElementById('actionModal').classList.remove('open'); actionId = null; actionType = null; };
-
-        window.confirmAction = async function() {
-            if (!actionId || !actionType) return;
-            try {
-                await updateDoc(doc(db, 'products', actionId), {
-                    status: actionType === 'approve' ? 'published' : 'rejected',
-                    updatedAt: new Date().toISOString()
-                });
-                showToast('success', `Listing successfully ${actionType === 'approve' ? 'authorized' : 'deauthorized'}`);
-                closeActionModal();
-                loadProducts();
-            } catch (error) { showToast('error', 'Operation failed: ' + error.message); }
-        };
-
-        window.editProduct = async function(id) {
-            try {
-                const productDoc = await getDoc(doc(db, 'products', id));
-                if (!productDoc.exists()) return;
-                const p = productDoc.data();
-                document.getElementById('editProductId').value = id;
-                document.getElementById('editProductName').value = p.name || '';
-                document.getElementById('editProductPrice').value = p.price || '';
-                document.getElementById('editProductCategory').value = p.category || 'Lainnya';
-                document.getElementById('editProductStatus').value = p.status || 'draft';
-                document.getElementById('editProductDescription').value = p.description || '';
-                document.getElementById('editProductModal').classList.add('open');
-            } catch (error) { showToast('error', 'Load failed: ' + error.message); }
-        };
-
-        window.closeEditProductModal = function() { document.getElementById('editProductModal').classList.remove('open'); };
-
-        document.getElementById('editProductForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('editProductId').value;
-            const updates = {
-                name: document.getElementById('editProductName').value.trim(),
-                price: parseInt(document.getElementById('editProductPrice').value),
-                category: document.getElementById('editProductCategory').value,
-                status: document.getElementById('editProductStatus').value,
-                description: document.getElementById('editProductDescription').value.trim(),
-                updatedAt: new Date().toISOString()
-            };
-            if (!updates.name || isNaN(updates.price)) { showToast('warning', 'Payload validation failed'); return; }
-            try {
-                await updateDoc(doc(db, 'products', id), updates);
-                showToast('success', 'Product ledger updated successfully');
-                closeEditProductModal();
-                loadProducts();
-            } catch (error) { showToast('error', 'Update failed: ' + error.message); }
-        });
-
-        window.viewProduct = function(id) { window.open(`/product/${id}`, '_blank'); };
-
-        window.deleteProduct = async function(id) {
-            if (!confirm('DANGER: This action will permanently purge the product record. Proceed?')) return;
-            try {
-                await deleteDoc(doc(db, 'products', id));
-                showToast('success', 'Product record purged from database');
-                loadProducts();
-            } catch (error) { showToast('error', 'Purge failed: ' + error.message); }
-        };
-
-        document.getElementById('actionModal').addEventListener('click', function(e) { if (e.target === this) closeActionModal(); });
-        document.getElementById('editProductModal').addEventListener('click', function(e) { if (e.target === this) closeEditProductModal(); });
-
-        addDebug('System initialized successfully', 'success');
-    </script>
-</body></html>
+document.addEventListener('DOMContentLoaded', loadProducts);
+</script>
+</body>
+</html>

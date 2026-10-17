@@ -1,809 +1,195 @@
 <!DOCTYPE html>
-
-<html class="dark" lang="id"><head>
+<html lang="id">
+<head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Manajemen Seller - ProductKuu</title>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=JetBrains+Mono:wght@100..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@700&family=Archivo+Black&display=swap" rel="stylesheet"/>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "on-secondary-fixed": "#320047",
-                    "tertiary-fixed-dim": "#ffb77f",
-                    "tertiary-fixed": "#ffdcc4",
-                    "surface-container-high": "#292932",
-                    "primary-container": "#00f0ff",
-                    "inverse-surface": "#e4e1ed",
-                    "on-tertiary-fixed": "#2f1500",
-                    "surface": "#13131b",
-                    "inverse-on-surface": "#302f39",
-                    "on-surface-variant": "#b9cacb",
-                    "on-secondary-container": "#480063",
-                    "on-secondary": "#520071",
-                    "on-error-container": "#ffdad6",
-                    "tertiary": "#fff3ed",
-                    "secondary": "#ecb2ff",
-                    "surface-container-highest": "#34343d",
-                    "primary-fixed-dim": "#00dbe9",
-                    "error-container": "#93000a",
-                    "on-error": "#690005",
-                    "error": "#ffb4ab",
-                    "secondary-fixed-dim": "#ecb2ff",
-                    "on-primary-container": "#006970",
-                    "on-tertiary": "#4e2600",
-                    "inverse-primary": "#006970",
-                    "secondary-fixed": "#f8d8ff",
-                    "on-primary-fixed": "#002022",
-                    "surface-tint": "#00dbe9",
-                    "surface-container-lowest": "#0d0d15",
-                    "on-primary-fixed-variant": "#004f54",
-                    "on-secondary-fixed-variant": "#74009f",
-                    "on-tertiary-fixed-variant": "#6f3900",
-                    "surface-container-low": "#1b1b23",
-                    "on-background": "#e4e1ed",
-                    "on-tertiary-container": "#924c00",
-                    "outline": "#849495",
-                    "primary": "#dbfcff",
-                    "secondary-container": "#cf5cff",
-                    "surface-container": "#1f1f27",
-                    "surface-bright": "#393842",
-                    "background": "#13131b",
-                    "on-primary": "#00363a",
-                    "outline-variant": "#3b494b",
-                    "primary-fixed": "#7df4ff",
-                    "surface-variant": "#34343d",
-                    "tertiary-container": "#ffd0ae",
-                    "surface-dim": "#13131b",
-                    "on-surface": "#e4e1ed"
-            },
-            "borderRadius": {
-                    "DEFAULT": "0.25rem",
-                    "lg": "0.5rem",
-                    "xl": "0.75rem",
-                    "full": "9999px"
-            },
-            "spacing": {
-                    "md": "24px",
-                    "base": "8px",
-                    "sm": "12px",
-                    "xl": "80px",
-                    "xs": "4px",
-                    "gutter": "24px",
-                    "lg": "48px",
-                    "container-max": "1280px"
-            },
-            "fontFamily": {
-                    "headline-lg": ["Inter"],
-                    "display-lg-mobile": ["Inter"],
-                    "body-md": ["Inter"],
-                    "body-lg": ["Inter"],
-                    "label-sm": ["JetBrains Mono"],
-                    "label-md": ["JetBrains Mono"],
-                    "headline-md": ["Inter"],
-                    "display-lg": ["Inter"]
-            }
-          }
-        }
-      }
-    </script>
 <style>
-        body {
-            background-color: #0d0d15;
-            color: #e4e1ed;
-            font-family: 'Inter', sans-serif;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(0, 219, 233, 0.05) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(207, 92, 255, 0.05) 0px, transparent 50%);
-        }
-
-        .glass-card {
-            background: rgba(31, 31, 39, 0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
-
-        .neon-border-primary {
-            border: 1px solid rgba(0, 219, 233, 0.3);
-            box-shadow: 0 0 15px rgba(0, 219, 233, 0.1);
-        }
-
-        .sidebar {
-            width: 260px;
-            background: rgba(13, 13, 21, 0.95);
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
-            position: fixed;
-            top: 64px;
-            bottom: 0;
-            z-index: 100;
-            transition: transform 0.3s ease;
-        }
-
-        .main-content {
-            margin-left: 260px;
-            padding-top: 88px;
-        }
-
-        @media (max-width: 1024px) {
-            .sidebar { transform: translateX(-100%); width: 280px; }
-            .sidebar.open { transform: translateX(0); }
-            .main-content { margin-left: 0; }
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border-radius: 12px;
-            color: #b9cacb;
-            transition: all 0.3s ease;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .nav-link:hover, .nav-link.active {
-            background: rgba(0, 219, 233, 0.1);
-            color: #00dbe9;
-            box-shadow: inset 0 0 10px rgba(0, 219, 233, 0.05);
-        }
-
-        .gradient-btn-primary {
-            background: linear-gradient(135deg, #00dbe9 0%, #006970 100%);
-            color: #002022;
-            transition: all 0.3s ease;
-        }
-
-        .gradient-btn-primary:hover {
-            box-shadow: 0 0 20px rgba(0, 219, 233, 0.4);
-            transform: translateY(-1px);
-        }
-
-        .table-row:hover {
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        .badge {
-            font-family: 'JetBrains Mono', monospace;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .modal-overlay {
-            background: rgba(13, 13, 21, 0.8);
-            backdrop-filter: blur(8px);
-        }
-
-        .debug-box {
-            background: #0d0d15;
-            border: 1px solid #3b494b;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        input, select {
-            background: rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            color: #e4e1ed !important;
-        }
-        
-        input:focus, select:focus {
-            border-color: #00dbe9 !important;
-            ring: 1px solid #00dbe9 !important;
-        }
-
-        /* Standard scrollbar for dark theme */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0d0d15; }
-        ::-webkit-scrollbar-thumb { background: #1f1f27; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #34343d; }
-    </style>
+:root,[data-theme="light"]{--bg:#F4F1E8;--bg-grid:rgba(0,0,0,.055);--surface:#FFF;--surface-2:#FAF8F0;--ink:#0A0A0A;--ink-muted:#4A4A4A;--ink-soft:#7A7A7A;--lime:#C4F000;--lime-deep:#9BC400;--amber:#FFC400;--amber-deep:#D9A300;--blue:#2B6FFF;--blue-deep:#1E4FCC;--blue-soft:#E6EEFF;--border:#0A0A0A;--border-width:2px;--shadow-color:#0A0A0A;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(0,0,0,.08);--nav-bg:#F4F1E8}
+[data-theme="dark"]{--bg:#0B0B0D;--bg-grid:rgba(255,255,255,.045);--surface:#16161A;--surface-2:#1E1E24;--ink:#F5F3EC;--ink-muted:#B8B8C0;--ink-soft:#8A8A92;--lime:#C4F000;--lime-deep:#A8D400;--amber:#FFC400;--amber-deep:#E0AC00;--blue:#4D8BFF;--blue-deep:#2B6FFF;--blue-soft:#1A2540;--border:#F5F3EC;--border-width:2px;--shadow-color:#F5F3EC;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(255,255,255,.06);--nav-bg:#0B0B0D}
+*{scroll-behavior:smooth;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);margin:0;line-height:1.6;overflow-x:hidden;transition:background-color .35s ease,color .35s ease;background-image:linear-gradient(to right,var(--grid-line) 1px,transparent 1px),linear-gradient(to bottom,var(--grid-line) 1px,transparent 1px);background-size:28px 28px;background-attachment:fixed}
+.font-mono-tag{font-family:'Space Mono',monospace}
+.font-display{font-family:'Archivo Black',sans-serif;letter-spacing:-.02em}
+.neo-tag{display:inline-flex;align-items:center;gap:6px;background:var(--lime);color:#0A0A0A;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:.9px;padding:6px 14px;border:var(--border-width) solid var(--border);box-shadow:3px 3px 0 var(--shadow-color);font-family:'Space Mono',monospace}
+.neo-tag.blue{background:var(--blue);color:#FFF}
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.6px;padding:10px 20px;border:var(--border-width) solid var(--border);border-radius:0;cursor:pointer;text-decoration:none;transition:all .09s;white-space:nowrap}
+.btn-primary{background:var(--lime);color:#0A0A0A;box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.btn-primary:hover:not(:disabled){transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--shadow-color);background:var(--amber)}
+.btn-secondary{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.btn-secondary:hover:not(:disabled){transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--blue);border-color:var(--blue);color:var(--blue)}
+.btn-danger{background:#FF4444;color:#FFF;box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.table-wrapper{overflow-x:auto;border:var(--border-width) solid var(--border);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color);background:var(--surface)}
+.table{width:100%;border-collapse:collapse}
+.table th{background:var(--bg);padding:16px;font-size:12px;font-weight:900;text-transform:uppercase;text-align:left;border-bottom:var(--border-width) solid var(--border)}
+.table td{padding:16px;font-size:14px;font-weight:600;border-bottom:1.5px dashed var(--ink-soft)}
+.badge{padding:4px 10px;border:1.5px solid var(--border);font-size:10px;font-weight:900;text-transform:uppercase;font-family:'Space Mono',monospace;box-shadow:2px 2px 0 var(--shadow-color);display:inline-block}
+.badge-success{background:var(--lime);color:#0A0A0A}.badge-warning{background:var(--amber);color:#0A0A0A}.badge-danger{background:#FF4444;color:#FFF}
+.form-input{width:100%;background:var(--bg);border:var(--border-width) solid var(--border);padding:11px 14px;color:var(--ink);font-weight:600;font-size:14px;outline:none}
+.form-input:focus{border-color:var(--blue);box-shadow:4px 4px 0 var(--blue)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(2px);z-index:2000;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:3px solid var(--border);box-shadow:10px 10px 0 var(--lime);max-width:540px;width:100%;padding:32px;position:relative}
+</style>
 </head>
-<body class="min-h-screen">
-<!-- Navbar -->
-<nav class="fixed top:0 left-0 right-0 h-16 glass-card border-b border-white/5 z-[1001] flex items-center px-6">
-<div class="flex items-center justify-between w-full max-w-[1400px] mx-auto">
-<a class="flex items-center gap-3 text-xl font-extrabold tracking-tight" href="/">
-<div class="w-10 h-10 rounded-xl gradient-btn-primary flex items-center justify-center shadow-lg">
-<i class="fas fa-cube text-white"></i>
-</div>
-<span class="bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">ProductKuu</span>
-</a>
-<div class="flex items-center gap-4">
-<span class="badge px-3 py-1 bg-primary-container/20 text-primary-container rounded-full text-[10px] font-bold border border-primary-container/30">ADMIN MODE</span>
-<button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/5 text-on-surface-variant" id="themeToggle">
-<i class="fas fa-moon"></i>
-</button>
-<button class="lg:hidden w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/5 text-on-surface-variant" id="sidebarToggle">
-<i class="fas fa-bars"></i>
-</button>
-</div>
+<body data-theme="light">
+
+<script>
+    const token = localStorage.getItem('pk_token');
+    const userStr = localStorage.getItem('pk_user');
+    if (!token || !userStr) { window.location.replace('/admin/login'); } 
+    else { try { const u = JSON.parse(userStr); if (u.role !== 'admin') window.location.replace('/'); } catch(e) { window.location.replace('/admin/login'); } }
+</script>
+
+<nav class="fixed top-0 left-0 right-0 z-[1000] h-[76px] bg-[var(--nav-bg)] border-b-[2px] border-[var(--border)]">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-3">
+    <a class="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-2 shrink-0" href="/admin/dashboard"><span class="bg-[var(--lime)] text-[#0A0A0A] px-2.5 py-1 border-2 border-[var(--border)] font-black shadow-[2px_2px_0px_var(--shadow-color)]">Admin</span><span class="text-[var(--ink)] font-black">Panel</span></a>
+    <div class="flex items-center gap-2.5">
+        <button class="btn btn-secondary !py-2 !px-3.5" id="themeToggle"><span class="material-symbols-outlined text-lg">dark_mode</span></button>
+        <button class="lg:hidden btn btn-secondary !py-2 !px-3.5" id="sidebarToggle"><span class="material-symbols-outlined text-lg">menu</span></button>
+        <button class="btn btn-danger !py-2 !px-3.5" id="logoutBtn">Logout</button>
+    </div>
 </div>
 </nav>
-<!-- Sidebar -->
-<aside class="sidebar" id="sidebar">
-<div class="p-6 border-b border-white/5">
-<p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Main Menu</p>
-</div>
-<nav class="p-4 flex flex-col gap-1">
-<a class="nav-link" href="/admin/dashboard"><i class="fas fa-chart-pie w-5"></i> Dashboard</a>
-<a class="nav-link active" href="/admin/sellers"><i class="fas fa-users w-5"></i> Seller</a>
-<a class="nav-link" href="/admin/products"><i class="fas fa-box w-5"></i> Produk</a>
-<a class="nav-link" href="/admin/orders"><i class="fas fa-shopping-cart w-5"></i> Order</a>
-<a class="nav-link" href="/admin/banners"><i class="fas fa-images w-5"></i> Banner</a>
-<a class="nav-link" href="/admin/withdrawals"><i class="fas fa-arrow-up w-5"></i> Withdraw</a>
-<a class="nav-link" href="/admin/settings"><i class="fas fa-cog w-5"></i> Pengaturan</a>
-<div class="mt-4 pt-4 border-t border-white/5">
-<button class="nav-link w-full text-error hover:bg-error/10 hover:text-error" id="logoutBtn">
-<i class="fas fa-sign-out-alt w-5"></i> Logout
-                </button>
-</div>
-</nav>
+<div class="fixed inset-0 bg-black/50 z-[800] hidden transition-opacity" id="sidebarOverlay"></div>
+<aside class="fixed top-[76px] left-0 bottom-0 w-[260px] bg-[var(--surface)] border-r-[2px] border-[var(--border)] z-[900] flex flex-col -translate-x-full lg:translate-x-0 transition-transform duration-300" id="sidebar">
+    <div class="p-4 border-b-2 border-[var(--border)] bg-[var(--bg)]"><p class="text-[10px] font-black text-[var(--ink-muted)] uppercase tracking-widest font-mono-tag">Main Menu</p></div>
+    <nav class="p-4 flex flex-col gap-2 flex-1 overflow-y-auto">
+        <a href="/admin/dashboard" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+        <a href="/admin/sellers" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-[var(--border)] bg-[var(--lime)] text-[#0A0A0A] shadow-[3px_3px_0px_var(--shadow-color)]"><span class="material-symbols-outlined">storefront</span> Sellers</a>
+        <a href="/admin/products" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">inventory_2</span> Produk</a>
+        <a href="/admin/orders" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">shopping_cart</span> Order</a>
+        <a href="/admin/banners" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">ad_units</span> Banner</a>
+        <a href="/admin/withdrawals" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">account_balance_wallet</span> Withdraw</a>
+        <a href="/admin/settings" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">settings</span> Pengaturan</a>
+    </nav>
 </aside>
-<div class="fixed inset-0 bg-black/60 z-[99] hidden lg:hidden" id="sidebarOverlay"></div>
-<!-- Main Content -->
-<div class="main-content">
-<main class="max-w-[1400px] mx-auto px-6 pb-20">
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-<div>
-<h1 class="text-3xl font-bold text-white mb-2">Manajemen Seller</h1>
-<p class="text-on-surface-variant">Pantau performa, status akun, dan kelola finansial seller secara real-time.</p>
-</div>
-<div class="flex items-center gap-3">
-<button class="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center gap-2 text-sm font-medium" onclick="refreshData()">
-<i class="fas fa-sync-alt"></i> Refresh Data
-                    </button>
-</div>
-</div>
-<!-- Debug Console -->
-<div class="mb-6">
-<button class="text-xs text-gray-500 hover:text-primary-fixed underline flex items-center gap-2 mb-2" onclick="toggleDebug()">
-<i class="fas fa-terminal"></i> <span id="debugToggleLabel">Show System Logs</span>
-</button>
-<div class="debug-box hidden rounded-xl p-4 text-[11px] overflow-hidden" id="debugBox">
-<div class="flex items-center justify-between border-b border-white/5 pb-2 mb-2">
-<span class="text-primary-fixed font-bold">SYSTEM DEBUG CONSOLE</span>
-<span class="text-gray-600">v2.4.0-prod</span>
-</div>
-<div class="max-h-[120px] overflow-y-auto custom-scrollbar leading-relaxed" id="debugLog">
-<span class="text-gray-500">Initializing monitoring services...</span>
-</div>
-</div>
-</div>
-<!-- Error Notification -->
-<div class="hidden mb-6 p-4 rounded-xl border border-error/20 bg-error/5 text-error flex items-start gap-4" id="errorBox">
-<i class="fas fa-exclamation-triangle mt-1"></i>
-<div>
-<h4 class="font-bold text-sm" id="errorTitle">System Error</h4>
-<p class="text-xs opacity-80" id="errorDetail">Failed to establish connection with secure database.</p>
-</div>
-</div>
-<!-- Filters -->
-<div class="glass-card rounded-2xl p-5 mb-8 flex flex-wrap items-center gap-4">
-<div class="flex-1 min-w-[280px] relative">
-<i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
-<input class="w-full pl-11 pr-4 py-3 rounded-xl focus:outline-none transition-all" id="searchSeller" placeholder="Cari berdasarkan nama, toko, atau email..." type="text"/>
-</div>
-<div class="flex flex-wrap items-center gap-3">
-<select class="px-4 py-3 rounded-xl border-none focus:outline-none min-w-[150px]" id="filterStatus">
-<option value="all">Semua Status</option>
-<option value="active">Active</option>
-<option value="suspended">Suspended</option>
-</select>
-<select class="px-4 py-3 rounded-xl border-none focus:outline-none min-w-[150px]" id="filterLevel">
-<option value="all">Semua Level</option>
-<option value="bronze">Bronze</option>
-<option value="silver">Silver</option>
-<option value="gold">Gold</option>
-<option value="platinum">Platinum</option>
-<option value="diamond">Diamond</option>
-</select>
-<button class="gradient-btn-primary px-6 py-3 rounded-xl font-bold text-sm" onclick="applyFilters()">
-                        Apply Filter
-                    </button>
-<button class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all" onclick="resetFilters()">
-<i class="fas fa-undo text-gray-400"></i>
-</button>
-</div>
-</div>
-<!-- Table Card -->
-<div class="glass-card rounded-2xl overflow-hidden shadow-2xl">
-<div class="overflow-x-auto">
-<table class="w-full text-left border-collapse">
-<thead>
-<tr class="bg-white/5 border-b border-white/5">
-<th class="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-gray-400">Seller &amp; Akun</th>
-<th class="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-gray-400">Informasi Toko</th>
-<th class="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-gray-400">Level</th>
-<th class="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-gray-400 text-center">Produk</th>
-<th class="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-gray-400 text-center">Terjual</th>
-<th class="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-gray-400">Finansial (Total)</th>
-<th class="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-gray-400">Status</th>
-<th class="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-gray-400 text-right">Aksi</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-white/5" id="sellersTableBody">
-<tr>
-<td class="px-6 py-20 text-center text-gray-500" colspan="8">
-<div class="flex flex-col items-center gap-4">
-<div class="w-12 h-12 border-4 border-primary-fixed/20 border-t-primary-fixed rounded-full animate-spin"></div>
-<p class="font-medium animate-pulse">Menghubungkan ke server...</p>
-</div>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<!-- Pagination -->
-<div class="p-6 bg-white/5 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4" id="pagination">
-<!-- Dynamic content -->
-</div>
-</div>
+
+<main class="pt-[100px] pb-10 px-4 lg:ml-[260px] transition-all">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-10">
+            <div><span class="neo-tag blue mb-3">PENGGUNA</span><h1 class="font-display text-3xl sm:text-5xl text-[var(--ink)] mt-3">Manajemen Seller</h1></div>
+            <div class="w-full md:w-auto">
+                <button class="btn btn-primary w-full md:w-auto" onclick="loadSellers()"><span class="material-symbols-outlined">sync</span> Refresh Data</button>
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nama Toko / Email</th>
+                        <th>Level</th>
+                        <th>Status</th>
+                        <th class="text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="sellersTableBody">
+                    <tr><td colspan="4" class="text-center py-10 font-bold">Memuat data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </main>
-</div>
-<!-- Edit Seller Modal (Glassmorphism) -->
-<div class="modal-overlay fixed inset-0 z-[2000] hidden flex items-center justify-center p-4" id="editSellerModal">
-<div class="glass-card w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl neon-border-primary animate-[scaleIn_0.3s_ease]">
-<div class="p-6 border-b border-white/5 flex items-center justify-between bg-gradient-to-r from-primary-fixed/10 to-transparent">
-<div>
-<h3 class="text-xl font-bold text-white">Edit Profil &amp; Saldo Seller</h3>
-<p class="text-xs text-gray-400">Update parameter akun dan verifikasi finansial</p>
-</div>
-<button class="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center transition-all" onclick="closeEditSellerModal()">
-<i class="fas fa-times text-gray-400"></i>
-</button>
-</div>
-<form class="p-8" id="editSellerForm">
-<input id="editSellerId" type="hidden"/>
-<div class="space-y-6">
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<div class="space-y-2">
-<label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Nama Toko</label>
-<input class="w-full px-4 py-3 rounded-xl focus:outline-none" id="editStoreName" type="text"/>
-</div>
-<div class="space-y-2">
-<label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Level Seller</label>
-<select class="w-full px-4 py-3 rounded-xl focus:outline-none" id="editLevel">
-<option value="bronze">Bronze</option>
-<option value="silver">Silver</option>
-<option value="gold">Gold</option>
-<option value="platinum">Platinum</option>
-<option value="diamond">Diamond</option>
-</select>
-</div>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<div class="space-y-2">
-<label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Status Akun</label>
-<select class="w-full px-4 py-3 rounded-xl focus:outline-none" id="editStatus">
-<option value="active">Active</option>
-<option value="suspended">Suspended</option>
-</select>
-</div>
-<div class="space-y-2">
-<label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Status Verifikasi</label>
-<select class="w-full px-4 py-3 rounded-xl focus:outline-none" id="editVerified">
-<option value="true">Verified Account</option>
-<option value="false">Unverified Account</option>
-</select>
-</div>
-</div>
-<div class="pt-4 border-t border-white/5 mt-6">
-<h4 class="text-sm font-bold text-primary-fixed flex items-center gap-2 mb-6 uppercase tracking-wider">
-<i class="fas fa-wallet"></i> Manajemen Saldo (IDR)
-                        </h4>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-<div class="space-y-2">
-<label class="text-[10px] font-bold text-gray-500 uppercase">Total Pendapatan</label>
-<div class="relative">
-<span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xs font-bold">Rp</span>
-<input class="w-full pl-10 pr-4 py-3 rounded-xl focus:outline-none" id="editTotalRevenue" type="number"/>
-</div>
-</div>
-<div class="space-y-2">
-<label class="text-[10px] font-bold text-gray-500 uppercase">Saldo Tersedia</label>
-<div class="relative">
-<span class="absolute left-4 top-1/2 -translate-y-1/2 text-success text-xs font-bold">Rp</span>
-<input class="w-full pl-10 pr-4 py-3 rounded-xl focus:outline-none" id="editAvailable" type="number"/>
-</div>
-</div>
-<div class="space-y-2">
-<label class="text-[10px] font-bold text-gray-500 uppercase">Saldo Ditahan</label>
-<div class="relative">
-<span class="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400 text-xs font-bold">Rp</span>
-<input class="w-full pl-10 pr-4 py-3 rounded-xl focus:outline-none" id="editHolding" type="number"/>
-</div>
-</div>
-<div class="space-y-2">
-<label class="text-[10px] font-bold text-gray-500 uppercase">Pending Withdraw</label>
-<div class="relative">
-<span class="absolute left-4 top-1/2 -translate-y-1/2 text-blue-400 text-xs font-bold">Rp</span>
-<input class="w-full pl-10 pr-4 py-3 rounded-xl focus:outline-none" id="editPendingWithdraw" type="number"/>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="flex gap-4 mt-10">
-<button class="flex-1 gradient-btn-primary py-4 rounded-2xl font-bold text-sm shadow-xl" type="submit">
-                        Simpan Perubahan
-                    </button>
-<button class="px-8 py-4 rounded-2xl bg-white/5 border border-white/10 font-bold text-sm hover:bg-white/10 transition-all text-gray-300" onclick="closeEditSellerModal()" type="button">
-                        Batal
-                    </button>
-</div>
-</form>
-</div>
-</div>
-<!-- Toast Container -->
-<div class="fixed bottom-8 right-8 z-[3000] flex flex-col gap-3 max-w-[400px] w-full" id="toastContainer"></div>
-<script type="importmap">
-        {
-            "imports": {
-                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
-                "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js",
-                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"
-            }
-        }
-    </script>
-<script type="module">
-        import { initializeApp } from "firebase/app";
-        import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, updateDoc } from "firebase/firestore";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
-            authDomain: "productkuu.firebaseapp.com",
-            projectId: "productkuu",
-            storageBucket: "productkuu.firebasestorage.app",
-            messagingSenderId: "6615996108",
-            appId: "1:6615996108:web:daa6e17c1275d3061cd469",
-            measurementId: "G-78ZPLZMFEJ"
-        };
+<div class="modal-overlay" id="editSellerModal">
+<div class="modal">
+    <button class="absolute top-4 right-4 font-black text-2xl hover:text-[#FF4444]" onclick="closeEditSellerModal()">×</button>
+    <h3 class="font-display text-2xl mb-6">Edit Seller</h3>
+    <form id="editSellerForm">
+        <input id="editSellerId" type="hidden"/>
+        <div class="space-y-4">
+            <div><label class="block text-xs font-black uppercase mb-1">Nama Toko</label><input class="form-input" id="editStoreName" required/></div>
+            <div>
+                <label class="block text-xs font-black uppercase mb-1">Status Akun</label>
+                <select class="form-input" id="editStatus">
+                    <option value="active">Active</option>
+                    <option value="suspended">Suspended</option>
+                </select>
+            </div>
+            <div class="pt-4 flex gap-3">
+                <button class="btn btn-primary flex-1" type="submit">Simpan</button>
+                <button class="btn btn-secondary flex-1" type="button" onclick="closeEditSellerModal()">Batal</button>
+            </div>
+        </div>
+    </form>
+</div>
+</div>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+<script>
+(function() { const saved = localStorage.getItem('pk-theme'); if (saved) document.documentElement.setAttribute('data-theme', saved); })();
+document.getElementById('themeToggle').addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next); document.body.setAttribute('data-theme', next); localStorage.setItem('pk-theme', next);
+    document.getElementById('themeToggle').innerHTML = `<span class="material-symbols-outlined text-lg">${next === 'dark' ? 'light_mode' : 'dark_mode'}</span>`;
+});
+const sidebar = document.getElementById('sidebar'); const sidebarOverlay = document.getElementById('sidebarOverlay');
+document.getElementById('sidebarToggle').addEventListener('click', () => { sidebar.classList.toggle('-translate-x-full'); sidebarOverlay.classList.toggle('hidden'); });
+sidebarOverlay.addEventListener('click', () => { sidebar.classList.add('-translate-x-full'); sidebarOverlay.classList.add('hidden'); });
+document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.clear(); window.location.href = '/admin/login'; });
 
-        let currentUser = null;
-        let sellers = [], lastDoc = null, hasMore = true, currentPage = 1, limitPerPage = 10;
-        let debugVisible = false;
+let allSellers = [];
 
-        // DEBUG LOG
-        function addDebug(message, type = 'info') {
-            const colors = { success: 'text-success', error: 'text-error', info: 'text-primary-fixed', warning: 'text-orange-400' };
-            const log = document.getElementById('debugLog');
-            const time = new Date().toLocaleTimeString();
-            log.innerHTML += `<div class="mb-1 border-b border-white/5 pb-1"><span class="text-gray-600 mr-2">${time}</span> <span class="${colors[type] || 'text-white'}">${message}</span></div>`;
-            const box = document.getElementById('debugLog');
-            box.scrollTop = box.scrollHeight;
-        }
-
-        window.toggleDebug = function() {
-            const box = document.getElementById('debugBox');
-            const label = document.getElementById('debugToggleLabel');
-            debugVisible = !debugVisible;
-            box.classList.toggle('hidden');
-            label.textContent = debugVisible ? 'Hide System Logs' : 'Show System Logs';
-            if (debugVisible) addDebug('Security auditing session initiated...', 'info');
-        };
-
-        window.refreshData = function() {
-            addDebug('Fetching fresh batch of seller data...', 'info');
-            showToast('info', 'Sinkronisasi data seller...');
-            loadSellers(true);
-        };
-
-        // THEME & UI HANDLERS
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const sidebarToggle = document.getElementById('sidebarToggle');
+async function loadSellers() {
+    const tbody = document.getElementById('sellersTableBody');
+    try {
+        const res = await fetch('/api/users');
+        const users = await res.json();
+        allSellers = users.filter(u => u.role === 'seller');
         
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('open');
-                sidebarOverlay.classList.toggle('hidden');
-            });
-        }
-        
-        if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', () => {
-                sidebar.classList.remove('open');
-                sidebarOverlay.classList.add('hidden');
-            });
+        if (allSellers.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 font-bold">Belum ada seller.</td></tr>';
+            return;
         }
 
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            try { await signOut(auth); window.location.href = '/'; } 
-            catch (error) { showToast('error', 'Authentication failure'); }
-        });
+        tbody.innerHTML = allSellers.map(s => `
+            <tr>
+                <td>
+                    <div class="font-black text-lg">${s.storeName || 'Toko Tanpa Nama'}</div>
+                    <div class="text-xs font-mono-tag text-[var(--ink-muted)]">${s.email}</div>
+                </td>
+                <td><span class="badge badge-success">${s.level || 'bronze'}</span></td>
+                <td><span class="badge ${s.status === 'active' ? 'badge-success' : 'badge-danger'}">${s.status || 'active'}</span></td>
+                <td class="text-right">
+                    <button class="btn btn-secondary !p-2" onclick="editSeller('${s.id}')"><span class="material-symbols-outlined text-lg">edit</span></button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-red-500 font-bold py-10">Gagal memuat: ${e.message}</td></tr>`;
+    }
+}
 
-        // TOAST SYSTEM
-        function showToast(type, message) {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
-            const colorClass = type === 'success' ? 'text-success' : type === 'error' ? 'text-error' : 'text-primary-fixed';
-            
-            toast.className = 'glass-card p-4 rounded-2xl flex items-center gap-3 border-l-4 border-l-primary-fixed animate-[slideInRight_0.3s_ease]';
-            if (type === 'success') toast.style.borderLeftColor = '#00dbe9';
-            if (type === 'error') toast.style.borderLeftColor = '#ffb4ab';
-            
-            toast.innerHTML = `
-                <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center ${colorClass}">
-                    <i class="fas ${icon}"></i>
-                </div>
-                <div class="flex-1">
-                    <p class="text-sm font-bold text-white">${message}</p>
-                </div>
-                <button onclick="this.parentElement.remove()" class="text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
-            `;
-            container.appendChild(toast);
-            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
-        }
-        window.showToast = showToast;
+window.editSeller = function(id) {
+    const s = allSellers.find(x => x.id === id);
+    if(!s) return;
+    document.getElementById('editSellerId').value = id;
+    document.getElementById('editStoreName').value = s.storeName || '';
+    document.getElementById('editStatus').value = s.status || 'active';
+    document.getElementById('editSellerModal').classList.add('open');
+};
+window.closeEditSellerModal = () => document.getElementById('editSellerModal').classList.remove('open');
 
-        // FORMATTERS
-        function formatPrice(price) {
-            if (!price && price !== 0) return '0';
-            return new Intl.NumberFormat('id-ID').format(price);
-        }
+document.getElementById('editSellerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('editSellerId').value;
+    const btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true; btn.innerText = 'Menyimpan...';
 
-        // AUTH STATE
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.href = '/admin/login';
-                return;
-            }
-            currentUser = user;
-            addDebug(`Access granted for: ${user.email}`, 'success');
+    const payload = { storeName: document.getElementById('editStoreName').value.trim(), status: document.getElementById('editStatus').value, updatedAt: new Date().toISOString() };
 
-            try {
-                const userRef = doc(db, 'users', user.uid);
-                const userDoc = await getDoc(userRef);
-                if (!userDoc.exists() || userDoc.data().role !== 'admin') {
-                    addDebug('Unauthorized access attempt detected', 'error');
-                    window.location.href = '/';
-                    return;
-                }
-                loadSellers(true);
-            } catch (error) {
-                addDebug(`Auth service error: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat profil admin');
-            }
-        });
+    try {
+        const oldS = allSellers.find(x => x.id === id);
+        await fetch('/api/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...oldS, ...payload, id: id }) });
+        closeEditSellerModal(); loadSellers();
+    } catch (error) { alert('Gagal menyimpan: ' + error.message); }
+    finally { btn.disabled = false; btn.innerText = 'Simpan'; }
+});
 
-        // LOAD DATA
-        async function loadSellers(reset = true) {
-            try {
-                if (reset) { lastDoc = null; hasMore = true; sellers = []; currentPage = 1; }
-                if (!hasMore) return;
-                
-                let constraints = [where('role', '==', 'seller'), orderBy('createdAt', 'desc')];
-                const status = document.getElementById('filterStatus').value;
-                const level = document.getElementById('filterLevel').value;
-                
-                if (status !== 'all') constraints.push(where('status', '==', status));
-                if (level !== 'all') constraints.push(where('level', '==', level));
-                
-                let q = query(collection(db, 'users'), ...constraints, limit(limitPerPage));
-                if (lastDoc) q = query(collection(db, 'users'), ...constraints, startAfter(lastDoc), limit(limitPerPage));
-                
-                const snapshot = await getDocs(q);
-                
-                if (snapshot.empty) { 
-                    hasMore = false; 
-                    if (reset) {
-                        document.getElementById('sellersTableBody').innerHTML = 
-                            '<tr><td colspan="8" class="px-6 py-20 text-center text-gray-500 font-medium">Data seller tidak ditemukan dengan kriteria ini</td></tr>';
-                        document.getElementById('pagination').innerHTML = '';
-                    }
-                    return; 
-                }
-                
-                lastDoc = snapshot.docs[snapshot.docs.length - 1];
-                hasMore = snapshot.docs.length === limitPerPage;
-                
-                const sellersData = snapshot.docs.map(doc => {
-                    const data = doc.data();
-                    const wallet = data.wallet || { available: 0, holding: 0, totalRevenue: 0, pendingWithdraw: 0 };
-                    return { id: doc.id, ...data, wallet };
-                });
-                
-                sellers = reset ? sellersData : [...sellers, ...sellersData];
-                addDebug(`Successfully retrieved ${snapshot.size} seller nodes`, 'success');
-                renderSellers();
-                
-            } catch (error) { 
-                addDebug(`Pipeline error: ${error.message}`, 'error');
-                showToast('error', 'Database sync failure: ' + error.message); 
-            }
-        }
-
-        function renderSellers() {
-            const tbody = document.getElementById('sellersTableBody');
-            
-            const levelMap = { 
-                'bronze': { class: 'text-orange-400 bg-orange-400/10 border-orange-400/30' }, 
-                'silver': { class: 'text-gray-400 bg-gray-400/10 border-gray-400/30' }, 
-                'gold': { class: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30' }, 
-                'platinum': { class: 'text-purple-400 bg-purple-400/10 border-purple-400/30' }, 
-                'diamond': { class: 'text-cyan-400 bg-cyan-400/10 border-cyan-400/30' } 
-            };
-
-            tbody.innerHTML = sellers.map(s => `
-                <tr class="table-row group transition-all">
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center font-bold text-primary-fixed border border-white/10 shadow-inner">
-                                ${(s.displayName || s.storeName || 'S')[0].toUpperCase()}
-                            </div>
-                            <div>
-                                <div class="text-sm font-bold text-white mb-0.5">${s.displayName || 'Seller Name'}</div>
-                                <div class="text-[11px] text-gray-500 font-mono">${s.email || 'no-email@prod.ku'}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm font-medium text-gray-200">${s.storeName || '-'}</span>
-                            ${s.verified ? '<i class="fas fa-check-circle text-primary-fixed text-xs" title="Verified Store"></i>' : ''}
-                        </div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="badge px-3 py-1 rounded-full text-[9px] font-bold border ${levelMap[s.level]?.class || 'text-gray-400 bg-gray-400/10'}">${s.level || 'bronze'}</span>
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                        <span class="text-sm font-bold text-white">${s.productCount || 0}</span>
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                        <span class="text-sm font-bold text-primary-fixed">${s.totalSales || 0}</span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="space-y-1">
-                            <div class="text-xs font-bold text-white">Rp${formatPrice(s.wallet?.totalRevenue)}</div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] text-success font-bold">Rp${formatPrice(s.wallet?.available)}</span>
-                                <span class="text-[10px] text-gray-600">•</span>
-                                <span class="text-[10px] text-orange-400 font-bold">Rp${formatPrice(s.wallet?.holding)}</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="badge px-3 py-1 rounded-lg text-[9px] font-black ${s.status === 'active' ? 'bg-success/20 text-success border border-success/30' : 'bg-error/20 text-error border border-error/30'}">
-                            ${s.status?.toUpperCase() || 'ACTIVE'}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                        <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="editSeller('${s.id}')" class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-primary-fixed/20 hover:text-primary-fixed transition-all" title="Edit Saldo & Profil">
-                                <i class="fas fa-edit text-xs"></i>
-                            </button>
-                            <button onclick="toggleSellerStatus('${s.id}')" class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-error/20 hover:text-error transition-all" title="${s.status === 'active' ? 'Suspend' : 'Activate'}">
-                                <i class="fas ${s.status === 'active' ? 'fa-pause' : 'fa-play'} text-xs"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-            
-            renderPagination();
-        }
-
-        function renderPagination() {
-            const container = document.getElementById('pagination');
-            if (!hasMore && sellers.length <= limitPerPage) { 
-                container.innerHTML = `<span class="text-xs text-gray-500 font-mono">End of listing • ${sellers.length} entities</span>`; 
-                return; 
-            }
-            container.innerHTML = `
-                <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></div>
-                    <span class="text-xs text-gray-400 font-bold uppercase tracking-widest">${sellers.length} SELLERS DISCOVERED</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    ${currentPage > 1 ? `<button onclick="loadPreviousPage()" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold hover:bg-white/10 transition-all">Prev Page</button>` : ''}
-                    ${hasMore ? `<button onclick="loadNextPage()" class="px-4 py-2 rounded-xl gradient-btn-primary text-xs font-bold shadow-lg">Load More</button>` : ''}
-                </div>
-            `;
-        }
-
-        window.loadNextPage = () => { currentPage++; loadSellers(false); };
-        window.loadPreviousPage = () => { if (currentPage <= 1) return; currentPage--; lastDoc = null; hasMore = true; loadSellers(true); };
-        window.applyFilters = () => { lastDoc = null; hasMore = true; loadSellers(true); };
-        window.resetFilters = () => { 
-            document.getElementById('searchSeller').value = ''; 
-            document.getElementById('filterStatus').value = 'all'; 
-            document.getElementById('filterLevel').value = 'all'; 
-            applyFilters(); 
-        };
-
-        // EDIT SELLER LOGIC
-        window.editSeller = async (id) => {
-            addDebug(`Opening node edit session: ${id}`, 'info');
-            try {
-                const sellerRef = doc(db, 'users', id);
-                const snapshot = await getDoc(sellerRef);
-                if (!snapshot.exists()) return;
-                
-                const s = snapshot.data();
-                const wallet = s.wallet || {};
-                
-                document.getElementById('editSellerId').value = id;
-                document.getElementById('editStoreName').value = s.storeName || '';
-                document.getElementById('editStatus').value = s.status || 'active';
-                document.getElementById('editVerified').value = s.verified ? 'true' : 'false';
-                document.getElementById('editLevel').value = s.level || 'bronze';
-                document.getElementById('editTotalRevenue').value = wallet.totalRevenue || 0;
-                document.getElementById('editAvailable').value = wallet.available || 0;
-                document.getElementById('editHolding').value = wallet.holding || 0;
-                document.getElementById('editPendingWithdraw').value = wallet.pendingWithdraw || 0;
-                
-                document.getElementById('editSellerModal').classList.remove('hidden');
-            } catch (error) { 
-                showToast('error', 'Node retrieval failed'); 
-            }
-        };
-
-        window.closeEditSellerModal = () => { 
-            document.getElementById('editSellerModal').classList.add('hidden'); 
-        };
-
-        document.getElementById('editSellerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('editSellerId').value;
-            addDebug(`Pushing update payload for: ${id}`, 'info');
-            
-            try {
-                await updateDoc(doc(db, 'users', id), {
-                    storeName: document.getElementById('editStoreName').value,
-                    status: document.getElementById('editStatus').value,
-                    verified: document.getElementById('editVerified').value === 'true',
-                    level: document.getElementById('editLevel').value,
-                    'wallet.totalRevenue': parseInt(document.getElementById('editTotalRevenue').value),
-                    'wallet.available': parseInt(document.getElementById('editAvailable').value),
-                    'wallet.holding': parseInt(document.getElementById('editHolding').value),
-                    'wallet.pendingWithdraw': parseInt(document.getElementById('editPendingWithdraw').value),
-                    updatedAt: new Date().toISOString()
-                });
-                showToast('success', 'Database updated successfully');
-                closeEditSellerModal();
-                loadSellers(true);
-            } catch (error) { 
-                showToast('error', 'Write operation failed'); 
-            }
-        });
-
-        window.toggleSellerStatus = async (id) => {
-            try {
-                const ref = doc(db, 'users', id);
-                const snapshot = await getDoc(ref);
-                const current = snapshot.data().status || 'active';
-                const next = current === 'active' ? 'suspended' : 'active';
-                
-                if (!confirm(`Switch account status to ${next.toUpperCase()}?`)) return;
-                
-                await updateDoc(ref, { status: next, updatedAt: new Date().toISOString() });
-                addDebug(`Node ${id} status toggled to ${next}`, 'success');
-                showToast('success', `Seller status: ${next}`);
-                loadSellers(true);
-            } catch (error) { 
-                showToast('error', 'Status toggle failed'); 
-            }
-        };
-
-        // SEARCH DEBOUNCE
-        let searchTimeout;
-        document.getElementById('searchSeller').addEventListener('input', () => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(applyFilters, 500);
-        });
-
-    </script>
-</body></html>
+document.addEventListener('DOMContentLoaded', loadSellers);
+</script>
+</body>
+</html>
