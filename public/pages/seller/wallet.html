@@ -1,656 +1,152 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wallet - ProductKuu</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="icon" href="/assets/images/favicon.ico">
-    <style>
-        .app-wrapper { display: flex; min-height: calc(100vh - 64px); margin-top: 64px; }
-        .sidebar { width: 260px; background: var(--bg-primary); border-right: 1px solid var(--border-color); padding: 20px 0; position: fixed; top: 64px; bottom: 0; overflow-y: auto; z-index: 100; transition: transform 0.3s ease; }
-        .sidebar-header { padding: 0 16px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px; }
-        .sidebar-header .title { font-weight: 600; font-size: 14px; color: var(--text-secondary); }
-        .sidebar-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
-        .sidebar-nav a, .sidebar-nav button { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius); color: var(--text-secondary); transition: var(--transition); font-size: 14px; font-weight: 500; text-decoration: none; background: none; border: none; width: 100%; cursor: pointer; font-family: var(--font); text-align: left; }
-        .sidebar-nav a:hover, .sidebar-nav button:hover { background: var(--bg-secondary); color: var(--text-primary); }
-        .sidebar-nav a.active { background: rgba(79,70,229,0.1); color: var(--primary); }
-        .sidebar-nav .logout-btn { color: var(--danger); margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 16px; }
-        .sidebar-nav .logout-btn:hover { background: rgba(239,68,68,0.1); color: var(--danger); }
-        .sidebar-overlay { display: none; position: fixed; top: 64px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99; }
-        .sidebar-overlay.open { display: block; }
-        .main-content { margin-left: 260px; padding: 24px; flex: 1; min-height: calc(100vh - 64px); }
-        .mobile-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-primary); cursor: pointer; padding: 8px; }
-        @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); width: 280px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 16px; } .mobile-toggle { display: block !important; } }
-        
-        .wallet-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: var(--bg-primary); border-radius: var(--radius); padding: 20px 24px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
-        .stat-card .stat-info { display: flex; flex-direction: column; }
-        .stat-card .stat-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
-        .stat-card .stat-value { font-size: 24px; font-weight: 700; }
-        .stat-card .stat-icon { width: 48px; height: 48px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 20px; }
-        .stat-card .stat-icon.green { background: rgba(16,185,129,0.1); color: var(--success); }
-        .stat-card .stat-icon.yellow { background: rgba(245,158,11,0.1); color: var(--warning); }
-        .stat-card .stat-icon.indigo { background: rgba(79,70,229,0.1); color: var(--primary); }
-        .stat-card .stat-icon.purple { background: rgba(124,58,237,0.1); color: var(--secondary); }
-        .stat-card .stat-icon.orange { background: rgba(249,115,22,0.1); color: #F97316; }
-        
-        .transaction-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
-        .transaction-item:last-child { border-bottom: none; }
-        
-        .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
-        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
-        .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
-        .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
-        .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
-        .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
-        .badge-holding { background: rgba(249,115,22,0.1); color: #F97316; }
-        
-        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-        .text-center { text-align: center; }
-        .text-secondary { color: var(--text-secondary); }
-        
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
-        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
-        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
-        .btn-sm { padding: 8px 16px; font-size: 12px; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-success:hover { transform: translateY(-2px); }
-        
-        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
-        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
-        .toast-icon { font-size: 20px; }
-        .toast-content { flex: 1; }
-        .toast-message { font-size: 13px; color: var(--text-secondary); }
-        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-        
-        .debug-box {
-            background: #1E1E2E;
-            border-radius: var(--radius);
-            padding: 12px 16px;
-            margin-bottom: 16px;
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            color: #CDD6F4;
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
-            border: 1px solid #313244;
-        }
-        .debug-box.show { display: block; }
-        .debug-box .debug-line { padding: 2px 0; border-bottom: 1px solid #2A2A3E; }
-        .debug-box .debug-line:last-child { border-bottom: none; }
-        .debug-box .debug-success { color: #A6E3A1; }
-        .debug-box .debug-error { color: #F38BA8; }
-        .debug-box .debug-info { color: #89B4FA; }
-        .debug-box .debug-warning { color: #F9E2AF; }
-        
-        .debug-toggle { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 12px; text-decoration: underline; padding: 4px 8px; margin-bottom: 8px; }
-        .debug-toggle:hover { color: var(--text-primary); }
-        
-        .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
-        .error-box.show { display: block; }
-        .error-box .error-title { font-weight: 700; color: var(--danger); }
-        .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
-        
-        @media (max-width: 768px) { .wallet-stats { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 480px) { .wallet-stats { grid-template-columns: 1fr; } }
-        
-        .suspend-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px);
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .suspend-overlay.open { display: flex; }
-        .suspend-overlay .modal {
-            background: var(--bg-primary);
-            border-radius: var(--radius-lg);
-            padding: 48px 40px;
-            max-width: 480px;
-            width: 100%;
-            text-align: center;
-            animation: slideUp 0.3s ease;
-            box-shadow: var(--shadow-2xl);
-        }
-        .suspend-overlay .modal .icon { font-size: 64px; color: var(--danger); margin-bottom: 16px; }
-        .suspend-overlay .modal h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
-        .suspend-overlay .modal p { color: var(--text-secondary); font-size: 15px; line-height: 1.7; margin-bottom: 8px; }
-        .suspend-overlay .modal .contact { background: var(--bg-secondary); border-radius: var(--radius); padding: 16px; margin: 16px 0 24px; font-weight: 600; color: var(--primary); }
-        .suspend-overlay .modal .contact i { margin-right: 8px; }
-        .suspend-overlay .modal .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; }
-        .suspend-overlay .modal .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
-        .suspend-overlay .modal .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
-        .suspend-overlay .modal .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
-        .suspend-overlay .modal .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
-
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f3f4f6;
-            --bg-tertiary: #e5e7eb;
-            --text-primary: #111827;
-            --text-secondary: #6b7280;
-            --text-light: #9ca3af;
-            --border-color: #e5e7eb;
-            --shadow: 0 1px 3px rgba(0,0,0,0.1);
-            --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
-            --shadow-2xl: 0 25px 50px -12px rgba(0,0,0,0.25);
-            --radius: 8px;
-            --radius-lg: 16px;
-            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --info: #3b82f6;
-            --primary: #4F46E5;
-            --secondary: #7C3AED;
-            --transition: all 0.3s ease;
-        }
-        [data-theme="dark"] {
-            --bg-primary: #1f2937;
-            --bg-secondary: #374151;
-            --bg-tertiary: #4b5563;
-            --text-primary: #f9fafb;
-            --text-secondary: #9ca3af;
-            --text-light: #6b7280;
-            --border-color: #374151;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: var(--font); background: var(--bg-secondary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
-        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); height: 64px; }
-        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        .navbar-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
-        .navbar-logo i { color: #4F46E5; }
-        .navbar-actions { display: flex; align-items: center; gap: 8px; }
-        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
-        .btn-icon:hover { background: var(--bg-secondary); }
-    </style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Wallet - ProductKuu</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@700&family=Archivo+Black&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+:root,[data-theme="light"]{--bg:#F4F1E8;--bg-grid:rgba(0,0,0,.055);--surface:#FFF;--surface-2:#FAF8F0;--ink:#0A0A0A;--ink-muted:#4A4A4A;--lime:#C4F000;--amber:#FFC400;--blue:#2B6FFF;--border:#0A0A0A;--shadow-color:#0A0A0A;--grid-line:rgba(0,0,0,.08);--nav-bg:#F4F1E8}
+[data-theme="dark"]{--bg:#0B0B0D;--bg-grid:rgba(255,255,255,.045);--surface:#16161A;--surface-2:#1E1E24;--ink:#F5F3EC;--ink-muted:#B8B8C0;--lime:#C4F000;--amber:#FFC400;--blue:#4D8BFF;--border:#F5F3EC;--shadow-color:#F5F3EC;--grid-line:rgba(255,255,255,.06);--nav-bg:#0B0B0D}
+*{scroll-behavior:smooth;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);margin:0;line-height:1.6;overflow-x:hidden;background-image:linear-gradient(to right,var(--grid-line) 1px,transparent 1px),linear-gradient(to bottom,var(--grid-line) 1px,transparent 1px);background-size:28px 28px;background-attachment:fixed}
+.font-mono-tag{font-family:'Space Mono',monospace}
+.font-display{font-family:'Archivo Black',sans-serif;letter-spacing:-.02em}
+.neo-tag{display:inline-flex;align-items:center;gap:6px;background:var(--lime);color:#0A0A0A;font-weight:900;font-size:11px;text-transform:uppercase;padding:6px 14px;border:2px solid var(--border);box-shadow:3px 3px 0 var(--shadow-color);font-family:'Space Mono',monospace}
+.neo-tag.blue{background:var(--blue);color:#FFF}
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;font-weight:900;font-size:13px;text-transform:uppercase;padding:10px 20px;border:2px solid var(--border);cursor:pointer;transition:all .09s;text-decoration:none;white-space:nowrap}
+.btn-primary{background:var(--lime);color:#0A0A0A;box-shadow:4px 4px 0 var(--shadow-color)}
+.btn-primary:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--shadow-color);background:var(--amber)}
+.btn-secondary{background:var(--surface);color:var(--ink);box-shadow:4px 4px 0 var(--shadow-color)}
+.btn-secondary:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--blue);border-color:var(--blue);color:var(--blue)}
+.btn-danger{background:#FF4444;color:#FFF;box-shadow:4px 4px 0 var(--shadow-color)}
+.btn-danger:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 #0A0A0A}
+.stat-card{background:var(--surface);border:2px solid var(--border);box-shadow:4px 4px 0 var(--shadow-color);padding:22px 16px;position:relative;display:flex;flex-direction:column;justify-content:center}
+.stat-card::before{content:"";position:absolute;top:-2px;left:-2px;width:18px;height:18px;background:var(--amber);border-right:2px solid var(--border);border-bottom:2px solid var(--border)}
+.badge{padding:4px 10px;border:1.5px solid var(--border);font-size:10px;font-weight:900;text-transform:uppercase;font-family:'Space Mono',monospace;box-shadow:2px 2px 0 var(--shadow-color);display:inline-block}
+.badge-success{background:var(--lime);color:#0A0A0A}.badge-warning{background:var(--amber);color:#0A0A0A}.badge-danger{background:#FF4444;color:#FFF}
+</style>
 </head>
-<body>
-    <!-- SUSPEND OVERLAY -->
-    <div class="suspend-overlay" id="suspendOverlay">
-        <div class="modal">
-            <div class="icon"><i class="fas fa-ban"></i></div>
-            <h2>⚠️ Akun Anda Ditangguhkan</h2>
-            <p>Akun seller Anda telah ditangguhkan oleh admin karena melanggar ketentuan.</p>
-            <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
-            <div class="contact"><i class="fab fa-telegram"></i> @Sanzz_offc</div>
-            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
-                <a href="https://t.me/Sanzz_offc" target="_blank" class="btn btn-primary" style="flex:1;"><i class="fab fa-telegram"></i> Hubungi Admin</a>
-                <button onclick="window.location.href='/'" class="btn btn-secondary" style="flex:1;"><i class="fas fa-home"></i> Kembali</button>
-            </div>
-        </div>
-    </div>
+<body data-theme="light">
+<script>
+    const token = localStorage.getItem('pk_token'); const userStr = localStorage.getItem('pk_user');
+    if (!token || !userStr) { window.location.replace('/seller/login'); } 
+    else { try { const u = JSON.parse(userStr); if (u.role !== 'seller') window.location.replace('/'); } catch(e) { window.location.replace('/seller/login'); } }
+</script>
 
-    <nav class="navbar">
-        <div class="navbar-inner">
-            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
-            <div class="navbar-actions">
-                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
-                <button class="mobile-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-            </div>
-        </div>
+<nav class="fixed top-0 left-0 right-0 z-[1000] h-[76px] bg-[var(--nav-bg)] border-b-[2px] border-[var(--border)]">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-3">
+    <a class="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-2 shrink-0" href="/seller/dashboard"><span class="bg-[var(--lime)] text-[#0A0A0A] px-2.5 py-1 border-2 border-[var(--border)] font-black shadow-[2px_2px_0px_var(--shadow-color)]">Seller</span><span class="text-[var(--ink)] font-black">Panel</span></a>
+    <div class="flex items-center gap-2.5">
+        <button class="btn btn-secondary !py-2 !px-3.5" id="themeToggle"><span class="material-symbols-outlined text-lg">dark_mode</span></button>
+        <button class="lg:hidden btn btn-secondary !py-2 !px-3.5" id="sidebarToggle"><span class="material-symbols-outlined text-lg">menu</span></button>
+        <button class="btn btn-danger !py-2 !px-3.5" id="logoutBtn">Logout</button>
+    </div>
+</div>
+</nav>
+<div class="fixed inset-0 bg-black/50 z-[800] hidden transition-opacity" id="sidebarOverlay"></div>
+<aside class="fixed top-[76px] left-0 bottom-0 w-[260px] bg-[var(--surface)] border-r-[2px] border-[var(--border)] z-[900] flex flex-col -translate-x-full lg:translate-x-0 transition-transform duration-300" id="sidebar">
+    <div class="p-4 border-b-2 border-[var(--border)] bg-[var(--bg)]"><p class="text-[10px] font-black text-[var(--ink-muted)] uppercase tracking-widest font-mono-tag">Menu Seller</p></div>
+    <nav class="p-4 flex flex-col gap-2 flex-1 overflow-y-auto">
+        <a href="/seller/dashboard" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+        <a href="/seller/products" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">inventory_2</span> Produk</a>
+        <a href="/seller/wallet" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-[var(--border)] bg-[var(--lime)] text-[#0A0A0A] shadow-[3px_3px_0px_var(--shadow-color)]"><span class="material-symbols-outlined">account_balance_wallet</span> Wallet</a>
+        <a href="/seller/transactions" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">receipt_long</span> Transaksi</a>
+        <a href="/seller/withdraw" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">arrow_upward</span> Withdraw</a>
+        <a href="/seller/settings" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">settings</span> Pengaturan</a>
     </nav>
+</aside>
 
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header"><div class="title">Menu Seller</div></div>
-        <nav class="sidebar-nav">
-            <a href="/seller/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a href="/seller/products"><i class="fas fa-box"></i> Produk</a>
-            <a href="/seller/wallet" class="active"><i class="fas fa-wallet"></i> Wallet</a>
-            <a href="/seller/transactions"><i class="fas fa-exchange-alt"></i> Transaksi</a>
-            <a href="/seller/withdraw"><i class="fas fa-arrow-up"></i> Withdraw</a>
-            <a href="/seller/settings"><i class="fas fa-cog"></i> Pengaturan</a>
-            <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </nav>
-    </aside>
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <div class="app-wrapper">
-        <main class="main-content">
-            <div class="flex-between" style="margin-bottom:24px;">
-                <div><h1 style="font-size:24px;">Wallet</h1><p style="color:var(--text-secondary);">Kelola saldo dan pendapatan Anda</p></div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <button onclick="manualReleaseHolding()" class="btn btn-success btn-sm">
-                        <i class="fas fa-arrow-right"></i> Release Holding
-                    </button>
-                    <button onclick="refreshData()" class="btn btn-secondary btn-sm"><i class="fas fa-sync-alt"></i> Refresh</button>
-                </div>
+<main class="pt-[100px] pb-10 px-4 lg:ml-[260px] transition-all">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-10">
+            <div>
+                <span class="neo-tag blue mb-3">SALDO ANDA</span>
+                <h1 class="font-display text-3xl sm:text-5xl text-[var(--ink)] mt-3">Wallet</h1>
             </div>
-
-            <div class="debug-box" id="debugBox">
-                <div class="debug-line debug-info">🔍 Debug Mode Active</div>
-                <div class="debug-line" id="debugLog">Menunggu data...</div>
+            <div class="w-full md:w-auto flex gap-2">
+                <button class="btn btn-secondary flex-1 md:flex-none" onclick="loadWallet()"><span class="material-symbols-outlined">sync</span> Refresh</button>
             </div>
-            <button class="debug-toggle" onclick="toggleDebug()"><i class="fas fa-bug"></i> Toggle Debug</button>
+        </div>
 
-            <div class="error-box" id="errorBox">
-                <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
-                <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <div class="stat-card">
+                <div class="text-xs font-black text-[var(--ink-muted)] uppercase mb-1">Saldo Tersedia</div>
+                <div class="font-display text-3xl text-[var(--lime-deep)]" id="available">Rp0</div>
             </div>
+            <div class="stat-card">
+                <div class="text-xs font-black text-[var(--ink-muted)] uppercase mb-1">Saldo Ditahan</div>
+                <div class="font-display text-3xl text-[var(--amber-deep)]" id="holding">Rp0</div>
+            </div>
+            <div class="stat-card">
+                <div class="text-xs font-black text-[var(--ink-muted)] uppercase mb-1">Total Pendapatan</div>
+                <div class="font-display text-3xl text-[var(--blue)]" id="revenue">Rp0</div>
+            </div>
+            <div class="stat-card">
+                <div class="text-xs font-black text-[var(--ink-muted)] uppercase mb-1">Total Withdraw</div>
+                <div class="font-display text-3xl text-[var(--ink)]" id="withdraw">Rp0</div>
+            </div>
+        </div>
 
-            <div class="wallet-stats" style="margin-top:8px;">
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Saldo Tersedia</span><span class="stat-value" style="color:var(--success);" id="availableBalance">Rp0</span></div><div class="stat-icon green"><i class="fas fa-wallet"></i></div></div>
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Saldo Ditahan (Holding)</span><span class="stat-value" style="color:#F97316;" id="holdingBalance">Rp0</span></div><div class="stat-icon orange"><i class="fas fa-clock"></i></div></div>
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Total Pendapatan</span><span class="stat-value" style="color:var(--primary);" id="totalRevenue">Rp0</span></div><div class="stat-icon indigo"><i class="fas fa-money-bill-wave"></i></div></div>
-                <div class="stat-card"><div class="stat-info"><span class="stat-label">Total Withdraw</span><span class="stat-value" style="color:var(--secondary);" id="totalWithdraw">Rp0</span></div><div class="stat-icon purple"><i class="fas fa-arrow-up"></i></div></div>
+        <div class="bg-[var(--surface)] border-2 border-[var(--border)] shadow-[4px_4px_0px_var(--shadow-color)] p-6">
+            <h3 class="font-display text-xl mb-4">Riwayat Transaksi Masuk</h3>
+            <div id="history" class="space-y-4">
+                <div class="text-center py-6 font-bold text-[var(--ink-muted)]">Memuat data...</div>
             </div>
-
-            <div class="card">
-                <h4 style="margin-bottom:16px;">Riwayat Transaksi</h4>
-                <div id="transactionHistory"><div class="text-center text-secondary" style="padding:20px 0;">Memuat transaksi...</div></div>
-            </div>
-        </main>
+        </div>
     </div>
+</main>
 
-    <div class="toast-container" id="toastContainer"></div>
+<script>
+(function() { const saved = localStorage.getItem('pk-theme'); if (saved) document.documentElement.setAttribute('data-theme', saved); })();
+document.getElementById('themeToggle').addEventListener('click', () => {
+    const c = document.documentElement.getAttribute('data-theme') || 'light'; const n = c === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', n); document.body.setAttribute('data-theme', n); localStorage.setItem('pk-theme', n);
+    document.getElementById('themeToggle').innerHTML = `<span class="material-symbols-outlined text-lg">${n === 'dark' ? 'light_mode' : 'dark_mode'}</span>`;
+});
+const sidebar = document.getElementById('sidebar'); const sidebarOverlay = document.getElementById('sidebarOverlay');
+document.getElementById('sidebarToggle').addEventListener('click', () => { sidebar.classList.toggle('-translate-x-full'); sidebarOverlay.classList.toggle('hidden'); });
+sidebarOverlay.addEventListener('click', () => { sidebar.classList.add('-translate-x-full'); sidebarOverlay.classList.add('hidden'); });
+document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.clear(); window.location.href = '/seller/login'; });
 
-    <script type="importmap">
-        {
-            "imports": {
-                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
-                "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js",
-                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"
-            }
+const user = JSON.parse(localStorage.getItem('pk_user') || '{}');
+
+async function loadWallet() {
+    try {
+        const res = await fetch('/api/users/' + user.id);
+        const u = await res.json();
+        if(u.wallet) {
+            const w = typeof u.wallet === 'string' ? JSON.parse(u.wallet) : u.wallet;
+            document.getElementById('available').textContent = `Rp${new Intl.NumberFormat('id-ID').format(w.available || 0)}`;
+            document.getElementById('holding').textContent = `Rp${new Intl.NumberFormat('id-ID').format(w.holding || 0)}`;
+            document.getElementById('revenue').textContent = `Rp${new Intl.NumberFormat('id-ID').format(w.totalRevenue || 0)}`;
+            document.getElementById('withdraw').textContent = `Rp${new Intl.NumberFormat('id-ID').format(w.totalWithdraw || 0)}`;
         }
-    </script>
+    } catch(e) { console.error(e); }
 
-    <script type="module">
-        // ============================================
-        // IMPORTS
-        // ============================================
-        import { initializeApp } from "firebase/app";
-        import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, collection, doc, getDoc, getDocs, query, where, orderBy, limit, updateDoc } from "firebase/firestore";
-
-        console.log('💰 [SELLER_WALLET] Page loaded');
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
-            authDomain: "productkuu.firebaseapp.com",
-            projectId: "productkuu",
-            storageBucket: "productkuu.firebasestorage.app",
-            messagingSenderId: "6615996108",
-            appId: "1:6615996108:web:daa6e17c1275d3061cd469",
-            measurementId: "G-78ZPLZMFEJ"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        let currentUser = null;
-        let debugVisible = false;
-
-        function addDebug(message, type = 'info') {
-            const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
-            const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
-            const log = document.getElementById('debugLog');
-            const time = new Date().toLocaleTimeString();
-            log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
-            console.log(`[SELLER_WALLET_DEBUG] ${message}`);
-            const box = document.getElementById('debugBox');
-            box.scrollTop = box.scrollHeight;
-        }
-
-        window.toggleDebug = function() {
-            const box = document.getElementById('debugBox');
-            debugVisible = !debugVisible;
-            box.classList.toggle('show');
-            if (debugVisible) addDebug('Debug mode activated', 'info');
-        };
-
-        window.refreshData = function() {
-            addDebug('Manual refresh triggered', 'info');
-            showToast('info', 'Memperbarui data wallet...');
-            if (currentUser) {
-                loadWalletData(currentUser.uid);
-                loadTransactions(currentUser.uid);
-            }
-        };
-
-        // ============================================
-        // CHECK SUSPEND STATUS
-        // ============================================
-        async function checkSuspendStatus(uid) {
-            try {
-                const userRef = doc(db, 'users', uid);
-                const userDoc = await getDoc(userRef);
-                if (userDoc.exists()) {
-                    const status = userDoc.data().status || 'active';
-                    if (status === 'suspended') {
-                        addDebug('🚫 Account is SUSPENDED!', 'error');
-                        document.getElementById('suspendOverlay').classList.add('open');
-                        await signOut(auth);
-                        return true;
-                    }
-                }
-                return false;
-            } catch (error) {
-                addDebug(`Error checking status: ${error.message}`, 'error');
-                return false;
-            }
-        }
-
-        // ============================================
-        // ✅ RELEASE HOLDING - BERDASARKAN createdAt ORDER
-        // ============================================
-        async function checkAndReleaseHolding(uid) {
-            addDebug('Checking holding for release...', 'info');
-            
-            try {
-                const userRef = doc(db, 'users', uid);
-                const userDoc = await getDoc(userRef);
-                
-                if (!userDoc.exists()) {
-                    addDebug('User not found', 'error');
-                    return;
-                }
-                
-                const userData = userDoc.data();
-                const wallet = userData.wallet || { available: 0, holding: 0, totalRevenue: 0 };
-                
-                if (wallet.holding <= 0) {
-                    addDebug('No holding balance to release', 'info');
-                    return;
-                }
-                
-                let holdingMinutes = 0;
-                try {
-                    const settingsRef = doc(db, 'settings', 'marketplace');
-                    const settingsDoc = await getDoc(settingsRef);
-                    if (settingsDoc.exists()) {
-                        const settings = settingsDoc.data();
-                        holdingMinutes = settings.holdingMinutes || 
-                                        (settings.holdingHours || 0) * 60 || 
-                                        (settings.holdingDays || 0) * 24 * 60 || 
-                                        0;
-                        addDebug(`Holding time: ${holdingMinutes} minutes`, 'info');
-                    }
-                } catch (e) {
-                    addDebug('Using default holding time (0 minutes)', 'warning');
-                }
-                
-                if (holdingMinutes === 0) {
-                    if (wallet.holding > 0) {
-                        await updateDoc(userRef, {
-                            'wallet.available': (wallet.available || 0) + wallet.holding,
-                            'wallet.holding': 0,
-                            updatedAt: new Date().toISOString()
-                        });
-                        addDebug(`💰 Holding moved to available: Rp${formatPrice(wallet.holding)}`, 'success');
-                        showToast('success', `💰 Rp${formatPrice(wallet.holding)} masuk ke saldo tersedia!`);
-                    }
-                    return;
-                }
-                
-                const ordersSnapshot = await getDocs(
-                    query(
-                        collection(db, 'orders'),
-                        where('sellerId', '==', uid),
-                        where('type', '==', 'product_purchase'),
-                        where('paymentStatus', 'in', ['settlement', 'paid'])
-                    )
-                );
-                
-                const now = new Date();
-                let totalToRelease = 0;
-                let orderIdsToUpdate = [];
-                
-                ordersSnapshot.forEach(doc => {
-                    const order = doc.data();
-                    // ✅ HITUNG DARI createdAt (WAKTU ORDER DIBUAT)
-                    const createdAt = order.createdAt?.toDate?.() || new Date(order.createdAt);
-                    const elapsedMinutes = (now - createdAt) / (1000 * 60);
-                    
-                    const isReleased = order.released === true;
-                    
-                    if (elapsedMinutes >= holdingMinutes && !isReleased) {
-                        const amount = order.amount || 0;
-                        if (amount > 0) {
-                            totalToRelease += amount;
-                            orderIdsToUpdate.push(doc.id);
-                            addDebug(`📦 Order ${order.orderId} (${elapsedMinutes.toFixed(0)}m ago) - Rp${formatPrice(amount)} ready to release`, 'info');
-                        }
-                    }
-                });
-                
-                if (totalToRelease > 0 && orderIdsToUpdate.length > 0) {
-                    const newAvailable = (wallet.available || 0) + totalToRelease;
-                    const newHolding = Math.max(0, (wallet.holding || 0) - totalToRelease);
-                    
-                    await updateDoc(userRef, {
-                        'wallet.available': newAvailable,
-                        'wallet.holding': newHolding,
-                        updatedAt: new Date().toISOString()
-                    });
-                    
-                    for (const orderId of orderIdsToUpdate) {
-                        await updateDoc(doc(db, 'orders', orderId), {
-                            released: true,
-                            releasedAt: new Date().toISOString()
-                        });
-                    }
-                    
-                    addDebug(`💰 Released Rp${formatPrice(totalToRelease)} from holding to available`, 'success');
-                    showToast('success', `💰 Rp${formatPrice(totalToRelease)} masuk ke saldo tersedia!`);
-                } else {
-                    addDebug('No orders ready to release', 'info');
-                }
-                
-            } catch (error) {
-                addDebug(`Error checking holding: ${error.message}`, 'error');
-                console.error('Release holding error:', error);
-            }
-        }
-
-        // ============================================
-        // MANUAL RELEASE HOLDING
-        // ============================================
-        window.manualReleaseHolding = async function() {
-            if (!currentUser) {
-                showToast('warning', 'Silakan login terlebih dahulu');
-                return;
-            }
-            addDebug('Manual release holding triggered', 'info');
-            showToast('info', 'Memproses release holding...');
-            await checkAndReleaseHolding(currentUser.uid);
-            await loadWalletData(currentUser.uid);
-            await loadTransactions(currentUser.uid);
-            showToast('success', '✅ Holding selesai diproses!');
-        };
-
-        // ============================================
-        // THEME & SIDEBAR
-        // ============================================
-        const themeToggle = document.getElementById('themeToggle');
-        let darkMode = localStorage.getItem('darkMode') === 'true';
-        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
-        themeToggle.addEventListener('click', () => {
-            darkMode = !darkMode;
-            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-            localStorage.setItem('darkMode', darkMode);
-            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
-        });
-
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('open');
-                sidebarOverlay.classList.toggle('open');
-            });
-        }
-        if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', () => {
-                sidebar.classList.remove('open');
-                sidebarOverlay.classList.remove('open');
-            });
-        }
-
-        document.querySelectorAll('.sidebar-nav a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const href = this.getAttribute('href');
-                if (href) window.location.href = href;
-            });
-        });
-
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            try { await signOut(auth); window.location.href = '/'; } 
-            catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
-        });
-
-        function showToast(type, message) {
-            const container = document.getElementById('toastContainer');
-            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.style.borderLeftColor = colors[type] || colors.info;
-            toast.innerHTML = `
-                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
-                <div class="toast-content"><div class="toast-message">${message}</div></div>
-                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
-            `;
-            container.appendChild(toast);
-            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
-        }
-        window.showToast = showToast;
-
-        function showError(title, detail) {
-            const box = document.getElementById('errorBox');
-            document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
-            document.getElementById('errorDetail').textContent = detail || '';
-            box.classList.add('show');
-            setTimeout(() => { box.classList.remove('show'); }, 10000);
-        }
-
-        function formatPrice(price) {
-            if (!price && price !== 0) return '0';
-            return new Intl.NumberFormat('id-ID').format(price);
-        }
-
-        function formatDate(date) {
-            if (!date) return '-';
-            const d = date instanceof Date ? date : new Date(date);
-            if (isNaN(d.getTime())) return '-';
-            return d.toLocaleDateString('id-ID', {
-                year: 'numeric', month: 'long', day: 'numeric',
-                hour: '2-digit', minute: '2-digit'
-            });
-        }
-
-        // ============================================
-        // AUTH STATE
-        // ============================================
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                addDebug('User not logged in, redirecting...', 'warning');
-                window.location.href = '/seller/login';
-                return;
-            }
-            currentUser = user;
-            addDebug(`User logged in: ${user.email}`, 'success');
-
-            const isSuspended = await checkSuspendStatus(user.uid);
-            if (isSuspended) return;
-
-            try {
-                const userRef = doc(db, 'users', user.uid);
-                const userDoc = await getDoc(userRef);
-                if (!userDoc.exists() || userDoc.data().role !== 'seller') {
-                    addDebug('User is not seller, redirecting...', 'error');
-                    window.location.href = '/';
-                    return;
-                }
-                addDebug('User is seller', 'success');
-                
-                // ✅ CEK DAN RELEASE HOLDING
-                await checkAndReleaseHolding(user.uid);
-                
-                await loadWalletData(user.uid);
-                await loadTransactions(user.uid);
-            } catch (error) {
-                addDebug(`Error: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat data: ' + error.message);
-            }
-        });
-
-        // ============================================
-        // LOAD WALLET DATA
-        // ============================================
-        async function loadWalletData(uid) {
-            addDebug('Loading wallet data...', 'info');
-            try {
-                const userRef = doc(db, 'users', uid);
-                const userDoc = await getDoc(userRef);
-                if (!userDoc.exists()) { addDebug('User not found', 'error'); return; }
-                const userData = userDoc.data();
-                const wallet = userData.wallet || { available: 0, holding: 0, totalRevenue: 0, totalWithdraw: 0, pendingWithdraw: 0 };
-                
-                document.getElementById('availableBalance').textContent = `Rp${formatPrice(wallet.available || 0)}`;
-                document.getElementById('holdingBalance').textContent = `Rp${formatPrice(wallet.holding || 0)}`;
-                document.getElementById('totalRevenue').textContent = `Rp${formatPrice(wallet.totalRevenue || 0)}`;
-                document.getElementById('totalWithdraw').textContent = `Rp${formatPrice(wallet.totalWithdraw || 0)}`;
-                
-                addDebug(`Wallet: Available Rp${formatPrice(wallet.available)}, Holding Rp${formatPrice(wallet.holding)}`, 'success');
-            } catch (error) {
-                addDebug(`Error loading wallet: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat wallet: ' + error.message);
-            }
-        }
-
-        // ============================================
-        // LOAD TRANSACTIONS
-        // ============================================
-        async function loadTransactions(uid) {
-            addDebug('Loading transactions...', 'info');
-            try {
-                const q = query(collection(db, 'orders'), where('sellerId', '==', uid), where('type', '==', 'product_purchase'), orderBy('createdAt', 'desc'), limit(20));
-                const snapshot = await getDocs(q);
-                const container = document.getElementById('transactionHistory');
-
-                if (snapshot.empty) {
-                    container.innerHTML = `<div class="text-center text-secondary" style="padding:20px 0;"><i class="fas fa-receipt" style="font-size:24px;display:block;margin-bottom:8px;"></i>Belum ada transaksi</div>`;
-                    addDebug('No transactions found', 'info');
-                    return;
-                }
-
-                const statusColors = { 'pending': 'badge-warning', 'settlement': 'badge-success', 'failed': 'badge-danger', 'expire': 'badge-danger' };
-
-                container.innerHTML = snapshot.docs.map(doc => {
-                    const t = doc.data();
-                    return `
-                        <div class="transaction-item">
-                            <div><strong>${t.productName || 'Product'}</strong><br><span style="font-size:13px;color:var(--text-secondary);">${t.buyerName || 'Anonymous'} • ${formatDate(t.createdAt)}</span></div>
-                            <div style="text-align:right;">
-                                <span style="font-weight:600;color:${t.paymentStatus === 'settlement' ? 'var(--success)' : 'var(--text-secondary)'};">${t.paymentStatus === 'settlement' ? '+' : ''}Rp${formatPrice(t.amount)}</span>
-                                <br><span class="badge ${statusColors[t.paymentStatus] || 'badge-info'}">${t.paymentStatus || t.status}</span>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-                addDebug(`Loaded ${snapshot.size} transactions`, 'success');
-            } catch (error) {
-                addDebug(`Error loading transactions: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat transaksi: ' + error.message);
-            }
-        }
-
-        addDebug('Page ready', 'success');
-        console.log('✅ [SELLER_WALLET] Page ready - Auto release holding based on createdAt');
-    </script>
+    const container = document.getElementById('history');
+    try {
+        const res = await fetch('/api/orders');
+        const orders = await res.json();
+        const list = orders.filter(o => o.sellerId === user.id && o.paymentStatus === 'settlement');
+        
+        if(list.length === 0) { container.innerHTML = '<div class="text-center py-6 font-bold text-[var(--ink-muted)]">Belum ada transaksi</div>'; return; }
+        
+        container.innerHTML = list.map(o => `
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 border-2 border-[var(--border)] bg-[var(--bg)] gap-4">
+                <div>
+                    <div class="font-black text-[var(--ink)]">${o.productName}</div>
+                    <div class="text-xs font-mono-tag text-[var(--ink-muted)] mt-1">${new Date(o.createdAt).toLocaleDateString('id-ID')}</div>
+                </div>
+                <div class="font-black text-[var(--blue)] text-lg">+Rp${new Intl.NumberFormat('id-ID').format(o.amount)}</div>
+            </div>
+        `).join('');
+    } catch(e) { console.error(e); }
+}
+document.addEventListener('DOMContentLoaded', loadWallet);
+</script>
 </body>
 </html>

@@ -1,894 +1,238 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Produk Seller - ProductKuu</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="icon" href="/assets/images/favicon.ico">
-    <script src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-OkRCJi3x4-wno9XX"></script>
-    <style>
-        .app-wrapper { display: flex; min-height: calc(100vh - 64px); margin-top: 64px; }
-        .sidebar { width: 260px; background: var(--bg-primary); border-right: 1px solid var(--border-color); padding: 20px 0; position: fixed; top: 64px; bottom: 0; overflow-y: auto; z-index: 100; transition: transform 0.3s ease; }
-        .sidebar-header { padding: 0 16px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px; }
-        .sidebar-header .title { font-weight: 600; font-size: 14px; color: var(--text-secondary); }
-        .sidebar-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
-        .sidebar-nav a, .sidebar-nav button { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius); color: var(--text-secondary); transition: var(--transition); font-size: 14px; font-weight: 500; text-decoration: none; background: none; border: none; width: 100%; cursor: pointer; font-family: var(--font); text-align: left; }
-        .sidebar-nav a:hover, .sidebar-nav button:hover { background: var(--bg-secondary); color: var(--text-primary); }
-        .sidebar-nav a.active { background: rgba(79,70,229,0.1); color: var(--primary); }
-        .sidebar-nav a .badge-count { margin-left: auto; background: var(--bg-tertiary); padding: 2px 8px; border-radius: 9999px; font-size: 11px; color: var(--text-secondary); }
-        .sidebar-nav .logout-btn { color: var(--danger); margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 16px; }
-        .sidebar-nav .logout-btn:hover { background: rgba(239,68,68,0.1); color: var(--danger); }
-        .sidebar-overlay { display: none; position: fixed; top: 64px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99; }
-        .sidebar-overlay.open { display: block; }
-        .main-content { margin-left: 260px; padding: 24px; flex: 1; min-height: calc(100vh - 64px); }
-        .mobile-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-primary); cursor: pointer; padding: 8px; }
-        @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); width: 280px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 16px; } .mobile-toggle { display: block !important; } }
-        .table-wrapper { overflow-x: auto; }
-        .table { width: 100%; border-collapse: collapse; }
-        .table th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); border-bottom: 2px solid var(--border-color); background: var(--bg-secondary); white-space: nowrap; }
-        .table td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); font-size: 14px; vertical-align: middle; }
-        .table tr:hover td { background: var(--bg-secondary); }
-        .product-cell { display: flex; align-items: center; gap: 10px; min-width: 160px; }
-        .product-cell .product-thumb { width: 36px; height: 36px; border-radius: 8px; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; border: 1px solid var(--border-color); }
-        .product-cell .product-thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .product-cell .product-thumb i { font-size: 16px; color: var(--text-light); }
-        .product-cell .product-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
-        .product-cell .product-date { font-size: 11px; color: var(--text-secondary); }
-        .action-dropdown { position: relative; display: inline-block; }
-        .action-dropdown > button { background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: all 0.3s; font-size: 16px; color: var(--text-secondary); }
-        .action-dropdown > button:hover { background: var(--bg-secondary); color: var(--text-primary); }
-        .action-dropdown-content { display: none; position: absolute; right: 0; top: 100%; min-width: 170px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius); box-shadow: var(--shadow-lg); z-index: 100; padding: 4px 0; }
-        .action-dropdown-content.show { display: block; animation: fadeIn 0.2s ease; }
-        .action-dropdown-content a { display: flex; align-items: center; gap: 10px; padding: 8px 14px; color: var(--text-primary); font-size: 13px; text-decoration: none; cursor: pointer; transition: all 0.2s; }
-        .action-dropdown-content a:hover { background: var(--bg-secondary); }
-        .action-dropdown-content a.danger { color: var(--danger); }
-        .action-dropdown-content a.danger:hover { background: rgba(239,68,68,0.1); }
-        .action-dropdown-content a i { width: 16px; text-align: center; font-size: 14px; }
-        .filter-bar { background: var(--bg-primary); border-radius: var(--radius); padding: 12px 16px; border: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 20px; }
-        .filter-bar .filter-group { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
-        .filter-bar .filter-group select, .filter-bar .filter-group input { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 13px; min-width: 110px; }
-        .filter-bar .filter-actions { display: flex; gap: 8px; }
-        .card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
-        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
-        .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
-        .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
-        .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
-        .badge-purple { background: rgba(124,58,237,0.1); color: var(--secondary); }
-        .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
-        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-        .text-center { text-align: center; }
-        .text-secondary { color: var(--text-secondary); }
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
-        .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
-        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
-        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-danger:hover { transform: translateY(-2px); }
-        .btn-sm { padding: 8px 16px; font-size: 12px; }
-        .btn-block { width: 100%; justify-content: center; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-success:hover { transform: translateY(-2px); }
-        .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
-        .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
-        .input-group { display: flex; flex-direction: column; gap: 6px; }
-        .input-group label { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
-        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
-        .modal-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
-        .modal { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 32px; max-width: 640px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; animation: slideUp 0.3s ease; }
-        .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; color: var(--text-secondary); cursor: pointer; transition: all 0.3s; padding: 4px; }
-        .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        .payment-method-option { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); cursor: pointer; transition: all 0.3s; flex: 1; }
-        .payment-method-option:hover { border-color: var(--primary); }
-        .payment-method-option.active { border-color: var(--primary); background: rgba(79,70,229,0.05); }
-        .payment-method-option input[type="radio"] { accent-color: var(--primary); width: 18px; height: 18px; cursor: pointer; }
-        .payment-method-option .method-icon { font-size: 20px; width: 32px; text-align: center; }
-        .payment-method-option .method-label { font-weight: 500; font-size: 14px; }
-        .payment-method-option .method-desc { font-size: 12px; color: var(--text-secondary); }
-        .payment-method-option .method-status { margin-left: auto; font-size: 12px; padding: 2px 10px; border-radius: 9999px; }
-        .payment-method-option .method-status.available { background: rgba(16,185,129,0.1); color: var(--success); }
-        .payment-method-option .method-status.insufficient { background: rgba(239,68,68,0.1); color: var(--danger); }
-        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
-        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
-        .toast-icon { font-size: 20px; }
-        .toast-content { flex: 1; }
-        .toast-message { font-size: 13px; color: var(--text-secondary); }
-        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-        .debug-box { background: #1E1E2E; border-radius: var(--radius); padding: 12px 16px; margin-bottom: 16px; font-family: 'Courier New', monospace; font-size: 11px; color: #CDD6F4; max-height: 200px; overflow-y: auto; display: none; border: 1px solid #313244; }
-        .debug-box.show { display: block; }
-        .debug-box .debug-line { padding: 2px 0; border-bottom: 1px solid #2A2A3E; }
-        .debug-box .debug-line:last-child { border-bottom: none; }
-        .debug-box .debug-success { color: #A6E3A1; }
-        .debug-box .debug-error { color: #F38BA8; }
-        .debug-box .debug-info { color: #89B4FA; }
-        .debug-box .debug-warning { color: #F9E2AF; }
-        .debug-toggle { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 12px; text-decoration: underline; padding: 4px 8px; margin-bottom: 8px; }
-        .debug-toggle:hover { color: var(--text-primary); }
-        .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
-        .error-box.show { display: block; }
-        .error-box .error-title { font-weight: 700; color: var(--danger); }
-        .error-box .error-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
-        @media (max-width: 1024px) { .table { min-width: 700px; font-size: 13px; } .table th, .table td { padding: 10px 12px; } .product-cell .product-name { max-width: 100px; } }
-        @media (max-width: 768px) { .table { min-width: 650px; font-size: 12px; } .table th, .table td { padding: 8px 10px; } .table .badge { font-size: 10px; padding: 2px 8px; } .product-cell { min-width: 140px; gap: 8px; } .product-cell .product-thumb { width: 30px; height: 30px; } .product-cell .product-name { max-width: 80px; font-size: 12px; } .product-cell .product-date { font-size: 10px; } .action-dropdown-content { min-width: 150px; } .action-dropdown-content a { font-size: 12px; padding: 6px 12px; } .filter-bar .filter-group select, .filter-bar .filter-group input { min-width: 100%; flex: 1; } .filter-bar .filter-actions { width: 100%; } .filter-bar .filter-actions .btn { flex: 1; } .payment-method-option { flex: 1 1 100%; } }
-        @media (max-width: 480px) { .table-wrapper { margin: 0 -12px; padding: 0 12px; } .table { min-width: 600px; font-size: 11px; } .table th, .table td { padding: 6px 8px; } .product-cell { min-width: 120px; gap: 6px; } .product-cell .product-thumb { width: 24px; height: 24px; } .product-cell .product-name { max-width: 60px; font-size: 11px; } .product-cell .product-date { font-size: 9px; } .grid-2 { grid-template-columns: 1fr; } .payment-method-option { flex: 1 1 100%; } }
-        
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f3f4f6;
-            --bg-tertiary: #e5e7eb;
-            --text-primary: #111827;
-            --text-secondary: #6b7280;
-            --text-light: #9ca3af;
-            --border-color: #e5e7eb;
-            --shadow: 0 1px 3px rgba(0,0,0,0.1);
-            --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
-            --shadow-2xl: 0 25px 50px -12px rgba(0,0,0,0.25);
-            --radius: 8px;
-            --radius-lg: 16px;
-            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --info: #3b82f6;
-            --primary: #4F46E5;
-            --secondary: #7C3AED;
-            --transition: all 0.3s ease;
-        }
-        [data-theme="dark"] {
-            --bg-primary: #1f2937;
-            --bg-secondary: #374151;
-            --bg-tertiary: #4b5563;
-            --text-primary: #f9fafb;
-            --text-secondary: #9ca3af;
-            --text-light: #6b7280;
-            --border-color: #374151;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: var(--font); background: var(--bg-secondary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
-        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); height: 64px; }
-        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        .navbar-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
-        .navbar-logo i { color: #4F46E5; }
-        .navbar-actions { display: flex; align-items: center; gap: 8px; }
-        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
-        .btn-icon:hover { background: var(--bg-secondary); }
-
-        /* Suspend Overlay */
-        .suspend-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px);
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .suspend-overlay.open { display: flex; }
-        .suspend-overlay .modal {
-            background: var(--bg-primary);
-            border-radius: var(--radius-lg);
-            padding: 48px 40px;
-            max-width: 480px;
-            width: 100%;
-            text-align: center;
-            animation: slideUp 0.3s ease;
-            box-shadow: var(--shadow-2xl);
-        }
-        .suspend-overlay .modal .icon { font-size: 64px; color: var(--danger); margin-bottom: 16px; }
-        .suspend-overlay .modal h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
-        .suspend-overlay .modal p { color: var(--text-secondary); font-size: 15px; line-height: 1.7; margin-bottom: 8px; }
-        .suspend-overlay .modal .contact { background: var(--bg-secondary); border-radius: var(--radius); padding: 16px; margin: 16px 0 24px; font-weight: 600; color: var(--primary); }
-        .suspend-overlay .modal .contact i { margin-right: 8px; }
-        .suspend-overlay .modal .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; }
-        .suspend-overlay .modal .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
-        .suspend-overlay .modal .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
-        .suspend-overlay .modal .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
-        .suspend-overlay .modal .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
-    </style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Produk Seller - ProductKuu</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@700&family=Archivo+Black&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+:root,[data-theme="light"]{--bg:#F4F1E8;--bg-grid:rgba(0,0,0,.055);--surface:#FFF;--surface-2:#FAF8F0;--ink:#0A0A0A;--ink-muted:#4A4A4A;--ink-soft:#7A7A7A;--lime:#C4F000;--lime-deep:#9BC400;--amber:#FFC400;--amber-deep:#D9A300;--blue:#2B6FFF;--blue-deep:#1E4FCC;--blue-soft:#E6EEFF;--border:#0A0A0A;--border-width:2px;--shadow-color:#0A0A0A;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(0,0,0,.08);--nav-bg:#F4F1E8}
+[data-theme="dark"]{--bg:#0B0B0D;--bg-grid:rgba(255,255,255,.045);--surface:#16161A;--surface-2:#1E1E24;--ink:#F5F3EC;--ink-muted:#B8B8C0;--ink-soft:#8A8A92;--lime:#C4F000;--lime-deep:#A8D400;--amber:#FFC400;--amber-deep:#E0AC00;--blue:#4D8BFF;--blue-deep:#2B6FFF;--blue-soft:#1A2540;--border:#F5F3EC;--border-width:2px;--shadow-color:#F5F3EC;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(255,255,255,.06);--nav-bg:#0B0B0D}
+*{scroll-behavior:smooth;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);margin:0;line-height:1.6;overflow-x:hidden;transition:background-color .35s ease,color .35s ease;background-image:linear-gradient(to right,var(--grid-line) 1px,transparent 1px),linear-gradient(to bottom,var(--grid-line) 1px,transparent 1px);background-size:28px 28px;background-attachment:fixed}
+.font-mono-tag{font-family:'Space Mono',monospace}
+.font-display{font-family:'Archivo Black',sans-serif;letter-spacing:-.02em}
+.neo-tag{display:inline-flex;align-items:center;gap:6px;background:var(--lime);color:#0A0A0A;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:.9px;padding:6px 14px;border:var(--border-width) solid var(--border);box-shadow:3px 3px 0 var(--shadow-color);font-family:'Space Mono',monospace}
+.neo-tag.blue{background:var(--blue);color:#FFF}
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.6px;padding:10px 20px;border:var(--border-width) solid var(--border);border-radius:0;cursor:pointer;text-decoration:none;transition:all .09s;white-space:nowrap}
+.btn-primary{background:var(--lime);color:#0A0A0A;box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.btn-primary:hover:not(:disabled){transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--shadow-color);background:var(--amber)}
+.btn-secondary{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.btn-secondary:hover:not(:disabled){transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--blue);border-color:var(--blue);color:var(--blue)}
+.btn-danger{background:#FF4444;color:#FFF;box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.table-wrapper{overflow-x:auto;border:var(--border-width) solid var(--border);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color);background:var(--surface)}
+.table{width:100%;border-collapse:collapse}
+.table th{background:var(--bg);padding:16px;font-size:12px;font-weight:900;text-transform:uppercase;text-align:left;border-bottom:var(--border-width) solid var(--border)}
+.table td{padding:16px;font-size:14px;font-weight:600;border-bottom:1.5px dashed var(--ink-soft)}
+.badge{padding:4px 10px;border:1.5px solid var(--border);font-size:10px;font-weight:900;text-transform:uppercase;font-family:'Space Mono',monospace;box-shadow:2px 2px 0 var(--shadow-color);display:inline-block}
+.badge-success{background:var(--lime);color:#0A0A0A}.badge-warning{background:var(--amber);color:#0A0A0A}.badge-danger{background:#FF4444;color:#FFF}
+.form-input{width:100%;background:var(--bg);border:var(--border-width) solid var(--border);padding:11px 14px;color:var(--ink);font-weight:600;font-size:14px;outline:none}
+.form-input:focus{border-color:var(--blue);box-shadow:4px 4px 0 var(--blue)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(2px);z-index:2000;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:3px solid var(--border);box-shadow:10px 10px 0 var(--lime);max-width:600px;width:100%;max-height:90vh;overflow-y:auto;padding:32px;position:relative}
+</style>
 </head>
-<body>
-    <!-- SUSPEND OVERLAY -->
-    <div class="suspend-overlay" id="suspendOverlay">
-        <div class="modal">
-            <div class="icon"><i class="fas fa-ban"></i></div>
-            <h2>⚠️ Akun Anda Ditangguhkan</h2>
-            <p>Akun seller Anda telah ditangguhkan oleh admin karena melanggar ketentuan.</p>
-            <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
-            <div class="contact"><i class="fab fa-telegram"></i> @Sanzz_offc</div>
-            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
-                <a href="https://t.me/Sanzz_offc" target="_blank" class="btn btn-primary" style="flex:1;"><i class="fab fa-telegram"></i> Hubungi Admin</a>
-                <button onclick="window.location.href='/'" class="btn btn-secondary" style="flex:1;"><i class="fas fa-home"></i> Kembali</button>
-            </div>
-        </div>
-    </div>
+<body data-theme="light">
 
-    <nav class="navbar">
-        <div class="navbar-inner">
-            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
-            <div class="navbar-actions">
-                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
-                <button class="mobile-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-            </div>
-        </div>
+<script>
+    const token = localStorage.getItem('pk_token');
+    const userStr = localStorage.getItem('pk_user');
+    if (!token || !userStr) { window.location.replace('/seller/login'); } 
+    else { try { const u = JSON.parse(userStr); if (u.role !== 'seller') window.location.replace('/'); } catch(e) { window.location.replace('/seller/login'); } }
+</script>
+
+<nav class="fixed top-0 left-0 right-0 z-[1000] h-[76px] bg-[var(--nav-bg)] border-b-[2px] border-[var(--border)]">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-3">
+    <a class="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-2 shrink-0" href="/seller/dashboard">
+        <span class="bg-[var(--lime)] text-[#0A0A0A] px-2.5 py-1 border-2 border-[var(--border)] font-black shadow-[2px_2px_0px_var(--shadow-color)]">Seller</span>
+        <span class="text-[var(--ink)] font-black">Panel</span>
+    </a>
+    <div class="flex items-center gap-2.5">
+        <button class="btn btn-secondary !py-2 !px-3.5" id="themeToggle"><span class="material-symbols-outlined text-lg">dark_mode</span></button>
+        <button class="lg:hidden btn btn-secondary !py-2 !px-3.5" id="sidebarToggle"><span class="material-symbols-outlined text-lg">menu</span></button>
+        <button class="btn btn-danger !py-2 !px-3.5" id="logoutBtn">Logout</button>
+    </div>
+</div>
+</nav>
+<div class="fixed inset-0 bg-black/50 z-[800] hidden transition-opacity" id="sidebarOverlay"></div>
+
+<aside class="fixed top-[76px] left-0 bottom-0 w-[260px] bg-[var(--surface)] border-r-[2px] border-[var(--border)] z-[900] flex flex-col -translate-x-full lg:translate-x-0 transition-transform duration-300" id="sidebar">
+    <div class="p-4 border-b-2 border-[var(--border)] bg-[var(--bg)]"><p class="text-[10px] font-black text-[var(--ink-muted)] uppercase tracking-widest font-mono-tag">Menu Seller</p></div>
+    <nav class="p-4 flex flex-col gap-2 flex-1 overflow-y-auto">
+        <a href="/seller/dashboard" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+        <a href="/seller/products" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-[var(--border)] bg-[var(--lime)] text-[#0A0A0A] shadow-[3px_3px_0px_var(--shadow-color)]"><span class="material-symbols-outlined">inventory_2</span> Produk</a>
+        <a href="/seller/wallet" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">account_balance_wallet</span> Wallet</a>
+        <a href="/seller/transactions" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">receipt_long</span> Transaksi</a>
+        <a href="/seller/withdraw" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">arrow_upward</span> Withdraw</a>
+        <a href="/seller/settings" class="flex items-center gap-3 p-3 text-sm font-extrabold uppercase border-2 border-transparent hover:bg-[var(--bg)] hover:border-[var(--border)] transition-all text-[var(--ink)]"><span class="material-symbols-outlined">settings</span> Pengaturan</a>
     </nav>
+</aside>
 
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header"><div class="title">Menu Seller</div></div>
-        <nav class="sidebar-nav">
-            <a href="/seller/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a href="/seller/products" class="active"><i class="fas fa-box"></i> Produk <span class="badge-count" id="productCount">0</span></a>
-            <a href="/seller/wallet"><i class="fas fa-wallet"></i> Wallet</a>
-            <a href="/seller/transactions"><i class="fas fa-exchange-alt"></i> Transaksi</a>
-            <a href="/seller/withdraw"><i class="fas fa-arrow-up"></i> Withdraw</a>
-            <a href="/seller/settings"><i class="fas fa-cog"></i> Pengaturan</a>
-            <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </nav>
-    </aside>
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <div class="app-wrapper">
-        <main class="main-content">
-            <div class="flex-between" style="margin-bottom:24px;">
-                <div><h1 style="font-size:24px;">Kelola Produk</h1><p style="color:var(--text-secondary);">Atur dan kelola semua produk Anda</p></div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <button onclick="refreshData()" class="btn btn-secondary btn-sm"><i class="fas fa-sync-alt"></i> Refresh</button>
-                    <button onclick="openCreateProduct()" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Produk</button>
-                </div>
+<main class="pt-[100px] pb-10 px-4 lg:ml-[260px] transition-all">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-10">
+            <div>
+                <span class="neo-tag blue mb-3">KELOLA PRODUK</span>
+                <h1 class="font-display text-3xl sm:text-5xl text-[var(--ink)] mt-3">Produk Saya</h1>
             </div>
-
-            <div class="debug-box" id="debugBox">
-                <div class="debug-line debug-info">🔍 Debug Mode Active</div>
-                <div class="debug-line" id="debugLog">Menunggu data...</div>
-            </div>
-            <button class="debug-toggle" onclick="toggleDebug()"><i class="fas fa-bug"></i> Toggle Debug</button>
-
-            <div class="error-box" id="errorBox">
-                <div class="error-title"><i class="fas fa-exclamation-circle"></i> <span id="errorTitle">Gagal Memuat Data</span></div>
-                <div class="error-detail" id="errorDetail">Terjadi kesalahan saat memuat data.</div>
-            </div>
-
-            <div class="filter-bar" style="margin-top:8px;">
-                <div class="filter-group">
-                    <input type="text" id="searchProduct" placeholder="Cari produk..." style="min-width:200px;">
-                    <select id="filterStatus"><option value="all">Semua Status</option><option value="published">Published</option><option value="draft">Draft</option><option value="pending">Pending</option></select>
-                    <select id="filterType"><option value="all">Semua Type</option><option value="digital">Digital</option><option value="premium-account">Premium Account</option></select>
-                </div>
-                <div class="filter-actions">
-                    <button onclick="applyFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Filter</button>
-                    <button onclick="resetFilters()" class="btn btn-secondary btn-sm"><i class="fas fa-undo"></i></button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="table-wrapper">
-                    <table class="table">
-                        <thead><tr>
-                            <th style="min-width:180px;">Produk</th>
-                            <th style="min-width:100px;">Kategori</th>
-                            <th style="min-width:100px;">Type</th>
-                            <th style="min-width:100px;">Harga</th>
-                            <th style="min-width:80px;">Stok</th>
-                            <th style="min-width:90px;">Status</th>
-                            <th style="min-width:70px;text-align:center;">Terjual</th>
-                            <th style="min-width:60px;text-align:center;">Aksi</th>
-                        </tr></thead>
-                        <tbody id="productsTableBody">
-                            <tr><td colspan="8" class="text-center text-secondary" style="padding:40px 0;">
-                                <i class="fas fa-spinner fa-spin" style="font-size:24px;display:block;margin-bottom:8px;"></i>
-                                Memuat produk...
-                            </td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div id="pagination" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;"></div>
-            </div>
-        </main>
-    </div>
-
-    <!-- PRODUCT MODAL -->
-    <div class="modal-overlay" id="productModal">
-        <div class="modal">
-            <button class="modal-close" onclick="closeProductModal()"><i class="fas fa-times"></i></button>
-            <h3 class="modal-title" id="modalTitle">Tambah Produk</h3>
-            <form id="productForm">
-                <input type="hidden" id="productId">
-                <div class="input-group" style="margin-bottom:12px;">
-                    <label for="productName">Nama Produk *</label>
-                    <input type="text" id="productName" class="input" required placeholder="Masukkan nama produk">
-                </div>
-                <div class="grid-2" style="margin-bottom:12px;">
-                    <div class="input-group"><label for="productCategory">Kategori *</label><select id="productCategory" class="input" required><option value="">Pilih</option><option value="Source Code">Source Code</option><option value="Preset">Preset</option><option value="Plugin">Plugin</option><option value="Template">Template</option><option value="UI Kit">UI Kit</option><option value="Font">Font</option><option value="Ebook">Ebook</option><option value="Script">Script</option><option value="Premium Account">Premium Account</option><option value="Lainnya">Lainnya</option></select></div>
-                    <div class="input-group"><label for="productType">Type *</label><select id="productType" class="input" onchange="toggleProductType()"><option value="digital">Digital Product</option><option value="premium-account">Premium Account</option></select></div>
-                </div>
-                <div class="input-group" style="margin-bottom:12px;"><label for="productPrice">Harga (Rp) *</label><input type="number" id="productPrice" class="input" required placeholder="10000" min="1000"></div>
-                <div class="input-group" style="margin-bottom:12px;"><label for="productImageUrl">URL Gambar Produk (Opsional)</label><input type="url" id="productImageUrl" class="input" placeholder="https://example.com/gambar.jpg"><span style="font-size:12px;color:var(--text-light);">Kosongkan untuk menggunakan gambar default</span></div>
-                <div id="digitalFields">
-                    <div class="input-group" style="margin-bottom:12px;"><label for="productDownloadLink">Link Download *</label><input type="url" id="productDownloadLink" class="input" placeholder="https://drive.google.com/..."></div>
-                    <div class="input-group" style="margin-bottom:12px;"><label for="productDemoLink">Link Demo (Opsional)</label><input type="url" id="productDemoLink" class="input" placeholder="https://demo.example.com"></div>
-                    <div class="grid-2" style="margin-bottom:12px;">
-                        <div class="input-group"><label for="productStock">Stok</label><input type="number" id="productStock" class="input" placeholder="100" value="100"></div>
-                        <div style="display:flex;align-items:center;gap:8px;padding-top:24px;"><input type="checkbox" id="productUnlimited"> <label for="productUnlimited" style="font-size:14px;">Unlimited Stock</label></div>
-                    </div>
-                </div>
-                <div id="premiumFields" style="display:none;">
-                    <div class="input-group" style="margin-bottom:12px;"><label for="productNote">Catatan (Opsional)</label><textarea id="productNote" class="input" rows="2" placeholder="Catatan untuk pembeli"></textarea></div>
-                    <div class="input-group" style="margin-bottom:12px;"><label>Daftar Akun Premium *</label><div id="premiumAccountsList"><div style="display:flex;gap:8px;margin-bottom:8px;"><input type="email" class="input premium-email" placeholder="email@example.com" style="flex:1;"><input type="text" class="input premium-password" placeholder="password" style="flex:1;"><button type="button" onclick="removePremiumAccount(this)" style="background:none;border:none;color:var(--danger);cursor:pointer;padding:0 8px;"><i class="fas fa-times"></i></button></div></div><button type="button" onclick="addPremiumAccount()" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i> Tambah Akun</button></div>
-                </div>
-                <div class="input-group" style="margin-bottom:12px;"><label for="productDescription">Deskripsi</label><textarea id="productDescription" class="input" rows="4" placeholder="Deskripsi produk"></textarea></div>
-                <div class="input-group" style="margin-bottom:12px;"><label for="productTags">Tags</label><input type="text" id="productTags" class="input" placeholder="preset, alight motion, edit"></div>
-                <div style="display:flex;gap:12px;margin-top:16px;">
-                    <button type="submit" class="btn btn-primary" style="flex:1;"><i class="fas fa-save"></i> Simpan</button>
-                    <button type="button" onclick="closeProductModal()" class="btn btn-secondary" style="flex:1;">Batal</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- DELETE MODAL -->
-    <div class="modal-overlay" id="deleteModal">
-        <div class="modal" style="max-width:400px;text-align:center;">
-            <i class="fas fa-exclamation-triangle" style="font-size:48px;color:var(--danger);margin-bottom:16px;"></i>
-            <h3 class="modal-title">Hapus Produk?</h3>
-            <p style="color:var(--text-secondary);margin-bottom:24px;">Apakah Anda yakin ingin menghapus produk ini? Tindakan ini tidak dapat dibatalkan.</p>
-            <div style="display:flex;gap:12px;">
-                <button onclick="confirmDelete()" class="btn btn-danger" style="flex:1;"><i class="fas fa-trash"></i> Hapus</button>
-                <button onclick="closeDeleteModal()" class="btn btn-secondary" style="flex:1;">Batal</button>
+            <div class="w-full md:w-auto flex gap-2">
+                <button class="btn btn-secondary flex-1 md:flex-none" onclick="loadProducts()"><span class="material-symbols-outlined">sync</span> Refresh</button>
+                <button class="btn btn-primary flex-1 md:flex-none" onclick="openModal()"><span class="material-symbols-outlined">add</span> Tambah</button>
             </div>
         </div>
-    </div>
 
-    <!-- PROMOTE BANNER MODAL -->
-    <div class="modal-overlay" id="promoteModal">
-        <div class="modal" style="max-width:520px;">
-            <button class="modal-close" onclick="closePromoteModal()"><i class="fas fa-times"></i></button>
-            <h3 class="modal-title">Promosikan Produk di Banner</h3>
-            <div id="promoteContent">
-                <div style="margin-bottom:16px;padding:16px;background:var(--bg-secondary);border-radius:var(--radius);">
-                    <p><strong>Produk:</strong> <span id="promoteProductName">-</span></p>
-                    <p><strong>Harga Banner:</strong> Rp<span id="promotePrice">0</span> <span style="font-size:12px;color:var(--text-light);">(Harga FLAT)</span></p>
-                    <div style="display:flex;justify-content:space-between;margin-top:8px;flex-wrap:wrap;gap:4px;">
-                        <span><strong>Saldo Wallet:</strong> Rp<span id="promoteBalance">0</span></span>
-                        <span id="balanceStatus" style="font-size:12px;"></span>
-                    </div>
-                </div>
-                <form id="promoteForm">
-                    <div class="input-group" style="margin-bottom:12px;"><label for="promoteDuration">Durasi (Jam)</label><input type="number" id="promoteDuration" class="input" value="24" min="1" required><span style="font-size:12px;color:var(--text-light);">Total biaya: <strong id="promoteTotal">Rp0</strong></span></div>
-                    <div class="input-group" style="margin-bottom:12px;"><label for="promoteImageUrl">URL Gambar Banner (Opsional)</label><input type="url" id="promoteImageUrl" class="input" placeholder="https://example.com/banner.jpg"><span style="font-size:12px;color:var(--text-light);">Kosongkan untuk menggunakan gambar produk</span></div>
-                    <div class="input-group" style="margin-bottom:12px;">
-                        <label>Metode Pembayaran</label>
-                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                            <label class="payment-method-option active" id="walletOption" style="flex:1;"><input type="radio" name="paymentMethod" value="wallet" checked><span class="method-icon"><i class="fas fa-wallet" style="color:var(--primary);"></i></span><div><div class="method-label">Saldo Wallet</div><div class="method-desc">Bayar dengan saldo Anda</div></div><span class="method-status available" id="walletStatus">✅ Tersedia</span></label>
-                            <label class="payment-method-option" id="midtransOption" style="flex:1;"><input type="radio" name="paymentMethod" value="midtrans"><span class="method-icon"><i class="fas fa-credit-card" style="color:var(--success);"></i></span><div><div class="method-label">Bayar Langsung</div><div class="method-desc">Via Midtrans (Kartu, Transfer, E-Wallet)</div></div><span class="method-status available">💳 Instant</span></label>
-                        </div>
-                    </div>
-                    <div id="promoteError" style="display:none;margin-top:8px;padding:12px;background:rgba(239,68,68,0.1);border-radius:var(--radius);color:var(--danger);font-size:13px;"></div>
-                    <div style="display:flex;gap:12px;margin-top:16px;">
-                        <button type="submit" class="btn btn-primary" style="flex:1;" id="promoteSubmitBtn"><i class="fas fa-credit-card"></i> Bayar & Promosikan</button>
-                        <button type="button" onclick="closePromoteModal()" class="btn btn-secondary" style="flex:1;">Batal</button>
-                    </div>
-                </form>
-            </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nama Produk</th>
+                        <th>Harga</th>
+                        <th>Stok</th>
+                        <th class="text-center">Terjual</th>
+                        <th>Status</th>
+                        <th class="text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTableBody">
+                    <tr><td colspan="6" class="text-center py-10 font-bold">Memuat data...</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
+</main>
 
-    <div class="toast-container" id="toastContainer"></div>
+<!-- MODAL PRODUK -->
+<div class="modal-overlay" id="productModal">
+<div class="modal">
+    <button class="absolute top-4 right-4 font-black text-2xl hover:text-[#FF4444]" onclick="closeModal()">×</button>
+    <h3 class="font-display text-2xl mb-6" id="modalTitle">Tambah Produk</h3>
+    <form id="productForm">
+        <input type="hidden" id="productId"/>
+        <div class="space-y-4">
+            <div><label class="block text-xs font-black uppercase mb-1">Nama Produk *</label><input class="form-input" id="productName" required/></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label class="block text-xs font-black uppercase mb-1">Harga (Rp) *</label><input class="form-input" id="productPrice" type="number" required/></div>
+                <div><label class="block text-xs font-black uppercase mb-1">Stok *</label><input class="form-input" id="productStock" type="number" required/></div>
+            </div>
+            <div><label class="block text-xs font-black uppercase mb-1">URL Gambar (Opsional)</label><input class="form-input" id="productImage" type="url"/></div>
+            <div><label class="block text-xs font-black uppercase mb-1">Deskripsi</label><textarea class="form-input" id="productDescription" rows="3"></textarea></div>
+            <div class="pt-4 flex gap-3">
+                <button class="btn btn-primary flex-1" type="submit">Simpan</button>
+                <button class="btn btn-secondary flex-1" type="button" onclick="closeModal()">Batal</button>
+            </div>
+        </div>
+    </form>
+</div>
+</div>
 
-    <script type="importmap">
-        {
-            "imports": {
-                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
-                "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js",
-                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"
-            }
+<script>
+(function() { const saved = localStorage.getItem('pk-theme'); if (saved) document.documentElement.setAttribute('data-theme', saved); })();
+document.getElementById('themeToggle').addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next); document.body.setAttribute('data-theme', next); localStorage.setItem('pk-theme', next);
+    document.getElementById('themeToggle').innerHTML = `<span class="material-symbols-outlined text-lg">${next === 'dark' ? 'light_mode' : 'dark_mode'}</span>`;
+});
+const sidebar = document.getElementById('sidebar'); const sidebarOverlay = document.getElementById('sidebarOverlay');
+document.getElementById('sidebarToggle').addEventListener('click', () => { sidebar.classList.toggle('-translate-x-full'); sidebarOverlay.classList.toggle('hidden'); });
+sidebarOverlay.addEventListener('click', () => { sidebar.classList.add('-translate-x-full'); sidebarOverlay.classList.add('hidden'); });
+document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.clear(); window.location.href = '/seller/login'; });
+
+const user = JSON.parse(localStorage.getItem('pk_user') || '{}');
+let allProducts = [];
+
+async function loadProducts() {
+    const tbody = document.getElementById('productsTableBody');
+    try {
+        const res = await fetch('/api/products');
+        const data = await res.json();
+        const products = data.products || data || [];
+        allProducts = products.filter(p => p.sellerId === user.id);
+        renderProducts();
+    } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-[#FF4444] font-bold py-10">Gagal memuat: ${e.message}</td></tr>`;
+    }
+}
+
+function renderProducts() {
+    const tbody = document.getElementById('productsTableBody');
+    if (allProducts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-10 font-bold">Belum ada produk.</td></tr>';
+        return;
+    }
+    tbody.innerHTML = allProducts.map(p => `
+        <tr>
+            <td><div class="font-black text-lg">${p.name || p.nama}</div></td>
+            <td class="font-mono-tag text-[var(--blue)] font-bold">Rp${new Intl.NumberFormat('id-ID').format(p.price || p.harga)}</td>
+            <td>${p.stock || 0}</td>
+            <td class="text-center"><span class="badge badge-warning">${p.sales || 0}</span></td>
+            <td><span class="badge ${p.status === 'published' ? 'badge-success' : 'badge-danger'}">${p.status || 'draft'}</span></td>
+            <td class="text-right">
+                <button class="btn btn-secondary !p-2" onclick="editProduct('${p.id}')"><span class="material-symbols-outlined text-lg">edit</span></button>
+                <button class="btn btn-danger !p-2" onclick="deleteProduct('${p.id}')"><span class="material-symbols-outlined text-lg">delete</span></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+window.openModal = () => {
+    document.getElementById('modalTitle').textContent = 'Tambah Produk';
+    document.getElementById('productForm').reset();
+    document.getElementById('productId').value = '';
+    document.getElementById('productModal').classList.add('open');
+};
+window.closeModal = () => document.getElementById('productModal').classList.remove('open');
+
+window.editProduct = (id) => {
+    const p = allProducts.find(x => x.id === id);
+    if(!p) return;
+    document.getElementById('modalTitle').textContent = 'Edit Produk';
+    document.getElementById('productId').value = id;
+    document.getElementById('productName').value = p.name || p.nama || '';
+    document.getElementById('productPrice').value = p.price || p.harga || 0;
+    document.getElementById('productStock').value = p.stock || 0;
+    document.getElementById('productImage').value = p.imageUrl || '';
+    document.getElementById('productDescription').value = p.description || '';
+    document.getElementById('productModal').classList.add('open');
+};
+
+window.deleteProduct = async (id) => {
+    if(!confirm('Hapus produk ini?')) return;
+    try {
+        await fetch('/api/products/' + id, { method: 'DELETE' });
+        loadProducts();
+    } catch(e) { alert('Gagal hapus produk'); }
+};
+
+document.getElementById('productForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('productId').value;
+    const payload = {
+        id: id || Date.now().toString(),
+        sellerId: user.id,
+        name: document.getElementById('productName').value,
+        price: parseInt(document.getElementById('productPrice').value),
+        stock: parseInt(document.getElementById('productStock').value),
+        imageUrl: document.getElementById('productImage').value,
+        description: document.getElementById('productDescription').value,
+        status: 'published'
+    };
+    try {
+        if(id) {
+            await fetch('/api/products/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        } else {
+            await fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
         }
-    </script>
+        closeModal();
+        loadProducts();
+    } catch(e) { alert('Gagal menyimpan produk'); }
+});
 
-    <script type="module">
-        import { initializeApp } from "firebase/app";
-        import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, setDoc, collection, doc, getDoc, getDocs, query, where, addDoc, updateDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
-
-        console.log('📦 [SELLER_PRODUCTS] Page loaded');
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
-            authDomain: "productkuu.firebaseapp.com",
-            projectId: "productkuu",
-            storageBucket: "productkuu.firebasestorage.app",
-            messagingSenderId: "6615996108",
-            appId: "1:6615996108:web:daa6e17c1275d3061cd469",
-            measurementId: "G-78ZPLZMFEJ"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        let currentUser = null;
-        let allProducts = [];
-        let currentPage = 1;
-        const pageSize = 10;
-        let deleteId = null;
-        let promoteProductId = null;
-        let pricingData = null;
-        let debugVisible = false;
-
-        function addDebug(message, type = 'info') {
-            const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
-            const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
-            const log = document.getElementById('debugLog');
-            const time = new Date().toLocaleTimeString();
-            log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
-            console.log(`[SELLER_PRODUCTS_DEBUG] ${message}`);
-            const box = document.getElementById('debugBox');
-            box.scrollTop = box.scrollHeight;
-        }
-
-        window.toggleDebug = function() {
-            const box = document.getElementById('debugBox');
-            debugVisible = !debugVisible;
-            box.classList.toggle('show');
-            if (debugVisible) addDebug('Debug mode activated', 'info');
-        };
-
-        window.refreshData = function() {
-            addDebug('Manual refresh triggered', 'info');
-            showToast('info', 'Memperbarui data produk...');
-            loadProducts();
-        };
-
-        async function checkSuspendStatus(uid) {
-            try {
-                const userRef = doc(db, 'users', uid);
-                const userDoc = await getDoc(userRef);
-                if (userDoc.exists()) {
-                    const status = userDoc.data().status || 'active';
-                    if (status === 'suspended') {
-                        addDebug('🚫 Account is SUSPENDED!', 'error');
-                        document.getElementById('suspendOverlay').classList.add('open');
-                        await signOut(auth);
-                        return true;
-                    }
-                }
-                return false;
-            } catch (error) {
-                addDebug(`Error checking status: ${error.message}`, 'error');
-                return false;
-            }
-        }
-
-        const themeToggle = document.getElementById('themeToggle');
-        let darkMode = localStorage.getItem('darkMode') === 'true';
-        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
-        themeToggle.addEventListener('click', () => {
-            darkMode = !darkMode;
-            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-            localStorage.setItem('darkMode', darkMode);
-            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
-        });
-
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('open');
-                sidebarOverlay.classList.toggle('open');
-            });
-        }
-        if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', () => {
-                sidebar.classList.remove('open');
-                sidebarOverlay.classList.remove('open');
-            });
-        }
-
-        document.querySelectorAll('.sidebar-nav a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const href = this.getAttribute('href');
-                if (href) window.location.href = href;
-            });
-        });
-
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            try { await signOut(auth); window.location.href = '/'; } 
-            catch (error) { showToast('error', 'Gagal logout: ' + error.message); }
-        });
-
-        function showToast(type, message) {
-            const container = document.getElementById('toastContainer');
-            container.innerHTML = '';
-            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
-            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.style.borderLeftColor = colors[type] || colors.info;
-            toast.innerHTML = `
-                <span class="toast-icon"><i class="fas ${icons[type] || 'fa-info-circle'}"></i></span>
-                <div class="toast-content"><div class="toast-message">${message}</div></div>
-                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
-            `;
-            container.appendChild(toast);
-            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 5000);
-        }
-        window.showToast = showToast;
-
-        function showError(title, detail) {
-            const box = document.getElementById('errorBox');
-            document.getElementById('errorTitle').textContent = title || 'Terjadi Kesalahan';
-            document.getElementById('errorDetail').textContent = detail || '';
-            box.classList.add('show');
-            setTimeout(() => { box.classList.remove('show'); }, 10000);
-        }
-
-        function formatPrice(price) {
-            if (!price && price !== 0) return '0';
-            return new Intl.NumberFormat('id-ID').format(price);
-        }
-
-        function formatDate(date) {
-            if (!date) return '-';
-            const d = date instanceof Date ? date : new Date(date);
-            if (isNaN(d.getTime())) return '-';
-            return d.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        }
-
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                addDebug('User not logged in, redirecting...', 'warning');
-                window.location.href = '/seller/login';
-                return;
-            }
-            currentUser = user;
-            addDebug(`User logged in: ${user.email}`, 'success');
-
-            const isSuspended = await checkSuspendStatus(user.uid);
-            if (isSuspended) return;
-
-            try {
-                const userRef = doc(db, 'users', user.uid);
-                const userDoc = await getDoc(userRef);
-                if (!userDoc.exists() || userDoc.data().role !== 'seller') {
-                    addDebug('User is not seller, redirecting...', 'error');
-                    window.location.href = '/';
-                    return;
-                }
-                addDebug('User is seller', 'success');
-                document.getElementById('productCount').textContent = userDoc.data().productCount || 0;
-                await loadProducts();
-            } catch (error) {
-                addDebug(`Error: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat data: ' + error.message);
-            }
-        });
-
-        async function loadProducts() {
-            if (!currentUser) return;
-            addDebug('Loading products...', 'info');
-            try {
-                const q = query(collection(db, 'products'), where('sellerId', '==', currentUser.uid));
-                const snapshot = await getDocs(q);
-                let products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), createdAtDate: doc.data().createdAt?.toDate?.() || new Date(doc.data().createdAt) }));
-                products.sort((a, b) => b.createdAtDate - a.createdAtDate);
-
-                const status = document.getElementById('filterStatus').value;
-                const type = document.getElementById('filterType').value;
-                const search = document.getElementById('searchProduct').value.trim().toLowerCase();
-
-                if (status !== 'all') products = products.filter(p => p.status === status);
-                if (type !== 'all') products = products.filter(p => p.type === type);
-                if (search) products = products.filter(p => p.name?.toLowerCase().includes(search) || p.category?.toLowerCase().includes(search));
-
-                allProducts = products;
-                addDebug(`Total products after filter: ${allProducts.length}`, 'success');
-                renderProducts();
-            } catch (error) {
-                addDebug(`Error loading products: ${error.message}`, 'error');
-                showToast('error', 'Gagal memuat produk: ' + error.message);
-            }
-        }
-
-        function renderProducts() {
-            const tbody = document.getElementById('productsTableBody');
-            if (allProducts.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-secondary" style="padding:30px 0;">Tidak ada produk</td></tr>';
-                document.getElementById('pagination').innerHTML = '';
-                return;
-            }
-            const totalPages = Math.ceil(allProducts.length / pageSize);
-            if (currentPage > totalPages) currentPage = totalPages;
-            const start = (currentPage - 1) * pageSize;
-            const end = Math.min(start + pageSize, allProducts.length);
-            const pageProducts = allProducts.slice(start, end);
-
-            tbody.innerHTML = pageProducts.map(p => `
-                <tr>
-                    <td>
-                        <div class="product-cell">
-                            <div class="product-thumb">${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-box\\'></i>'">` : '<i class="fas fa-box"></i>'}</div>
-                            <div><div class="product-name" title="${p.name}">${p.name}</div><div class="product-date">${formatDate(p.createdAtDate)}</div></div>
-                        </div>
-                    </td>
-                    <td>${p.category || '-'}</td>
-                    <td><span class="badge ${p.type === 'premium-account' ? 'badge-purple' : 'badge-info'}" style="font-size:11px;padding:2px 10px;">${p.type === 'premium-account' ? 'Account' : 'Digital'}</span></td>
-                    <td style="font-weight:600;color:var(--primary);white-space:nowrap;">Rp${formatPrice(p.price)}</td>
-                    <td style="white-space:nowrap;">${p.stock === 'unlimited' ? '♾️' : p.stock || 0}</td>
-                    <td><span class="badge ${p.status === 'published' ? 'badge-success' : p.status === 'pending' ? 'badge-warning' : 'badge-info'}" style="font-size:11px;padding:2px 10px;">${p.status || 'draft'}</span></td>
-                    <td style="text-align:center;">${p.sales || 0}</td>
-                    <td>
-                        <div class="action-dropdown">
-                            <button onclick="event.stopPropagation();toggleDropdown('${p.id}')"><i class="fas fa-ellipsis-v"></i></button>
-                            <div class="action-dropdown-content" id="dropdown-${p.id}">
-                                <a onclick="editProduct('${p.id}')"><i class="fas fa-edit"></i> Edit</a>
-                                <a onclick="promoteToBanner('${p.id}')"><i class="fas fa-image"></i> Promosikan di Banner</a>
-                                <a onclick="deleteProduct('${p.id}')" class="danger"><i class="fas fa-trash"></i> Hapus</a>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-            renderPagination(totalPages);
-        }
-
-        function renderPagination(totalPages) {
-            const container = document.getElementById('pagination');
-            if (totalPages <= 1) { container.innerHTML = ''; return; }
-            container.innerHTML = `
-                <span style="font-size:14px;color:var(--text-secondary);">${allProducts.length} produk</span>
-                <div style="display:flex;gap:8px;">
-                    ${currentPage > 1 ? `<button onclick="goToPage(${currentPage - 1})" class="btn btn-secondary btn-sm"><i class="fas fa-chevron-left"></i> Sebelumnya</button>` : ''}
-                    <span style="font-size:14px;color:var(--text-secondary);">Halaman ${currentPage} dari ${totalPages}</span>
-                    ${currentPage < totalPages ? `<button onclick="goToPage(${currentPage + 1})" class="btn btn-secondary btn-sm">Selanjutnya <i class="fas fa-chevron-right"></i></button>` : ''}
-                </div>
-            `;
-        }
-
-        window.goToPage = function(page) { currentPage = page; renderProducts(); };
-        window.applyFilters = function() { currentPage = 1; loadProducts(); };
-        window.resetFilters = function() { document.getElementById('searchProduct').value = ''; document.getElementById('filterStatus').value = 'all'; document.getElementById('filterType').value = 'all'; applyFilters(); };
-        window.toggleDropdown = function(id) { document.querySelectorAll('.action-dropdown-content').forEach(el => el.classList.remove('show')); const dropdown = document.getElementById(`dropdown-${id}`); if (dropdown) dropdown.classList.toggle('show'); };
-        document.addEventListener('click', (e) => { if (!e.target.closest('.action-dropdown')) { document.querySelectorAll('.action-dropdown-content').forEach(el => el.classList.remove('show')); } });
-
-        let searchTimeout;
-        document.getElementById('searchProduct').addEventListener('input', () => { clearTimeout(searchTimeout); searchTimeout = setTimeout(applyFilters, 500); });
-
-        window.openCreateProduct = function() {
-            document.getElementById('modalTitle').textContent = 'Tambah Produk';
-            document.getElementById('productId').value = '';
-            document.getElementById('productForm').reset();
-            document.getElementById('digitalFields').style.display = 'block';
-            document.getElementById('premiumFields').style.display = 'none';
-            document.getElementById('productModal').classList.add('open');
-            addDebug('Create product modal opened', 'info');
-        };
-
-        window.closeProductModal = function() { document.getElementById('productModal').classList.remove('open'); addDebug('Product modal closed', 'info'); };
-        window.toggleProductType = function() { const type = document.getElementById('productType').value; document.getElementById('digitalFields').style.display = type === 'digital' ? 'block' : 'none'; document.getElementById('premiumFields').style.display = type === 'premium-account' ? 'block' : 'none'; };
-        window.addPremiumAccount = function(email = '', password = '') { const container = document.getElementById('premiumAccountsList'); const div = document.createElement('div'); div.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;'; div.innerHTML = `<input type="email" class="input premium-email" placeholder="email@example.com" value="${email}" style="flex:1;"><input type="text" class="input premium-password" placeholder="password" value="${password}" style="flex:1;"><button type="button" onclick="removePremiumAccount(this)" style="background:none;border:none;color:var(--danger);cursor:pointer;padding:0 8px;"><i class="fas fa-times"></i></button>`; container.appendChild(div); };
-        window.removePremiumAccount = function(btn) { const container = document.getElementById('premiumAccountsList'); if (container.children.length > 1) { btn.closest('div').remove(); } else { showToast('warning', 'Minimal 1 akun diperlukan'); } };
-
-        window.editProduct = async function(id) {
-            addDebug(`Editing product: ${id}`, 'info');
-            try {
-                const productRef = doc(db, 'products', id);
-                const productDoc = await getDoc(productRef);
-                if (!productDoc.exists()) { addDebug('Product not found', 'error'); showToast('error', 'Produk tidak ditemukan'); return; }
-                const p = productDoc.data();
-                document.getElementById('modalTitle').textContent = 'Edit Produk';
-                document.getElementById('productId').value = id;
-                document.getElementById('productName').value = p.name;
-                document.getElementById('productCategory').value = p.category || '';
-                document.getElementById('productType').value = p.type || 'digital';
-                document.getElementById('productPrice').value = p.price;
-                document.getElementById('productDescription').value = p.description || '';
-                document.getElementById('productTags').value = (p.tags || []).join(', ');
-                document.getElementById('productImageUrl').value = p.imageUrl || '';
-                toggleProductType();
-                if (p.type === 'digital') {
-                    document.getElementById('productDownloadLink').value = p.downloadLink || '';
-                    document.getElementById('productDemoLink').value = p.demoLink || '';
-                    if (p.stock === 'unlimited') { document.getElementById('productUnlimited').checked = true; document.getElementById('productStock').value = ''; } else { document.getElementById('productUnlimited').checked = false; document.getElementById('productStock').value = p.stock || 0; }
-                } else {
-                    document.getElementById('productNote').value = p.note || '';
-                    const container = document.getElementById('premiumAccountsList');
-                    container.innerHTML = '';
-                    if (p.premiumAccounts && p.premiumAccounts.length > 0) { p.premiumAccounts.forEach(a => addPremiumAccount(a.email, a.password)); } else { addPremiumAccount(); }
-                }
-                document.getElementById('productModal').classList.add('open');
-                addDebug('Edit modal opened', 'success');
-            } catch (error) { addDebug(`Error loading product: ${error.message}`, 'error'); showToast('error', 'Gagal memuat data produk: ' + error.message); }
-        };
-
-        document.getElementById('productForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            addDebug('Saving product...', 'info');
-            const id = document.getElementById('productId').value;
-            const name = document.getElementById('productName').value.trim();
-            const category = document.getElementById('productCategory').value;
-            const type = document.getElementById('productType').value;
-            const price = parseInt(document.getElementById('productPrice').value);
-            const description = document.getElementById('productDescription').value.trim();
-            const tags = document.getElementById('productTags').value.split(',').map(t => t.trim()).filter(t => t);
-            const imageUrl = document.getElementById('productImageUrl').value.trim();
-
-            if (!name || !category || !price || price < 100) { showToast('warning', 'Lengkapi data produk dengan benar'); addDebug('Validation failed', 'warning'); return; }
-
-            let data = { name, category, type, price, description, tags, imageUrl: imageUrl || '', updatedAt: serverTimestamp() };
-
-            if (type === 'digital') {
-                const downloadLink = document.getElementById('productDownloadLink').value.trim();
-                const demoLink = document.getElementById('productDemoLink').value.trim();
-                const unlimited = document.getElementById('productUnlimited').checked;
-                const stock = parseInt(document.getElementById('productStock').value) || 0;
-                if (!downloadLink) { showToast('warning', 'Link download wajib diisi'); return; }
-                data.downloadLink = downloadLink; data.demoLink = demoLink; data.unlimited = unlimited; data.stock = unlimited ? 'unlimited' : stock;
-            } else {
-                const note = document.getElementById('productNote').value.trim();
-                const emails = document.querySelectorAll('.premium-email');
-                const passwords = document.querySelectorAll('.premium-password');
-                const accounts = [];
-                emails.forEach((el, i) => { const email = el.value.trim(); const password = passwords[i].value.trim(); if (email && password) accounts.push({ email, password }); });
-                if (accounts.length === 0) { showToast('warning', 'Minimal 1 akun premium wajib diisi'); return; }
-                data.note = note; data.premiumAccounts = accounts; data.stock = accounts.length; data.unlimited = false;
-            }
-
-            try {
-                if (id) { await updateDoc(doc(db, 'products', id), data); addDebug(`Product ${id} updated`, 'success'); showToast('success', 'Produk berhasil diperbarui!'); }
-                else { data.sellerId = currentUser.uid; data.status = 'published'; data.sales = 0; data.views = 0; data.isTrending = false; data.isBestSeller = false; data.isPremium = false; data.isNew = true; data.createdAt = serverTimestamp(); await addDoc(collection(db, 'products'), data); addDebug(`Product created`, 'success'); showToast('success', 'Produk berhasil dibuat!'); }
-                closeProductModal(); loadProducts();
-            } catch (error) { addDebug(`Error saving product: ${error.message}`, 'error'); showToast('error', 'Gagal menyimpan produk: ' + error.message); showError('Gagal Menyimpan Produk', error.message); }
-        });
-
-        window.deleteProduct = function(id) { addDebug(`Delete product: ${id}`, 'warning'); deleteId = id; document.getElementById('deleteModal').classList.add('open'); };
-        window.closeDeleteModal = function() { document.getElementById('deleteModal').classList.remove('open'); deleteId = null; };
-        window.confirmDelete = async function() { if (!deleteId) return; addDebug(`Confirming delete: ${deleteId}`, 'warning'); try { await deleteDoc(doc(db, 'products', deleteId)); addDebug(`Product ${deleteId} deleted`, 'success'); showToast('success', 'Produk berhasil dihapus!'); deleteId = null; closeDeleteModal(); loadProducts(); } catch (error) { addDebug(`Error deleting: ${error.message}`, 'error'); showToast('error', 'Gagal menghapus produk: ' + error.message); } };
-
-        async function getBannerPricing() { try { const response = await fetch('/api/banner-pricing'); if (!response.ok) throw new Error('Gagal memuat harga banner'); return await response.json(); } catch (error) { console.error('Error getting banner pricing:', error); return { price: 100000, duration: 24 }; } }
-
-        window.promoteToBanner = async function(productId) {
-            addDebug(`Promoting product to banner: ${productId}`, 'info');
-            promoteProductId = productId;
-            try {
-                const productRef = doc(db, 'products', productId);
-                const productDoc = await getDoc(productRef);
-                if (!productDoc.exists()) { showToast('error', 'Produk tidak ditemukan'); return; }
-                const product = productDoc.data();
-                document.getElementById('promoteProductName').textContent = product.name;
-                pricingData = await getBannerPricing();
-                document.getElementById('promotePrice').textContent = formatPrice(pricingData.price);
-                const userRef = doc(db, 'users', currentUser.uid);
-                const userDoc = await getDoc(userRef);
-                const wallet = userDoc.data()?.wallet || { available: 0 };
-                const balance = wallet.available || 0;
-                document.getElementById('promoteBalance').textContent = formatPrice(balance);
-                const balanceStatus = document.getElementById('balanceStatus');
-                const walletStatus = document.getElementById('walletStatus');
-                if (balance >= pricingData.price) { balanceStatus.innerHTML = '<span style="color:var(--success);">✅ Saldo cukup</span>'; walletStatus.textContent = '✅ Tersedia'; walletStatus.className = 'method-status available'; document.getElementById('promoteError').style.display = 'none'; } else { const kurang = pricingData.price - balance; balanceStatus.innerHTML = `<span style="color:var(--danger);">⚠️ Saldo kurang (Rp${formatPrice(kurang)})</span>`; walletStatus.textContent = `⚠️ Kurang Rp${formatPrice(kurang)}`; walletStatus.className = 'method-status insufficient'; document.getElementById('promoteError').style.display = 'block'; document.getElementById('promoteError').textContent = `⚠️ Saldo tidak mencukupi! Saldo: Rp${formatPrice(balance)}, Harga: Rp${formatPrice(pricingData.price)}. Gunakan "Bayar Langsung" atau isi saldo terlebih dahulu.`; }
-                document.getElementById('promoteDuration').value = pricingData.duration || 24;
-                document.getElementById('promoteTotal').textContent = `Rp${formatPrice(pricingData.price)}`;
-                document.querySelector('input[name="paymentMethod"][value="wallet"]').checked = true;
-                document.getElementById('walletOption').classList.add('active');
-                document.getElementById('midtransOption').classList.remove('active');
-                document.getElementById('promoteModal').classList.add('open');
-                addDebug('Promote modal opened', 'success');
-            } catch (error) { addDebug(`Error promoting product: ${error.message}`, 'error'); showToast('error', 'Gagal memuat data: ' + error.message); }
-        };
-
-        window.closePromoteModal = function() { document.getElementById('promoteModal').classList.remove('open'); promoteProductId = null; addDebug('Promote modal closed', 'info'); };
-
-        document.querySelectorAll('.payment-method-option').forEach(option => {
-            option.addEventListener('click', async function() {
-                const radio = this.querySelector('input[type="radio"]');
-                if (radio) {
-                    radio.checked = true;
-                    document.querySelectorAll('.payment-method-option').forEach(opt => opt.classList.remove('active'));
-                    this.classList.add('active');
-                    if (radio.value === 'wallet') {
-                        try {
-                            const userRef = doc(db, 'users', currentUser.uid);
-                            const userDoc = await getDoc(userRef);
-                            const balance = userDoc.exists() ? (userDoc.data()?.wallet?.available || 0) : 0;
-                            const price = pricingData?.price || 0;
-                            if (balance < price) { document.getElementById('promoteError').style.display = 'block'; document.getElementById('promoteError').textContent = `⚠️ Saldo tidak mencukupi! Saldo: Rp${formatPrice(balance)}, Harga: Rp${formatPrice(price)}. Gunakan "Bayar Langsung" atau isi saldo terlebih dahulu.`; } else { document.getElementById('promoteError').style.display = 'none'; }
-                        } catch (error) { console.error('Error checking balance:', error); }
-                    } else { document.getElementById('promoteError').style.display = 'none'; }
-                }
-            });
-        });
-
-        document.getElementById('promoteDuration').addEventListener('input', function() { const price = pricingData?.price || 0; document.getElementById('promoteTotal').textContent = `Rp${formatPrice(price)}`; });
-
-        document.getElementById('promoteForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!promoteProductId) { showToast('error', 'Produk tidak valid'); return; }
-            const duration = parseInt(document.getElementById('promoteDuration').value);
-            const imageUrl = document.getElementById('promoteImageUrl').value.trim();
-            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-            if (!duration || duration < 1) { showToast('warning', 'Durasi minimal 1 jam'); return; }
-            const price = pricingData?.price || 0;
-            document.getElementById('promoteError').style.display = 'none';
-            const submitBtn = document.getElementById('promoteSubmitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
-            addDebug(`Purchasing banner for ${duration} hours with ${paymentMethod}`, 'info');
-            try {
-                const userRef = doc(db, 'users', currentUser.uid);
-                const userDoc = await getDoc(userRef);
-                if (!userDoc.exists()) throw new Error('User tidak ditemukan!');
-                const userData = userDoc.data();
-                const sellerName = userData?.storeName || userData?.displayName || 'Seller';
-                const userEmail = userData?.email || 'seller@example.com';
-                const wallet = userData?.wallet || { available: 0, holding: 0, totalRevenue: 0, totalWithdraw: 0, pendingWithdraw: 0 };
-                const productRef = doc(db, 'products', promoteProductId);
-                const productDoc = await getDoc(productRef);
-                const productName = productDoc.exists() ? productDoc.data().name : 'Product';
-                if (paymentMethod === 'wallet') {
-                    addDebug(`💰 Current wallet: available=${wallet.available}, price=${price}`, 'info');
-                    if (wallet.available < price) throw new Error(`Saldo tidak mencukupi! Saldo: Rp${formatPrice(wallet.available)}, Harga: Rp${formatPrice(price)}.`);
-                    const expiresAt = new Date(); expiresAt.setHours(expiresAt.getHours() + duration);
-                    const orderId = `BANNER-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-                    const newAvailable = wallet.available - price;
-                    await setDoc(userRef, { wallet: { available: newAvailable, holding: wallet.holding || 0, totalRevenue: wallet.totalRevenue || 0, totalWithdraw: wallet.totalWithdraw || 0, pendingWithdraw: wallet.pendingWithdraw || 0, lastHolding: wallet.lastHolding || null, lastReleased: wallet.lastReleased || null }, updatedAt: new Date().toISOString() }, { merge: true });
-                    const verifyDoc = await getDoc(userRef);
-                    const verifyWallet = verifyDoc.data()?.wallet || {};
-                    addDebug(`✅ Verified wallet! Available: ${verifyWallet.available}`, 'success');
-                    if (verifyWallet.available !== newAvailable) throw new Error(`❌ Gagal update wallet! Expected: ${newAvailable}, Actual: ${verifyWallet.available}`);
-                    await addDoc(collection(db, 'admin_revenue'), { type: 'banner_purchase', sellerId: currentUser.uid, sellerName: sellerName, productId: promoteProductId, productName: productName, amount: price, duration: duration, orderId: orderId, status: 'paid', paymentMethod: 'wallet', createdAt: serverTimestamp() });
-                    await addDoc(collection(db, 'orders'), { orderId: orderId, type: 'banner_purchase', sellerId: currentUser.uid, productId: promoteProductId, productName: productName, buyerName: sellerName, buyerEmail: userEmail, sellerName: sellerName, amount: price, status: 'paid', paymentStatus: 'settlement', paymentMethod: 'wallet', adminRevenue: price, bannerData: { title: productName || 'Banner Promosi', description: `Promosi produk oleh ${sellerName}`, imageUrl: imageUrl || '', duration: duration, expiresAt: expiresAt.toISOString() }, createdAt: serverTimestamp() });
-                    await addDoc(collection(db, 'banners'), { title: productName || 'Banner Promosi', description: `Promosi produk oleh ${sellerName}`, imageUrl: imageUrl || '', linkUrl: `/product/${promoteProductId}`, isActive: true, type: 'seller', sellerId: currentUser.uid, productId: promoteProductId, duration: duration, price: price, paymentMethod: 'wallet', orderId: orderId, expiresAt: expiresAt, createdAt: serverTimestamp() });
-                    showToast('success', '🎉 Banner berhasil dibeli dengan saldo wallet!');
-                    closePromoteModal(); loadProducts();
-                } else if (paymentMethod === 'midtrans') {
-                    const orderId = `BANNER-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-                    await addDoc(collection(db, 'orders'), { orderId: orderId, type: 'banner_purchase', sellerId: currentUser.uid, productId: promoteProductId, productName: productName, buyerName: sellerName, buyerEmail: userEmail, sellerName: sellerName, amount: price, status: 'pending', paymentStatus: 'pending', paymentMethod: 'midtrans', adminRevenue: price, bannerData: { title: productName || 'Banner Promosi', description: '', imageUrl: imageUrl || '', duration: duration, expiresAt: new Date(Date.now() + duration * 60 * 60 * 1000).toISOString() }, createdAt: serverTimestamp() });
-                    const response = await fetch('/api/payment/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId: orderId, amount: price, buyerName: sellerName, buyerEmail: userEmail, buyerPhone: '08123456789', productName: `Banner Promosi: ${productName}` }) });
-                    const data = await response.json();
-                    if (!response.ok) throw new Error(data.error || 'Gagal membuat pembayaran');
-                    if (data.token && typeof snap !== 'undefined') {
-                        window.snap.pay(data.token, {
-                            onSuccess: async function(result) { console.log('✅ Payment Success:', result); showToast('success', '🎉 Pembayaran berhasil! Banner akan aktif.'); closePromoteModal(); await addDoc(collection(db, 'admin_revenue'), { type: 'banner_purchase', sellerId: currentUser.uid, sellerName: sellerName, productId: promoteProductId, productName: productName, amount: price, duration: duration, orderId: orderId, status: 'paid', paymentMethod: 'midtrans', createdAt: serverTimestamp() }); await activateBannerFromOrder(orderId); },
-                            onPending: function(result) { console.log('⏳ Payment Pending:', result); showToast('info', '⏳ Menunggu pembayaran...'); closePromoteModal(); },
-                            onError: function(result) { console.log('❌ Payment Error:', result); showToast('error', '❌ Pembayaran gagal: ' + (result.status_message || 'Silakan coba lagi')); },
-                            onClose: function() { console.log('🔒 Payment window closed'); showToast('info', 'Pembayaran dibatalkan'); }
-                        });
-                    } else if (data.redirect_url) { window.location.href = data.redirect_url; } else { throw new Error('No payment method available'); }
-                }
-            } catch (error) { addDebug(`❌ Error purchasing banner: ${error.message}`, 'error'); document.getElementById('promoteError').style.display = 'block'; document.getElementById('promoteError').textContent = '❌ ' + error.message; showToast('error', 'Gagal membeli banner: ' + error.message); } finally { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar & Promosikan'; }
-        });
-
-        async function activateBannerFromOrder(orderId) {
-            try {
-                console.log('📦 [ACTIVATE BANNER] Activating banner for order:', orderId);
-                const ordersSnapshot = await getDocs(query(collection(db, 'orders'), where('orderId', '==', orderId)));
-                if (ordersSnapshot.empty) { console.log('⚠️ [ACTIVATE BANNER] Order not found'); return; }
-                const orderDoc = ordersSnapshot.docs[0];
-                const orderData = orderDoc.data();
-                if (orderData.paymentStatus === 'settlement' || orderData.status === 'paid') { console.log('✅ [ACTIVATE BANNER] Order already settled'); showToast('success', '✅ Banner sudah aktif!'); loadProducts(); return; }
-                if (orderData.type === 'banner_purchase') {
-                    const bannerData = orderData.bannerData || {};
-                    const expiresAt = bannerData.expiresAt ? new Date(bannerData.expiresAt) : new Date();
-                    if (!bannerData.expiresAt) expiresAt.setHours(expiresAt.getHours() + 24);
-                    await updateDoc(orderDoc.ref, { status: 'paid', paymentStatus: 'settlement', updatedAt: serverTimestamp() });
-                    await addDoc(collection(db, 'banners'), { title: bannerData.title || 'Banner Promosi', description: bannerData.description || '', imageUrl: bannerData.imageUrl || '', linkUrl: `/product/${orderData.productId}`, isActive: true, type: 'seller', sellerId: orderData.sellerId, productId: orderData.productId, duration: bannerData.duration || 24, price: orderData.amount || 0, paymentMethod: orderData.paymentMethod || 'midtrans', orderId: orderId, expiresAt: expiresAt, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
-                    showToast('success', '✅ Banner berhasil diaktifkan!'); loadProducts();
-                }
-            } catch (error) { console.error('❌ [ACTIVATE BANNER] Error:', error); showToast('warning', '⚠️ Gagal mengaktifkan banner, tapi pembayaran sudah berhasil.'); }
-        }
-
-        addDebug('Page ready', 'success');
-        console.log('✅ [SELLER_PRODUCTS] Page ready');
-    </script>
+document.addEventListener('DOMContentLoaded', loadProducts);
+</script>
 </body>
 </html>

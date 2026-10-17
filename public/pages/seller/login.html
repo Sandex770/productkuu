@@ -1,547 +1,126 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Seller - ProductKuu</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="icon" href="/assets/images/favicon.ico">
-    <style>
-        .auth-container { max-width: 440px; margin: 80px auto 40px; padding: 0 20px; }
-        .auth-card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 40px; border: 1px solid var(--border-color); box-shadow: var(--shadow-lg); }
-        .auth-card .auth-header { text-align: center; margin-bottom: 32px; }
-        .auth-card .auth-header h1 { font-size: 28px; margin-bottom: 8px; }
-        .auth-card .auth-header p { color: var(--text-secondary); font-size: 15px; }
-        .auth-card .auth-header .logo { font-size: 48px; color: var(--primary); margin-bottom: 12px; display: block; }
-        .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-        .input-group label { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
-        .input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius); font-family: var(--font); font-size: 14px; transition: all 0.3s; background: var(--bg-primary); color: var(--text-primary); }
-        .input:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
-        .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        .btn-block { width: 100%; justify-content: center; }
-        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
-        .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
-        .auth-footer { text-align: center; margin-top: 24px; font-size: 14px; color: var(--text-secondary); }
-        .auth-footer a { color: var(--primary); font-weight: 600; }
-        .auth-divider { display: flex; align-items: center; gap: 16px; margin: 20px 0; color: var(--text-light); font-size: 13px; }
-        .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border-color); }
-        .login-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 12px 16px; color: var(--danger); font-size: 14px; display: none; margin-bottom: 16px; }
-        .login-error.show { display: block; }
-        .login-error .error-detail { font-size: 12px; color: var(--text-light); margin-top: 4px; }
-        .input-icon { position: relative; }
-        .input-icon i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-light); }
-        .input-icon .input { padding-left: 44px; }
-        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; width: 100%; }
-        .toast { padding: 16px 20px; border-radius: var(--radius); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 12px; }
-        .toast-icon { font-size: 20px; }
-        .toast-content { flex: 1; }
-        .toast-message { font-size: 13px; color: var(--text-secondary); }
-        .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 4px; }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-        @media (max-width: 480px) { .auth-card { padding: 24px; } }
-        
-        .debug-box {
-            background: #1E1E2E;
-            border-radius: var(--radius);
-            padding: 12px 16px;
-            margin-top: 16px;
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            color: #CDD6F4;
-            max-height: 150px;
-            overflow-y: auto;
-            display: none;
-            border: 1px solid #313244;
-        }
-        .debug-box.show { display: block; }
-        .debug-box .debug-line { padding: 2px 0; border-bottom: 1px solid #2A2A3E; }
-        .debug-box .debug-line:last-child { border-bottom: none; }
-        .debug-box .debug-success { color: #A6E3A1; }
-        .debug-box .debug-error { color: #F38BA8; }
-        .debug-box .debug-info { color: #89B4FA; }
-        .debug-box .debug-warning { color: #F9E2AF; }
-
-        /* Suspend Overlay */
-        .suspend-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px);
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .suspend-overlay.open { display: flex; }
-        .suspend-overlay .modal {
-            background: var(--bg-primary);
-            border-radius: var(--radius-lg);
-            padding: 48px 40px;
-            max-width: 480px;
-            width: 100%;
-            text-align: center;
-            animation: slideUp 0.3s ease;
-            box-shadow: var(--shadow-2xl);
-        }
-        .suspend-overlay .modal .icon { font-size: 64px; color: var(--danger); margin-bottom: 16px; }
-        .suspend-overlay .modal h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
-        .suspend-overlay .modal p { color: var(--text-secondary); font-size: 15px; line-height: 1.7; margin-bottom: 8px; }
-        .suspend-overlay .modal .contact { background: var(--bg-secondary); border-radius: var(--radius); padding: 16px; margin: 16px 0 24px; font-weight: 600; color: var(--primary); }
-        .suspend-overlay .modal .contact i { margin-right: 8px; }
-        .suspend-overlay .modal .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; }
-        .suspend-overlay .modal .btn-primary { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
-        .suspend-overlay .modal .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
-        .suspend-overlay .modal .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
-        .suspend-overlay .modal .btn-secondary:hover { background: var(--border-color); transform: translateY(-2px); }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f3f4f6;
-            --bg-tertiary: #e5e7eb;
-            --text-primary: #111827;
-            --text-secondary: #6b7280;
-            --text-light: #9ca3af;
-            --border-color: #e5e7eb;
-            --shadow: 0 1px 3px rgba(0,0,0,0.1);
-            --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
-            --shadow-2xl: 0 25px 50px -12px rgba(0,0,0,0.25);
-            --radius: 8px;
-            --radius-lg: 16px;
-            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --info: #3b82f6;
-            --primary: #4F46E5;
-            --secondary: #7C3AED;
-            --transition: all 0.3s ease;
-        }
-        [data-theme="dark"] {
-            --bg-primary: #1f2937;
-            --bg-secondary: #374151;
-            --bg-tertiary: #4b5563;
-            --text-primary: #f9fafb;
-            --text-secondary: #9ca3af;
-            --text-light: #6b7280;
-            --border-color: #374151;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: var(--font); background: var(--bg-secondary); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
-        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); height: 64px; }
-        .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        .navbar-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
-        .navbar-logo i { color: #4F46E5; }
-        .navbar-actions { display: flex; align-items: center; gap: 8px; }
-        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
-        .btn-icon:hover { background: var(--bg-secondary); }
-    </style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login Seller - ProductKuu</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@700&family=Archivo+Black&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+:root,[data-theme="light"]{--bg:#F4F1E8;--surface:#FFF;--ink:#0A0A0A;--ink-muted:#4A4A4A;--lime:#C4F000;--amber:#FFC400;--blue:#2B6FFF;--border:#0A0A0A;--shadow-color:#0A0A0A;--grid-line:rgba(0,0,0,.08)}
+[data-theme="dark"]{--bg:#0B0B0D;--surface:#16161A;--ink:#F5F3EC;--ink-muted:#B8B8C0;--lime:#C4F000;--amber:#FFC400;--blue:#4D8BFF;--border:#F5F3EC;--shadow-color:#F5F3EC;--grid-line:rgba(255,255,255,.06)}
+*{scroll-behavior:smooth;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);margin:0;line-height:1.6;min-height:100vh;display:flex;flex-direction:column;background-image:linear-gradient(to right,var(--grid-line) 1px,transparent 1px),linear-gradient(to bottom,var(--grid-line) 1px,transparent 1px);background-size:28px 28px;background-attachment:fixed}
+.font-display{font-family:'Archivo Black',sans-serif;letter-spacing:-.02em}
+.font-mono-tag{font-family:'Space Mono',monospace}
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.6px;padding:12px 22px;border:2px solid var(--border);border-radius:0;cursor:pointer;text-decoration:none;transition:all .09s;white-space:nowrap}
+.btn-primary{background:var(--lime);color:#0A0A0A;box-shadow:4px 4px 0 var(--shadow-color)}
+.btn-primary:hover:not(:disabled){transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--shadow-color);background:var(--amber)}
+.btn-secondary{background:var(--surface);color:var(--ink);box-shadow:4px 4px 0 var(--shadow-color)}
+.btn-secondary:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--blue);border-color:var(--blue);color:var(--blue)}
+.form-input{width:100%;background:var(--bg);border:2px solid var(--border);padding:11px 14px 11px 40px;color:var(--ink);font-weight:600;font-size:14px;outline:none;transition:all .1s}
+.form-input:focus{border-color:var(--blue);box-shadow:4px 4px 0 var(--blue)}
+.error-message{display:none;background:#FFE5E5;border:2px solid #D40000;color:#8A0000;padding:10px 14px;font-size:12px;font-weight:800;box-shadow:3px 3px 0 #D40000;margin-bottom:16px}
+.error-message.show{display:block}
+.spinner{animation:spin .8s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
 </head>
-<body>
-    <!-- SUSPEND OVERLAY -->
-    <div class="suspend-overlay" id="suspendOverlay">
-        <div class="modal">
-            <div class="icon"><i class="fas fa-ban"></i></div>
-            <h2>⚠️ Akun Anda Ditangguhkan</h2>
-            <p>Akun seller Anda telah ditangguhkan oleh admin karena melanggar ketentuan.</p>
-            <p style="font-size:13px;color:var(--text-light);">Untuk informasi lebih lanjut, silakan hubungi admin:</p>
-            <div class="contact"><i class="fab fa-telegram"></i> @Sanzz_offc</div>
-            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
-                <a href="https://t.me/Sanzz_offc" target="_blank" class="btn btn-primary" style="flex:1;"><i class="fab fa-telegram"></i> Hubungi Admin</a>
-                <button onclick="window.location.href='/'" class="btn btn-secondary" style="flex:1;"><i class="fas fa-home"></i> Kembali</button>
+<body data-theme="light">
+<script>(function() { const saved = localStorage.getItem('pk-theme'); if (saved) document.documentElement.setAttribute('data-theme', saved); })();</script>
+
+<nav class="fixed top-0 left-0 right-0 z-[1000] h-[76px] bg-[var(--bg)] border-b-[2px] border-[var(--border)]">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-3">
+    <a class="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-2 shrink-0" href="/">
+        <span class="bg-[var(--lime)] text-[#0A0A0A] px-2.5 py-1 border-2 border-[var(--border)] font-black shadow-[2px_2px_0px_var(--shadow-color)]">Seller</span>
+        <span class="text-[var(--ink)] font-black">Kuu</span>
+    </a>
+    <div class="flex items-center gap-2.5">
+        <button class="btn btn-secondary !py-2 !px-3.5" id="themeToggle"><span class="material-symbols-outlined text-lg">dark_mode</span></button>
+        <a href="/" class="btn btn-secondary !py-2 !px-3.5 hidden sm:inline-flex">Beranda</a>
+    </div>
+</div>
+</nav>
+
+<main class="flex-1 flex items-center justify-center p-4 pt-28 pb-10">
+    <div class="bg-[var(--surface)] border-[3px] border-[var(--border)] shadow-[8px_8px_0px_var(--amber)] max-w-md w-full p-6 sm:p-10 relative">
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-[var(--blue)] text-white border-2 border-[var(--border)] shadow-[3px_3px_0px_var(--shadow-color)] mb-4">
+                <span class="material-symbols-outlined text-3xl">storefront</span>
             </div>
+            <h1 class="font-display text-3xl sm:text-4xl text-[var(--ink)]">Login Seller</h1>
+            <p class="text-[var(--ink-muted)] font-bold mt-2 text-sm">Masuk ke dashboard penjual</p>
+        </div>
+
+        <div class="error-message" id="loginError">
+            <i class="fas fa-exclamation-circle mr-2"></i><span id="errorMessage">Email atau password salah</span>
+        </div>
+
+        <form id="loginForm" class="space-y-5">
+            <div>
+                <label class="block text-xs font-black uppercase tracking-wide mb-1.5 text-[var(--ink)] font-mono-tag" for="email">Email</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ink-muted)]">mail</span>
+                    <input class="form-input" id="email" type="email" placeholder="seller@email.com" required autocomplete="email"/>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-black uppercase tracking-wide mb-1.5 text-[var(--ink)] font-mono-tag" for="password">Password</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ink-muted)]">lock</span>
+                    <input class="form-input" id="password" type="password" placeholder="••••••••" required autocomplete="current-password"/>
+                </div>
+            </div>
+            <button class="btn btn-primary w-full !py-3.5 mt-4" id="loginBtn" type="submit"><span class="material-symbols-outlined text-lg">login</span> Masuk</button>
+        </form>
+
+        <div class="mt-8 pt-6 border-t-2 border-dashed border-[var(--ink-muted)] text-center">
+            <p class="text-sm font-bold text-[var(--ink-muted)]">Belum punya akun? <br/><a href="/seller/register" class="text-[var(--blue)] hover:underline hover:text-[var(--amber)] transition-colors">Daftar di sini</a></p>
         </div>
     </div>
+</main>
 
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="navbar-inner">
-            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>ProductKuu</span></a>
-            <div class="navbar-actions">
-                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
-                <a href="/seller/register" class="btn btn-primary btn-sm"><i class="fas fa-user-plus"></i> Daftar</a>
-            </div>
-        </div>
-    </nav>
+<script>
+document.getElementById('themeToggle').addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next); document.body.setAttribute('data-theme', next); localStorage.setItem('pk-theme', next);
+    document.getElementById('themeToggle').innerHTML = `<span class="material-symbols-outlined text-lg">${next === 'dark' ? 'light_mode' : 'dark_mode'}</span>`;
+});
 
-    <!-- Main Content -->
-    <main>
-        <div class="auth-container">
-            <div class="auth-card">
-                <div class="auth-header">
-                    <span class="logo"><i class="fas fa-store"></i></span>
-                    <h1>Login Seller</h1>
-                    <p>Masuk ke dashboard penjual ProductKuu</p>
-                </div>
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const btn = document.getElementById('loginBtn');
+    const errorEl = document.getElementById('loginError');
+    const errorMsg = document.getElementById('errorMessage');
 
-                <div class="login-error" id="loginError">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span id="errorMessage">Email atau password salah</span>
-                    <div class="error-detail" id="errorDetail"></div>
-                </div>
+    btn.disabled = true; btn.innerHTML = '<span class="material-symbols-outlined spinner text-lg">refresh</span> Memproses...';
+    errorEl.classList.remove('show');
 
-                <form id="loginForm">
-                    <div class="input-group">
-                        <label for="email">Email</label>
-                        <div class="input-icon">
-                            <i class="fas fa-envelope"></i>
-                            <input type="email" id="email" class="input" required placeholder="Masukkan email" autocomplete="email" value="sanzzofficial10@gmail.com">
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="password">Password</label>
-                        <div class="input-icon">
-                            <i class="fas fa-lock"></i>
-                            <input type="password" id="password" class="input" required placeholder="Masukkan password" autocomplete="current-password">
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
-                        <i class="fas fa-sign-in-alt"></i> Masuk
-                    </button>
-                </form>
-
-                <!-- Debug Box -->
-                <div class="debug-box" id="debugBox">
-                    <div class="debug-line debug-info">🔍 Debug Mode Active</div>
-                    <div class="debug-line" id="debugLog">Menunggu login...</div>
-                </div>
-                <button onclick="toggleDebug()" style="margin-top:8px;background:none;border:none;color:var(--text-light);cursor:pointer;font-size:12px;text-decoration:underline;">
-                    <i class="fas fa-bug"></i> Toggle Debug
-                </button>
-
-                <div class="auth-divider">atau</div>
-                <div class="auth-footer">
-                    Belum punya akun? <a href="/seller/register">Daftar di sini</a>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Toast -->
-    <div class="toast-container" id="toastContainer"></div>
-
-    <script type="importmap">
-        {
-            "imports": {
-                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
-                "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js",
-                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"
-            }
-        }
-    </script>
-
-    <script type="module">
-        // ============================================
-        // IMPORTS
-        // ============================================
-        import { initializeApp } from "firebase/app";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
-        import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
-
-        console.log('🔐 [LOGIN] Page loaded');
-
-        // ============================================
-        // FIREBASE CONFIG
-        // ============================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
-            authDomain: "productkuu.firebaseapp.com",
-            projectId: "productkuu",
-            storageBucket: "productkuu.firebasestorage.app",
-            messagingSenderId: "6615996108",
-            appId: "1:6615996108:web:daa6e17c1275d3061cd469",
-            measurementId: "G-78ZPLZMFEJ"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        
-        try {
-  const messaging = getMessaging(app);
-
-  const token = await getToken(messaging, {
-    vapidKey: "ISI_VAPID_KEY_FIREBASE_DI_SINI"
-  });
-
-  console.log('FCM Token:', token);
-
-  // Simpan token ke Firestore jika diperlukan
-} catch (e) {
-  console.log('FCM tidak aktif:', e);
-}
-
-        console.log('✅ [LOGIN] Firebase initialized');
-
-        // ============================================
-        // DEBUG LOG
-        // ============================================
-        let debugVisible = false;
-
-        function addDebug(message, type = 'info') {
-            const colors = { success: 'debug-success', error: 'debug-error', info: 'debug-info', warning: 'debug-warning' };
-            const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
-            const log = document.getElementById('debugLog');
-            const time = new Date().toLocaleTimeString();
-            log.innerHTML += `<br><span class="${colors[type] || 'debug-info'}">[${time}] ${icons[type] || 'ℹ️'} ${message}</span>`;
-            console.log(`[DEBUG] ${message}`);
-        }
-
-        window.toggleDebug = function() {
-            const box = document.getElementById('debugBox');
-            debugVisible = !debugVisible;
-            box.classList.toggle('show');
-        };
-
-        // ============================================
-        // THEME
-        // ============================================
-        const themeToggle = document.getElementById('themeToggle');
-        let darkMode = localStorage.getItem('darkMode') === 'true';
-        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
-        themeToggle.addEventListener('click', () => {
-            darkMode = !darkMode;
-            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-            localStorage.setItem('darkMode', darkMode);
-            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+    try {
+        const res = await fetch('/api/auth/login', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
         });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Login gagal');
 
-        // ============================================
-        // TOAST
-        // ============================================
-        function showToast(type, message) {
-            const container = document.getElementById('toastContainer');
-            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.style.borderLeftColor = colors[type] || colors.info;
-            toast.innerHTML = `
-                <span class="toast-icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i></span>
-                <div class="toast-content"><div class="toast-message">${message}</div></div>
-                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
-            `;
-            container.appendChild(toast);
-            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 5000);
-        }
-        window.showToast = showToast;
+        localStorage.setItem('pk_token', data.token);
+        localStorage.setItem('pk_user', JSON.stringify(data.user));
 
-        // ============================================
-        // CHECK SUSPEND STATUS
-        // ============================================
-        async function checkSuspendStatus(uid) {
-            try {
-                const userRef = doc(db, 'users', uid);
-                const userDoc = await getDoc(userRef);
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    const status = userData.status || 'active';
-                    if (status === 'suspended') {
-                        addDebug('🚫 Account is SUSPENDED!', 'error');
-                        document.getElementById('suspendOverlay').classList.add('open');
-                        await signOut(auth);
-                        return true;
-                    }
-                }
-                return false;
-            } catch (error) {
-                addDebug(`Error checking suspend status: ${error.message}`, 'error');
-                return false;
-            }
-        }
-
-        // ============================================
-        // CHECK LOGIN STATUS
-        // ============================================
-        addDebug('Setting up auth listener...', 'info');
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                addDebug(`User detected: ${user.email}`, 'info');
-                try {
-                    // CEK SUSPEND STATUS DULU
-                    const isSuspended = await checkSuspendStatus(user.uid);
-                    if (isSuspended) return;
-
-                    const userRef = doc(db, 'users', user.uid);
-                    const userDoc = await getDoc(userRef);
-                    if (userDoc.exists()) {
-                        const userData = userDoc.data();
-                        const role = userData.role;
-                        
-                        addDebug(`User role: ${role}`, 'info');
-                        
-                        if (role === 'seller') {
-                            addDebug('Redirecting to seller dashboard...', 'success');
-                            window.location.href = '/seller/dashboard';
-                        } else if (role === 'admin') {
-                            addDebug('Redirecting to admin dashboard...', 'success');
-                            window.location.href = '/admin/dashboard';
-                        } else {
-                            addDebug(`Unknown role: ${role}`, 'warning');
-                            await signOut(auth);
-                        }
-                    } else {
-                        addDebug('User document NOT FOUND in Firestore!', 'error');
-                        await signOut(auth);
-                    }
-                } catch (error) {
-                    addDebug(`Error checking user: ${error.message}`, 'error');
-                }
-            } else {
-                addDebug('No user logged in', 'info');
-            }
-        });
-
-        // ============================================
-        // LOGIN FORM
-        // ============================================
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            addDebug('Login form submitted', 'info');
-
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const errorEl = document.getElementById('loginError');
-            const errorMsg = document.getElementById('errorMessage');
-            const errorDetail = document.getElementById('errorDetail');
-
-            errorEl.classList.remove('show');
-            errorDetail.textContent = '';
-
-            if (!email || !password) {
-                showToast('warning', 'Email dan password wajib diisi');
-                addDebug('Email or password empty', 'warning');
-                return;
-            }
-
-            addDebug(`Email: ${email}`, 'info');
-
-            const btn = document.getElementById('loginBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
-
-            try {
-                addDebug('Attempting sign in...', 'info');
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-                addDebug(`Login success: ${user.email}`, 'success');
-
-                // Get user data
-                const userRef = doc(db, 'users', user.uid);
-                const userDoc = await getDoc(userRef);
-
-                if (!userDoc.exists()) {
-                    addDebug('User document missing, creating...', 'warning');
-                    await setDoc(userRef, {
-                        uid: user.uid,
-                        email: user.email,
-                        displayName: user.displayName || email.split('@')[0],
-                        role: 'seller',
-                        status: 'active',
-                        storeName: email.split('@')[0] + "'s Store",
-                        wallet: { available: 0, holding: 0, totalRevenue: 0, totalWithdraw: 0 },
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString()
-                    });
-                    addDebug('User document created!', 'success');
-                    showToast('success', 'Akun berhasil dibuat!');
-                    setTimeout(() => { window.location.href = '/seller/dashboard'; }, 1500);
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Masuk';
-                    return;
-                }
-
-                const userData = userDoc.data();
-                const status = userData.status || 'active';
-                
-                addDebug(`User status: ${status}`, 'info');
-
-                // ✅ CEK STATUS SUSPEND
-                if (status === 'suspended') {
-                    addDebug('🚫 Account is SUSPENDED!', 'error');
-                    await signOut(auth);
-                    document.getElementById('suspendOverlay').classList.add('open');
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Masuk';
-                    return;
-                }
-
-                if (userData.role === 'seller') {
-                    showToast('success', 'Selamat datang, ' + (userData.storeName || userData.displayName || 'Seller') + '!');
-                    addDebug('Redirecting to seller dashboard...', 'success');
-                    setTimeout(() => { window.location.href = '/seller/dashboard'; }, 500);
-                } else if (userData.role === 'admin') {
-                    showToast('success', 'Selamat datang, Admin!');
-                    addDebug('Redirecting to admin dashboard...', 'success');
-                    setTimeout(() => { window.location.href = '/admin/dashboard'; }, 500);
-                } else {
-                    addDebug(`Invalid role: ${userData.role}`, 'error');
-                    await signOut(auth);
-                    errorMsg.textContent = 'Akun Anda tidak memiliki akses.';
-                    errorDetail.textContent = `Role: ${userData.role}`;
-                    errorEl.classList.add('show');
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Masuk';
-                }
-
-            } catch (error) {
-                console.error('❌ [LOGIN] Error:', error);
-                addDebug(`Login error: ${error.code} - ${error.message}`, 'error');
-
-                let message = 'Email atau password salah.';
-                let detail = `Error code: ${error.code}`;
-
-                if (error.code === 'auth/user-not-found') {
-                    message = 'Email tidak terdaftar. Silakan daftar terlebih dahulu.';
-                    detail = 'User not found in Firebase Auth';
-                } else if (error.code === 'auth/wrong-password') {
-                    message = 'Password salah. Silakan coba lagi.';
-                    detail = 'Wrong password';
-                } else if (error.code === 'auth/too-many-requests') {
-                    message = 'Terlalu banyak percobaan. Coba lagi nanti.';
-                    detail = 'Too many failed attempts';
-                } else if (error.code === 'auth/invalid-email') {
-                    message = 'Format email tidak valid.';
-                    detail = 'Invalid email format';
-                } else if (error.code === 'auth/user-disabled') {
-                    message = 'Akun dinonaktifkan. Hubungi support.';
-                    detail = 'User disabled';
-                } else if (error.code === 'auth/network-request-failed') {
-                    message = 'Koneksi internet bermasalah. Periksa koneksi Anda.';
-                    detail = 'Network error';
-                }
-
-                errorMsg.textContent = message;
-                errorDetail.textContent = detail;
-                errorEl.classList.add('show');
-                showToast('error', message);
-
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Masuk';
-            }
-        });
-
-        // ============================================
-        // KEYBOARD SUPPORT
-        // ============================================
-        document.getElementById('password').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
-            }
-        });
-
-        addDebug('Page ready', 'success');
-        console.log('✅ [LOGIN] Page ready');
-    </script>
+        if (data.user.role === 'seller') window.location.href = '/seller/dashboard';
+        else if (data.user.role === 'admin') window.location.href = '/admin/dashboard';
+        else throw new Error('Role tidak valid');
+    } catch (error) {
+        errorMsg.textContent = error.message;
+        errorEl.classList.add('show');
+        btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined text-lg">login</span> Masuk';
+    }
+});
+</script>
 </body>
 </html>
