@@ -12,66 +12,51 @@
 :root,[data-theme="light"]{--bg:#F4F1E8;--bg-grid:rgba(0,0,0,.055);--surface:#FFF;--surface-2:#FAF8F0;--ink:#0A0A0A;--ink-muted:#4A4A4A;--ink-soft:#7A7A7A;--lime:#C4F000;--lime-deep:#9BC400;--amber:#FFC400;--amber-deep:#D9A300;--blue:#2B6FFF;--blue-deep:#1E4FCC;--blue-soft:#E6EEFF;--border:#0A0A0A;--border-width:2px;--shadow-color:#0A0A0A;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(0,0,0,.08);--nav-bg:#F4F1E8}
 [data-theme="dark"]{--bg:#0B0B0D;--bg-grid:rgba(255,255,255,.045);--surface:#16161A;--surface-2:#1E1E24;--ink:#F5F3EC;--ink-muted:#B8B8C0;--ink-soft:#8A8A92;--lime:#C4F000;--lime-deep:#A8D400;--amber:#FFC400;--amber-deep:#E0AC00;--blue:#4D8BFF;--blue-deep:#2B6FFF;--blue-soft:#1A2540;--border:#F5F3EC;--border-width:2px;--shadow-color:#F5F3EC;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(255,255,255,.06);--nav-bg:#0B0B0D}
 *{scroll-behavior:smooth;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{scroll-padding-top:100px}
-body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-color:var(--bg);color:var(--ink);margin:0;line-height:1.6;overflow-x:hidden;transition:background-color .35s ease,color .35s ease;background-image:linear-gradient(to right,var(--grid-line) 1px,transparent 1px),linear-gradient(to bottom,var(--grid-line) 1px,transparent 1px);background-size:28px 28px;background-attachment:fixed}
-.font-mono-tag{font-family:'Space Mono',monospace,sans-serif}
-.font-display{font-family:'Archivo Black','Inter',sans-serif;letter-spacing:-.02em}
-.neo-tag{display:inline-flex;align-items:center;gap:6px;background:var(--lime);color:#0A0A0A;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:.9px;padding:6px 14px;border:var(--border-width) solid var(--border);box-shadow:3px 3px 0 var(--shadow-color);font-family:'Space Mono',monospace}
-.neo-tag.amber{background:var(--amber)}.neo-tag.blue{background:var(--blue);color:#FFF}
-.navbar{position:fixed;top:0;left:0;right:0;z-index:1000;height:76px;background:var(--nav-bg);border-bottom:var(--border-width) solid var(--border);transition:transform .25s ease,box-shadow .25s ease,background .35s,border-color .35s}
-.nav-scrolled{box-shadow:0 5px 0 var(--lime)}
-.theme-toggle{width:42px;height:42px;border:var(--border-width) solid var(--border);background:var(--surface);color:var(--ink);box-shadow:3px 3px 0 var(--shadow-color);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;position:relative;overflow:hidden}
-.theme-toggle:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--blue);background:var(--blue);color:#FFF;border-color:var(--blue)}
-.theme-toggle .icon-sun,.theme-toggle .icon-moon{position:absolute;transition:all .35s;font-size:20px}
-[data-theme="dark"] .theme-toggle .icon-sun{transform:translateY(0) rotate(0);opacity:1}
-[data-theme="dark"] .theme-toggle .icon-moon{transform:translateY(30px) rotate(90deg);opacity:0}
-[data-theme="light"] .theme-toggle .icon-sun{transform:translateY(-30px) rotate(-90deg);opacity:0}
-[data-theme="light"] .theme-toggle .icon-moon{transform:translateY(0) rotate(0);opacity:1}
-.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.6px;padding:12px 22px;border:var(--border-width) solid var(--border);border-radius:0;cursor:pointer;text-decoration:none;transition:all .09s;white-space:nowrap}
-.btn-primary{background:var(--lime);color:#0A0A0A;box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
-.btn-primary:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--shadow-color);background:var(--amber)}
-.btn-secondary{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);margin:0;line-height:1.6;overflow-x:hidden;background-image:linear-gradient(to right,var(--grid-line) 1px,transparent 1px),linear-gradient(to bottom,var(--grid-line) 1px,transparent 1px);background-size:28px 28px;background-attachment:fixed}
+.font-display{font-family:'Archivo Black',sans-serif;letter-spacing:-.02em}
+.font-mono-tag{font-family:'Space Mono',monospace}
+.neo-tag{display:inline-flex;align-items:center;gap:6px;background:var(--lime);color:#0A0A0A;font-weight:900;font-size:11px;text-transform:uppercase;padding:6px 14px;border:2px solid var(--border);box-shadow:3px 3px 0 var(--shadow-color);font-family:'Space Mono',monospace}
+.neo-tag.blue{background:var(--blue);color:#FFF}
+.navbar{position:fixed;top:0;left:0;right:0;z-index:1000;height:76px;background:var(--nav-bg);border-bottom:2px solid var(--border)}
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;font-weight:900;font-size:13px;text-transform:uppercase;padding:12px 22px;border:2px solid var(--border);cursor:pointer;transition:all .09s;text-decoration:none;white-space:nowrap}
+.btn-secondary{background:var(--surface);color:var(--ink);box-shadow:4px 4px 0 var(--shadow-color)}
 .btn-secondary:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--blue);border-color:var(--blue);color:var(--blue)}
+.qris-container{background:var(--surface);border:2px solid var(--border);box-shadow:4px 4px 0 var(--shadow-color);padding:24px;text-align:center}
+.qris-image{max-width:280px;width:100%;border:2px solid var(--border);margin:0 auto;display:block}
 .spinner{animation:spin .8s linear infinite;display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
-#toastContainer{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:12px;max-width:380px;width:calc(100% - 48px);pointer-events:none}
-.toast{pointer-events:auto;background:var(--surface);border:var(--border-width) solid var(--border);box-shadow:4px 4px 0 var(--shadow-color);padding:14px 16px;display:flex;align-items:center;gap:12px}
-.toast-icon{font-size:18px;flex-shrink:0}
-.toast-content{flex:1;font-weight:700;font-size:13px;color:var(--ink)}
-.toast-close{background:none;border:none;color:var(--ink-muted);cursor:pointer;font-size:14px;font-weight:900;padding:4px}
-.qris-container{background:var(--surface);border:var(--border-width) solid var(--border);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color);padding:24px;text-align:center}
-.qris-image{max-width:280px;width:100%;border:2px solid var(--border);margin:0 auto;display:block}
 </style>
 </head>
 <body data-theme="light">
 
-<nav class="navbar" id="navbar">
-<div class="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-3">
-    <a class="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-2 shrink-0" href="/">
-        <span class="bg-[var(--lime)] text-[#0A0A0A] px-2.5 py-1 border-2 border-[var(--border)] font-black shadow-[2px_2px_0px_var(--shadow-color)]">Product</span>
-        <span class="text-[var(--ink)] font-black">Kuu</span>
+<nav class="navbar">
+<div class="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+    <a class="text-xl font-black flex items-center gap-2" href="/">
+        <span class="bg-[var(--lime)] text-[#0A0A0A] px-2 py-1 border-2 border-[var(--border)]">Product</span>
+        <span class="text-[var(--ink)]">Kuu</span>
     </a>
-    <div class="flex items-center gap-2.5">
-        <button class="theme-toggle" id="themeToggle"><span class="material-symbols-outlined icon-sun">light_mode</span><span class="material-symbols-outlined icon-moon">dark_mode</span></button>
-        <a class="btn btn-secondary !py-2 !px-3.5" href="/">Kembali</a>
-    </div>
+    <a class="btn btn-secondary !py-2 !px-3.5" href="/">Kembali</a>
 </div>
 </nav>
 
 <main class="pt-32 pb-20">
-<div class="max-w-2xl mx-auto px-4 sm:px-6">
+<div class="max-w-2xl mx-auto px-4">
     <div class="text-center mb-8">
         <span class="neo-tag blue mb-4" id="statusTag">MENUNGGU PEMBAYARAN</span>
         <h1 class="font-display text-3xl sm:text-4xl text-[var(--ink)] mt-3 mb-2">Selesaikan Pembayaran</h1>
-        <p class="text-[var(--ink-muted)] font-semibold" id="statusDesc">Scan QRIS di bawah menggunakan aplikasi e-wallet atau m-banking Anda.</p>
     </div>
 
     <div class="qris-container mb-6">
         <div class="flex justify-between items-center mb-4 pb-4 border-b-2 border-dashed border-[var(--ink-soft)]">
             <span class="text-sm font-bold text-[var(--ink-muted)]">Order ID</span>
-            <span class="font-mono-tag text-sm font-bold text-[var(--ink)]" id="orderIdDisplay">-</span>
+            <span class="font-mono-tag text-sm font-bold" id="orderIdDisplay">-</span>
         </div>
-        <div class="flex justify-between items-center mb-6">
+        
+        <div id="orderItemsList" class="text-left mb-6 space-y-3">
+            <!-- List Items via JS -->
+        </div>
+
+        <div class="flex justify-between items-center mb-6 pt-4 border-t-2 border-[var(--border)]">
             <span class="text-sm font-bold text-[var(--ink-muted)]">Total Pembayaran</span>
             <span class="text-2xl font-black text-[var(--blue)] font-mono-tag" id="totalAmount">Rp0</span>
         </div>
@@ -79,10 +64,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-
         <div id="qrisSection">
             <div class="mb-6">
                 <img alt="QRIS" class="qris-image" id="qrisImage" src=""/>
-                <div class="hidden mt-4 p-8 border-2 border-dashed border-[var(--ink-soft)] bg-[var(--bg)]" id="qrisFallback">
-                    <span class="material-symbols-outlined text-5xl text-[var(--ink-soft)]">qr_code_2</span>
-                    <p class="mt-2 text-sm font-bold text-[var(--ink-muted)]">QR Code tidak tersedia</p>
-                </div>
             </div>
             <div class="mb-6">
                 <p class="text-xs font-mono-tag font-bold text-[var(--ink-muted)] mb-1">SISA WAKTU</p>
@@ -91,138 +72,39 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-
         </div>
 
         <div class="space-y-3">
-            <button class="btn btn-secondary w-full !py-3.5" id="checkStatusBtn">
+            <button class="btn btn-secondary w-full" id="checkStatusBtn">
                 <i class="fas fa-sync-alt"></i> Cek Status Pembayaran
             </button>
         </div>
     </div>
-
-    <div class="bg-[var(--surface)] border-2 border-[var(--border)] shadow-[4px_4px_0px_var(--shadow-color)] p-6">
-        <h3 class="font-black text-sm text-[var(--ink)] mb-3 uppercase tracking-wide">Cara Pembayaran</h3>
-        <ol class="space-y-2 text-sm font-semibold text-[var(--ink-muted)]">
-            <li class="flex gap-2"><span class="font-mono-tag text-[var(--blue)] font-bold">1.</span> Buka aplikasi e-wallet atau mobile banking Anda</li>
-            <li class="flex gap-2"><span class="font-mono-tag text-[var(--blue)] font-bold">2.</span> Pilih menu Scan QRIS atau Bayar</li>
-            <li class="flex gap-2"><span class="font-mono-tag text-[var(--blue)] font-bold">3.</span> Scan kode QR yang tampil di atas</li>
-            <li class="flex gap-2"><span class="font-mono-tag text-[var(--blue)] font-bold">4.</span> Periksa nominal dan konfirmasi pembayaran</li>
-            <li class="flex gap-2"><span class="font-mono-tag text-[var(--blue)] font-bold">5.</span> Pembayaran otomatis terverifikasi dalam beberapa detik</li>
-        </ol>
-    </div>
 </div>
 </main>
 
-<div id="toastContainer"></div>
-
 <script>
-// ============================================
-// THEME
-// ============================================
-(function() {
-    const saved = localStorage.getItem('pk-theme');
-    if (saved === 'dark' || saved === 'light') document.documentElement.setAttribute('data-theme', saved);
-    else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.setAttribute('data-theme', 'dark');
-    else document.documentElement.setAttribute('data-theme', 'light');
-    document.addEventListener('DOMContentLoaded', () => {
-        document.body.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') || 'light');
-    });
-})();
-document.getElementById('themeToggle')?.addEventListener('click', () => {
-    const cur = document.documentElement.getAttribute('data-theme') || 'light';
-    const next = cur === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    document.body.setAttribute('data-theme', next);
-    localStorage.setItem('pk-theme', next);
-});
+let orderId = ''; let amount = 0; let uniqueAmount = 0;
+let countdownInterval = null; let checkInterval = null; let isPaid = false;
 
-// ============================================
-// STATE
-// ============================================
-let orderId = '';
-let amount = 0;
-let uniqueAmount = 0;
-let countdownInterval = null;
-let checkInterval = null;
-let isPaid = false;
+function formatPrice(p) { return new Intl.NumberFormat('id-ID').format(p || 0); }
 
-// ============================================
-// TOAST
-// ============================================
-function showToast(type, message) {
-    const container = document.getElementById('toastContainer');
-    const icons = { success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
-    const colors = { success:'#9BC400', error:'#D40000', warning:'#D9A300', info:'#2B6FFF' };
-    const color = colors[type] || colors.info;
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.style.borderColor = color;
-    toast.style.boxShadow = `4px 4px 0px ${color}`;
-    toast.innerHTML = `<span class="toast-icon" style="color:${color}"><i class="fas ${icons[type]||icons.info}"></i></span><div class="toast-content">${message}</div><button class="toast-close"><i class="fas fa-times"></i></button>`;
-    toast.querySelector('.toast-close').addEventListener('click', () => toast.remove());
-    container.appendChild(toast);
-    setTimeout(() => toast.parentElement && toast.remove(), 5000);
-}
-function formatPrice(p) {
-    if (!p && p !== 0) return '0';
-    return new Intl.NumberFormat('id-ID').format(p);
-}
-
-// ============================================
-// STATUS UI
-// ============================================
-function setStatus(status) {
-    const tag = document.getElementById('statusTag');
-    const desc = document.getElementById('statusDesc');
-    const qrisSection = document.getElementById('qrisSection');
-    const checkBtn = document.getElementById('checkStatusBtn');
-
-    if (status === 'success') {
-        tag.className = 'neo-tag';
-        tag.style.background = 'var(--lime)';
-        tag.textContent = 'PEMBAYARAN BERHASIL';
-        desc.textContent = 'Terima kasih! Produk Anda akan segera dikirim.';
-        qrisSection.style.display = 'none';
-        checkBtn.style.display = 'none';
-        if (countdownInterval) clearInterval(countdownInterval);
-        if (checkInterval) clearInterval(checkInterval);
-    } else if (status === 'pending') {
-        tag.className = 'neo-tag amber';
-        tag.textContent = 'MENUNGGU PEMBAYARAN';
-        desc.textContent = 'Scan QRIS di bawah menggunakan aplikasi e-wallet atau m-banking Anda.';
-    } else if (status === 'expire' || status === 'failed') {
-        tag.className = 'neo-tag';
-        tag.style.background = '#FF4444';
-        tag.style.color = '#FFF';
-        tag.textContent = status === 'expire' ? 'KADALUARSA' : 'PEMBAYARAN GAGAL';
-        desc.textContent = 'Silakan coba lagi dengan membuat pesanan baru.';
-        qrisSection.style.display = 'none';
-        if (countdownInterval) clearInterval(countdownInterval);
-        if (checkInterval) clearInterval(checkInterval);
-    }
-}
-
-// ============================================
-// COUNTDOWN
-// ============================================
-function startCountdown(minutes = 15) {
-    let totalSeconds = minutes * 60;
-    const el = document.getElementById('countdown');
-    if (countdownInterval) clearInterval(countdownInterval);
-    countdownInterval = setInterval(() => {
-        totalSeconds--;
-        if (totalSeconds <= 0) {
-            clearInterval(countdownInterval);
-            el.textContent = '00:00';
-            if (!isPaid) setStatus('expire');
-            return;
+async function loadOrderDetails() {
+    try {
+        const res = await fetch('/api/orders/' + orderId);
+        const order = await res.json();
+        
+        if(order.items && order.items.length > 0) {
+            document.getElementById('orderItemsList').innerHTML = order.items.map(item => `
+                <div class="flex justify-between items-start border-b border-[var(--border)] pb-2">
+                    <div>
+                        <div class="font-black">${item.name}</div>
+                        <div class="text-xs font-mono-tag text-[var(--ink-muted)]">${item.qty} x Rp${formatPrice(item.price)}</div>
+                    </div>
+                    <div class="font-bold text-[var(--blue)]">Rp${formatPrice(item.price * item.qty)}</div>
+                </div>
+            `).join('');
         }
-        const m = Math.floor(totalSeconds / 60);
-        const s = totalSeconds % 60;
-        el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    }, 1000);
+    } catch(e) { console.error('Gagal load order', e); }
 }
 
-// ============================================
-// CREATE QRIS
-// ============================================
 async function createQris() {
     try {
         const res = await fetch('/api/payment/create-qris', {
@@ -231,161 +113,82 @@ async function createQris() {
             body: JSON.stringify({ amount, orderId })
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Gagal membuat QRIS');
-
+        if (!res.ok) throw new Error(data.error);
         uniqueAmount = data.amount;
         document.getElementById('totalAmount').textContent = `Rp${formatPrice(uniqueAmount)}`;
-
-        if (data.qrId) {
-            document.getElementById('qrisImage').src = `/api/payment/qr/${data.qrId}`;
-        } else {
-            document.getElementById('qrisFallback').style.display = 'block';
-        }
-        return data;
+        if (data.qrId) document.getElementById('qrisImage').src = `/api/payment/qr/${data.qrId}`;
     } catch (e) {
-        console.error('QRIS error:', e);
-        showToast('error', 'Gagal membuat QRIS: ' + e.message);
-        document.getElementById('qrisFallback').style.display = 'block';
-        return null;
+        alert('Gagal membuat QRIS: ' + e.message);
     }
 }
 
-// ============================================
-// CEK PEMBAYARAN
-// ============================================
+function startCountdown(minutes = 15) {
+    let totalSeconds = minutes * 60;
+    const el = document.getElementById('countdown');
+    countdownInterval = setInterval(() => {
+        totalSeconds--;
+        if (totalSeconds <= 0) {
+            clearInterval(countdownInterval);
+            el.textContent = '00:00';
+            document.getElementById('qrisSection').style.display = 'none';
+            document.getElementById('statusTag').textContent = 'KADALUARSA';
+            document.getElementById('statusTag').style.background = '#FF4444';
+            document.getElementById('statusTag').style.color = '#FFF';
+            return;
+        }
+        const m = Math.floor(totalSeconds / 60);
+        const s = totalSeconds % 60;
+        el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }, 1000);
+}
+
 async function checkPaymentStatus() {
-    if (isPaid) return true;
+    if (isPaid) return;
     try {
         const res = await fetch('/api/payment/check', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                amount: uniqueAmount || amount,
-                startTime: Math.floor(Date.now() / 1000) - 900
-            })
+            body: JSON.stringify({ amount: uniqueAmount, startTime: Math.floor(Date.now() / 1000) - 900 })
         });
         const data = await res.json();
         if (data.paid) {
             isPaid = true;
-            await updateOrderToPaid(data.transaction);
-            setStatus('success');
-            showToast('success', '🎉 Pembayaran berhasil!');
+            clearInterval(checkInterval);
+            clearInterval(countdownInterval);
+            
+            // Update order status to paid
+            const oRes = await fetch('/api/orders/' + orderId);
+            const order = await oRes.json();
+            await fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...order, id: orderId, paymentStatus: 'settlement', status: 'paid', paidAt: new Date().toISOString() })
+            });
+
+            document.getElementById('statusTag').textContent = 'PEMBAYARAN BERHASIL';
+            document.getElementById('statusTag').style.background = 'var(--lime)';
+            document.getElementById('qrisSection').style.display = 'none';
             setTimeout(() => {
-                window.location.href = `/success.html?order=${orderId}&status=success`;
-            }, 2000);
-            return true;
+                window.location.href = `/success?order=${orderId}`;
+            }, 1500);
         }
-        return false;
-    } catch (e) {
-        console.error('Check error:', e);
-        return false;
-    }
+    } catch (e) { console.error(e); }
 }
 
-// ============================================
-// UPDATE ORDER + PRODUK DI SQLITE
-// ============================================
-async function updateOrderToPaid(tx) {
-    try {
-        // Ambil order
-        const oRes = await fetch('/api/orders/' + orderId);
-        if (!oRes.ok) { console.warn('Order tidak ditemukan:', orderId); return; }
-        const order = await oRes.json();
-
-        // Update order
-        await fetch('/api/orders', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                ...order,
-                id: orderId,
-                paymentStatus: 'settlement',
-                status: 'paid',
-                transactionId: tx?.transactionId || null,
-                paidAt: new Date().toISOString(),
-                gatewayResult: tx || null
-            })
-        });
-
-        // Update produk (stok & sales)
-        if (order.productId) {
-            const pRes = await fetch('/api/products/' + order.productId);
-            if (pRes.ok) {
-                const p = await pRes.json();
-                const curStock = p.stock;
-                const newStock = (curStock === 'unlimited' || curStock === '∞')
-                    ? curStock
-                    : Math.max(0, (parseInt(curStock) || 0) - 1);
-                await fetch('/api/products/' + order.productId, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        ...p,
-                        stock: newStock,
-                        sales: (p.sales || 0) + 1
-                    })
-                });
-            }
-        }
-
-        // Update wallet seller
-        if (order.sellerId) {
-            const sRes = await fetch('/api/users/' + order.sellerId);
-            if (sRes.ok) {
-                const s = await sRes.json();
-                const wallet = s.wallet || { available: 0, holding: 0, totalRevenue: 0 };
-                const amt = parseInt(order.amount) || 0;
-                const newWallet = {
-                    ...wallet,
-                    available: (wallet.available || 0) + amt,
-                    totalRevenue: (wallet.totalRevenue || 0) + amt
-                };
-                await fetch('/api/users', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ...s, id: order.sellerId, wallet: newWallet })
-                });
-            }
-        }
-    } catch (e) {
-        console.error('Update order error:', e);
-        showToast('warning', 'Pembayaran sukses, tapi update DB gagal.');
-    }
-}
-
-// ============================================
-// INIT
-// ============================================
 document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
-    orderId = params.get('order') || params.get('orderId') || '';
-    amount = parseInt(params.get('amount') || params.get('total') || '0', 10);
-
-    if (!orderId || !amount || amount <= 0) {
-        showToast('error', 'Parameter tidak lengkap');
-        setStatus('failed');
-        return;
-    }
-
+    orderId = params.get('order');
+    amount = parseInt(params.get('amount') || '0');
+    
     document.getElementById('orderIdDisplay').textContent = orderId;
     document.getElementById('totalAmount').textContent = `Rp${formatPrice(amount)}`;
-
+    
+    await loadOrderDetails();
     await createQris();
     startCountdown(15);
-
-    checkInterval = setInterval(async () => {
-        const paid = await checkPaymentStatus();
-        if (paid) clearInterval(checkInterval);
-    }, 3000);
-
-    document.getElementById('checkStatusBtn').addEventListener('click', async () => {
-        const btn = document.getElementById('checkStatusBtn');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="material-symbols-outlined spinner text-base">refresh</span> Memeriksa...';
-        await checkPaymentStatus();
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-sync-alt"></i> Cek Status Pembayaran';
-    });
+    checkInterval = setInterval(checkPaymentStatus, 3000);
+    
+    document.getElementById('checkStatusBtn').addEventListener('click', checkPaymentStatus);
 });
 </script>
 </body>

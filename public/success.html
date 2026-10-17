@@ -1,1095 +1,135 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pembayaran Berhasil - ProductKuu</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="icon" href="/assets/images/favicon.ico">
-    <style>
-        :root {
-            --bg-primary: #0d0d15;
-            --bg-secondary: #13131b;
-            --bg-tertiary: #1f1f27;
-            --bg-card: rgba(31, 31, 39, 0.7);
-            --text-primary: #e4e1ed;
-            --text-secondary: #c7c4d7;
-            --text-light: #908fa0;
-            --border-color: rgba(255, 255, 255, 0.1);
-            --radius: 12px;
-            --radius-lg: 24px;
-            --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
-            --primary: #8083ff;
-            --primary-dark: #494bd6;
-            --success: #34d399;
-            --danger: #f87171;
-            --warning: #fbbf24;
-            --info: #60a5fa;
-            --font: 'Inter', sans-serif;
-        }
-
-        [data-theme="light"] {
-            --bg-primary: #f8fafc;
-            --bg-secondary: #f1f5f9;
-            --bg-tertiary: #e2e8f0;
-            --bg-card: rgba(255,255,255,0.8);
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --text-light: #94a3b8;
-            --border-color: rgba(0,0,0,0.08);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: var(--font);
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            transition: all 0.3s;
-            min-height: 100vh;
-        }
-
-        .navbar {
-            background: rgba(13, 13, 21, 0.85);
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid var(--border-color);
-            height: 72px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-        }
-
-        [data-theme="light"] .navbar {
-            background: rgba(248, 250, 252, 0.9);
-        }
-
-        .navbar-inner {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 24px;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .navbar-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 22px;
-            font-weight: 800;
-            text-decoration: none;
-            color: var(--text-primary);
-        }
-
-        .navbar-logo i {
-            color: var(--primary);
-        }
-
-        .navbar-logo span {
-            color: var(--text-primary);
-        }
-
-        .navbar-logo span span {
-            color: var(--primary);
-        }
-
-        .navbar-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .btn-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 1px solid var(--border-color);
-            background: var(--bg-card);
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            font-size: 16px;
-        }
-
-        .btn-icon:hover {
-            border-color: var(--primary);
-            color: var(--text-primary);
-        }
-
-        .success-container {
-            max-width: 720px;
-            margin: 96px auto 40px;
-            padding: 0 20px;
-        }
-
-        .success-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            border-radius: 24px;
-            padding: 40px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .success-header {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-
-        .success-header .icon {
-            font-size: 72px;
-            color: var(--success);
-            margin-bottom: 8px;
-        }
-
-        .success-header h1 {
-            font-size: 28px;
-            color: var(--text-primary);
-        }
-
-        .success-header p {
-            color: var(--text-secondary);
-        }
-
-        .order-detail-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .order-detail-grid .full {
-            grid-column: 1/-1;
-        }
-
-        .order-detail-grid .label {
-            font-size: 12px;
-            color: var(--text-light);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-        }
-
-        .order-detail-grid .value {
-            font-weight: 600;
-            font-size: 15px;
-            color: var(--text-primary);
-            margin-top: 2px;
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 14px;
-            border-radius: 9999px;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .badge-success {
-            background: rgba(52, 211, 153, 0.15);
-            color: var(--success);
-        }
-
-        .badge-warning {
-            background: rgba(251, 191, 36, 0.15);
-            color: var(--warning);
-        }
-
-        .badge-info {
-            background: rgba(96, 165, 250, 0.15);
-            color: var(--info);
-        }
-
-        .badge-danger {
-            background: rgba(248, 113, 113, 0.15);
-            color: var(--danger);
-        }
-
-        /* Products Access Section */
-        .products-section {
-            margin-top: 24px;
-        }
-
-        .products-section-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .products-section-title i {
-            color: var(--primary);
-        }
-
-        .product-access-card {
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 16px;
-            transition: all 0.3s;
-        }
-
-        .product-access-card:hover {
-            border-color: var(--primary);
-        }
-
-        .product-access-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .product-access-header .product-name {
-            font-weight: 700;
-            font-size: 16px;
-            color: var(--text-primary);
-        }
-
-        .product-access-header .product-price {
-            font-weight: 700;
-            color: var(--primary);
-            font-size: 15px;
-        }
-
-        .product-access-body {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .product-access-body .access-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 12px;
-            background: var(--bg-card);
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .product-access-body .access-row .label {
-            font-size: 13px;
-            color: var(--text-light);
-            font-weight: 500;
-        }
-
-        .product-access-body .access-row .value {
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            color: var(--text-primary);
-            word-break: break-all;
-            flex: 1;
-            min-width: 100px;
-        }
-
-        .product-access-body .access-row .copy-btn {
-            background: none;
-            border: none;
-            color: var(--text-light);
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 6px;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-
-        .product-access-body .access-row .copy-btn:hover {
-            color: var(--primary);
-            background: var(--bg-card);
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 12px;
-            font-family: var(--font);
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(128, 131, 255, 0.4);
-        }
-
-        .btn-secondary {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            background: var(--border-color);
-            transform: translateY(-2px);
-        }
-
-        .btn-sm {
-            padding: 6px 14px;
-            font-size: 12px;
-        }
-
-        .btn-block {
-            width: 100%;
-            justify-content: center;
-        }
-
-        .flex-between {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 24px;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .text-secondary {
-            color: var(--text-secondary);
-        }
-
-        .mt-2 {
-            margin-top: 16px;
-        }
-        .mb-2 {
-            margin-bottom: 16px;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 32px;
-            height: 32px;
-            border: 3px solid rgba(128, 131, 255, 0.2);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .toast-container {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 3000;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-width: 400px;
-            width: 100%;
-        }
-
-        .toast {
-            padding: 14px 18px;
-            border-radius: var(--radius);
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-left: 4px solid var(--primary);
-            box-shadow: var(--shadow-lg);
-            animation: slideInRight 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .toast-icon {
-            font-size: 18px;
-        }
-
-        .toast-content {
-            flex: 1;
-        }
-
-        .toast-message {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .toast-close {
-            background: none;
-            border: none;
-            color: var(--text-light);
-            cursor: pointer;
-            font-size: 16px;
-            padding: 4px;
-        }
-
-        .toast-close:hover {
-            color: var(--text-primary);
-        }
-
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(40px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        footer {
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border-color);
-            padding: 24px 0;
-            text-align: center;
-            margin-top: 40px;
-            color: var(--text-light);
-            font-size: 14px;
-        }
-
-        @media (max-width: 640px) {
-            .order-detail-grid {
-                grid-template-columns: 1fr;
-            }
-            .success-card {
-                padding: 24px;
-            }
-            .success-header h1 {
-                font-size: 22px;
-            }
-            .flex-between {
-                flex-direction: column;
-            }
-            .flex-between .btn {
-                width: 100%;
-                justify-content: center;
-            }
-            .product-access-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .product-access-body .access-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .product-access-body .access-row .value {
-                text-align: center;
-            }
-        }
-    </style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pembayaran Berhasil - ProductKuu</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@700&family=Archivo+Black&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+:root,[data-theme="light"]{--bg:#F4F1E8;--bg-grid:rgba(0,0,0,.055);--surface:#FFF;--surface-2:#FAF8F0;--ink:#0A0A0A;--ink-muted:#4A4A4A;--ink-soft:#7A7A7A;--lime:#C4F000;--lime-deep:#9BC400;--amber:#FFC400;--amber-deep:#D9A300;--blue:#2B6FFF;--blue-deep:#1E4FCC;--blue-soft:#E6EEFF;--border:#0A0A0A;--border-width:2px;--shadow-color:#0A0A0A;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(0,0,0,.08);--nav-bg:#F4F1E8}
+[data-theme="dark"]{--bg:#0B0B0D;--bg-grid:rgba(255,255,255,.045);--surface:#16161A;--surface-2:#1E1E24;--ink:#F5F3EC;--ink-muted:#B8B8C0;--ink-soft:#8A8A92;--lime:#C4F000;--lime-deep:#A8D400;--amber:#FFC400;--amber-deep:#E0AC00;--blue:#4D8BFF;--blue-deep:#2B6FFF;--blue-soft:#1A2540;--border:#F5F3EC;--border-width:2px;--shadow-color:#F5F3EC;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(255,255,255,.06);--nav-bg:#0B0B0D}
+*{scroll-behavior:smooth;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-color:var(--bg);color:var(--ink);margin:0;line-height:1.6;overflow-x:hidden;transition:background-color .35s ease,color .35s ease;background-image:linear-gradient(to right,var(--grid-line) 1px,transparent 1px),linear-gradient(to bottom,var(--grid-line) 1px,transparent 1px);background-size:28px 28px;background-attachment:fixed}
+.font-mono-tag{font-family:'Space Mono',monospace,sans-serif}
+.font-display{font-family:'Archivo Black','Inter',sans-serif;letter-spacing:-.02em}
+.neo-tag{display:inline-flex;align-items:center;gap:6px;background:var(--lime);color:#0A0A0A;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:.9px;padding:6px 14px;border:var(--border-width) solid var(--border);box-shadow:3px 3px 0 var(--shadow-color);font-family:'Space Mono',monospace}
+.neo-tag.blue{background:var(--blue);color:#FFF}
+.navbar{position:fixed;top:0;left:0;right:0;z-index:1000;height:76px;background:var(--nav-bg);border-bottom:var(--border-width) solid var(--border);transition:transform .25s ease,box-shadow .25s ease,background .35s,border-color .35s}
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.6px;padding:12px 22px;border:var(--border-width) solid var(--border);border-radius:0;cursor:pointer;text-decoration:none;transition:all .09s;white-space:nowrap}
+.btn-primary{background:var(--lime);color:#0A0A0A;box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.btn-primary:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--shadow-color);background:var(--amber)}
+.btn-secondary{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.btn-secondary:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--blue);border-color:var(--blue);color:var(--blue)}
+.spinner{animation:spin .8s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
 </head>
-<body>
-    <nav class="navbar">
-        <div class="navbar-inner">
-            <a href="/" class="navbar-logo"><i class="fas fa-cube"></i><span>Product<span>Kuu</span></span></a>
-            <div class="navbar-actions">
-                <button class="btn-icon" id="themeToggle"><i class="fas fa-moon"></i></button>
-                <a href="/" class="btn-icon"><i class="fas fa-home"></i></a>
-            </div>
+<body data-theme="light">
+
+<nav class="navbar">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-3">
+    <a class="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-2 shrink-0" href="/">
+        <span class="bg-[var(--lime)] text-[#0A0A0A] px-2.5 py-1 border-2 border-[var(--border)] font-black shadow-[2px_2px_0px_var(--shadow-color)]">Product</span>
+        <span class="text-[var(--ink)] font-black">Kuu</span>
+    </a>
+    <div class="flex items-center gap-2.5">
+        <button class="theme-toggle" id="themeToggle" aria-label="Ganti tema"><span class="material-symbols-outlined icon-sun">light_mode</span><span class="material-symbols-outlined icon-moon">dark_mode</span></button>
+        <a href="/" class="btn btn-secondary !py-2 !px-3.5">Beranda</a>
+    </div>
+</div>
+</nav>
+
+<main class="pt-32 pb-20">
+<div class="max-w-3xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-10">
+        <span class="material-symbols-outlined text-6xl text-[var(--lime-deep)] mb-4">check_circle</span>
+        <h1 class="font-display text-4xl text-[var(--ink)]">Pembayaran Berhasil!</h1>
+        <p class="text-[var(--ink-muted)] font-bold mt-2">Terima kasih telah berbelanja di ProductKuu.</p>
+    </div>
+
+    <div id="deliveryContent" class="space-y-6">
+        <div class="text-center py-10">
+            <span class="material-symbols-outlined spinner text-4xl text-[var(--blue)]">refresh</span>
+            <p class="font-bold mt-4">Menyiapkan akun Anda...</p>
         </div>
-    </nav>
+    </div>
 
-    <main>
-        <div class="success-container">
-            <div class="success-card">
-                <div class="success-header">
-                    <div class="icon"><i class="fas fa-check-circle"></i></div>
-                    <h1> Pembayaran Berhasil!</h1>
-                    <p>Terima kasih telah berbelanja di ProductKuu</p>
-                </div>
+    <div class="mt-10 flex justify-center">
+        <a href="/" class="btn btn-primary">Kembali ke Beranda</a>
+    </div>
+</div>
+</main>
 
-                <div id="orderContent">
-                    <div class="text-center" style="padding: 40px 0;">
-                        <div class="loading-spinner"></div>
-                        <p class="text-secondary" style="margin-top: 12px;">Memuat detail order...</p>
+<script>
+// THEME
+(function() { const saved = localStorage.getItem('pk-theme'); if (saved) document.documentElement.setAttribute('data-theme', saved); })();
+document.getElementById('themeToggle')?.addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme') || 'light';
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next); document.body.setAttribute('data-theme', next); localStorage.setItem('pk-theme', next);
+});
+
+const urlParams = new URLSearchParams(window.location.search);
+const orderId = urlParams.get('order');
+
+function formatPrice(p) { return new Intl.NumberFormat('id-ID').format(p || 0); }
+
+async function loadDelivery() {
+    const container = document.getElementById('deliveryContent');
+    if(!orderId) { container.innerHTML = '<p class="text-center text-red-500 font-bold">Order ID tidak ditemukan.</p>'; return; }
+
+    try {
+        const res = await fetch(`/api/orders/${orderId}/delivery`);
+        const data = await res.json();
+
+        if(!res.ok) { container.innerHTML = `<p class="text-center text-red-500 font-bold">${data.error}</p>`; return; }
+
+        const { order, delivery } = data;
+
+        let itemsHtml = delivery.map(item => {
+            let accountHtml = '';
+            if(item.accounts && item.accounts.length > 0) {
+                accountHtml = item.accounts.map((acc, i) => `
+                    <div class="bg-[var(--bg)] border-2 border-[var(--border)] p-4 mt-3 shadow-[2px_2px_0px_var(--shadow-color)]">
+                        <div class="text-xs font-black text-[var(--blue)] uppercase mb-2">Akun #${i+1}</div>
+                        <div class="font-mono-tag text-sm mb-1"><span class="font-bold">Email:</span> <span class="select-all">${acc.email}</span></div>
+                        <div class="font-mono-tag text-sm"><span class="font-bold">Password:</span> <span class="select-all text-[var(--blue)]">${acc.password}</span></div>
                     </div>
-                </div>
+                `).join('');
+            } else if (item.downloadLink) {
+                accountHtml = `<div class="mt-4"><a href="${item.downloadLink}" target="_blank" class="btn btn-primary w-full !py-3"><i class="fas fa-download"></i> Download Produk</a></div>`;
+            }
 
-                <div class="flex-between">
-                    <a href="/" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Kembali ke Beranda
-                    </a>
-                    <a href="/cek-order" class="btn btn-primary">
-                        <i class="fas fa-search"></i> Cek Order Lain
-                    </a>
+            return `
+                <div class="bg-[var(--surface)] border-2 border-[var(--border)] p-6 shadow-[4px_4px_0px_var(--shadow-color)] mb-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2 border-b-2 border-dashed border-[var(--ink-soft)] pb-3">
+                        <div>
+                            <div class="font-black text-xl">${item.name}</div>
+                            <div class="text-sm font-bold text-[var(--ink-muted)]">Jumlah: ${item.qty}</div>
+                        </div>
+                        <div class="font-black text-[var(--blue)] text-lg font-mono-tag">Rp${formatPrice(item.price * item.qty)}</div>
+                    </div>
+                    ${accountHtml}
+                </div>
+            `;
+        }).join('');
+
+        container.innerHTML = `
+            <div class="bg-[var(--surface)] border-2 border-[var(--border)] p-6 shadow-[4px_4px_0px_var(--shadow-color)] mb-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><div class="text-xs font-black text-[var(--ink-muted)] uppercase">Order ID</div><div class="font-mono-tag font-bold text-lg text-[var(--ink)]">${order.id}</div></div>
+                    <div><div class="text-xs font-black text-[var(--ink-muted)] uppercase">Nama Pembeli</div><div class="font-bold text-lg text-[var(--ink)]">${order.buyerName}</div></div>
                 </div>
             </div>
-        </div>
-    </main>
-
-    <footer>
-        <p>&copy; 2026 ProductKuu. All rights reserved.</p>
-    </footer>
-
-    <div class="toast-container" id="toastContainer"></div>
-
-    <script type="importmap">
-        {
-            "imports": {
-                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js",
-                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"
-            }
-        }
-    </script>
-
-    <script type="module">
-        import { initializeApp } from "firebase/app";
-        import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyA-6Tqd5i20sCMixQccI5p1sOCgQWN88dE",
-            authDomain: "productkuu.firebaseapp.com",
-            projectId: "productkuu",
-            storageBucket: "productkuu.firebasestorage.app",
-            messagingSenderId: "6615996108",
-            appId: "1:6615996108:web:daa6e17c1275d3061cd469",
-            measurementId: "G-78ZPLZMFEJ"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // Theme
-        const themeToggle = document.getElementById('themeToggle');
-        let darkMode = localStorage.getItem('darkMode') === 'true';
-        if (darkMode) document.documentElement.setAttribute('data-theme', 'dark');
-        themeToggle.addEventListener('click', () => {
-            darkMode = !darkMode;
-            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-            localStorage.setItem('darkMode', darkMode);
-            themeToggle.querySelector('i').className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
-        });
-
-        function showToast(type, message) {
-            const container = document.getElementById('toastContainer');
-            const colors = { success: 'var(--success)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--info)' };
-            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.style.borderLeftColor = colors[type] || colors.info;
-            toast.innerHTML = `
-                <span class="toast-icon" style="color:${colors[type] || colors.info}"><i class="fas ${icons[type] || icons.info}"></i></span>
-                <div class="toast-content"><div class="toast-message">${message}</div></div>
-                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
-            `;
-            container.appendChild(toast);
-            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
-        }
-        window.showToast = showToast;
-
-        function formatPrice(price) {
-            if (!price && price !== 0) return '0';
-            return new Intl.NumberFormat('id-ID').format(price);
-        }
-
-        function formatDate(date) {
-            if (!date) return '-';
-            const d = date instanceof Date ? date : new Date(date);
-            return d.toLocaleDateString('id-ID', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-
-        // ============================================
-        // GET ORDER ID FROM URL
-        // ============================================
-        const urlParams = new URLSearchParams(window.location.search);
-        const orderId = urlParams.get('order') || urlParams.get('order_id');
-        const status = urlParams.get('status') || urlParams.get('transaction_status');
-
-        console.log(' [SUCCESS] Order ID:', orderId, 'Status:', status);
-
-        // ============================================
-        // LOAD ORDER DATA
-        // ============================================
-        async function loadOrder() {
-            if (!orderId) {
-                document.getElementById('orderContent').innerHTML = `
-                    <div class="text-center" style="padding: 20px 0; color: var(--danger);">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; display: block; margin-bottom: 12px;"></i>
-                        <h3>Order ID tidak ditemukan</h3>
-                        <p class="text-secondary">Silakan cek kembali link Anda</p>
-                    </div>
-                `;
-                return;
-            }
-
-            try {
-                const q = query(collection(db, 'orders'), where('orderId', '==', orderId));
-                const snapshot = await getDocs(q);
-
-                if (snapshot.empty) {
-                    document.getElementById('orderContent').innerHTML = `
-                        <div class="text-center" style="padding: 20px 0; color: var(--danger);">
-                            <i class="fas fa-exclamation-triangle" style="font-size: 48px; display: block; margin-bottom: 12px;"></i>
-                            <h3>Order Tidak Ditemukan</h3>
-                            <p class="text-secondary">Order dengan ID ${orderId} tidak ditemukan</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                const orderDoc = snapshot.docs[0];
-                const order = { id: orderDoc.id, ...orderDoc.data() };
-
-                // Cek status pembayaran
-                if (order.paymentStatus !== 'settlement' && order.paymentStatus !== 'paid') {
-                    document.getElementById('orderContent').innerHTML = `
-                        <div class="text-center" style="padding: 20px 0; color: var(--warning);">
-                            <i class="fas fa-clock" style="font-size: 48px; display: block; margin-bottom: 12px;"></i>
-                            <h3>Menunggu Pembayaran</h3>
-                            <p class="text-secondary">Pembayaran Anda sedang diproses</p>
-                            <span class="badge badge-warning" style="margin-top: 8px;">${order.paymentStatus || 'pending'}</span>
-                        </div>
-                    `;
-                    return;
-                }
-
-                await renderOrderSuccess(order);
-
-            } catch (error) {
-                console.error(' Error loading order:', error);
-                document.getElementById('orderContent').innerHTML = `
-                    <div class="text-center" style="padding: 20px 0; color: var(--danger);">
-                        <i class="fas fa-exclamation-circle" style="font-size: 48px; display: block; margin-bottom: 12px;"></i>
-                        <h3>Gagal Memuat Order</h3>
-                        <p class="text-secondary">${error.message}</p>
-                    </div>
-                `;
-                showToast('error', 'Gagal memuat order: ' + error.message);
-            }
-        }
-
-        // ============================================
-        // RENDER ORDER SUCCESS WITH MULTIPLE PRODUCTS
-        // ============================================
-        async function renderOrderSuccess(order) {
-            const container = document.getElementById('orderContent');
-
-            const statusColors = {
-                'paid': 'badge-success',
-                'settlement': 'badge-success',
-                'pending': 'badge-warning',
-                'failed': 'badge-danger',
-                'expire': 'badge-danger'
-            };
-            const statusClass = statusColors[order.paymentStatus] || 'badge-info';
-
-            // Mask email
-            const emailParts = order.buyerEmail?.split('@') || ['', ''];
-            const maskedEmail = emailParts[0].length > 2
-                ? emailParts[0].substring(0, 2) + '*'.repeat(Math.min(emailParts[0].length - 2, 4)) + '@' + emailParts[1]
-                : order.buyerEmail;
-
-            // ============================================
-            // RENDER MULTIPLE PRODUCTS
-            // ============================================
-            let productsHtml = '';
-
-            // Check if order has items array (multiple products)
-            if (order.items && Array.isArray(order.items) && order.items.length > 0) {
-                // Multiple products - use items from order
-                productsHtml = await renderMultipleProducts(order.items);
-            } else if (order.productId) {
-                // Single product - fetch from products collection
-                try {
-                    const productRef = doc(db, 'products', order.productId);
-                    const productDoc = await getDoc(productRef);
-                    if (productDoc.exists()) {
-                        const product = { id: productDoc.id, ...productDoc.data() };
-                        productsHtml = renderSingleProduct(product, order.quantity || 1);
-                    } else {
-                        productsHtml = `
-                            <div class="product-access-card">
-                                <div class="text-secondary">Produk tidak ditemukan</div>
-                            </div>
-                        `;
-                    }
-                } catch (error) {
-                    console.error('Error loading product:', error);
-                    productsHtml = `
-                        <div class="product-access-card">
-                            <div class="text-secondary">Gagal memuat produk</div>
-                        </div>
-                    `;
-                }
-            } else {
-                productsHtml = `
-                    <div class="product-access-card">
-                        <div class="text-secondary">Tidak ada produk dalam order ini</div>
-                    </div>
-                `;
-            }
-
-            container.innerHTML = `
-                <!-- Order Detail -->
-                <div class="order-detail-grid">
-                    <div>
-                        <div class="label">Order ID</div>
-                        <div class="value">${order.orderId}</div>
-                    </div>
-                    <div>
-                        <div class="label">Status</div>
-                        <span class="badge ${statusClass}">${order.paymentStatus || order.status}</span>
-                    </div>
-                    <div>
-                        <div class="label">Pembeli</div>
-                        <div class="value">${order.buyerName}</div>
-                    </div>
-                    <div>
-                        <div class="label">Email</div>
-                        <div class="value">${maskedEmail}</div>
-                    </div>
-                    <div class="full">
-                        <div class="label">Jumlah Produk</div>
-                        <div class="value">${order.items?.length || 1} produk</div>
-                    </div>
-                    <div class="full">
-                        <div class="label">Total Pembayaran</div>
-                        <div class="value" style="color: var(--primary); font-size: 22px; font-weight: 800;">Rp${formatPrice(order.amount)}</div>
-                    </div>
-                    <div class="full">
-                        <div class="label">Tanggal Pembelian</div>
-                        <div class="value">${formatDate(order.createdAt)}</div>
-                    </div>
-                </div>
-
-                <!-- Products Access -->
-                <div class="products-section">
-                    <div class="products-section-title">
-                        <i class="fas fa-boxes"></i> Akses Produk
-                        <span style="font-size: 14px; font-weight: 400; color: var(--text-light);">(${order.items?.length || 1} produk)</span>
-                    </div>
-                    ${productsHtml}
-                </div>
-            `;
-        }
-
-        // ============================================
-        // RENDER MULTIPLE PRODUCTS
-        // ============================================
-        async function renderMultipleProducts(items) {
-            let html = '';
-
-            for (const item of items) {
-                // Try to get full product data from Firestore
-                let productData = null;
-                let productDetails = item;
-
-                try {
-                    const productRef = doc(db, 'products', item.id);
-                    const productDoc = await getDoc(productRef);
-                    if (productDoc.exists()) {
-                        productData = productDoc.data();
-                    }
-                } catch (error) {
-                    console.warn('Error loading product details:', error);
-                }
-
-                const name = productData?.name || item.name || 'Product';
-                const price = productData?.price || item.price || 0;
-                const type = productData?.type || item.type || 'digital';
-                const quantity = item.quantity || 1;
-                const downloadLink = productData?.downloadLink || item.downloadLink || null;
-                const demoLink = productData?.demoLink || item.demoLink || null;
-                const premiumAccounts = productData?.premiumAccounts || item.premiumAccounts || [];
-                const note = productData?.note || item.note || null;
-
-                // Determine access display
-                let accessHtml = '';
-
-                if (type === 'digital' && downloadLink) {
-                    accessHtml = `
-                        <div class="access-row">
-                            <span class="label"><i class="fas fa-download" style="color: var(--primary);"></i> Link Download</span>
-                            <span class="value">${downloadLink}</span>
-                            <button class="copy-btn" onclick="window.copyText('${downloadLink}')"><i class="fas fa-copy"></i></button>
-                        </div>
-                        ${demoLink ? `
-                            <div class="access-row">
-                                <span class="label"><i class="fas fa-play" style="color: var(--info);"></i> Demo</span>
-                                <a href="${demoLink}" target="_blank" style="color: var(--primary); text-decoration: none;">${demoLink}</a>
-                                <button class="copy-btn" onclick="window.copyText('${demoLink}')"><i class="fas fa-copy"></i></button>
-                            </div>
-                        ` : ''}
-                    `;
-                } else if (type === 'premium-account' && premiumAccounts.length > 0) {
-                    const account = premiumAccounts[0];
-                    accessHtml = `
-                        <div class="access-row">
-                            <span class="label"><i class="fas fa-envelope" style="color: var(--info);"></i> Email</span>
-                            <span class="value">${account.email || '-'}</span>
-                            <button class="copy-btn" onclick="window.copyText('${account.email || ''}')"><i class="fas fa-copy"></i></button>
-                        </div>
-                        <div class="access-row">
-                            <span class="label"><i class="fas fa-key" style="color: var(--warning);"></i> Password</span>
-                            <span class="value">${account.password || '-'}</span>
-                            <button class="copy-btn" onclick="window.copyText('${account.password || ''}')"><i class="fas fa-copy"></i></button>
-                        </div>
-                        ${note ? `
-                            <div style="margin-top: 12px; padding: 12px; background: rgba(251,191,36,0.1); border-radius: 10px; font-size: 13px; color: var(--warning); display: flex; align-items: center; gap: 8px;">
-                                <i class="fas fa-info-circle"></i> ${note}
-                            </div>
-                        ` : ''}
-                    `;
-                } else if (type === 'digital' && !downloadLink) {
-                    accessHtml = `
-                        <div class="access-row">
-                            <span class="label"><i class="fas fa-info-circle" style="color: var(--info);"></i> Status</span>
-                            <span class="value" style="color: var(--warning);">Menunggu link download</span>
-                        </div>
-                    `;
-                } else {
-                    accessHtml = `
-                        <div class="access-row">
-                            <span class="label"><i class="fas fa-box" style="color: var(--text-light);"></i> Tipe</span>
-                            <span class="value">${type || 'Digital'}</span>
-                        </div>
-                        ${note ? `
-                            <div style="margin-top: 12px; padding: 12px; background: rgba(96,165,250,0.1); border-radius: 10px; font-size: 13px; color: var(--info); display: flex; align-items: center; gap: 8px;">
-                                <i class="fas fa-info-circle"></i> ${note}
-                            </div>
-                        ` : ''}
-                    `;
-                }
-
-                html += `
-                    <div class="product-access-card">
-                        <div class="product-access-header">
-                            <span class="product-name">
-                                ${quantity > 1 ? `<span class="badge badge-info" style="font-size: 10px; margin-right: 8px;">${quantity}x</span>` : ''}
-                                ${name}
-                            </span>
-                            <span class="product-price">Rp${formatPrice(price * quantity)}</span>
-                        </div>
-                        <div class="product-access-body">
-                            ${accessHtml}
-                        </div>
-                    </div>
-                `;
-            }
-
-            return html;
-        }
-
-        // ============================================
-        // RENDER SINGLE PRODUCT
-        // ============================================
-        function renderSingleProduct(product, quantity = 1) {
-            if (!product) {
-                return `
-                    <div class="product-access-card">
-                        <div class="text-secondary">Produk tidak ditemukan</div>
-                    </div>
-                `;
-            }
-
-            // Wrap single product as items array for rendering
-            const items = [{
-                id: product.id,
-                name: product.name,
-                price: product.price,
-                quantity: quantity || 1,
-                type: product.type || 'digital',
-                downloadLink: product.downloadLink || null,
-                demoLink: product.demoLink || null,
-                premiumAccounts: product.premiumAccounts || [],
-                note: product.note || null
-            }];
-
-            // Use async but we'll just call the render function directly
-            return `<div id="singleProductContainer"></div>`;
-        }
-
-        // We'll render single product via a separate approach
-        async function renderSingleProductAsync(product, quantity = 1) {
-            const items = [{
-                id: product.id,
-                name: product.name,
-                price: product.price,
-                quantity: quantity || 1,
-                type: product.type || 'digital',
-                downloadLink: product.downloadLink || null,
-                demoLink: product.demoLink || null,
-                premiumAccounts: product.premiumAccounts || [],
-                note: product.note || null
-            }];
-            return await renderMultipleProducts(items);
-        }
-
-        // Override renderOrderSuccess to handle single product properly
-        const originalRender = renderOrderSuccess;
-        renderOrderSuccess = async function(order) {
-            const container = document.getElementById('orderContent');
-
-            const statusColors = {
-                'paid': 'badge-success',
-                'settlement': 'badge-success',
-                'pending': 'badge-warning',
-                'failed': 'badge-danger',
-                'expire': 'badge-danger'
-            };
-            const statusClass = statusColors[order.paymentStatus] || 'badge-info';
-
-            const emailParts = order.buyerEmail?.split('@') || ['', ''];
-            const maskedEmail = emailParts[0].length > 2
-                ? emailParts[0].substring(0, 2) + '*'.repeat(Math.min(emailParts[0].length - 2, 4)) + '@' + emailParts[1]
-                : order.buyerEmail;
-
-            let productsHtml = '';
-
-            if (order.items && Array.isArray(order.items) && order.items.length > 0) {
-                productsHtml = await renderMultipleProducts(order.items);
-            } else if (order.productId) {
-                try {
-                    const productRef = doc(db, 'products', order.productId);
-                    const productDoc = await getDoc(productRef);
-                    if (productDoc.exists()) {
-                        const product = productDoc.data();
-                        const items = [{
-                            id: order.productId,
-                            name: product.name,
-                            price: product.price,
-                            quantity: order.quantity || 1,
-                            type: product.type || 'digital',
-                            downloadLink: product.downloadLink || null,
-                            demoLink: product.demoLink || null,
-                            premiumAccounts: product.premiumAccounts || [],
-                            note: product.note || null
-                        }];
-                        productsHtml = await renderMultipleProducts(items);
-                    } else {
-                        productsHtml = `
-                            <div class="product-access-card">
-                                <div class="text-secondary">Produk tidak ditemukan</div>
-                            </div>
-                        `;
-                    }
-                } catch (error) {
-                    console.error('Error loading product:', error);
-                    productsHtml = `
-                        <div class="product-access-card">
-                            <div class="text-secondary">Gagal memuat produk</div>
-                        </div>
-                    `;
-                }
-            } else {
-                productsHtml = `
-                    <div class="product-access-card">
-                        <div class="text-secondary">Tidak ada produk dalam order ini</div>
-                    </div>
-                `;
-            }
-
-            container.innerHTML = `
-                <div class="order-detail-grid">
-                    <div>
-                        <div class="label">Order ID</div>
-                        <div class="value">${order.orderId}</div>
-                    </div>
-                    <div>
-                        <div class="label">Status</div>
-                        <span class="badge ${statusClass}">${order.paymentStatus || order.status}</span>
-                    </div>
-                    <div>
-                        <div class="label">Pembeli</div>
-                        <div class="value">${order.buyerName}</div>
-                    </div>
-                    <div>
-                        <div class="label">Email</div>
-                        <div class="value">${maskedEmail}</div>
-                    </div>
-                    <div class="full">
-                        <div class="label">Jumlah Produk</div>
-                        <div class="value">${order.items?.length || 1} produk</div>
-                    </div>
-                    <div class="full">
-                        <div class="label">Total Pembayaran</div>
-                        <div class="value" style="color: var(--primary); font-size: 22px; font-weight: 800;">Rp${formatPrice(order.amount)}</div>
-                    </div>
-                    <div class="full">
-                        <div class="label">Tanggal Pembelian</div>
-                        <div class="value">${formatDate(order.createdAt)}</div>
-                    </div>
-                </div>
-
-                <div class="products-section">
-                    <div class="products-section-title">
-                        <i class="fas fa-boxes"></i> Akses Produk
-                        <span style="font-size: 14px; font-weight: 400; color: var(--text-light);">(${order.items?.length || 1} produk)</span>
-                    </div>
-                    ${productsHtml}
-                </div>
-            `;
-        };
-
-        // ============================================
-        // COPY TEXT - GLOBAL
-        // ============================================
-        window.copyText = function(text) {
-            if (!text) {
-                showToast('warning', 'Tidak ada teks untuk disalin');
-                return;
-            }
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('success', ' Berhasil disalin!');
-            }).catch(() => {
-                const input = document.createElement('input');
-                input.value = text;
-                document.body.appendChild(input);
-                input.select();
-                document.execCommand('copy');
-                input.remove();
-                showToast('success', ' Berhasil disalin!');
-            });
-        };
-
-        // ============================================
-        // INIT
-        // ============================================
-        console.log(' [SUCCESS] Page loaded');
-        loadOrder();
-    </script>
+            <h3 class="font-display text-2xl mb-4 border-b-2 border-dashed border-[var(--ink-soft)] pb-2">Data Pembelian</h3>
+            ${itemsHtml}
+        `;
+    } catch(e) { container.innerHTML = `<p class="text-center text-red-500 font-bold">Gagal memuat data: ${e.message}</p>`; }
+}
+document.addEventListener('DOMContentLoaded', loadDelivery);
+</script>
 </body>
 </html>
