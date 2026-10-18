@@ -23,17 +23,20 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);
 .btn-secondary{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
 .btn-secondary:hover:not(:disabled){transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--blue);border-color:var(--blue);color:var(--blue)}
 .btn-danger{background:#FF4444;color:#FFF;box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.btn-danger:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 #0A0A0A}
 .table-wrapper{overflow-x:auto;border:var(--border-width) solid var(--border);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color);background:var(--surface)}
 .table{width:100%;border-collapse:collapse}
 .table th{background:var(--bg);padding:16px;font-size:12px;font-weight:900;text-transform:uppercase;text-align:left;border-bottom:var(--border-width) solid var(--border)}
 .table td{padding:16px;font-size:14px;font-weight:600;border-bottom:1.5px dashed var(--ink-soft)}
 .badge{padding:4px 10px;border:1.5px solid var(--border);font-size:10px;font-weight:900;text-transform:uppercase;font-family:'Space Mono',monospace;box-shadow:2px 2px 0 var(--shadow-color);display:inline-block}
-.badge-success{background:var(--lime);color:#0A0A0A}.badge-warning{background:var(--amber);color:#0A0A0A}.badge-danger{background:#FF4444;color:#FFF}
+.badge-success{background:var(--lime);color:#0A0A0A}
+.badge-warning{background:var(--amber);color:#0A0A0A}
+.badge-danger{background:#FF4444;color:#FFF}
 .form-input{width:100%;background:var(--bg);border:var(--border-width) solid var(--border);padding:11px 14px;color:var(--ink);font-weight:600;font-size:14px;outline:none}
 .form-input:focus{border-color:var(--blue);box-shadow:4px 4px 0 var(--blue)}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(2px);z-index:2000;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.open{display:flex}
-.modal{background:var(--surface);border:3px solid var(--border);box-shadow:10px 10px 0 var(--lime);max-width:540px;width:100%;padding:32px;position:relative}
+.modal{background:var(--surface);border:3px solid var(--border);box-shadow:10px 10px 0 var(--lime);max-width:600px;width:100%;max-height:90vh;overflow-y:auto;padding:32px;position:relative}
 </style>
 </head>
 <body data-theme="light">
@@ -56,6 +59,7 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);
 </div>
 </nav>
 <div class="fixed inset-0 bg-black/50 z-[800] hidden transition-opacity" id="sidebarOverlay"></div>
+
 <aside class="fixed top-[76px] left-0 bottom-0 w-[260px] bg-[var(--surface)] border-r-[2px] border-[var(--border)] z-[900] flex flex-col -translate-x-full lg:translate-x-0 transition-transform duration-300" id="sidebar">
     <div class="p-4 border-b-2 border-[var(--border)] bg-[var(--bg)]"><p class="text-[10px] font-black text-[var(--ink-muted)] uppercase tracking-widest font-mono-tag">Main Menu</p></div>
     <nav class="p-4 flex flex-col gap-2 flex-1 overflow-y-auto">
@@ -77,41 +81,100 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);
                 <button class="btn btn-primary w-full md:w-auto" onclick="loadSellers()"><span class="material-symbols-outlined">sync</span> Refresh Data</button>
             </div>
         </div>
+
+        <!-- Filter Bar -->
+        <div class="flex flex-col md:flex-row gap-4 mb-6">
+            <div class="relative flex-1">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ink-muted)]">search</span>
+                <input type="text" id="searchSeller" class="form-input pl-10" placeholder="Cari nama toko atau email...">
+            </div>
+            <select id="filterStatus" class="form-input max-w-[200px]" onchange="loadSellers()">
+                <option value="all">Semua Status</option>
+                <option value="active">Active</option>
+                <option value="suspended">Suspended</option>
+            </select>
+            <select id="filterLevel" class="form-input max-w-[200px]" onchange="loadSellers()">
+                <option value="all">Semua Level</option>
+                <option value="bronze">Bronze</option>
+                <option value="silver">Silver</option>
+                <option value="gold">Gold</option>
+                <option value="platinum">Platinum</option>
+                <option value="diamond">Diamond</option>
+            </select>
+        </div>
+
         <div class="table-wrapper">
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Nama Toko / Email</th>
+                        <th>Seller & Akun</th>
+                        <th>Info Toko</th>
                         <th>Level</th>
+                        <th class="text-center">Produk</th>
+                        <th class="text-center">Terjual</th>
+                        <th>Finansial</th>
                         <th>Status</th>
                         <th class="text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="sellersTableBody">
-                    <tr><td colspan="4" class="text-center py-10 font-bold">Memuat data...</td></tr>
+                    <tr><td colspan="8" class="text-center py-10 font-bold">Memuat data...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 </main>
 
+<!-- MODAL EDIT SELLER -->
 <div class="modal-overlay" id="editSellerModal">
 <div class="modal">
     <button class="absolute top-4 right-4 font-black text-2xl hover:text-[#FF4444]" onclick="closeEditSellerModal()">×</button>
-    <h3 class="font-display text-2xl mb-6">Edit Seller</h3>
+    <h3 class="font-display text-2xl mb-6">Edit Profil & Saldo</h3>
     <form id="editSellerForm">
         <input id="editSellerId" type="hidden"/>
         <div class="space-y-4">
-            <div><label class="block text-xs font-black uppercase mb-1">Nama Toko</label><input class="form-input" id="editStoreName" required/></div>
-            <div>
-                <label class="block text-xs font-black uppercase mb-1">Status Akun</label>
-                <select class="form-input" id="editStatus">
-                    <option value="active">Active</option>
-                    <option value="suspended">Suspended</option>
-                </select>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label class="block text-xs font-black uppercase mb-1">Nama Toko</label><input class="form-input" id="editStoreName" required/></div>
+                <div>
+                    <label class="block text-xs font-black uppercase mb-1">Level Seller</label>
+                    <select class="form-input" id="editLevel">
+                        <option value="bronze">Bronze</option>
+                        <option value="silver">Silver</option>
+                        <option value="gold">Gold</option>
+                        <option value="platinum">Platinum</option>
+                        <option value="diamond">Diamond</option>
+                    </select>
+                </div>
             </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-black uppercase mb-1">Status Akun</label>
+                    <select class="form-input" id="editStatus">
+                        <option value="active">Active</option>
+                        <option value="suspended">Suspended</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-black uppercase mb-1">Verifikasi</label>
+                    <select class="form-input" id="editVerified">
+                        <option value="true">Verified Account</option>
+                        <option value="false">Unverified Account</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="border-t-2 border-dashed border-[var(--ink-soft)] pt-4 mt-2">
+                <h4 class="font-black text-sm uppercase mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-[var(--lime-deep)]">account_balance_wallet</span> Manajemen Saldo</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label class="block text-xs font-black uppercase mb-1">Total Pendapatan</label><input class="form-input" id="editTotalRevenue" type="number"/></div>
+                    <div><label class="block text-xs font-black uppercase mb-1">Saldo Tersedia</label><input class="form-input" id="editAvailable" type="number"/></div>
+                    <div><label class="block text-xs font-black uppercase mb-1">Saldo Ditahan</label><input class="form-input" id="editHolding" type="number"/></div>
+                    <div><label class="block text-xs font-black uppercase mb-1">Pending Withdraw</label><input class="form-input" id="editPendingWithdraw" type="number"/></div>
+                </div>
+            </div>
+
             <div class="pt-4 flex gap-3">
-                <button class="btn btn-primary flex-1" type="submit">Simpan</button>
+                <button class="btn btn-primary flex-1" type="submit">Simpan Perubahan</button>
                 <button class="btn btn-secondary flex-1" type="button" onclick="closeEditSellerModal()">Batal</button>
             </div>
         </div>
@@ -119,74 +182,222 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);
 </div>
 </div>
 
+<div id="toastContainer" class="fixed bottom-6 right-6 z-[3000] flex flex-col gap-2"></div>
+
 <script>
+// ============================================
+// THEME & SIDEBAR
+// ============================================
 (function() { const saved = localStorage.getItem('pk-theme'); if (saved) document.documentElement.setAttribute('data-theme', saved); })();
 document.getElementById('themeToggle').addEventListener('click', () => {
     const current = document.documentElement.getAttribute('data-theme') || 'light';
     const next = current === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next); document.body.setAttribute('data-theme', next); localStorage.setItem('pk-theme', next);
+    document.documentElement.setAttribute('data-theme', next); 
+    document.body.setAttribute('data-theme', next); 
+    localStorage.setItem('pk-theme', next);
     document.getElementById('themeToggle').innerHTML = `<span class="material-symbols-outlined text-lg">${next === 'dark' ? 'light_mode' : 'dark_mode'}</span>`;
 });
+
 const sidebar = document.getElementById('sidebar'); const sidebarOverlay = document.getElementById('sidebarOverlay');
 document.getElementById('sidebarToggle').addEventListener('click', () => { sidebar.classList.toggle('-translate-x-full'); sidebarOverlay.classList.toggle('hidden'); });
 sidebarOverlay.addEventListener('click', () => { sidebar.classList.add('-translate-x-full'); sidebarOverlay.classList.add('hidden'); });
 document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.clear(); window.location.href = '/admin/login'; });
 
+// ============================================
+// STATE & HELPER
+// ============================================
 let allSellers = [];
+let searchTimeout;
 
+function showToast(type, msg) {
+    const container = document.getElementById('toastContainer');
+    const colors = { success: 'bg-[var(--lime)] text-black', error: 'bg-red-500 text-white', info: 'bg-blue-500 text-white' };
+    const toast = document.createElement('div');
+    toast.className = `${colors[type] || 'bg-black text-white'} px-4 py-3 font-bold text-sm border-2 border-black shadow-[4px_4px_0px_#000]`;
+    toast.innerHTML = msg;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+}
+
+async function fetchAPI(url, options = {}) {
+    const res = await fetch(url, options);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'API Error');
+    return data;
+}
+
+// ============================================
+// LOAD SELLERS
+// ============================================
 async function loadSellers() {
     const tbody = document.getElementById('sellersTableBody');
     try {
-        const res = await fetch('/api/users');
-        const users = await res.json();
-        allSellers = users.filter(u => u.role === 'seller');
+        const users = await fetchAPI('/api/users');
         
-        if (allSellers.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 font-bold">Belum ada seller.</td></tr>';
+        // Filter hanya role seller
+        allSellers = users.filter(u => u.role === 'seller');
+
+        // Terapkan filter UI
+        const search = document.getElementById('searchSeller').value.toLowerCase();
+        const status = document.getElementById('filterStatus').value;
+        const level = document.getElementById('filterLevel').value;
+
+        let filtered = allSellers;
+        if (status !== 'all') filtered = filtered.filter(s => s.status === status);
+        if (level !== 'all') filtered = filtered.filter(s => s.level === level);
+        if (search) filtered = filtered.filter(s => 
+            (s.storeName || '').toLowerCase().includes(search) || 
+            (s.email || '').toLowerCase().includes(search)
+        );
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center py-10 font-bold">Tidak ada seller yang cocok.</td></tr>';
             return;
         }
 
-        tbody.innerHTML = allSellers.map(s => `
+        const levelMap = { 
+            'bronze': { class: 'text-orange-500' }, 
+            'silver': { class: 'text-gray-500' }, 
+            'gold': { class: 'text-yellow-500' }, 
+            'platinum': { class: 'text-purple-500' }, 
+            'diamond': { class: 'text-cyan-500' } 
+        };
+
+        tbody.innerHTML = filtered.map(s => {
+            const wallet = s.wallet || { available: 0, holding: 0, totalRevenue: 0 };
+            return `
             <tr>
                 <td>
-                    <div class="font-black text-lg">${s.storeName || 'Toko Tanpa Nama'}</div>
+                    <div class="font-black text-lg">${s.displayName || 'Seller'}</div>
                     <div class="text-xs font-mono-tag text-[var(--ink-muted)]">${s.email}</div>
                 </td>
-                <td><span class="badge badge-success">${s.level || 'bronze'}</span></td>
-                <td><span class="badge ${s.status === 'active' ? 'badge-success' : 'badge-danger'}">${s.status || 'active'}</span></td>
+                <td>
+                    <div class="font-bold">${s.storeName || '-'} 
+                        ${s.verified ? '<span class="material-symbols-outlined text-[var(--blue)] text-sm align-middle" title="Verified">verified</span>' : ''}
+                    </div>
+                </td>
+                <td>
+                    <span class="badge ${levelMap[s.level]?.class || ''}">${s.level || 'bronze'}</span>
+                </td>
+                <td class="text-center font-bold">${s.productCount || 0}</td>
+                <td class="text-center font-bold text-[var(--lime-deep)]">${s.totalSales || 0}</td>
+                <td>
+                    <div class="text-xs font-mono-tag font-bold text-[var(--ink)]">Total: Rp${new Intl.NumberFormat('id-ID').format(wallet.totalRevenue)}</div>
+                    <div class="flex gap-2 text-[10px] mt-1">
+                        <span class="text-[var(--lime-deep)]">Avail: Rp${new Intl.NumberFormat('id-ID').format(wallet.available)}</span>
+                        <span class="text-[var(--amber-deep)]">Hold: Rp${new Intl.NumberFormat('id-ID').format(wallet.holding)}</span>
+                    </div>
+                </td>
+                <td>
+                    <span class="badge ${s.status === 'active' ? 'badge-success' : 'badge-danger'}">${s.status || 'active'}</span>
+                </td>
                 <td class="text-right">
-                    <button class="btn btn-secondary !p-2" onclick="editSeller('${s.id}')"><span class="material-symbols-outlined text-lg">edit</span></button>
+                    <button class="btn btn-secondary !p-2" onclick="editSeller('${s.id}')" title="Edit"><span class="material-symbols-outlined text-lg">edit</span></button>
+                    <button class="btn ${s.status === 'active' ? 'btn-danger' : 'btn-primary'} !p-2" onclick="toggleSellerStatus('${s.id}', '${s.status}')" title="${s.status === 'active' ? 'Suspend' : 'Aktifkan'}">
+                        <span class="material-symbols-outlined text-lg">${s.status === 'active' ? 'pause' : 'play_arrow'}</span>
+                    </button>
                 </td>
             </tr>
-        `).join('');
+        `}).join('');
+
     } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-red-500 font-bold py-10">Gagal memuat: ${e.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-red-500 font-bold py-10">Gagal memuat: ${e.message}</td></tr>`;
     }
 }
 
+// ============================================
+// EDIT SELLER
+// ============================================
 window.editSeller = function(id) {
     const s = allSellers.find(x => x.id === id);
     if(!s) return;
+    
+    const wallet = s.wallet || { available: 0, holding: 0, totalRevenue: 0, pendingWithdraw: 0 };
+    
     document.getElementById('editSellerId').value = id;
     document.getElementById('editStoreName').value = s.storeName || '';
     document.getElementById('editStatus').value = s.status || 'active';
+    document.getElementById('editLevel').value = s.level || 'bronze';
+    document.getElementById('editVerified').value = s.verified ? 'true' : 'false';
+    
+    document.getElementById('editTotalRevenue').value = wallet.totalRevenue || 0;
+    document.getElementById('editAvailable').value = wallet.available || 0;
+    document.getElementById('editHolding').value = wallet.holding || 0;
+    document.getElementById('editPendingWithdraw').value = wallet.pendingWithdraw || 0;
+    
     document.getElementById('editSellerModal').classList.add('open');
 };
+
 window.closeEditSellerModal = () => document.getElementById('editSellerModal').classList.remove('open');
 
 document.getElementById('editSellerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('editSellerId').value;
-    const btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true; btn.innerText = 'Menyimpan...';
-
-    const payload = { storeName: document.getElementById('editStoreName').value.trim(), status: document.getElementById('editStatus').value, updatedAt: new Date().toISOString() };
+    const btn = e.target.querySelector('button[type="submit"]'); 
+    btn.disabled = true; btn.innerText = 'Menyimpan...';
 
     try {
-        const oldS = allSellers.find(x => x.id === id);
-        await fetch('/api/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...oldS, ...payload, id: id }) });
-        closeEditSellerModal(); loadSellers();
-    } catch (error) { alert('Gagal menyimpan: ' + error.message); }
-    finally { btn.disabled = false; btn.innerText = 'Simpan'; }
+        const oldData = await fetchAPI('/api/users/' + id);
+        
+        const payload = {
+            ...oldData,
+            storeName: document.getElementById('editStoreName').value.trim(),
+            status: document.getElementById('editStatus').value,
+            level: document.getElementById('editLevel').value,
+            verified: document.getElementById('editVerified').value === 'true',
+            wallet: {
+                ...(oldData.wallet || {}),
+                totalRevenue: parseInt(document.getElementById('editTotalRevenue').value) || 0,
+                available: parseInt(document.getElementById('editAvailable').value) || 0,
+                holding: parseInt(document.getElementById('editHolding').value) || 0,
+                pendingWithdraw: parseInt(document.getElementById('editPendingWithdraw').value) || 0
+            },
+            updatedAt: new Date().toISOString()
+        };
+
+        await fetchAPI('/api/users/' + id, { 
+            method: 'PUT', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify(payload) 
+        });
+        
+        closeEditSellerModal();
+        loadSellers();
+        showToast('success', 'Data seller berhasil diperbarui!');
+    } catch (error) { 
+        showToast('error', 'Gagal menyimpan: ' + error.message); 
+    } finally { 
+        btn.disabled = false; btn.innerText = 'Simpan Perubahan'; 
+    }
+});
+
+// ============================================
+// TOGGLE STATUS (SUSPEND / AKTIFKAN)
+// ============================================
+window.toggleSellerStatus = async (id, currentStatus) => {
+    const nextStatus = currentStatus === 'active' ? 'suspended' : 'active';
+    if (!confirm(`Yakin ingin mengubah status menjadi ${nextStatus.toUpperCase()}?`)) return;
+    
+    try {
+        const oldData = await fetchAPI('/api/users/' + id);
+        await fetchAPI('/api/users/' + id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...oldData, status: nextStatus, updatedAt: new Date().toISOString() })
+        });
+        showToast('success', `Status seller diubah ke ${nextStatus}`);
+        loadSellers();
+    } catch (e) {
+        showToast('error', 'Gagal ubah status: ' + e.message);
+    }
+};
+
+// ============================================
+// INIT & SEARCH DEBOUNCE
+// ============================================
+document.getElementById('searchSeller').addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(loadSellers, 500);
 });
 
 document.addEventListener('DOMContentLoaded', loadSellers);

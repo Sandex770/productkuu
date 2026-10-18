@@ -23,6 +23,7 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);
 .btn-secondary{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
 .btn-secondary:hover:not(:disabled){transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--blue);border-color:var(--blue);color:var(--blue)}
 .btn-danger{background:#FF4444;color:#FFF;box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.btn-danger:hover:not(:disabled){transform:translate(-3px,-3px);box-shadow:7px 7px 0 #0A0A0A}
 .table-wrapper{overflow-x:auto;border:var(--border-width) solid var(--border);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color);background:var(--surface)}
 .table{width:100%;border-collapse:collapse}
 .table th{background:var(--bg);padding:16px;font-size:12px;font-weight:900;text-transform:uppercase;text-align:left;border-bottom:var(--border-width) solid var(--border)}
@@ -31,6 +32,9 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);
 .badge-success{background:var(--lime);color:#0A0A0A}
 .badge-warning{background:var(--amber);color:#0A0A0A}
 .badge-danger{background:#FF4444;color:#FFF}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(2px);z-index:2000;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:3px solid var(--border);box-shadow:10px 10px 0 var(--lime);max-width:400px;width:100%;padding:32px;position:relative;text-align:center}
 </style>
 </head>
 <body data-theme="light">
@@ -74,26 +78,44 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);
                 <button class="btn btn-primary w-full md:w-auto" onclick="loadWithdrawals()"><span class="material-symbols-outlined">sync</span> Refresh Data</button>
             </div>
         </div>
+
         <div class="table-wrapper">
             <table class="table">
                 <thead>
                     <tr>
                         <th>Seller</th>
                         <th>Metode</th>
+                        <th>No Tujuan / Pemilik</th>
                         <th>Nominal</th>
                         <th>Status</th>
                         <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="wdTableBody">
-                    <tr><td colspan="5" class="text-center py-10 font-bold">Memuat data...</td></tr>
+                    <tr><td colspan="6" class="text-center py-10 font-bold">Memuat data...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 </main>
 
+<!-- MODAL DELETE -->
+<div class="modal-overlay" id="deleteModal">
+<div class="modal">
+    <span class="material-symbols-outlined text-5xl text-[#FF4444] mb-4">warning</span>
+    <h3 class="font-display text-2xl mb-2">Hapus Withdraw?</h3>
+    <p class="text-sm font-bold text-[var(--ink-muted)] mb-6">Riwayat pengajuan penarikan ini akan dihapus permanen.</p>
+    <div class="flex gap-3">
+        <button class="btn btn-danger flex-1" onclick="confirmDelete()">Hapus</button>
+        <button class="btn btn-secondary flex-1" onclick="closeDeleteModal()">Batal</button>
+    </div>
+</div>
+</div>
+
+<div id="toastContainer" class="fixed bottom-6 right-6 z-[3000] flex flex-col gap-2"></div>
+
 <script>
+// THEME & UI
 (function() { const saved = localStorage.getItem('pk-theme'); if (saved) document.documentElement.setAttribute('data-theme', saved); })();
 document.getElementById('themeToggle').addEventListener('click', () => {
     const current = document.documentElement.getAttribute('data-theme') || 'light';
@@ -106,48 +128,123 @@ document.getElementById('sidebarToggle').addEventListener('click', () => { sideb
 sidebarOverlay.addEventListener('click', () => { sidebar.classList.add('-translate-x-full'); sidebarOverlay.classList.add('hidden'); });
 document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.clear(); window.location.href = '/admin/login'; });
 
+// STATE & HELPER
+let deleteId = null;
+let allUsers = [];
+
+function showToast(type, msg) {
+    const container = document.getElementById('toastContainer');
+    const colors = { success: 'bg-[var(--lime)] text-black', error: 'bg-red-500 text-white', info: 'bg-blue-500 text-white' };
+    const toast = document.createElement('div');
+    toast.className = `${colors[type] || 'bg-black text-white'} px-4 py-3 font-bold text-sm border-2 border-black shadow-[4px_4px_0px_#000]`;
+    toast.innerHTML = msg;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+}
+
+async function fetchAPI(url, options = {}) {
+    const res = await fetch(url, options);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'API Error');
+    return data;
+}
+
+// LOAD WITHDRAWALS
 async function loadWithdrawals() {
     const tbody = document.getElementById('wdTableBody');
     try {
-        const res = await fetch('/api/withdrawals');
-        const data = await res.json();
+        // 1. Ambil data user dan withdrawals secara bersamaan
+        const [usersData, wdData] = await Promise.all([
+            fetchAPI('/api/users'),
+            fetchAPI('/api/withdrawals')
+        ]);
         
-        if (!data || data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 font-bold">Belum ada penarikan.</td></tr>';
+        allUsers = usersData || [];
+        const withdrawals = wdData || [];
+        
+        if (withdrawals.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-10 font-bold">Belum ada penarikan.</td></tr>';
             return;
         }
 
-        tbody.innerHTML = data.map(w => `
+        tbody.innerHTML = withdrawals.map(w => {
+            // Cari user berdasarkan sellerId
+            const seller = allUsers.find(u => u.id === w.sellerId);
+            // Prioritaskan storeName, jika tidak ada pakai accountName atau fallback
+            const sellerDisplayName = seller ? (seller.storeName || seller.displayName) : (w.accountName || 'Seller');
+
+            return `
             <tr>
-                <td class="font-black">${w.accountName || 'Seller'}</td>
+                <td class="font-black">${sellerDisplayName}</td>
                 <td class="font-mono-tag text-xs">${w.method || 'Bank'}</td>
+                <td>
+                    <div class="font-mono-tag font-bold text-[var(--blue)]">${w.accountNumber || '-'}</div>
+                    <div class="text-[10px] text-[var(--ink-muted)] uppercase">a/n ${w.accountName || '-'}</div>
+                </td>
                 <td class="font-mono-tag text-[var(--blue)] font-bold">Rp${new Intl.NumberFormat('id-ID').format(w.amount || 0)}</td>
                 <td><span class="badge ${w.status === 'approved' ? 'badge-success' : (w.status === 'pending' ? 'badge-warning' : 'badge-danger')}">${w.status || 'pending'}</span></td>
                 <td class="text-center">
                     ${w.status === 'pending' ? `
                         <button class="btn btn-primary !py-1 !px-3 text-xs" onclick="updateStatus('${w.id}', 'approved')">Setujui</button>
                         <button class="btn btn-danger !py-1 !px-3 text-xs" onclick="updateStatus('${w.id}', 'rejected')">Tolak</button>
-                    ` : '<span class="text-xs opacity-50 font-mono-tag">Selesai</span>'}
+                    ` : ''}
+                    <button class="btn btn-secondary !p-1.5 ml-1" onclick="deleteWithdrawal('${w.id}')" title="Hapus">
+                        <span class="material-symbols-outlined text-sm text-red-500">delete</span>
+                    </button>
                 </td>
             </tr>
-        `).join('');
+            `;
+        }).join('');
     } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-red-500 font-bold py-10">Gagal memuat: ${e.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-red-500 font-bold py-10">Gagal memuat: ${e.message}</td></tr>`;
     }
 }
 
+// UPDATE STATUS (PAKAI ENDPOINT PUT & LOGIKA SALDO)
 window.updateStatus = async (id, status) => {
-    if(!confirm(`Ubah status menjadi ${status}?`)) return;
+    let note = '';
+    if (status === 'rejected') {
+        note = prompt('Alasan penolakan (opsional):');
+        if (note === null) return;
+    } else {
+        if (!confirm('Yakin ingin menyetujui penarikan ini?')) return;
+    }
+
     try {
-        const res = await fetch('/api/withdrawals/' + id);
-        const w = await res.json();
-        await fetch('/api/withdrawals', {
-            method: 'POST',
+        const res = await fetch('/api/withdrawals/' + id, {
+            method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...w, id, status, updatedAt: new Date().toISOString() })
+            body: JSON.stringify({ status: status, adminNote: note })
         });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        
+        showToast('success', `Penarikan berhasil di-${status}`);
         loadWithdrawals();
-    } catch(e) { alert('Gagal update status'); }
+    } catch(e) { 
+        showToast('error', 'Gagal update status: ' + e.message); 
+    }
+};
+
+// DELETE WITHDRAWAL
+window.deleteWithdrawal = (id) => {
+    deleteId = id;
+    document.getElementById('deleteModal').classList.add('open');
+};
+window.closeDeleteModal = () => {
+    deleteId = null;
+    document.getElementById('deleteModal').classList.remove('open');
+};
+window.confirmDelete = async () => {
+    if(!deleteId) return;
+    try {
+        await fetchAPI('/api/withdrawals/' + deleteId, { method: 'DELETE' });
+        showToast('success', 'Riwayat penarikan berhasil dihapus!');
+        closeDeleteModal();
+        loadWithdrawals();
+    } catch(e) {
+        showToast('error', 'Gagal menghapus: ' + e.message);
+    }
 };
 
 document.addEventListener('DOMContentLoaded', loadWithdrawals);
