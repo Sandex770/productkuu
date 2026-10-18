@@ -170,19 +170,30 @@ async function loadDashboardData() {
     updateStoreLink();
 
     try {
-        const fetchData = async (url) => {
-            const res = await fetch(url);
-            if (!res.ok) return [];
-            const data = await res.json();
-            return data.docs ? data.docs : (data.products ? data.products : (Array.isArray(data) ? data : []));
-        };
+        // 1. Tarik data user terbaru dari API (untuk saldo terupdate)
+        const userRes = await fetch('/api/users/' + user.id);
+        if (!userRes.ok) throw new Error('Gagal ambil profil');
+        const freshUser = await userRes.json();
 
-        // 1. Produk
-        const products = await fetchData('/api/products');
+        // Update localStorage dengan data terbaru agar sinkron
+        localStorage.setItem('pk_user', JSON.stringify(freshUser));
+
+        // Tampilkan Saldo
+        const wallet = freshUser.wallet || { available: 0, holding: 0, totalRevenue: 0, pendingWithdraw: 0 };
+        document.getElementById('availableBalance').textContent = `Rp${new Intl.NumberFormat('id-ID').format(wallet.available)}`;
+        document.getElementById('holdingBalance').textContent = `Rp${new Intl.NumberFormat('id-ID').format(wallet.holding)}`;
+        document.getElementById('totalRevenue').textContent = `Rp${new Intl.NumberFormat('id-ID').format(wallet.totalRevenue)}`;
+        document.getElementById('pendingWithdraw').textContent = `Rp${new Intl.NumberFormat('id-ID').format(wallet.pendingWithdraw || 0)}`;
+
+
+        // 2. Tarik Produk
+        const prodRes = await fetch('/api/products');
+        const prodData = await prodRes.json();
+        const products = prodData.products || prodData || [];
+        
         const myProducts = products.filter(p => p.sellerId === user.id);
         document.getElementById('totalProducts').textContent = myProducts.length;
         
-        // Render Recent Products
         const recentContainer = document.getElementById('recentProducts');
         if(myProducts.length === 0) {
              recentContainer.innerHTML = '<div class="text-center py-6 font-bold text-[var(--ink-muted)]">Belum ada produk</div>';
@@ -201,25 +212,22 @@ async function loadDashboardData() {
              `).join('');
         }
 
-        // 2. Orders
-        const orders = await fetchData('/api/orders');
+        // 3. Tarik Orders
+        const ordRes = await fetch('/api/orders');
+        const ordData = await ordRes.json();
+        const orders = ordData.docs || ordData || [];
+        
         const myOrders = orders.filter(o => o.sellerId === user.id && (o.paymentStatus === 'settlement' || o.paymentStatus === 'paid'));
         document.getElementById('totalSales').textContent = myOrders.length;
 
-        // 3. Wallet
-        const wallet = user.wallet || { available: 0, holding: 0, totalRevenue: 0, pendingWithdraw: 0 };
-        document.getElementById('availableBalance').textContent = `Rp${new Intl.NumberFormat('id-ID').format(wallet.available)}`;
-        document.getElementById('holdingBalance').textContent = `Rp${new Intl.NumberFormat('id-ID').format(wallet.holding)}`;
-        document.getElementById('totalRevenue').textContent = `Rp${new Intl.NumberFormat('id-ID').format(wallet.totalRevenue)}`;
-        document.getElementById('pendingWithdraw').textContent = `Rp${new Intl.NumberFormat('id-ID').format(wallet.pendingWithdraw || 0)}`;
-
     } catch(e) {
         console.error(e);
+        document.getElementById('welcomeMessage').textContent = 'Gagal memuat data. Coba refresh.';
     }
 }
 
 window.manualReleaseHolding = function() {
-    alert('Fitur release holding sedang diproses oleh sistem (otomatis tiap 30 menit).');
+    alert('Fitur release holding sedang diproses oleh sistem.');
 };
 
 document.addEventListener('DOMContentLoaded', loadDashboardData);

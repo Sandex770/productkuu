@@ -23,17 +23,25 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);
 .btn-secondary{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
 .btn-secondary:hover:not(:disabled){transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--blue);border-color:var(--blue);color:var(--blue)}
 .btn-danger{background:#FF4444;color:#FFF;box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
+.btn-danger:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 #0A0A0A}
 .table-wrapper{overflow-x:auto;border:var(--border-width) solid var(--border);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color);background:var(--surface)}
 .table{width:100%;border-collapse:collapse}
 .table th{background:var(--bg);padding:16px;font-size:12px;font-weight:900;text-transform:uppercase;text-align:left;border-bottom:var(--border-width) solid var(--border)}
 .table td{padding:16px;font-size:14px;font-weight:600;border-bottom:1.5px dashed var(--ink-soft)}
 .badge{padding:4px 10px;border:1.5px solid var(--border);font-size:10px;font-weight:900;text-transform:uppercase;font-family:'Space Mono',monospace;box-shadow:2px 2px 0 var(--shadow-color);display:inline-block}
-.badge-success{background:var(--lime);color:#0A0A0A}.badge-warning{background:var(--amber);color:#0A0A0A}.badge-danger{background:#FF4444;color:#FFF}
+.badge-success{background:var(--lime);color:#0A0A0A}
+.badge-warning{background:var(--amber);color:#0A0A0A}
+.badge-danger{background:#FF4444;color:#FFF}
+.badge-info{background:var(--blue);color:#FFF}
 .form-input{width:100%;background:var(--bg);border:var(--border-width) solid var(--border);padding:11px 14px;color:var(--ink);font-weight:600;font-size:14px;outline:none}
 .form-input:focus{border-color:var(--blue);box-shadow:4px 4px 0 var(--blue)}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(2px);z-index:2000;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.open{display:flex}
-.modal{background:var(--surface);border:3px solid var(--border);box-shadow:10px 10px 0 var(--lime);max-width:600px;width:100%;max-height:90vh;overflow-y:auto;padding:32px;position:relative}
+.modal{background:var(--surface);border:3px solid var(--border);box-shadow:10px 10px 0 var(--lime);max-width:640px;width:100%;max-height:90vh;overflow-y:auto;padding:32px;position:relative}
+
+.debug-box{display:none;background:#000;color:#89B4FA;border:2px solid var(--border);padding:12px;font-family:monospace;font-size:12px;max-height:200px;overflow-y:auto;margin-bottom:16px;box-shadow:4px 4px 0 var(--shadow-color)}
+.debug-box.show{display:block}
+.debug-toggle{background:var(--surface);border:2px solid var(--border);padding:4px 8px;font-size:10px;font-weight:bold;text-transform:uppercase;cursor:pointer;margin-bottom:16px;box-shadow:2px 2px 0 var(--shadow-color)}
 </style>
 </head>
 <body data-theme="light">
@@ -81,24 +89,40 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);
             </div>
             <div class="w-full md:w-auto flex gap-2">
                 <button class="btn btn-secondary flex-1 md:flex-none" onclick="loadProducts()"><span class="material-symbols-outlined">sync</span> Refresh</button>
-                <button class="btn btn-primary flex-1 md:flex-none" onclick="openModal()"><span class="material-symbols-outlined">add</span> Tambah</button>
+                <button class="btn btn-primary flex-1 md:flex-none" onclick="openCreateProduct()"><span class="material-symbols-outlined">add</span> Tambah</button>
             </div>
         </div>
+
+        <div class="flex gap-4 mb-4">
+            <input type="text" id="searchProduct" placeholder="Cari produk..." class="form-input max-w-xs">
+            <select id="filterStatus" class="form-input max-w-[150px]" onchange="applyFilters()">
+                <option value="all">Semua Status</option>
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+            </select>
+        </div>
+
+        <div class="debug-box" id="debugBox">
+            <div id="debugLog">Initializing...</div>
+        </div>
+        <button class="debug-toggle" onclick="toggleDebug()">Toggle Debug</button>
 
         <div class="table-wrapper">
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Nama Produk</th>
+                        <th>Produk</th>
+                        <th>Kategori</th>
+                        <th>Type</th>
                         <th>Harga</th>
                         <th>Stok</th>
-                        <th class="text-center">Terjual</th>
                         <th>Status</th>
+                        <th class="text-center">Terjual</th>
                         <th class="text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="productsTableBody">
-                    <tr><td colspan="6" class="text-center py-10 font-bold">Memuat data...</td></tr>
+                    <tr><td colspan="8" class="text-center py-10 font-bold">Memuat data...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -108,131 +132,487 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);
 <!-- MODAL PRODUK -->
 <div class="modal-overlay" id="productModal">
 <div class="modal">
-    <button class="absolute top-4 right-4 font-black text-2xl hover:text-[#FF4444]" onclick="closeModal()">×</button>
+    <button class="absolute top-4 right-4 font-black text-2xl hover:text-[#FF4444]" onclick="closeProductModal()">×</button>
     <h3 class="font-display text-2xl mb-6" id="modalTitle">Tambah Produk</h3>
     <form id="productForm">
         <input type="hidden" id="productId"/>
         <div class="space-y-4">
             <div><label class="block text-xs font-black uppercase mb-1">Nama Produk *</label><input class="form-input" id="productName" required/></div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="block text-xs font-black uppercase mb-1">Harga (Rp) *</label><input class="form-input" id="productPrice" type="number" required/></div>
-                <div><label class="block text-xs font-black uppercase mb-1">Stok *</label><input class="form-input" id="productStock" type="number" required/></div>
+                <div>
+                    <label class="block text-xs font-black uppercase mb-1">Kategori *</label>
+                    <select class="form-input" id="productCategory" required>
+                        <option value="">Pilih</option>
+                        <option value="Source Code">Source Code</option>
+                        <option value="Preset">Preset</option>
+                        <option value="Plugin">Plugin</option>
+                        <option value="Template">Template</option>
+                        <option value="UI Kit">UI Kit</option>
+                        <option value="Font">Font</option>
+                        <option value="Ebook">Ebook</option>
+                        <option value="Script">Script</option>
+                        <option value="Premium Account">Premium Account</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-black uppercase mb-1">Type *</label>
+                    <select class="form-input" id="productType" onchange="toggleProductType()">
+                        <option value="digital">Digital Product</option>
+                        <option value="premium-account">Premium Account</option>
+                    </select>
+                </div>
             </div>
-            <div><label class="block text-xs font-black uppercase mb-1">URL Gambar (Opsional)</label><input class="form-input" id="productImage" type="url"/></div>
+            <div><label class="block text-xs font-black uppercase mb-1">Harga (Rp) *</label><input class="form-input" id="productPrice" type="number" required min="1000"/></div>
+            <div><label class="block text-xs font-black uppercase mb-1">URL Gambar (Opsional)</label><input class="form-input" id="productImageUrl" type="url"/></div>
+            
+            <!-- DIGITAL FIELDS -->
+            <div id="digitalFields">
+                <div class="mb-4"><label class="block text-xs font-black uppercase mb-1">Link Download *</label><input class="form-input" id="productDownloadLink" type="url"/></div>
+                <div class="mb-4"><label class="block text-xs font-black uppercase mb-1">Link Demo</label><input class="form-input" id="productDemoLink" type="url"/></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label class="block text-xs font-black uppercase mb-1">Stok</label><input class="form-input" id="productStock" type="number" value="100"/></div>
+                    <div class="flex items-center gap-2 mt-6">
+                        <input type="checkbox" id="productUnlimited" class="w-4 h-4 accent-[var(--lime)]"> <label for="productUnlimited" class="text-sm font-bold">Unlimited Stock</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PREMIUM FIELDS -->
+            <div id="premiumFields" style="display:none;">
+                <div class="mb-4"><label class="block text-xs font-black uppercase mb-1">Catatan</label><textarea class="form-input" id="productNote" rows="2"></textarea></div>
+                <div class="mb-4">
+                    <label class="block text-xs font-black uppercase mb-1">Daftar Akun Premium *</label>
+                    <div id="premiumAccountsList">
+                        <div class="flex gap-2 mb-2">
+                            <input type="email" class="form-input premium-email" placeholder="email@example.com"/>
+                            <input type="text" class="form-input premium-password" placeholder="password"/>
+                            <button type="button" onclick="removePremiumAccount(this)" class="btn btn-danger !px-3"><span class="material-symbols-outlined text-sm">close</span></button>
+                        </div>
+                    </div>
+                    <button type="button" onclick="addPremiumAccount()" class="btn btn-secondary !py-2 text-xs mt-2">Tambah Akun</button>
+                </div>
+            </div>
+
             <div><label class="block text-xs font-black uppercase mb-1">Deskripsi</label><textarea class="form-input" id="productDescription" rows="3"></textarea></div>
+            <div><label class="block text-xs font-black uppercase mb-1">Tags (pisahkan koma)</label><input class="form-input" id="productTags"/></div>
+
             <div class="pt-4 flex gap-3">
-                <button class="btn btn-primary flex-1" type="submit">Simpan</button>
-                <button class="btn btn-secondary flex-1" type="button" onclick="closeModal()">Batal</button>
+                <button class="btn btn-primary flex-1" type="submit" id="saveBtn">Simpan</button>
+                <button class="btn btn-secondary flex-1" type="button" onclick="closeProductModal()">Batal</button>
             </div>
         </div>
     </form>
 </div>
 </div>
 
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="deleteModal">
+<div class="modal max-w-sm text-center">
+    <span class="material-symbols-outlined text-5xl text-[#FF4444] mb-4">warning</span>
+    <h3 class="font-display text-2xl mb-2">Hapus Produk?</h3>
+    <p class="text-sm font-bold text-[var(--ink-muted)] mb-6">Tindakan ini tidak dapat dibatalkan.</p>
+    <div class="flex gap-3">
+        <button class="btn btn-danger flex-1" onclick="confirmDelete()">Hapus</button>
+        <button class="btn btn-secondary flex-1" onclick="closeDeleteModal()">Batal</button>
+    </div>
+</div>
+</div>
+
+<!-- PROMOTE MODAL -->
+<div class="modal-overlay" id="promoteModal">
+<div class="modal max-w-lg">
+    <button class="absolute top-4 right-4 font-black text-2xl hover:text-[#FF4444]" onclick="closePromoteModal()">×</button>
+    <h3 class="font-display text-2xl mb-4">Promosikan Produk</h3>
+    <div class="bg-[var(--bg)] border-2 border-[var(--border)] p-4 mb-4 shadow-[2px_2px_0px_var(--shadow-color)]">
+        <p><strong>Produk:</strong> <span id="promoteProductName">-</span></p>
+        <p><strong>Harga Banner:</strong> Rp<span id="promotePrice">0</span> (FLAT)</p>
+        <p><strong>Saldo:</strong> Rp<span id="promoteBalance">0</span> <span id="balanceStatus"></span></p>
+    </div>
+    <form id="promoteForm">
+        <div class="mb-4"><label class="block text-xs font-black uppercase mb-1">Durasi (Jam)</label><input type="number" class="form-input" id="promoteDuration" value="24" min="1" required></div>
+        <div class="mb-4"><label class="block text-xs font-black uppercase mb-1">URL Gambar Banner (Opsional)</label><input type="url" class="form-input" id="promoteImageUrl"></div>
+        <div class="mb-4">
+            <label class="block text-xs font-black uppercase mb-1">Metode Pembayaran</label>
+            <div class="flex gap-2">
+                <label class="flex items-center gap-2 border-2 border-[var(--border)] p-3 flex-1 cursor-pointer bg-[var(--surface)]">
+                    <input type="radio" name="paymentMethod" value="wallet" checked> Saldo Wallet
+                </label>
+                <label class="flex items-center gap-2 border-2 border-[var(--border)] p-3 flex-1 cursor-pointer bg-[var(--surface)]">
+                    <input type="radio" name="paymentMethod" value="midtrans"> Bayar Langsung
+                </label>
+            </div>
+        </div>
+        <div id="promoteError" class="hidden bg-red-100 border-2 border-red-500 text-red-700 p-3 text-sm font-bold mb-4"></div>
+        <button type="submit" class="btn btn-primary w-full" id="promoteSubmitBtn">Bayar & Promosikan</button>
+    </form>
+</div>
+</div>
+
+<div id="toastContainer" class="fixed bottom-6 right-6 z-[3000] flex flex-col gap-2"></div>
+
 <script>
-(function() { const saved = localStorage.getItem('pk-theme'); if (saved) document.documentElement.setAttribute('data-theme', saved); })();
-document.getElementById('themeToggle').addEventListener('click', () => {
-    const current = document.documentElement.getAttribute('data-theme') || 'light';
-    const next = current === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next); document.body.setAttribute('data-theme', next); localStorage.setItem('pk-theme', next);
-    document.getElementById('themeToggle').innerHTML = `<span class="material-symbols-outlined text-lg">${next === 'dark' ? 'light_mode' : 'dark_mode'}</span>`;
-});
-const sidebar = document.getElementById('sidebar'); const sidebarOverlay = document.getElementById('sidebarOverlay');
-document.getElementById('sidebarToggle').addEventListener('click', () => { sidebar.classList.toggle('-translate-x-full'); sidebarOverlay.classList.toggle('hidden'); });
-sidebarOverlay.addEventListener('click', () => { sidebar.classList.add('-translate-x-full'); sidebarOverlay.classList.add('hidden'); });
-document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.clear(); window.location.href = '/seller/login'; });
-
-const user = JSON.parse(localStorage.getItem('pk_user') || '{}');
+// ============================================
+// STATE & HELPER
+// ============================================
+let currentUser = null;
 let allProducts = [];
+let currentPage = 1;
+let deleteId = null;
+let promoteProductId = null;
+let pricingData = { price: 100000, duration: 24 };
+let debugVisible = false;
 
-async function loadProducts() {
-    const tbody = document.getElementById('productsTableBody');
+function addDebug(msg, type = 'info') {
+    const log = document.getElementById('debugLog');
+    if (!log) return;
+    const color = type === 'error' ? 'text-red-400' : (type === 'success' ? 'text-green-400' : 'text-blue-400');
+    log.innerHTML += `<div class="${color} text-[10px] mb-1">[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+}
+window.toggleDebug = () => {
+    debugVisible = !debugVisible;
+    document.getElementById('debugBox').classList.toggle('show', debugVisible);
+};
+
+function showToast(type, msg) {
+    const container = document.getElementById('toastContainer');
+    const colors = { success: 'bg-green-500', error: 'bg-red-500', info: 'bg-blue-500', warning: 'bg-amber-500' };
+    const toast = document.createElement('div');
+    toast.className = `${colors[type] || 'bg-black'} text-white px-4 py-3 font-bold text-sm border-2 border-black shadow-[4px_4px_0px_#000]`;
+    toast.innerHTML = msg;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+}
+
+async function fetchAPI(url, options = {}) {
+    const res = await fetch(url, options);
+    const text = await res.text();
+    let data;
     try {
-        const res = await fetch('/api/products');
-        const data = await res.json();
+        data = JSON.parse(text);
+    } catch(e) {
+        console.error("Bukan JSON:", text);
+        throw new Error('Server error, cek log VPS');
+    }
+    if (!res.ok) throw new Error(data.error || 'API Error');
+    return data;
+}
+
+// ============================================
+// INIT, THEME & SIDEBAR
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+    const user = JSON.parse(localStorage.getItem('pk_user') || '{}');
+    currentUser = user;
+
+    // Theme Toggle
+    document.getElementById('themeToggle').addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-theme') || 'light';
+        const next = cur === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        document.body.setAttribute('data-theme', next);
+        localStorage.setItem('pk-theme', next);
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.clear(); 
+        window.location.href = '/seller/login';
+    });
+
+    // === PERBAIKAN SIDEBAR TOGGLE ===
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            sidebar.classList.toggle('-translate-x-full');
+            sidebarOverlay.classList.toggle('hidden');
+        });
+    }
+
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.add('hidden');
+        });
+    }
+
+    // Load Data
+    loadProducts();
+});
+
+// ============================================
+// LOAD PRODUCTS
+// ============================================
+async function loadProducts() {
+    addDebug('Loading products...');
+    try {
+        const data = await fetchAPI('/api/products');
         const products = data.products || data || [];
-        allProducts = products.filter(p => p.sellerId === user.id);
+        allProducts = products.filter(p => p.sellerId === currentUser.id);
         renderProducts();
+        addDebug(`Berhasil memuat ${allProducts.length} produk`, 'success');
     } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-[#FF4444] font-bold py-10">Gagal memuat: ${e.message}</td></tr>`;
+        addDebug(e.message, 'error');
+        showToast('error', 'Gagal memuat produk');
     }
 }
 
 function renderProducts() {
     const tbody = document.getElementById('productsTableBody');
-    if (allProducts.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-10 font-bold">Belum ada produk.</td></tr>';
+    const search = document.getElementById('searchProduct').value.toLowerCase();
+    const status = document.getElementById('filterStatus').value;
+
+    let filtered = allProducts;
+    if (status !== 'all') filtered = filtered.filter(p => p.status === status);
+    if (search) filtered = filtered.filter(p => p.name.toLowerCase().includes(search) || p.category.toLowerCase().includes(search));
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center py-10 font-bold">Belum ada produk.</td></tr>';
         return;
     }
-    tbody.innerHTML = allProducts.map(p => `
+
+    tbody.innerHTML = filtered.map(p => `
         <tr>
-            <td><div class="font-black text-lg">${p.name || p.nama}</div></td>
-            <td class="font-mono-tag text-[var(--blue)] font-bold">Rp${new Intl.NumberFormat('id-ID').format(p.price || p.harga)}</td>
-            <td>${p.stock || 0}</td>
-            <td class="text-center"><span class="badge badge-warning">${p.sales || 0}</span></td>
-            <td><span class="badge ${p.status === 'published' ? 'badge-success' : 'badge-danger'}">${p.status || 'draft'}</span></td>
+            <td>
+                <div class="font-black text-lg">${p.name}</div>
+                <div class="text-[10px] text-[var(--ink-muted)] font-mono-tag">${new Date(p.createdAt || Date.now()).toLocaleDateString('id-ID')}</div>
+            </td>
+            <td>${p.category}</td>
+            <td><span class="badge ${p.type === 'premium-account' ? 'badge-info' : 'badge-success'}">${p.type || 'Digital'}</span></td>
+            <td class="font-mono-tag text-[var(--blue)] font-bold">Rp${new Intl.NumberFormat('id-ID').format(p.price)}</td>
+            <td>${p.stock === 'unlimited' ? '♾️' : (p.stock || 0)}</td>
+            <td><span class="badge ${p.status === 'published' ? 'badge-success' : 'badge-warning'}">${p.status || 'draft'}</span></td>
+            <td class="text-center font-bold">${p.sales || 0}</td>
             <td class="text-right">
                 <button class="btn btn-secondary !p-2" onclick="editProduct('${p.id}')"><span class="material-symbols-outlined text-lg">edit</span></button>
+                <button class="btn btn-secondary !p-2" onclick="promoteToBanner('${p.id}')"><span class="material-symbols-outlined text-lg">image</span></button>
                 <button class="btn btn-danger !p-2" onclick="deleteProduct('${p.id}')"><span class="material-symbols-outlined text-lg">delete</span></button>
             </td>
         </tr>
     `).join('');
 }
 
-window.openModal = () => {
+// ============================================
+// MODAL CREATE & EDIT
+// ============================================
+window.toggleProductType = function() {
+    const type = document.getElementById('productType').value;
+    document.getElementById('digitalFields').style.display = type === 'digital' ? 'block' : 'none';
+    document.getElementById('premiumFields').style.display = type === 'premium-account' ? 'block' : 'none';
+};
+
+window.openCreateProduct = function() {
     document.getElementById('modalTitle').textContent = 'Tambah Produk';
     document.getElementById('productForm').reset();
     document.getElementById('productId').value = '';
+    document.getElementById('productType').value = 'digital';
+    toggleProductType();
+    document.getElementById('premiumAccountsList').innerHTML = `
+        <div class="flex gap-2 mb-2">
+            <input type="email" class="form-input premium-email" placeholder="email@example.com"/>
+            <input type="text" class="form-input premium-password" placeholder="password"/>
+            <button type="button" onclick="removePremiumAccount(this)" class="btn btn-danger !px-3"><span class="material-symbols-outlined text-sm">close</span></button>
+        </div>`;
     document.getElementById('productModal').classList.add('open');
 };
-window.closeModal = () => document.getElementById('productModal').classList.remove('open');
 
-window.editProduct = (id) => {
+window.closeProductModal = () => document.getElementById('productModal').classList.remove('open');
+
+window.addPremiumAccount = function(email = '', password = '') {
+    const container = document.getElementById('premiumAccountsList');
+    const div = document.createElement('div');
+    div.className = 'flex gap-2 mb-2';
+    div.innerHTML = `
+        <input type="email" class="form-input premium-email" placeholder="email@example.com" value="${email}"/>
+        <input type="text" class="form-input premium-password" placeholder="password" value="${password}"/>
+        <button type="button" onclick="removePremiumAccount(this)" class="btn btn-danger !px-3"><span class="material-symbols-outlined text-sm">close</span></button>`;
+    container.appendChild(div);
+};
+
+window.removePremiumAccount = function(btn) {
+    const container = document.getElementById('premiumAccountsList');
+    if (container.children.length > 1) btn.closest('div').remove();
+    else showToast('warning', 'Minimal 1 akun diperlukan');
+};
+
+window.editProduct = function(id) {
     const p = allProducts.find(x => x.id === id);
-    if(!p) return;
+    if (!p) return;
     document.getElementById('modalTitle').textContent = 'Edit Produk';
     document.getElementById('productId').value = id;
-    document.getElementById('productName').value = p.name || p.nama || '';
-    document.getElementById('productPrice').value = p.price || p.harga || 0;
-    document.getElementById('productStock').value = p.stock || 0;
-    document.getElementById('productImage').value = p.imageUrl || '';
+    document.getElementById('productName').value = p.name;
+    document.getElementById('productCategory').value = p.category || '';
+    document.getElementById('productType').value = p.type || 'digital';
+    document.getElementById('productPrice').value = p.price;
     document.getElementById('productDescription').value = p.description || '';
+    document.getElementById('productTags').value = (p.tags || []).join(', ');
+    document.getElementById('productImageUrl').value = p.imageUrl || '';
+    
+    toggleProductType();
+    if (p.type === 'digital') {
+        document.getElementById('productDownloadLink').value = p.downloadLink || '';
+        document.getElementById('productDemoLink').value = p.demoLink || '';
+        document.getElementById('productStock').value = p.stock === 'unlimited' ? '' : (p.stock || 0);
+        document.getElementById('productUnlimited').checked = (p.stock === 'unlimited');
+    } else {
+        document.getElementById('productNote').value = p.note || '';
+        const container = document.getElementById('premiumAccountsList');
+        container.innerHTML = '';
+        if (p.premiumAccounts && p.premiumAccounts.length > 0) {
+            p.premiumAccounts.forEach(a => addPremiumAccount(a.email, a.password));
+        } else {
+            addPremiumAccount();
+        }
+    }
     document.getElementById('productModal').classList.add('open');
 };
 
-window.deleteProduct = async (id) => {
-    if(!confirm('Hapus produk ini?')) return;
-    try {
-        await fetch('/api/products/' + id, { method: 'DELETE' });
-        loadProducts();
-    } catch(e) { alert('Gagal hapus produk'); }
-};
-
+// ============================================
+// SUBMIT FORM (CREATE / UPDATE)
+// ============================================
 document.getElementById('productForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const btn = document.getElementById('saveBtn');
+    btn.disabled = true; btn.innerText = 'Menyimpan...';
+
     const id = document.getElementById('productId').value;
-    const payload = {
+    const type = document.getElementById('productType').value;
+    
+    let data = {
         id: id || Date.now().toString(),
-        sellerId: user.id,
-        name: document.getElementById('productName').value,
+        sellerId: currentUser.id,
+        name: document.getElementById('productName').value.trim(),
+        category: document.getElementById('productCategory').value,
+        type: type,
         price: parseInt(document.getElementById('productPrice').value),
-        stock: parseInt(document.getElementById('productStock').value),
-        imageUrl: document.getElementById('productImage').value,
-        description: document.getElementById('productDescription').value,
-        status: 'published'
+        description: document.getElementById('productDescription').value.trim(),
+        tags: document.getElementById('productTags').value.split(',').map(t => t.trim()).filter(t => t),
+        imageUrl: document.getElementById('productImageUrl').value.trim(),
+        status: 'published',
+        updatedAt: new Date().toISOString()
     };
+
+    if (type === 'digital') {
+        data.downloadLink = document.getElementById('productDownloadLink').value.trim();
+        data.demoLink = document.getElementById('productDemoLink').value.trim();
+        const unlimited = document.getElementById('productUnlimited').checked;
+        data.stock = unlimited ? 'unlimited' : (parseInt(document.getElementById('productStock').value) || 0);
+    } else {
+        data.note = document.getElementById('productNote').value.trim();
+        const emails = document.querySelectorAll('.premium-email');
+        const passwords = document.querySelectorAll('.premium-password');
+        const accounts = [];
+        emails.forEach((el, i) => {
+            const email = el.value.trim(); const pw = passwords[i].value.trim();
+            if (email && pw) accounts.push({ email, password: pw });
+        });
+        if (accounts.length === 0) { showToast('warning', 'Minimal 1 akun'); btn.disabled=false; btn.innerText='Simpan'; return; }
+        data.premiumAccounts = accounts;
+        data.stock = accounts.length;
+    }
+
     try {
-        if(id) {
-            await fetch('/api/products/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        if (id) {
+            await fetchAPI('/api/products/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            showToast('success', 'Produk diperbarui!');
         } else {
-            await fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            await fetchAPI('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            showToast('success', 'Produk dibuat!');
         }
-        closeModal();
+        closeProductModal();
         loadProducts();
-    } catch(e) { alert('Gagal menyimpan produk'); }
+    } catch (e) {
+        showToast('error', e.message);
+    } finally {
+        btn.disabled = false; btn.innerText = 'Simpan';
+    }
 });
 
-document.addEventListener('DOMContentLoaded', loadProducts);
+// ============================================
+// DELETE
+// ============================================
+window.deleteProduct = (id) => { deleteId = id; document.getElementById('deleteModal').classList.add('open'); };
+window.closeDeleteModal = () => { deleteId = null; document.getElementById('deleteModal').classList.remove('open'); };
+window.confirmDelete = async () => {
+    if(!deleteId) return;
+    try {
+        await fetchAPI('/api/products/' + deleteId, { method: 'DELETE' });
+        showToast('success', 'Produk dihapus!');
+        closeDeleteModal(); loadProducts();
+    } catch(e) { showToast('error', e.message); }
+};
+
+// ============================================
+// PROMOTE BANNER
+// ============================================
+window.promoteToBanner = async function(id) {
+    promoteProductId = id;
+    const p = allProducts.find(x => x.id === id);
+    document.getElementById('promoteProductName').textContent = p.name;
+    
+    pricingData = { price: 100000, duration: 24 };
+    document.getElementById('promotePrice').textContent = new Intl.NumberFormat('id-ID').format(pricingData.price);
+    
+    try {
+        const u = await fetchAPI('/api/users/' + currentUser.id);
+        const wallet = u.wallet || { available: 0 };
+        document.getElementById('promoteBalance').textContent = new Intl.NumberFormat('id-ID').format(wallet.available);
+        if (wallet.available >= pricingData.price) {
+            document.getElementById('balanceStatus').innerHTML = '<span class="text-green-500">Saldo Cukup</span>';
+        } else {
+            document.getElementById('balanceStatus').innerHTML = '<span class="text-red-500">Saldo Kurang</span>';
+        }
+    } catch(e) {}
+    
+    document.getElementById('promoteModal').classList.add('open');
+};
+window.closePromoteModal = () => document.getElementById('promoteModal').classList.remove('open');
+
+document.getElementById('promoteForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('promoteSubmitBtn');
+    btn.disabled = true; btn.innerText = 'Memproses...';
+    const method = document.querySelector('input[name="paymentMethod"]:checked').value;
+
+    if (method === 'wallet') {
+        try {
+            const u = await fetchAPI('/api/users/' + currentUser.id);
+            const wallet = typeof u.wallet === 'string' ? JSON.parse(u.wallet) : u.wallet;
+            if (wallet.available < pricingData.price) throw new Error('Saldo tidak mencukupi');
+
+            const newWallet = { ...wallet, available: wallet.available - pricingData.price };
+            await fetchAPI('/api/users/' + currentUser.id, {
+                method: 'PUT',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ ...u, wallet: newWallet })
+            });
+
+            const bannerId = Date.now().toString();
+            await fetchAPI('/api/banners', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({
+                    id: bannerId,
+                    title: 'Promosi: ' + document.getElementById('promoteProductName').textContent,
+                    imageUrl: document.getElementById('promoteImageUrl').value,
+                    linkUrl: '/',
+                    active: true,
+                    createdAt: new Date().toISOString()
+                })
+            });
+
+            showToast('success', 'Banner berhasil dibuat!');
+            closePromoteModal();
+        } catch(e) { showToast('error', e.message); }
+    } else {
+        showToast('info', 'Metode Midtrans belum tersedia di demo ini.');
+    }
+    btn.disabled = false; btn.innerText = 'Bayar & Promosikan';
+});
 </script>
 </body>
 </html>
