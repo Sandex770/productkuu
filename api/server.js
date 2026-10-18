@@ -17,7 +17,7 @@ app.use(express.static(publicDir));
 
 const JWT_SECRET = process.env.JWT_SECRET || 'rahasia_super_aman_productkuu';
 const GATEWAY_URL = process.env.GATEWAY_URL || 'http://127.0.0.1:4000';
-const GATEWAY_API_KEY = process.env.GATEWAY_API_KEY || 'secret-key-pilihanmu';
+const GATEWAY_API_KEY = process.env.GATEWAY_API_KEY || 'Sanzzdexsad';
 
 // ============================================
 // AUTHENTICATION (LOGIN & REGISTER)
@@ -116,6 +116,161 @@ function toProduct(row) {
     ...detail // Gabungkan sisa data (type, kategori, dll)
   };
 }
+
+// ============================================
+// KHUSUS USERS
+// ============================================
+app.get('/api/users', (req, res) => {
+    try {
+        const users = db.prepare('SELECT * FROM users').all();
+        
+        // Ambil semua produk dan order untuk menghitung statistik
+        ensureTable('products');
+        ensureTable('orders');
+        const allProducts = db.prepare('SELECT * FROM products').all();
+        const allOrders = db.prepare('SELECT * FROM orders').all();
+
+        users.forEach(u => {
+            if (u.wallet) { try { u.wallet = JSON.parse(u.wallet); } catch(e){} }
+            delete u.password; 
+
+            // Hitung jumlah produk seller ini
+            const myProducts = allProducts.filter(p => p.seller_id === u.id || JSON.parse(p.data || '{}').sellerId === u.id);
+            u.productCount = myProducts.length;
+
+            // Hitung total penjualan dari order yang sukses
+            let sales = 0;
+            allOrders.forEach(o => {
+                const orderData = JSON.parse(o.data || '{}');
+                if (orderData.sellerId === u.id && (orderData.paymentStatus === 'settlement' || orderData.paymentStatus === 'paid')) {
+                    sales += (orderData.qty || 1);
+                }
+            });
+            u.totalSales = sales;
+        });
+        
+        res.json(users); 
+    } catch(e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.get('/api/users/:id', (req, res) => {
+    try {
+        const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        
+        // PERBAIKAN: Parse string JSON kembali menjadi object sebelum dikirim ke frontend
+        if (user.wallet && typeof user.wallet === 'string') {
+            try { user.wallet = JSON.parse(user.wallet); } catch(e) { user.wallet = { available: 0, holding: 0, totalRevenue: 0, totalWithdraw: 0 }; }
+        }
+        
+        delete user.password;
+        res.json(user); 
+    } catch(e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.put('/api/users/:id', (req, res) => {
+    try {
+        const id = req.params.id;
+        const b = req.body;
+        
+        const existing = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+        if (!existing) return res.status(404).json({ error: 'User tidak ditemukan' });
+
+        const displayName = b.displayName || existing.displayName;
+        const role = b.role || existing.role;
+        const status = b.status || existing.status;
+        const storeName = b.storeName || existing.storeName;
+        const level = b.level || existing.level;
+        const verified = b.verified !== undefined ? (b.verified ? 1 : 0) : existing.verified;
+        
+        // PERBAIKAN: Pastikan wallet disimpan sebagai String JSON
+        let walletStr = existing.wallet;
+        if (b.wallet) {
+            walletStr = typeof b.wallet === 'string' ? b.wallet : JSON.stringify(b.wallet);
+        }
+
+        db.prepare(`
+            UPDATE users SET 
+                displayName = ?, role = ?, status = ?, 
+                storeName = ?, level = ?, verified = ?, 
+                wallet = ? 
+            WHERE id = ?
+        `).run(
+            displayName, role, status, 
+            storeName, level, verified, 
+            walletStr, id
+        );
+
+        res.json({ ok: true, message: 'Data user berhasil diperbarui' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+
+app.put('/api/withdrawals/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const { status, adminNote } = req.body;
+
+        // 1. Ambil data withdraw
+        const w = db.prepare('SELECT * FROM withdrawals WHERE id = ?').get(id);
+        if (!w) return res.status(404).json({ error: 'Withdraw tidak ditemukan' });
+        
+        let wData = JSON.parse(w.data || '{}');
+        const oldStatus = wData.status;
+        const newStatus = status;
+        const amount = parseInt(wData.amount) || 0;
+        const sellerId = wData.sellerId;
+
+        // Jika statusnya sama, tidak perlu proses saldo
+        if (oldStatus === newStatus) {
+            return res.json({ ok: true, message: 'Status tidak berubah' });
+        }
+
+        // 2. Update data Withdraw
+        wData.status = newStatus;
+        wData.adminNote = adminNote || '';
+        wData.updatedAt = new Date().toISOString();
+        db.prepare('UPDATE withdrawals SET data = ? WHERE id = ?').run(JSON.stringify(wData), id);
+
+        // 3. Update Saldo Seller (Jika ada sellerId)
+        if (sellerId) {
+            const userRow = db.prepare('SELECT * FROM users WHERE id = ?').get(sellerId);
+            if (userRow) {
+                let wallet = JSON.parse(userRow.wallet || '{"available":0,"holding":0,"totalRevenue":0,"totalWithdraw":0}');
+                let pending = wallet.pendingWithdraw || 0;
+
+                if (newStatus === 'rejected' && oldStatus === 'pending') {
+                    // JIKA DITOLAK: Kembalikan saldo ke Available
+                    wallet.available = (wallet.available || 0) + amount;
+                    wallet.pendingWithdraw = Math.max(0, pending - amount);
+                } 
+                else if (newStatus === 'approved' && oldStatus === 'pending') {
+                    // JIKA DISETUJUI: Kurangi pending, tambah total withdraw
+                    wallet.pendingWithdraw = Math.max(0, pending - amount);
+                    wallet.totalWithdraw = (wallet.totalWithdraw || 0) + amount;
+                }
+
+                // Simpan perubahan wallet
+                db.prepare('UPDATE users SET wallet = ? WHERE id = ?')
+                  .run(JSON.stringify(wallet), sellerId);
+            }
+        }
+
+        res.json({ ok: true, message: 'Status withdraw berhasil diupdate' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
+
 
 // ============================================
 // PRODUCTS
@@ -270,7 +425,7 @@ app.get('/api/orders/:orderId/delivery', (req, res) => {
 // ============================================
 // GENERIC COLLECTION (UNTUK ADMIN PANEL & API)
 // ============================================
-const ALLOWED = ['products','orders','categories','banners','withdrawals','notifications','reviews','settings'];
+const ALLOWED = ['products','orders','users','categories','banners','withdrawals','notifications','reviews','settings'];
 
 function ensureTable(name) {
   db.exec('CREATE TABLE IF NOT EXISTS ' + name + ' (id TEXT PRIMARY KEY, data TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
@@ -350,7 +505,11 @@ app.post('/api/payment/create-qris', async (req, res) => {
     });
 
     if (!ok) return res.status(status).json({ error: data.error || 'Gagal membuat QRIS' });
-    const qrId = data.id || data.qrId || data.qrisId;
+    
+    // PERBAIKAN: Cari ID dari semua kemungkinan nama properti
+    const qrId = data.id || data.qrId || data.qr_id || data.qrisId || data.qris_id || (data.data && data.data.id) || (data.qr && data.qr.id);
+    // PERBAIKAN: Tangkap teks mentah QR jika ada
+    const qrString = data.qris || data.qr_string || data.qrString || (data.data && data.data.qris);
 
     if (orderId) {
       ensureTable('orders');
@@ -358,11 +517,20 @@ app.post('/api/payment/create-qris', async (req, res) => {
       if (row) {
         const obj = rowToObj(row);
         obj.uniqueAmount = uniqueAmount;
-        obj.qrId = qrId;
+        if (qrId) obj.qrId = qrId;
+        if (qrString) obj.qris = qrString;
         db.prepare('UPDATE orders SET data = ? WHERE id = ?').run(JSON.stringify(obj), orderId);
       }
     }
-    res.json({ success: true, amount: uniqueAmount, qrId, qrUrl: `/api/payment/qr/${qrId}` });
+    
+    // Kirim semua kemungkinan ke frontend
+    res.json({ 
+        success: true, 
+        amount: uniqueAmount, 
+        qrId: qrId || null,
+        qris: qrString || null,
+        qrUrl: qrId ? `/api/payment/qr/${qrId}` : null
+    });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
