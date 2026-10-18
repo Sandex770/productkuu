@@ -8,6 +8,8 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Library untuk merender QR dari teks mentah (jika gateway mengirim string) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root,[data-theme="light"]{--bg:#F4F1E8;--bg-grid:rgba(0,0,0,.055);--surface:#FFF;--surface-2:#FAF8F0;--ink:#0A0A0A;--ink-muted:#4A4A4A;--ink-soft:#7A7A7A;--lime:#C4F000;--lime-deep:#9BC400;--amber:#FFC400;--amber-deep:#D9A300;--blue:#2B6FFF;--blue-deep:#1E4FCC;--blue-soft:#E6EEFF;--border:#0A0A0A;--border-width:2px;--shadow-color:#0A0A0A;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(0,0,0,.08);--nav-bg:#F4F1E8}
 [data-theme="dark"]{--bg:#0B0B0D;--bg-grid:rgba(255,255,255,.045);--surface:#16161A;--surface-2:#1E1E24;--ink:#F5F3EC;--ink-muted:#B8B8C0;--ink-soft:#8A8A92;--lime:#C4F000;--lime-deep:#A8D400;--amber:#FFC400;--amber-deep:#E0AC00;--blue:#4D8BFF;--blue-deep:#2B6FFF;--blue-soft:#1A2540;--border:#F5F3EC;--border-width:2px;--shadow-color:#F5F3EC;--shadow-x:4px;--shadow-y:4px;--grid-line:rgba(255,255,255,.06);--nav-bg:#0B0B0D}
@@ -25,6 +27,22 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);
 .qris-image{max-width:280px;width:100%;border:2px solid var(--border);margin:0 auto;display:block}
 .spinner{animation:spin .8s linear infinite;display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* DEBUG CONSOLE */
+#debugConsole {
+    position: fixed; bottom: 20px; left: 20px; right: 20px; max-width: 600px;
+    background: #000; color: #00FF00; border: 2px solid #333;
+    box-shadow: 4px 4px 0 #000; padding: 16px; font-family: monospace;
+    font-size: 12px; max-height: 40vh; overflow-y: auto; z-index: 9999;
+    display: none; border-radius: 4px; white-space: pre-wrap;
+}
+#debugConsole.show { display: block; }
+.debug-toggle {
+    position: fixed; bottom: 20px; left: 20px; z-index: 10000;
+    background: #333; color: #fff; border: 2px solid #000;
+    padding: 8px 12px; font-size: 12px; font-weight: bold;
+    cursor: pointer; box-shadow: 2px 2px 0 #000;
+}
 </style>
 </head>
 <body data-theme="light">
@@ -62,8 +80,18 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);
         </div>
 
         <div id="qrisSection">
-            <div class="mb-6">
-                <img alt="QRIS" class="qris-image" id="qrisImage" src=""/>
+            <div class="mb-6 flex flex-col items-center justify-center">
+                <!-- Container QR Code -->
+                <div id="qrcode" class="p-2 bg-white border-2 border-[var(--border)] shadow-[4px_4px_0px_var(--shadow-color)] hidden mb-4"></div>
+                
+                <!-- Gambar QRIS -->
+                <img alt="QRIS" class="qris-image hidden mb-4" id="qrisImage" src="" onerror="logDebug('❌ Gambar QR gagal dimuat via URL'); this.style.display='none';" />
+                
+                <!-- Fallback -->
+                <div class="hidden mt-4 p-8 border-2 border-dashed border-[var(--ink-soft)] bg-[var(--bg)]" id="qrisFallback">
+                    <span class="material-symbols-outlined text-5xl text-[var(--ink-soft)]">qr_code_2</span>
+                    <p class="mt-2 text-sm font-bold text-[var(--ink-muted)]">QR Code gagal dimuat</p>
+                </div>
             </div>
             <div class="mb-6">
                 <p class="text-xs font-mono-tag font-bold text-[var(--ink-muted)] mb-1">SISA WAKTU</p>
@@ -80,20 +108,34 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg);color:var(--ink);
 </div>
 </main>
 
+<!-- ELEMEN DEBUG -->
+<button class="debug-toggle" onclick="document.getElementById('debugConsole').classList.toggle('show')">🐞 Toggle Debug</button>
+<div id="debugConsole"></div>
+
 <script>
 let orderId = ''; let amount = 0; let uniqueAmount = 0;
 let countdownInterval = null; let checkInterval = null; let isPaid = false;
 
+function logDebug(msg) {
+    const consoleEl = document.getElementById('debugConsole');
+    const time = new Date().toLocaleTimeString();
+    consoleEl.innerText += `[${time}] ${msg}\n`;
+    consoleEl.scrollTop = consoleEl.scrollHeight;
+    console.log(msg);
+}
+
 function formatPrice(p) { return new Intl.NumberFormat('id-ID').format(p || 0); }
 
 async function loadOrderDetails() {
+    logDebug(`📦 Memuat detail order: ${orderId}`);
     try {
         const res = await fetch('/api/orders/' + orderId);
-        const order = await res.json();
+        if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
         
-        if(order.items && order.items.length > 0) {
+        const order = await res.json();
+        if(order && order.items && order.items.length > 0) {
             document.getElementById('orderItemsList').innerHTML = order.items.map(item => `
-                <div class="flex justify-between items-start border-b border-[var(--border)] pb-2">
+                <div class="flex justify-between items-start border-b border-[var(--border)] pb-2 mb-2">
                     <div>
                         <div class="font-black">${item.name}</div>
                         <div class="text-xs font-mono-tag text-[var(--ink-muted)]">${item.qty} x Rp${formatPrice(item.price)}</div>
@@ -101,24 +143,85 @@ async function loadOrderDetails() {
                     <div class="font-bold text-[var(--blue)]">Rp${formatPrice(item.price * item.qty)}</div>
                 </div>
             `).join('');
+            
+            if (!amount && order.amount) {
+                amount = parseInt(order.amount);
+                document.getElementById('totalAmount').textContent = `Rp${formatPrice(amount)}`;
+            }
         }
-    } catch(e) { console.error('Gagal load order', e); }
+    } catch(e) { 
+        logDebug(`❌ Gagal load order: ${e.message}`);
+    }
 }
 
 async function createQris() {
+    logDebug(`🎬 Membuat QRIS dengan Amount: ${amount}`);
     try {
+        if (!amount || isNaN(amount) || amount <= 0) {
+            throw new Error('Nominal pembayaran tidak valid');
+        }
+
         const res = await fetch('/api/payment/create-qris', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount, orderId })
+            body: JSON.stringify({ amount: amount, orderId: orderId })
         });
+        
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
+        logDebug(`✅ Respons QRIS: ${JSON.stringify(data)}`);
+        
+        if (!res.ok) throw new Error(data.error || 'Gagal membuat QRIS');
+        
         uniqueAmount = data.amount;
         document.getElementById('totalAmount').textContent = `Rp${formatPrice(uniqueAmount)}`;
-        if (data.qrId) document.getElementById('qrisImage').src = `/api/payment/qr/${data.qrId}`;
-    } catch (e) {
-        alert('Gagal membuat QRIS: ' + e.message);
+        
+        // Sembunyikan semua UI QR terlebih dahulu
+        document.getElementById('qrcode').style.display = 'none';
+        document.getElementById('qrcode').innerHTML = '';
+        document.getElementById('qrisImage').style.display = 'none';
+        document.getElementById('qrisFallback').style.display = 'none';
+
+        const qrRawData = data.qris || data.qr_string || data.qrString;
+        const qrImageData = data.qr_image || data.qrImage;
+        const qrId = data.qrId || data.id;
+
+        // 1. Jika ada ID (menggunakan Proxy)
+        if (qrId) {
+            logDebug(`🔗 Merender QR via API Proxy: /api/payment/qr/${qrId}`);
+            const imgEl = document.getElementById('qrisImage');
+            imgEl.src = `/api/payment/qr/${qrId}`;
+            imgEl.style.display = 'block';
+        } 
+        // 2. Jika Gateway mengembalikan Base64 Gambar
+        else if (qrImageData) {
+            logDebug(`🖼️ Merender QR dari data Base64`);
+            const imgEl = document.getElementById('qrisImage');
+            imgEl.src = qrImageData.startsWith('data:image') ? qrImageData : `data:image/png;base64,${qrImageData}`;
+            imgEl.style.display = 'block';
+        }
+        // 3. Jika Gateway mengembalikan Teks EMVCo Mentah
+        else if (qrRawData) {
+            logDebug(`🔨 Merender QR dari Teks Mentah (qrString)`);
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.style.display = 'block';
+            new QRCode(qrContainer, {
+                text: qrRawData,
+                width: 240,
+                height: 240,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        } 
+        // 4. Jika tidak ada data yang dikenali
+        else {
+            logDebug(`❌ API tidak mengembalikan ID, Image, atau String QR.`);
+            document.getElementById('qrisFallback').style.display = 'block';
+        }
+
+    } catch (e) { 
+        logDebug(`❌ Gagal membuat QRIS: ${e.message}`);
+        alert('Gagal membuat QRIS: ' + e.message); 
     }
 }
 
@@ -144,19 +247,20 @@ function startCountdown(minutes = 15) {
 
 async function checkPaymentStatus() {
     if (isPaid) return;
+    logDebug('🔍 Memeriksa status pembayaran...');
     try {
         const res = await fetch('/api/payment/check', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: uniqueAmount, startTime: Math.floor(Date.now() / 1000) - 900 })
+            body: JSON.stringify({ amount: uniqueAmount || amount, startTime: Math.floor(Date.now() / 1000) - 900 })
         });
         const data = await res.json();
+        
         if (data.paid) {
             isPaid = true;
-            clearInterval(checkInterval);
-            clearInterval(countdownInterval);
+            clearInterval(checkInterval); clearInterval(countdownInterval);
+            logDebug('🎉 PEMBAYARAN SUKSES!');
             
-            // Update order status to paid
             const oRes = await fetch('/api/orders/' + orderId);
             const order = await oRes.json();
             await fetch('/api/orders', {
@@ -168,25 +272,34 @@ async function checkPaymentStatus() {
             document.getElementById('statusTag').textContent = 'PEMBAYARAN BERHASIL';
             document.getElementById('statusTag').style.background = 'var(--lime)';
             document.getElementById('qrisSection').style.display = 'none';
-            setTimeout(() => {
-                window.location.href = `/success?order=${orderId}`;
-            }, 1500);
+            setTimeout(() => { window.location.href = `/success?order=${orderId}`; }, 1500);
         }
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        logDebug(`❌ Gagal cek status: ${e.message}`);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    logDebug('🚀 Halaman Payment dimuat.');
     const params = new URLSearchParams(window.location.search);
-    orderId = params.get('order');
-    amount = parseInt(params.get('amount') || '0');
+    orderId = params.get('order') || params.get('orderId');
     
-    document.getElementById('orderIdDisplay').textContent = orderId;
+    const rawAmount = params.get('amount') || params.get('total') || '0';
+    amount = parseInt(rawAmount, 10) || 0;
+    logDebug(`🔗 Parameter URL - Order: ${orderId}, Amount: ${amount}`);
+    
+    document.getElementById('orderIdDisplay').textContent = orderId || '-';
     document.getElementById('totalAmount').textContent = `Rp${formatPrice(amount)}`;
     
     await loadOrderDetails();
-    await createQris();
-    startCountdown(15);
-    checkInterval = setInterval(checkPaymentStatus, 3000);
+    
+    if (amount > 0) {
+        await createQris();
+        startCountdown(15);
+        checkInterval = setInterval(checkPaymentStatus, 3000);
+    } else {
+        alert('Nominal tidak valid. Silakan kembali dan checkout ulang.');
+    }
     
     document.getElementById('checkStatusBtn').addEventListener('click', checkPaymentStatus);
 });

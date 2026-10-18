@@ -26,6 +26,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-
 .nav-link{position:relative;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--ink);text-decoration:none;padding:6px 2px;transition:color .15s}
 .nav-link::after{content:"";position:absolute;left:0;right:100%;bottom:0;height:3px;background:var(--lime);transition:right .22s cubic-bezier(.7,0,.3,1)}
 .nav-link:hover::after{right:0}.nav-link:hover{color:var(--blue)}
+.nav-link.active{color:var(--blue)}.nav-link.active::after{right:0;background:var(--blue)}
 .theme-toggle{width:42px;height:42px;border:var(--border-width) solid var(--border);background:var(--surface);color:var(--ink);box-shadow:3px 3px 0 var(--shadow-color);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;position:relative;overflow:hidden}
 .theme-toggle:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--blue);background:var(--blue);color:#FFF;border-color:var(--blue)}
 .theme-toggle .icon-sun,.theme-toggle .icon-moon{position:absolute;transition:all .35s;font-size:20px}
@@ -36,6 +37,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-
 .btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.6px;padding:12px 22px;border:var(--border-width) solid var(--border);border-radius:0;cursor:pointer;text-decoration:none;transition:all .09s;white-space:nowrap}
 .btn-primary{background:var(--lime);color:#0A0A0A;box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
 .btn-primary:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--shadow-color);background:var(--amber)}
+.btn-primary:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--shadow-color)}
 .btn-secondary{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color)}
 .btn-secondary:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--blue);border-color:var(--blue);color:var(--blue)}
 .stat-card{background:var(--surface);border:var(--border-width) solid var(--border);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color);padding:22px 16px;text-align:center;position:relative;transition:all .12s}
@@ -50,22 +52,31 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-
 .feature-icon.lime{background:var(--lime);color:#0A0A0A}
 .feature-icon.amber{background:var(--amber);color:#0A0A0A}
 .feature-icon.blue{background:var(--blue);color:#FFF}
-.product-card{background:var(--surface);border:var(--border-width) solid var(--border);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color);transition:all .14s;overflow:hidden;display:flex;flex-direction:column;position:relative;cursor:pointer}
+.product-card{background:var(--surface);border:var(--border-width) solid var(--border);box-shadow:var(--shadow-x) var(--shadow-y) 0 var(--shadow-color);transition:all .14s;overflow:hidden;display:flex;flex-direction:column;position:relative}
 .product-card:hover{transform:translate(-4px,-4px);box-shadow:9px 9px 0 var(--lime);border-color:var(--lime)}
-.product-image{position:relative;height:190px;overflow:hidden;background:var(--surface-2);border-bottom:var(--border-width) solid var(--border)}
+.product-image{position:relative;height:190px;overflow:hidden;background:var(--surface-2);border-bottom:var(--border-width) solid var(--border);cursor:pointer}
 .product-image img{width:100%;height:100%;object-fit:cover;transition:transform .5s;filter:contrast(1.03) saturate(1.05)}
 .product-card:hover .product-image img{transform:scale(1.06)}
 .badge{position:absolute;top:10px;right:10px;background:var(--amber);color:#0A0A0A;font-size:10px;font-weight:900;text-transform:uppercase;padding:4px 9px;border:1.5px solid #0A0A0A;box-shadow:2px 2px 0 #0A0A0A;letter-spacing:.5px;font-family:'Space Mono',monospace;z-index:4}
 .badge-sold{position:absolute;bottom:10px;left:10px;background:var(--ink);border:1.5px solid var(--bg);color:var(--bg);font-size:10px;font-weight:800;padding:3px 8px;box-shadow:2px 2px 0 var(--bg);font-family:'Space Mono',monospace;z-index:4}
 .product-body{padding:18px;flex:1;display:flex;flex-direction:column}
-.product-name{font-size:16px;font-weight:900;color:var(--ink);margin-bottom:4px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.product-card:hover .product-name{color:var(--blue)}
+.product-name{font-size:16px;font-weight:900;color:var(--ink);margin-bottom:4px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
+.product-name:hover{color:var(--blue)}
 .product-category{font-size:10px;color:var(--blue);text-transform:uppercase;letter-spacing:1.2px;font-weight:800;font-family:'Space Mono',monospace}
 .product-seller{font-size:12px;color:var(--ink-muted);margin:8px 0 12px;display:flex;align-items:center;gap:6px;font-weight:600}
-.product-footer{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-top:12px;border-top:1.5px dashed var(--ink-soft);margin-top:auto}
+.product-footer{display:flex;flex-direction:column;gap:8px;margin-top:auto;padding-top:12px;border-top:1.5px dashed var(--ink-soft)}
+.product-price-row{display:flex;justify-content:space-between;align-items:center}
 .product-price{font-size:20px;font-weight:900;color:var(--blue);font-family:'Space Mono',monospace}
-.btn-add-cart{width:100%;background:transparent;color:var(--ink);border:var(--border-width) solid var(--border);padding:10px;font-weight:900;font-size:12px;text-transform:uppercase;letter-spacing:.6px;box-shadow:3px 3px 0 var(--shadow-color);transition:all .08s;cursor:pointer}
-.btn-add-cart:hover{background:var(--lime);color:#0A0A0A;transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--shadow-color)}
+.product-sales{font-size:12px;color:var(--ink-muted);font-weight:600}
+.accordion-btn{background:none;border:none;color:var(--ink-muted);font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 0;text-transform:uppercase;letter-spacing:0.5px}
+.accordion-btn:hover{color:var(--blue)}
+.accordion-content{display:none;font-size:13px;color:var(--ink-muted);margin-bottom:12px;padding:10px;background:var(--bg);border:1px dashed var(--border);line-height:1.5}
+.accordion-content.open{display:block}
+.product-actions{display:flex;gap:8px;margin-top:12px}
+.btn-add-cart-sm{flex:1;background:var(--surface);color:var(--ink);border:var(--border-width) solid var(--border);padding:8px;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:.6px;box-shadow:2px 2px 0 var(--shadow-color);transition:all .08s;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px}
+.btn-add-cart-sm:hover{background:var(--amber);color:#0A0A0A;transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--shadow-color)}
+.btn-buy-now{flex:1;background:var(--lime);color:#0A0A0A;border:var(--border-width) solid var(--border);padding:8px;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:.6px;box-shadow:2px 2px 0 var(--shadow-color);transition:all .08s;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px}
+.btn-buy-now:hover{background:var(--blue);color:#FFF;transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--shadow-color)}
 .tab{padding:9px 18px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.6px;color:var(--ink);background:var(--surface);border:var(--border-width) solid var(--border);box-shadow:3px 3px 0 var(--shadow-color);cursor:pointer;transition:all .08s}
 .tab.active{background:var(--blue);color:#FFF;border-color:var(--blue);box-shadow:4px 4px 0 var(--amber);transform:translate(-2px,-2px)}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(2px);z-index:2000;align-items:center;justify-content:center;padding:20px}
@@ -97,11 +108,26 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-
 .banner-btn{position:absolute;top:50%;transform:translateY(-50%);background:var(--surface);border:var(--border-width) solid var(--border);color:var(--ink);width:42px;height:42px;box-shadow:3px 3px 0 var(--shadow-color);font-size:20px;font-weight:900;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center}
 .banner-btn.prev{left:16px}.banner-btn.next{right:16px}
 .wavy-underline{text-decoration:underline;text-decoration-style:wavy;text-decoration-color:var(--amber);text-decoration-thickness:3px;text-underline-offset:6px}
+
+#cartFab{position:fixed;bottom:24px;left:24px;z-index:1500;background:var(--blue);color:#FFF;border:2px solid var(--border);box-shadow:4px 4px 0 var(--shadow-color);width:60px;height:60px;display:none;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
+#cartFab:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--shadow-color)}
+#cartCount{position:absolute;top:-10px;right:-10px;background:var(--amber);color:#0A0A0A;font-size:14px;font-weight:900;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid var(--border)}
+.cart-item{display:flex;gap:12px;padding:12px;border-bottom:2px dashed var(--ink-soft);align-items:center}
+.cart-item img{width:60px;height:60px;object-fit:cover;border:2px solid var(--border)}
+.cart-item-info{flex:1}
+.cart-item-title{font-weight:900;font-size:14px;line-height:1.2}
+.cart-item-price{font-family:'Space Mono',monospace;font-weight:700;color:var(--blue);font-size:13px}
+.qty-control{display:flex;align-items:center;gap:8px;border:2px solid var(--border);background:var(--bg)}
+.qty-btn{background:none;border:none;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-weight:900;cursor:pointer;color:var(--ink)}
+.qty-btn:hover{background:var(--border);color:var(--surface)}
+.qty-val{font-family:'Space Mono',monospace;font-weight:700;font-size:14px;min-width:20px;text-align:center}
+
 @media(max-width:768px){.banner-slide{height:240px}.banner-slide-content{padding:24px}.banner-slide-content h3{font-size:20px}.navbar{height:68px}body{background-size:24px 24px}}
 </style>
 </head>
 <body data-theme="light">
 
+<!-- NAVBAR -->
 <nav class="navbar" id="navbar">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-3">
     <a class="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-2 shrink-0" href="/">
@@ -126,15 +152,16 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-
             <span class="material-symbols-outlined icon-moon">dark_mode</span>
         </button>
         <button class="btn btn-secondary hidden sm:inline-flex !py-2 !px-3.5" onclick="window.location.href='/seller/login'">Masuk</button>
-        <button class="btn btn-primary !py-2 !px-3.5" onclick="openCart()">
+        <button class="btn btn-primary !py-2 !px-3.5" onclick="openCartModal()">
             <span class="material-symbols-outlined text-lg">shopping_cart</span> <span class="hidden sm:inline">Keranjang</span>
-            <span id="cartBadge" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-[var(--border)]" style="display:none;">0</span>
+            <span id="navCartCount" class="hidden bg-[#0A0A0A] text-[var(--lime)] text-[10px] font-black px-1.5 py-0.5 rounded-full ml-1"></span>
         </button>
     </div>
 </div>
 </nav>
 
 <main>
+<!-- HERO -->
 <section class="relative pt-40 pb-20 overflow-hidden" id="home">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center">
     <div class="inline-flex items-center gap-2 mb-8">
@@ -162,6 +189,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-
 </div>
 </section>
 
+<!-- MARQUEE -->
 <div class="marquee"><div class="marquee-track">
     <span>★ SOURCE CODE</span><span>◆ TEMPLATE PREMIUM</span><span>● PLUGIN & TOOLS</span>
     <span>▲ DESIGN ASSETS</span><span>■ COURSE & EBOOK</span><span>✦ PRESET</span>
@@ -169,6 +197,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-
     <span>▲ DESIGN ASSETS</span><span>■ COURSE & EBOOK</span><span>✦ PRESET</span>
 </div></div>
 
+<!-- BANNER -->
 <section class="py-16 px-4 sm:px-6">
 <div class="max-w-7xl mx-auto">
     <div class="banner-carousel" id="bannerCarousel">
@@ -186,6 +215,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-
 </div>
 </section>
 
+<!-- FEATURES -->
 <section class="py-20 border-y-2 border-[var(--border)] bg-[var(--surface)]">
 <div class="max-w-7xl mx-auto px-4 sm:px-6">
     <div class="text-center mb-14">
@@ -201,6 +231,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-
 </div>
 </section>
 
+<!-- PRODUCTS -->
 <section class="py-20" id="products">
 <div class="max-w-7xl mx-auto px-4 sm:px-6">
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -225,6 +256,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-
 </div>
 </section>
 
+<!-- SELLER CTA -->
 <section class="py-16 px-4 sm:px-6" id="seller">
 <div class="max-w-7xl mx-auto bg-[var(--ink)] border-4 border-[var(--border)] shadow-[12px_12px_0px_var(--lime)] p-8 sm:p-14 md:p-20 text-center relative overflow-hidden">
     <div class="relative z-10">
@@ -240,6 +272,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-
 </section>
 </main>
 
+<!-- FOOTER -->
 <footer class="bg-[var(--ink)] border-t-4 border-[var(--border)] pt-16 pb-10" id="footer">
 <div class="max-w-7xl mx-auto px-4 sm:px-6">
     <div class="pt-6 border-t-2 border-[rgba(184,184,192,0.25)] flex flex-col md:flex-row justify-between items-center gap-4">
@@ -248,19 +281,31 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-
 </div>
 </footer>
 
-<div id="toastContainer"></div>
+<!-- FLOATING CART BUTTON -->
+<div id="cartFab" onclick="openCartModal()">
+    <span class="material-symbols-outlined text-3xl">shopping_cart</span>
+    <span id="cartCount">0</span>
+</div>
 
-<!-- CHECKOUT MODAL -->
+<!-- CHECKOUT DIRECT MODAL -->
 <div class="modal-overlay" id="checkoutModal">
 <div class="modal">
     <button class="modal-close" onclick="closeCheckoutModal()">×</button>
-    <span class="neo-tag blue mb-4">CHECKOUT</span>
+    <span class="neo-tag blue mb-4">BELI LANGSUNG</span>
     <h3 class="font-display text-2xl text-[var(--ink)] mb-5 mt-3">Detail Pembelian</h3>
+    <div class="bg-[var(--bg)] border-2 border-[var(--border)] p-4 mb-5 shadow-[4px_4px_0px_var(--blue)]">
+        <p class="text-[var(--ink)] font-extrabold text-sm mb-1" id="checkoutProductName">-</p>
+        <p class="text-2xl font-black text-[var(--blue)] font-mono-tag" id="checkoutProductPrice">Rp0</p>
+    </div>
     <form id="checkoutForm">
         <div class="space-y-4">
             <div><label class="form-label" for="checkoutName">Nama Lengkap *</label><input class="form-input" id="checkoutName" required type="text"/></div>
             <div><label class="form-label" for="checkoutEmail">Email Aktif *</label><input class="form-input" id="checkoutEmail" required type="email"/></div>
             <div><label class="form-label" for="checkoutPhone">Nomor WhatsApp</label><input class="form-input" id="checkoutPhone" type="tel"/></div>
+            <div>
+                <label class="form-label" for="checkoutQty">Jumlah Beli *</label>
+                <input class="form-input" id="checkoutQty" type="number" min="1" value="1" required/>
+            </div>
             <div class="error-message" id="checkoutError"></div>
             <button class="btn btn-primary w-full !py-3.5 !text-sm mt-2" id="checkoutBtn" type="submit"><i class="fas fa-credit-card"></i> Bayar Sekarang</button>
         </div>
@@ -271,201 +316,525 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background-
 <!-- CART MODAL -->
 <div class="modal-overlay" id="cartModal">
 <div class="modal">
-    <button class="modal-close" onclick="closeCart()">×</button>
-    <h3 class="font-display text-2xl text-[var(--ink)] mb-5">Keranjang Belanja</h3>
-    <div id="cartItems" class="space-y-4 mb-6 max-h-[300px] overflow-y-auto">
-        <p class="text-center font-bold text-[var(--ink-muted)] py-10">Keranjang kosong</p>
+    <button class="modal-close" onclick="closeCartModal()">×</button>
+    <span class="neo-tag amber mb-4">KERANJANG ANDA</span>
+    <h3 class="font-display text-2xl text-[var(--ink)] mb-5 mt-3">Daftar Belanja</h3>
+    
+    <div id="cartItemsContainer" class="mb-6">
+        <!-- Render via JS -->
     </div>
-    <div class="border-t-2 border-dashed border-[var(--ink-soft)] pt-4 mb-6">
-        <div class="flex justify-between font-black text-xl">
-            <span>Total:</span>
-            <span class="text-[var(--blue)] font-mono-tag" id="cartTotal">Rp0</span>
+
+    <div class="bg-[var(--bg)] border-2 border-[var(--border)] p-4 mb-5 shadow-[4px_4px_0px_var(--lime)] flex justify-between items-center">
+        <span class="font-bold text-[var(--ink-muted)]">Total Belanja</span>
+        <span class="text-2xl font-black text-[var(--blue)] font-mono-tag" id="cartTotal">Rp0</span>
+    </div>
+
+    <form id="cartCheckoutForm">
+        <div class="space-y-4">
+            <div><label class="form-label" for="cartName">Nama Lengkap *</label><input class="form-input" id="cartName" required type="text"/></div>
+            <div><label class="form-label" for="cartEmail">Email Aktif *</label><input class="form-input" id="cartEmail" required type="email"/></div>
+            <div><label class="form-label" for="cartPhone">Nomor WhatsApp</label><input class="form-input" id="cartPhone" type="tel"/></div>
+            <div class="error-message" id="cartError"></div>
+            <button class="btn btn-primary w-full !py-3.5 !text-sm mt-2" id="cartCheckoutBtn" type="submit">
+                <i class="fas fa-shopping-bag"></i> Checkout Keranjang
+            </button>
         </div>
-    </div>
-    <button class="btn btn-primary w-full !py-3" onclick="openCheckoutFromCart()">Lanjut ke Pembayaran</button>
+    </form>
 </div>
 </div>
+
+<div id="toastContainer"></div>
 
 <script>
+// ============================================
 // THEME
-(function() { const saved = localStorage.getItem('pk-theme'); if (saved) document.documentElement.setAttribute('data-theme', saved); })();
-document.getElementById('themeToggle').addEventListener('click', () => {
+// ============================================
+(function() {
+    const saved = localStorage.getItem('pk-theme');
+    if (saved === 'dark' || saved === 'light') document.documentElement.setAttribute('data-theme', saved);
+    else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.setAttribute('data-theme', 'dark');
+    else document.documentElement.setAttribute('data-theme', 'light');
+    document.addEventListener('DOMContentLoaded', () => {
+        document.body.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') || 'light');
+    });
+})();
+
+let currentProductId = null;
+let currentProductPrice = 0;
+let allProducts = [];
+let currentTab = 'new';
+let cart = JSON.parse(localStorage.getItem('pk_cart') || '[]');
+
+const navbar = document.getElementById('navbar');
+const productsGrid = document.getElementById('productsGrid');
+const searchInput = document.getElementById('searchInput');
+const checkoutModal = document.getElementById('checkoutModal');
+const cartModal = document.getElementById('cartModal');
+const themeToggle = document.getElementById('themeToggle');
+
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.body.setAttribute('data-theme', theme);
+    localStorage.setItem('pk-theme', theme);
+}
+themeToggle?.addEventListener('click', () => {
     const current = document.documentElement.getAttribute('data-theme') || 'light';
-    const next = current === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next); document.body.setAttribute('data-theme', next); localStorage.setItem('pk-theme', next);
+    applyTheme(current === 'dark' ? 'light' : 'dark');
 });
 
-// TOAST
+window.addEventListener('scroll', () => {
+    if (window.pageYOffset > 40) navbar.classList.add('nav-scrolled');
+    else navbar.classList.remove('nav-scrolled');
+});
+
 function showToast(type, message) {
     const container = document.getElementById('toastContainer');
-    const colors = { success: '#9BC400', error: '#D40000', warning: '#D9A300', info: '#2B6FFF' };
-    const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+    const icons = { success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
+    const colors = { success:'#9BC400', error:'#D40000', warning:'#D9A300', info:'#2B6FFF' };
     const color = colors[type] || colors.info;
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.style.borderColor = color;
     toast.style.boxShadow = `4px 4px 0px ${color}`;
-    toast.innerHTML = `<span class="toast-icon" style="color:${color}"><i class="fas ${icons[type]||icons.info}"></i></span><div class="toast-content">${message}</div><button class="toast-close"><i class="fas fa-times"></i></button>`;
+    toast.innerHTML = `
+        <span class="toast-icon" style="color:${color}"><i class="fas ${icons[type]||icons.info}"></i></span>
+        <div class="toast-content">${message}</div>
+        <button class="toast-close"><i class="fas fa-times"></i></button>`;
     toast.querySelector('.toast-close').addEventListener('click', () => toast.remove());
     container.appendChild(toast);
     setTimeout(() => toast.parentElement && toast.remove(), 5000);
 }
+window.showToast = showToast;
 
 function formatPrice(price) {
-    return new Intl.NumberFormat('id-ID').format(price || 0);
+    if (!price && price !== 0) return '0';
+    return new Intl.NumberFormat('id-ID').format(price);
 }
+window.formatPrice = formatPrice;
 
-// CART STATE
-let cart = JSON.parse(localStorage.getItem('pk-cart')) || [];
-let allProducts = [];
-
-function saveCart() {
-    localStorage.setItem('pk-cart', JSON.stringify(cart));
-    updateCartUI();
-}
-
-function updateCartUI() {
-    const badge = document.getElementById('cartBadge');
-    const container = document.getElementById('cartItems');
-    const totalEl = document.getElementById('cartTotal');
-    let total = 0;
-    let count = 0;
-
-    if(cart.length === 0) {
-        container.innerHTML = '<p class="text-center font-bold text-[var(--ink-muted)] py-10">Keranjang kosong</p>';
-        badge.style.display = 'none';
-        totalEl.textContent = 'Rp0';
-        return;
-    }
-
-    badge.style.display = 'flex';
-    
-    container.innerHTML = cart.map((c, i) => {
-        total += (c.price * c.qty);
-        count += c.qty;
-        return `
-            <div class="flex justify-between items-center border-b-2 border-dashed border-[var(--ink-soft)] pb-3">
-                <div>
-                    <div class="font-black">${c.name}</div>
-                    <div class="text-sm font-mono-tag text-[var(--ink-muted)]">Rp${formatPrice(c.price)} x ${c.qty}</div>
-                </div>
-                <button onclick="removeFromCart(${i})" class="text-red-500 hover:text-red-700 font-bold text-xl">&times;</button>
-            </div>
-        `;
-    }).join('');
-    
-    badge.textContent = count;
-    totalEl.textContent = `Rp${formatPrice(total)}`;
-}
-
-window.addToCart = (id) => {
-    const product = allProducts.find(p => p.id === id);
-    if(!product) return;
-    
-    const existing = cart.find(c => c.id === id);
-    if(existing) {
-        existing.qty += 1;
-    } else {
-        cart.push({ ...product, qty: 1 });
-    }
-    saveCart();
-    showToast('success', 'Masuk keranjang!');
-};
-
-window.removeFromCart = (index) => {
-    cart.splice(index, 1);
-    saveCart();
-};
-
-window.openCart = () => document.getElementById('cartModal').classList.add('open');
-window.closeCart = () => document.getElementById('cartModal').classList.remove('open');
-
-window.openCheckoutFromCart = () => {
-    if(cart.length === 0) return showToast('warning', 'Keranjang kosong!');
-    closeCart();
-    document.getElementById('checkoutModal').classList.add('open');
-};
-window.closeCheckoutModal = () => document.getElementById('checkoutModal').classList.remove('open');
-
-// LOAD PRODUCTS
-async function loadProducts() {
+// FUNGSI FETCH YANG LEBIH KUAT
+async function fetchAPI(endpoint) {
     try {
-        const res = await fetch('/api/products');
+        const res = await fetch(endpoint);
+        if (!res.ok) throw new Error('API error');
         const data = await res.json();
-        allProducts = data.products || data || [];
+        
+        // Jika API membungkus data
+        if (data.products) return data.products;
+        if (data.docs) return data.docs;
+        // Jika API mengembalikan array langsung
+        if (Array.isArray(data)) return data;
+        
+        // Jika API mengembalikan objek tunggal (untuk get user by id)
+        return data; 
+    } catch (e) {
+        console.warn("Gagal fetch API:", endpoint);
+        return []; // Kembalikan array kosong agar tidak error .filter()
+    }
+}
+
+async function loadStats() {
+    try {
+        const products = await fetchAPI('/api/products');
+        document.getElementById('statProducts').textContent = (Array.isArray(products) ? products.length : 0) + '+';
+
+        const users = await fetchAPI('/api/users');
+        const sellers = Array.isArray(users) ? users.filter(u => u.role === 'seller') : [];
+        document.getElementById('statSellers').textContent = sellers.length + '+';
+
+        const orders = await fetchAPI('/api/orders');
+        const validOrders = Array.isArray(orders) ? orders.filter(o => o.paymentStatus === 'settlement' || o.paymentStatus === 'paid') : [];
+        document.getElementById('statOrders').textContent = validOrders.length + '+';
+    } catch (error) {
+        console.error('Stats error:', error);
+        document.getElementById('statProducts').textContent = '0+';
+        document.getElementById('statSellers').textContent = '0+';
+        document.getElementById('statOrders').textContent = '0+';
+    }
+}
+
+async function loadBanners() {
+    try {
+        const banners = await fetchAPI('/api/banners');
+        const activeBanners = Array.isArray(banners) ? banners.filter(b => b.active === true || b.active === 1) : [];
+        
+        if (activeBanners.length === 0) return showFallbackBanner();
+
+        const slides = document.getElementById('bannerSlides');
+        const indicators = document.getElementById('bannerIndicators');
+        slides.innerHTML = activeBanners.map(b => `
+            <div class="banner-slide">
+                ${b.imageUrl ? `<img src="${b.imageUrl}" alt="${b.title||''}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">` : ''}
+                <div class="banner-slide-content">
+                    <h3>${b.title || 'Promo Spesial'}</h3>
+                    ${b.description ? `<p>${b.description}</p>` : ''}
+                    ${b.linkUrl ? `<a href="${b.linkUrl}">Lihat Detail →</a>` : ''}
+                </div>
+            </div>`).join('');
+        indicators.innerHTML = activeBanners.map((_, i) => `<button class="${i===0?'active':''}" data-index="${i}"></button>`).join('');
+        setupBannerCarousel();
+    } catch (e) {
+        console.error('Banners error:', e);
+        showFallbackBanner();
+    }
+}
+
+function showFallbackBanner() {
+    document.getElementById('bannerSlides').innerHTML = `
+        <div class="banner-slide"><div class="banner-slide-content">
+            <h3>🎉 Selamat Datang di ProductKuu</h3>
+            <p>Platform marketplace produk digital premium di Indonesia</p>
+            <a href="#products">Lihat Produk →</a>
+        </div></div>`;
+    document.getElementById('bannerIndicators').innerHTML = '';
+}
+
+let currentBannerIndex = 0, bannerInterval;
+function setupBannerCarousel() {
+    const slides = document.getElementById('bannerSlides');
+    const indicators = document.querySelectorAll('#bannerIndicators button');
+    if (!slides || slides.children.length === 0) return;
+    const total = slides.children.length;
+    if (total <= 1) return;
+
+    function goTo(i) {
+        if (i < 0) i = total - 1;
+        if (i >= total) i = 0;
+        currentBannerIndex = i;
+        slides.style.transform = `translateX(-${i*100}%)`;
+        indicators.forEach((ind, idx) => ind.className = idx === i ? 'active' : '');
+    }
+    document.getElementById('prevBanner')?.addEventListener('click', () => goTo(currentBannerIndex-1));
+    document.getElementById('nextBanner')?.addEventListener('click', () => goTo(currentBannerIndex+1));
+    indicators.forEach((ind, i) => ind.addEventListener('click', () => goTo(i)));
+    bannerInterval = setInterval(() => goTo(currentBannerIndex+1), 5000);
+}
+
+// FUNGSI GET SELLER YANG LEBIH AMAN
+const sellerCache = new Map();
+async function getSellerName(sellerId) {
+    if (!sellerId) return 'Seller';
+    if (sellerCache.has(sellerId)) return sellerCache.get(sellerId);
+    try {
+        const res = await fetch('/api/users/' + sellerId);
+        if(!res.ok) return 'Seller';
+        
+        const u = await res.json();
+        // Cek apakah data user valid dan punya nama toko
+        const name = u.storeName || u.displayName || u.name || 'Seller';
+        sellerCache.set(sellerId, name);
+        return name;
+    } catch (e) { 
+        return 'Seller'; 
+    }
+}
+
+async function loadProducts(tab = 'new') {
+    currentTab = tab;
+    try {
+        let products = await fetchAPI('/api/products');
+        
+        // Pastikan itu array sebelum di-filter
+        if (!Array.isArray(products)) products = [];
+        
+        products = products.filter(p => p.status === 'published');
+
+        for (let p of products) { 
+            p.sellerName = await getSellerName(p.sellerId); 
+        }
+
+        if (tab === 'trending') products = products.filter(p => p.isTrending);
+        else if (tab === 'bestseller') products = products.filter(p => p.isBestSeller);
+        else if (tab === 'premium') products = products.filter(p => p.isPremium);
+
+        let sortField = 'createdAt';
+        if (tab === 'trending') sortField = 'views';
+        else if (tab === 'bestseller') sortField = 'sales';
+        products.sort((a, b) => (b[sortField] || 0) - (a[sortField] || 0));
+
+        allProducts = products.slice(0, 8);
         renderProducts();
     } catch (error) {
-        document.getElementById('productsGrid').innerHTML = `<p class="text-center w-full text-red-500 font-bold col-span-full">Gagal memuat produk</p>`;
+        console.error('Products error:', error);
+        productsGrid.innerHTML = `<div class="col-span-full text-center py-20 border-2 border-dashed border-[var(--ink-soft)] bg-[var(--surface)]">
+            <span class="material-symbols-outlined text-5xl" style="color:#D40000;">error</span>
+            <p class="mt-4 font-black text-[var(--ink)]">Gagal memuat produk: ${error.message}</p>
+        </div>`;
     }
 }
 
 function renderProducts() {
-    const grid = document.getElementById('productsGrid');
-    if(allProducts.length === 0) {
-        grid.innerHTML = '<div class="col-span-full text-center py-10 font-bold">Belum ada produk.</div>';
+    if (!allProducts || allProducts.length === 0) {
+        productsGrid.innerHTML = `<div class="col-span-full text-center py-20 border-2 border-dashed border-[var(--ink-soft)] bg-[var(--surface)]">
+            <span class="material-symbols-outlined text-5xl text-[var(--ink-soft)]">inbox</span>
+            <p class="mt-4 font-black text-[var(--ink)]">Belum ada produk</p>
+        </div>`;
         return;
     }
-
-    grid.innerHTML = allProducts.map(p => `
+    productsGrid.innerHTML = allProducts.map(p => `
         <div class="product-card">
-            <div class="product-image">
-                <img src="${p.imageUrl || 'https://placehold.co/400x300?text=Product'}" alt="${p.name}">
+            <div class="product-image" onclick="window.buyNow('${p.id}')">
+                ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name||p.nama}" onerror="this.src='https://placehold.co/400x300/1E1E24/C4F000?text=Product'">` : `<img src="https://placehold.co/400x300/1E1E24/C4F000?text=Product" alt="product">`}
+                ${p.isPremium ? '<span class="badge">★ PREMIUM</span>' : ''}
                 ${p.sales > 0 ? `<span class="badge-sold">${p.sales} terjual</span>` : ''}
             </div>
             <div class="product-body">
-                <div class="product-name">${p.name}</div>
-                <div class="product-category">${p.category || 'DIGITAL'}</div>
+                <div class="product-name" onclick="window.buyNow('${p.id}')">${p.name || p.nama || '-'}</div>
+                <div class="product-category">${p.category || 'UNCATEGORIZED'}</div>
+                <div class="product-seller"><i class="fas fa-store"></i> ${p.sellerName || 'Seller'}</div>
+                
                 <div class="product-footer">
-                    <span class="product-price">Rp${formatPrice(p.price)}</span>
+                    <button class="accordion-btn" onclick="toggleAccordion('acc-${p.id}', this)">Deskripsi Produk <span class="material-symbols-outlined text-sm">keyboard_arrow_up</span></button>
+                    <div class="accordion-content" id="acc-${p.id}" style="display:block;">${p.description || p.deskripsi || 'Tidak ada deskripsi.'}</div>
+                    
+                    <div class="product-price-row">
+                        <span class="product-price">Rp${formatPrice(p.price || p.harga)}</span>
+                        <span class="product-sales">${p.sales || 0} sold</span>
+                    </div>
+                    
+                    <div class="product-actions">
+                        <button onclick="addToCart('${p.id}', '${(p.name||p.nama).replace(/'/g, "\\'")}', ${p.price || p.harga}, '${p.imageUrl || ''}')" class="btn-add-cart-sm"><i class="fas fa-cart-plus"></i> Keranjang</button>
+                        <button onclick="window.buyNow('${p.id}')" class="btn-buy-now"><i class="fas fa-bolt"></i> Beli</button>
+                    </div>
                 </div>
-                <button onclick="addToCart('${p.id}')" class="btn-add-cart"><i class="fas fa-cart-plus"></i> Keranjang</button>
             </div>
-        </div>
-    `).join('');
+        </div>`).join('');
 }
 
-// CHECKOUT FORM SUBMIT
-document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
+window.toggleAccordion = function(id, btn) {
+    const content = document.getElementById(id);
+    const icon = btn.querySelector('.material-symbols-outlined');
+    if (content.style.display === 'none') {
+        content.style.display = 'block'; icon.textContent = 'keyboard_arrow_up';
+    } else {
+        content.style.display = 'none'; icon.textContent = 'keyboard_arrow_down';
+    }
+};
+
+document.querySelectorAll('#productTabs .tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('#productTabs .tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        loadProducts(tab.dataset.tab);
+    });
+});
+
+let searchTimeout;
+searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    const q = e.target.value.trim().toLowerCase();
+    if (q.length > 2) {
+        searchTimeout = setTimeout(() => {
+            const filtered = allProducts.filter(p =>
+                (p.name||p.nama||'').toLowerCase().includes(q) ||
+                (p.category||'').toLowerCase().includes(q) ||
+                (p.sellerName||'').toLowerCase().includes(q));
+            if (filtered.length > 0) { allProducts = filtered; renderProducts(); }
+            else { showToast('warning', 'Produk tidak ditemukan'); loadProducts(currentTab); }
+        }, 500);
+    } else if (q.length === 0) loadProducts(currentTab);
+});
+
+// CART LOGIC
+window.updateCartUI = function() {
+    localStorage.setItem('pk_cart', JSON.stringify(cart));
+    const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+    const navCount = document.getElementById('navCartCount');
+    const fabCount = document.getElementById('cartCount');
+    const fab = document.getElementById('cartFab');
+    
+    if (totalQty > 0) {
+        navCount.textContent = totalQty; navCount.classList.remove('hidden');
+        fabCount.textContent = totalQty; fab.style.display = 'flex';
+    } else {
+        navCount.classList.add('hidden'); fab.style.display = 'none';
+    }
+
+    const container = document.getElementById('cartItemsContainer');
+    const totalEl = document.getElementById('cartTotal');
+    
+    if (cart.length === 0) {
+        container.innerHTML = '<div class="text-center py-10 font-bold text-[var(--ink-muted)]"><span class="material-symbols-outlined text-4xl mb-2">remove_shopping_cart</span><br>Keranjang masih kosong.</div>';
+        totalEl.textContent = 'Rp0'; return;
+    }
+
+    let totalPrice = 0;
+    container.innerHTML = cart.map(item => {
+        totalPrice += item.price * item.qty;
+        return `
+        <div class="cart-item">
+            <img src="${item.image || 'https://placehold.co/100x100/1E1E24/C4F000?text=Product'}" alt="img">
+            <div class="cart-item-info">
+                <div class="cart-item-title">${item.name}</div>
+                <div class="cart-item-price">Rp${formatPrice(item.price)}</div>
+            </div>
+            <div class="flex flex-col items-end gap-2">
+                <div class="qty-control">
+                    <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
+                    <span class="qty-val">${item.qty}</span>
+                    <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
+                </div>
+                <button onclick="removeFromCart('${item.id}')" class="text-xs font-bold text-[#FF4444] hover:underline">Hapus</button>
+            </div>
+        </div>`;
+    }).join('');
+    totalEl.textContent = `Rp${formatPrice(totalPrice)}`;
+};
+
+window.addToCart = function(id, name, price, image) {
+    const existing = cart.find(item => item.id === id);
+    if (existing) existing.qty += 1;
+    else cart.push({ id, name, price, image, qty: 1 });
+    showToast('success', 'Berhasil ditambahkan ke keranjang!');
+    updateCartUI();
+};
+
+window.changeQty = function(id, delta) {
+    const item = cart.find(item => item.id === id);
+    if (item) {
+        item.qty += delta;
+        if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+        updateCartUI();
+    }
+};
+
+window.removeFromCart = function(id) {
+    cart = cart.filter(item => item.id !== id);
+    updateCartUI();
+};
+
+window.openCartModal = function() { updateCartUI(); cartModal.classList.add('open'); };
+window.closeCartModal = function() { cartModal.classList.remove('open'); };
+
+document.getElementById('cartCheckoutForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const name = document.getElementById('checkoutName').value.trim();
-    const email = document.getElementById('checkoutEmail').value.trim();
-    const btn = document.getElementById('checkoutBtn');
+    const name = document.getElementById('cartName').value.trim();
+    const email = document.getElementById('cartEmail').value.trim();
+    const phone = document.getElementById('cartPhone').value.trim();
+    const errorEl = document.getElementById('cartError');
     
-    btn.disabled = true;
-    btn.innerHTML = '<span class="material-symbols-outlined spinner text-base">refresh</span> Memproses...';
+    if (!name || !email) {
+        errorEl.className = 'error-message show'; errorEl.textContent = '⚠️ Nama dan email wajib diisi'; return;
+    }
     
-    const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    const orderId = `PK-${Date.now()}`;
-    
+    const btn = document.getElementById('cartCheckoutBtn');
+    btn.disabled = true; btn.innerHTML = '<span class="material-symbols-outlined spinner text-base">refresh</span> Memproses...';
+    errorEl.className = 'error-message';
+
     try {
+        const orderId = `PK-${Date.now()}-${Math.random().toString(36).substring(2,8).toUpperCase()}`;
+        let totalAmount = 0;
+        const items = cart.map(item => {
+            totalAmount += (item.price * item.qty);
+            return { productId: item.id, name: item.name, price: item.price, qty: item.qty };
+        });
+
+        const p = await fetchAPI('/api/products/' + cart[0].id);
+        const sellerName = await getSellerName(p.sellerId);
+
         await fetch('/api/orders', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                id: orderId,
-                buyerName: name,
-                buyerEmail: email,
-                items: cart,
-                amount: totalAmount,
-                status: 'pending',
-                paymentStatus: 'pending',
-                createdAt: new Date().toISOString()
+                id: orderId, orderId: orderId, type: 'cart_purchase',
+                items: items, buyerName: name, buyerEmail: email, buyerPhone: phone || '',
+                sellerId: p.sellerId || '', sellerName: sellerName,
+                amount: totalAmount, status: 'pending', paymentStatus: 'pending',
+                createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
             })
         });
 
-        localStorage.removeItem('pk-cart');
+        cart = []; updateCartUI(); closeCartModal();
         window.location.href = `/payment?order=${orderId}&amount=${totalAmount}`;
-    } catch(e) {
-        showToast('error', 'Gagal checkout');
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
+
+    } catch (error) {
+        errorEl.className = 'error-message show'; errorEl.textContent = '❌ ' + error.message;
+        btn.disabled = false; btn.innerHTML = '<i class="fas fa-shopping-bag"></i> Checkout Keranjang';
     }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    loadProducts();
-    updateCartUI();
+// BUY NOW
+window.buyNow = async function(productId) {
+    try {
+        const product = await fetchAPI('/api/products/' + productId);
+        if (product.stock === 0 || product.stock === '0') return showToast('error', 'Produk habis');
+
+        currentProductId = productId; currentProductPrice = product.price || product.harga || 0;
+        document.getElementById('checkoutProductName').textContent = product.name || product.nama;
+        document.getElementById('checkoutProductPrice').textContent = `Rp${formatPrice(currentProductPrice)}`;
+        document.getElementById('checkoutError').className = 'error-message';
+        document.getElementById('checkoutForm').reset(); document.getElementById('checkoutQty').value = 1;
+        checkoutModal.classList.add('open');
+    } catch (e) { showToast('error', 'Gagal memuat produk: ' + e.message); }
+};
+
+window.closeCheckoutModal = function() { checkoutModal.classList.remove('open'); currentProductId = null; currentProductPrice = 0; };
+checkoutModal.addEventListener('click', (e) => { if (e.target === e.currentTarget) closeCheckoutModal(); });
+cartModal.addEventListener('click', (e) => { if (e.target === e.currentTarget) closeCartModal(); });
+document.addEventListener('keydown', (e) => { 
+    if (e.key === 'Escape') {
+        if (checkoutModal.classList.contains('open')) closeCheckoutModal();
+        if (cartModal.classList.contains('open')) closeCartModal();
+    }
 });
+
+document.getElementById('checkoutQty').addEventListener('input', (e) => {
+    const qty = parseInt(e.target.value) || 1;
+    document.getElementById('checkoutProductPrice').textContent = `Rp${formatPrice(currentProductPrice * qty)}`;
+});
+
+document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('checkoutName').value.trim();
+    const email = document.getElementById('checkoutEmail').value.trim();
+    const phone = document.getElementById('checkoutPhone').value.trim();
+    const qty = parseInt(document.getElementById('checkoutQty').value) || 1;
+    const errorEl = document.getElementById('checkoutError');
+
+    if (!name || !email) {
+        errorEl.className = 'error-message show'; errorEl.textContent = '⚠️ Nama dan email wajib diisi'; return;
+    }
+    
+    const btn = document.getElementById('checkoutBtn');
+    btn.disabled = true; btn.innerHTML = '<span class="material-symbols-outlined spinner text-base">refresh</span> Memproses...';
+    errorEl.className = 'error-message';
+
+    try {
+        const product = await fetchAPI('/api/products/' + currentProductId);
+        const orderId = `PK-${Date.now()}-${Math.random().toString(36).substring(2,8).toUpperCase()}`;
+        const sellerName = await getSellerName(product.sellerId);
+
+        await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: orderId, orderId, type: 'product_purchase',
+                items: [{ productId: currentProductId, name: product.name || product.nama, price: currentProductPrice, qty: qty }],
+                productId: currentProductId, productName: product.name || product.nama,
+                buyerName: name, buyerEmail: email, buyerPhone: phone || '',
+                sellerId: product.sellerId || '', sellerName: sellerName,
+                amount: currentProductPrice * qty, qty: qty,
+                status: 'pending', paymentStatus: 'pending',
+                createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+            })
+        });
+
+        closeCheckoutModal();
+        window.location.href = `/payment?order=${orderId}&amount=${currentProductPrice * qty}`;
+
+    } catch (error) {
+        errorEl.className = 'error-message show'; errorEl.textContent = '❌ ' + error.message;
+        btn.disabled = false; btn.innerHTML = '<i class="fas fa-credit-card"></i> Bayar Sekarang';
+    }
+});
+
+// INIT
+console.log('🚀 Initializing...');
+loadStats();
+loadBanners();
+loadProducts('new');
+updateCartUI();
+console.log('✅ Ready');
 </script>
 </body>
 </html>
